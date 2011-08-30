@@ -2,7 +2,7 @@ CC = g++
 CFLAGS = -Wall
 SRCDIR = src
 ODIR = build
-OBJS = $(ODIR)/Tokenizer.o $(ODIR)/Parser.o $(ODIR)/main.o
+OBJS = $(ODIR)/Tokenizer.o $(ODIR)/Parser.o $(ODIR)/Stylesheet.o $(ODIR)/main.o
 EXEC = Interpreter
 RM = rm
 
