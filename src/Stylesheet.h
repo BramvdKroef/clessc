@@ -29,11 +29,17 @@ public:
 };
 
 class Stylesheet {
+private:
+  vector<AtRule*> atrules;
+  vector<Ruleset*> rulesets;
+  
 public:
   Stylesheet() {}
   virtual ~Stylesheet();
-  vector<AtRule*> atrules;
-  vector<Ruleset*> rulesets;
+  
+  void addAtRule(AtRule* atrule);
+  void addRuleset(Ruleset* ruleset);
+  
 };
 
 #endif

@@ -32,13 +32,13 @@ void Parser::skipWhitespace () {
 bool Parser::parseStatement(Stylesheet* stylesheet) {
   Ruleset* ruleset = parseRuleset();
   if (ruleset != NULL) {
-    stylesheet->rulesets.push_back(ruleset);
+    stylesheet->addRuleset(ruleset);
     return true;
   }
   
   AtRule* atrule = parseAtRule();
   if (atrule != NULL) {
-    stylesheet->atrules.push_back(atrule);
+    stylesheet->addAtRule(atrule);
     return true;
   }
   return false;

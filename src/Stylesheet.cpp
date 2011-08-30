@@ -54,3 +54,11 @@ virtual Stylesheet::~Stylesheet() {
     delete ruleset;
   }
 }
+
+void addAtRule(AtRule* atrule) {
+  atrules->pop_back(atrule);
+}
+void addRuleset(RuleSet* ruleset) {
+  rulesets->pop_back(ruleset);
+}
+  
