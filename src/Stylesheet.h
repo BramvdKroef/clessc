@@ -29,10 +29,11 @@ public:
 
 class AtRule {
 private:
-  string* keyword;
-  vector<string*>* rule;
+  string* keyword = NULL;
+  vector<string*>* rule = NULL;
 
 public:
+  AtRule(string* keyword);
   virtual ~AtRule();
   void setKeyword (string* keyword);
   void setRule(vector<string*>* rule);

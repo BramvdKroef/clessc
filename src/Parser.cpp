@@ -13,7 +13,7 @@ Stylesheet* Parser::parseStylesheet(){
   while (parseStatement(stylesheet)) {
     skipWhitespace();
   }
-
+  
   // stream should end here
   if (tokenizer->getTokenType() != Tokenizer::EOS) {
     throw new ParseException(tokenizer->getToken(),
@@ -45,13 +45,11 @@ bool Parser::parseStatement(Stylesheet* stylesheet) {
 }
 
 AtRule* Parser::parseAtRule () {
-  AtRule* atrule = new AtRule();
-  if (tokenizer->getTokenType() != Tokenizer::ATKEYWORD) {
-    delete atrule;
+  AtRule* atrule = NULL;
+  if (tokenizer->getTokenType() != Tokenizer::ATKEYWORD) 
     return NULL;
-  }
-  
-  atrule->setKeyword(new string(*tokenizer->getToken()));
+
+  atrule = new AtRule(new string(*tokenizer->getToken()));
   tokenizer->readNextToken();
   skipWhitespace();
 
@@ -109,10 +107,8 @@ Ruleset* Parser::parseRuleset () {
   vector<string*>* selector = parseSelector();
   
   if (selector == NULL) {
-    if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN) {
-      delete selector;
+    if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN) 
       return NULL;
-    }
   } else if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(),
                              "a declaration block ('{...}')");
@@ -128,7 +124,6 @@ Ruleset* Parser::parseRuleset () {
     ruleset->addDeclaration(declaration);
   
   while (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
-    cout << "delimiter " << endl;
     tokenizer->readNextToken();
     skipWhitespace();
     declaration = parseDeclaration();
@@ -161,10 +156,9 @@ Declaration* Parser::parseDeclaration () {
   Declaration* declaration = NULL;
   string* property = parseProperty();
   
-  if (property == NULL) {
-    delete property;
+  if (property == NULL) 
     return NULL;
-  }
+  
   skipWhitespace();
 
   declaration = new Declaration();
@@ -272,7 +266,6 @@ bool Parser::parseAny (vector<string*>* tokens) {
     tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     skipWhitespace();
-    cout << "brace" << endl;
     while (parseAny(tokens) || parseUnused(tokens)) {}
     if (tokenizer->getTokenType() != Tokenizer::BRACE_CLOSED) {
       throw new ParseException(tokenizer->getToken(),

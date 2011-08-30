@@ -1,13 +1,11 @@
 #include "Stylesheet.h"
 
 Declaration::~Declaration() {
-  string* token = NULL;
-
   delete property;
     
-  while ((token = value->back())) {
+  while (!value->empty()) {
+    delete value->back();
     value->pop_back();
-    delete token;
   }
   delete value;
 }
@@ -21,19 +19,17 @@ void Declaration::setValue(vector<string*>* value) {
 
 
 Ruleset::~Ruleset() {
-  string* token = NULL;
-  Declaration* declaration = NULL;
-
   if (selector != NULL) {
-    while ((token = selector->back())) {
+    while (!selector->empty()) {
+      delete selector->back();
       selector->pop_back();
-      delete token;
     }
     delete selector;
   }
-  while ((declaration = declarations.back())) {
+  
+  while (!declarations.empty()) {
+    delete declarations.back();
     declarations.pop_back();
-    delete declaration;
   }
 }
 
@@ -45,16 +41,21 @@ void Ruleset::addDeclaration (Declaration* declaration) {
 }
 
 
-AtRule::~AtRule() {
-  string* token = NULL;
+void AtRule::AtRule (string* keyword) {
+  this->keyword = keyword;
+}
 
-  delete keyword;
-    
-  while ((token = rule->back())) {
-    rule->pop_back();
-    delete token;
+AtRule::~AtRule() {
+  if (keyword != NULL)
+    delete keyword;
+
+  if (rule != NULL) {
+    while (!rule->empty()) {
+      delete rule->back();
+      rule->pop_back();
+    }
+    delete rule;
   }
-  delete rule;
 }
 
 void AtRule::setKeyword (string* keyword) {
@@ -66,16 +67,13 @@ void AtRule::setRule(vector<string*>* rule) {
 
 
 Stylesheet::~Stylesheet() {
-  AtRule* rule = NULL;
-  Ruleset* ruleset = NULL;
-    
-  while ((rule = atrules.back())) {
+  while (!atrules.empty()) {
+    delete atrules.back();
     atrules.pop_back();
-    delete rule;
   }
-  while ((ruleset = rulesets.back())) {
+  while (!rulesets.empty()) {
+    delete rulesets.back();
     rulesets.pop_back();
-    delete ruleset;
   }
 }
 
