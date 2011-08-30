@@ -5,6 +5,7 @@
 
 #include "Tokenizer.h"
 #include "Parser.h"
+#include "Stylesheet.h"
 #include "IOException.h"
 
 using namespace std;
@@ -35,7 +36,7 @@ void processInput(istream* in){
   string str;
 	
   try{
-    bool b = parser->parseStylesheet();
+    Stylesheet* s = parser->parseStylesheet();
     
   } catch(ParseException* e) {
     ostringstream stream1(ostringstream::out);
