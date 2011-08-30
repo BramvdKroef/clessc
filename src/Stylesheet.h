@@ -11,6 +11,7 @@ private:
   vector<string*>* value;
   
 public:
+  Declaration(string* property);
   virtual ~Declaration();
   void setProperty(string* property);
   void setValue(vector<string*>* value);

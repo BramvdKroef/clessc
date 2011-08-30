@@ -161,8 +161,7 @@ Declaration* Parser::parseDeclaration () {
   
   skipWhitespace();
 
-  declaration = new Declaration();
-  declaration->setProperty(property);
+  declaration = new Declaration(property);
   
   if (tokenizer->getTokenType() != Tokenizer::COLON) {
     throw new ParseException(tokenizer->getToken(),

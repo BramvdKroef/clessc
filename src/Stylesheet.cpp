@@ -1,13 +1,21 @@
 #include "Stylesheet.h"
 
+Declaration::Declaration(string* property) {
+  this->property = property;
+  value = NULL;
+}
+
 Declaration::~Declaration() {
-  delete property;
-    
-  while (!value->empty()) {
-    delete value->back();
-    value->pop_back();
+  if (property != NULL)
+    delete property;
+
+  if (value != NULL) {
+    while (!value->empty()) {
+      delete value->back();
+      value->pop_back();
+    }
+    delete value;
   }
-  delete value;
 }
 
 void Declaration::setProperty(string* property) {
