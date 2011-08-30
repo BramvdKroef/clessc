@@ -21,11 +21,14 @@ public:
 };
 
 class AtRule {
-public:
+private:
   string* keyword;
   vector<string*>* rule;
-  
+
+public:
   virtual ~AtRule();
+  void setKeyword (string* keyword);
+  void setRule(vector<string*>* rule);
 };
 
 class Stylesheet {

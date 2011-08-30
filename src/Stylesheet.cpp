@@ -41,6 +41,14 @@ virtual AtRule::~AtRule() {
   delete rule;
 }
 
+void AtRule::setKeyword (string* keyword) {
+  this->keyword = keyword;
+}
+void AtRule::setRule(vector<string*>* rule) {
+  this->rule = rule;
+}
+
+
 virtual Stylesheet::~Stylesheet() {
   AtRule* rule = NULL;
   Ruleset* ruleset = NULL;
@@ -55,10 +63,10 @@ virtual Stylesheet::~Stylesheet() {
   }
 }
 
-void addAtRule(AtRule* atrule) {
+void Stylesheet::addAtRule(AtRule* atrule) {
   atrules->pop_back(atrule);
 }
-void addRuleset(RuleSet* ruleset) {
+void Stylesheet::addRuleset(RuleSet* ruleset) {
   rulesets->pop_back(ruleset);
 }
   

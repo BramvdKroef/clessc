@@ -45,18 +45,20 @@ bool Parser::parseStatement(Stylesheet* stylesheet) {
 }
 
 AtRule* Parser::parseAtRule () {
-  AtRule* rule = new AtRule();
-  if (tokenizer->getTokenType() != Tokenizer::ATKEYWORD)
+  AtRule* atrule = new AtRule();
+  if (tokenizer->getTokenType() != Tokenizer::ATKEYWORD) {
+    delete rule;
     return NULL;
+  }
   
-  rule->keyword = new string(*tokenizer->getToken());
+  atrule->setKeyword(new string(*tokenizer->getToken()));
   tokenizer->readNextToken();
   skipWhitespace();
 
-  rule->rule = new vector<string*>();
-  while(parseAny(rule->rule)) {};
+  vector<string*>* rule = new vector<string*>();
+  while(parseAny(rule)) {};
   
-  if (!parseBlock(rule->rule)) {
+  if (!parseBlock(rule)) {
     if (tokenizer->getTokenType() != Tokenizer::DELIMITER) {
       throw new ParseException(tokenizer->getToken(),
                                "delimiter (';') at end of @-rule");
@@ -64,6 +66,7 @@ AtRule* Parser::parseAtRule () {
     tokenizer->readNextToken();
     skipWhitespace();
   }
+  atrule->setRule(rule);
   return rule;
 }
 
