@@ -29,6 +29,14 @@ Ruleset::~Ruleset() {
   }
 }
 
+void Ruleset::setSelector (vector<string*>* selector) {
+  this->selector = selector;
+}
+void Ruleset::addDeclaration (Declaration* declaration) {
+  declarations.push_back(declaration);
+}
+
+
 AtRule::~AtRule() {
   string* token = NULL;
 

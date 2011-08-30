@@ -104,13 +104,13 @@ bool Parser::parseBlock (vector<string*>* tokens) {
 }
 
 Ruleset* Parser::parseRuleset () {
-  Ruleset* ruleset = new Ruleset();
+  Ruleset* ruleset = NULL;
   Declaration* declaration = NULL;
-  ruleset->selector = parseSelector();
+  vector<string*>* selector = parseSelector();
   
-  if (ruleset->selector == NULL) {
+  if (selector == NULL) {
     if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN) {
-      delete ruleset;
+      delete selector;
       return NULL;
     }
   } else if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN) {
@@ -119,10 +119,13 @@ Ruleset* Parser::parseRuleset () {
   }
   tokenizer->readNextToken();
 
+  ruleset = new Ruleset();
+  ruleset->setSelector(selector);
+  
   skipWhitespace();
   declaration = parseDeclaration();
   if (declaration != NULL)
-    ruleset->declarations.push_back(declaration);
+    ruleset->addDeclaration(declaration);
   
   while (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
     cout << "delimiter " << endl;
@@ -130,7 +133,7 @@ Ruleset* Parser::parseRuleset () {
     skipWhitespace();
     declaration = parseDeclaration();
     if (declaration != NULL)
-      ruleset->declarations.push_back(declaration);
+      ruleset->addDeclaration(declaration);
   }
   
   if (tokenizer->getTokenType() != Tokenizer::BRACKET_CLOSED) {

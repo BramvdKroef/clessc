@@ -14,10 +14,13 @@ public:
 };
   
 class Ruleset {
-public:
+private:
   vector<string*>* selector;
   vector<Declaration*> declarations;
-
+  
+public:
+  void setSelector (vector<string*>* selector);
+  void addDeclaration (Declaration* declaration);
   virtual ~Ruleset();
 };
 
