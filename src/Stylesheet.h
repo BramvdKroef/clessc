@@ -6,11 +6,14 @@
 using namespace std;
 
 class Declaration {
-public:
+private:
   string* property;
   vector<string*>* value;
-
+  
+public:
   virtual ~Declaration();
+  void setProperty(string* property);
+  void setValue(vector<string*>* value);
 };
   
 class Ruleset {

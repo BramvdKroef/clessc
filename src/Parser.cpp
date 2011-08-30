@@ -158,14 +158,17 @@ vector<string*>* Parser::parseSelector() {
 }
 
 Declaration* Parser::parseDeclaration () {
-  Declaration* declaration = new Declaration();
-  declaration->property = parseProperty();
+  Declaration* declaration = NULL;
+  string* property = parseProperty();
   
-  if (declaration->property == NULL) {
-    delete declaration;
+  if (property == NULL) {
+    delete property;
     return NULL;
   }
   skipWhitespace();
+
+  declaration = new Declaration();
+  declaration->setProperty(property);
   
   if (tokenizer->getTokenType() != Tokenizer::COLON) {
     throw new ParseException(tokenizer->getToken(),
@@ -174,11 +177,12 @@ Declaration* Parser::parseDeclaration () {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  declaration->value = parseValue();
-  if (declaration->value == NULL) {
+  vector<string*>* value = parseValue();
+  if (value == NULL) {
     throw new ParseException(tokenizer->getToken(),
                              "value for property");
   }
+  declaration->setValue(value);
   return declaration;
 }
 

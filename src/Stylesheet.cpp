@@ -12,6 +12,14 @@ Declaration::~Declaration() {
   delete value;
 }
 
+void Declaration::setProperty(string* property) {
+  this->property = property;
+}
+void Declaration::setValue(vector<string*>* value) {
+  this->value = value;
+}
+
+
 Ruleset::~Ruleset() {
   string* token = NULL;
   Declaration* declaration = NULL;
