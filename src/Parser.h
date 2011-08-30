@@ -3,6 +3,8 @@
 
 #include "Tokenizer.h"
 #include "Stylesheet.h"
+#include <string>
+#include <vector>
 
 /**
  * Parses CSS code according to the syntax spec at
@@ -56,7 +58,7 @@ class Parser{
    * @return a vector containing the list of tokens or NULL if no
    *    selector was found.
    */
-  vector<string*> parseSelector();
+  vector<string*>* parseSelector();
 
   /**
    * Parses a 'property: value' pair.

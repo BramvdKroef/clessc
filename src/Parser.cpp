@@ -31,13 +31,13 @@ void Parser::skipWhitespace () {
 
 bool Parser::parseStatement(Stylesheet* stylesheet) {
   Ruleset* ruleset = parseRuleset();
-  if (ruleset != null) {
+  if (ruleset != NULL) {
     stylesheet->rulesets.push_back(ruleset);
     return true;
   }
   
   AtRule* atrule = parseAtRule();
-  if (atrule != null) {
+  if (atrule != NULL) {
     stylesheet->atrules.push_back(atrule);
     return true;
   }
@@ -49,7 +49,7 @@ AtRule* Parser::parseAtRule () {
   if (tokenizer->getTokenType() != Tokenizer::ATKEYWORD)
     return NULL;
   
-  rule->keyword = new string(tokenizer->getToken());
+  rule->keyword = new string(*tokenizer->getToken());
   tokenizer->readNextToken();
   skipWhitespace();
 
@@ -64,25 +64,25 @@ AtRule* Parser::parseAtRule () {
     tokenizer->readNextToken();
     skipWhitespace();
   }
-  return true;
+  return rule;
 }
 
 bool Parser::parseBlock (vector<string*>* tokens) {
   if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN)
     return false;
 
-  tokens->push_back(new string(tokenizer->getToken()));
+  tokens->push_back(new string(*tokenizer->getToken()));
   tokenizer->readNextToken();
   skipWhitespace();
   
   while (true) {
     if (!(parseAny(tokens) || parseBlock(tokens))) {
       if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
-        tokens->push_back(new string(tokenizer->getToken()));
+        tokens->push_back(new string(*tokenizer->getToken()));
         tokenizer->readNextToken();
         skipWhitespace();
       } else if (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
-        tokens->push_back(new string(tokenizer->getToken()));
+        tokens->push_back(new string(*tokenizer->getToken()));
         tokenizer->readNextToken();
         skipWhitespace();
       } else
@@ -94,7 +94,7 @@ bool Parser::parseBlock (vector<string*>* tokens) {
     throw new ParseException(tokenizer->getToken(),
                              "end of block ('}')");
   }
-  tokens->push_back(new string(tokenizer->getToken()));
+  tokens->push_back(new string(*tokenizer->getToken()));
   tokenizer->readNextToken();
   skipWhitespace();
   return true;
@@ -105,7 +105,7 @@ Ruleset* Parser::parseRuleset () {
   Declaration* declaration = NULL;
   ruleset->selector = parseSelector();
   
-  if (selector == NULL) {
+  if (ruleset->selector == NULL) {
     if (tokenizer->getTokenType() != Tokenizer::BRACKET_OPEN) {
       delete ruleset;
       return NULL;
@@ -118,7 +118,7 @@ Ruleset* Parser::parseRuleset () {
 
   skipWhitespace();
   declaration = parseDeclaration();
-  if (declaration != null)
+  if (declaration != NULL)
     ruleset->declarations.push_back(declaration);
   
   while (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
@@ -126,7 +126,7 @@ Ruleset* Parser::parseRuleset () {
     tokenizer->readNextToken();
     skipWhitespace();
     declaration = parseDeclaration();
-    if (declaration != null)
+    if (declaration != NULL)
       ruleset->declarations.push_back(declaration);
   }
   
@@ -146,7 +146,7 @@ vector<string*>* Parser::parseSelector() {
     delete selector;
     return NULL;
   }
-  cout << "selector " << endl;
+  
   while (parseAny(selector)) {};
   return selector;
 }
@@ -169,7 +169,7 @@ Declaration* Parser::parseDeclaration () {
   skipWhitespace();
 
   declaration->value = parseValue();
-  if (value == NULL) {
+  if (declaration->value == NULL) {
     throw new ParseException(tokenizer->getToken(),
                              "value for property");
   }
@@ -179,7 +179,7 @@ Declaration* Parser::parseDeclaration () {
 string* Parser::parseProperty () {
   if (tokenizer->getTokenType() != Tokenizer::IDENTIFIER)
     return NULL;
-  string* property = new string(tokenizer->getToken());
+  string* property = new string(*tokenizer->getToken());
   tokenizer->readNextToken();
   return property;
 }
@@ -189,7 +189,7 @@ vector<string*>* Parser::parseValue () {
   
   if (parseAny(value) || parseBlock(value)) {
   } else if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
-    value->push_back(new string(tokenizer->getToken()));
+    value->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     skipWhitespace();
   } else {
@@ -200,7 +200,7 @@ vector<string*>* Parser::parseValue () {
   while (true) {
     if (parseAny(value) || parseBlock(value)) {
     } else if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
-      value->push_back(new string(tokenizer->getToken()));
+      value->push_back(new string(*tokenizer->getToken()));
       tokenizer->readNextToken();
       skipWhitespace();
     } else 
@@ -222,12 +222,12 @@ bool Parser::parseAny (vector<string*>* tokens) {
   case Tokenizer::DASHMATCH:
   case Tokenizer::COLON:
   case Tokenizer::OTHER:
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     break;
 
   case Tokenizer::PAREN_OPEN:
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     skipWhitespace();
 
@@ -236,16 +236,16 @@ bool Parser::parseAny (vector<string*>* tokens) {
       throw new ParseException(tokenizer->getToken(),
                                "closing parenthesis (')')");
     }
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     break;
       
   case Tokenizer::IDENTIFIER:
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
 
     if (tokenizer->getTokenType() == Tokenizer::PAREN_OPEN) {
-      tokens->push_back(new string(tokenizer->getToken()));
+      tokens->push_back(new string(*tokenizer->getToken()));
       tokenizer->readNextToken();
       skipWhitespace();
       while (parseAny(tokens) || parseUnused(tokens)) {}
@@ -253,13 +253,13 @@ bool Parser::parseAny (vector<string*>* tokens) {
         throw new ParseException(tokenizer->getToken(),
                                  "closing parenthesis (')')");
       }
-      tokens->push_back(new string(tokenizer->getToken()));
+      tokens->push_back(new string(*tokenizer->getToken()));
       tokenizer->readNextToken();
     }
     break;
       
   case Tokenizer::BRACE_OPEN:
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     skipWhitespace();
     cout << "brace" << endl;
@@ -268,7 +268,7 @@ bool Parser::parseAny (vector<string*>* tokens) {
       throw new ParseException(tokenizer->getToken(),
                                "closing brace (']')");
     }
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     break;
 
@@ -282,11 +282,11 @@ bool Parser::parseAny (vector<string*>* tokens) {
 bool Parser::parseUnused(vector<string*>* tokens) {
   if (parseBlock(tokens)) {
   } else if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     skipWhitespace();
   } else if (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
-    tokens->push_back(new string(tokenizer->getToken()));
+    tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
     skipWhitespace();
   } else
