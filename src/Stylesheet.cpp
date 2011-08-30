@@ -1,6 +1,6 @@
 #include "Stylesheet.h"
 
-virtual Declaration::~Declaration() {
+Declaration::~Declaration() {
   string* token = NULL;
 
   delete property;
@@ -12,7 +12,7 @@ virtual Declaration::~Declaration() {
   delete value;
 }
 
-virtual Ruleset::~Ruleset() {
+Ruleset::~Ruleset() {
   string* token = NULL;
   Declaration* declaration = NULL;
 
@@ -29,7 +29,7 @@ virtual Ruleset::~Ruleset() {
   }
 }
 
-virtual AtRule::~AtRule() {
+AtRule::~AtRule() {
   string* token = NULL;
 
   delete keyword;
@@ -49,7 +49,7 @@ void AtRule::setRule(vector<string*>* rule) {
 }
 
 
-virtual Stylesheet::~Stylesheet() {
+Stylesheet::~Stylesheet() {
   AtRule* rule = NULL;
   Ruleset* ruleset = NULL;
     
@@ -63,10 +63,11 @@ virtual Stylesheet::~Stylesheet() {
   }
 }
 
+void Stylesheet::addRuleset(Ruleset* ruleset) {
+  rulesets.push_back(ruleset);
+}
+
 void Stylesheet::addAtRule(AtRule* atrule) {
-  atrules->pop_back(atrule);
+  atrules.push_back(atrule);
 }
-void Stylesheet::addRuleset(RuleSet* ruleset) {
-  rulesets->pop_back(ruleset);
-}
-  
+

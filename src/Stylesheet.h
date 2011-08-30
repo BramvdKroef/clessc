@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+using namespace std;
 
 class Declaration {
 public:
@@ -42,7 +43,6 @@ public:
   
   void addAtRule(AtRule* atrule);
   void addRuleset(Ruleset* ruleset);
-  
 };
 
 #endif
