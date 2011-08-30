@@ -29,8 +29,8 @@ public:
 
 class AtRule {
 private:
-  string* keyword = NULL;
-  vector<string*>* rule = NULL;
+  string* keyword;
+  vector<string*>* rule;
 
 public:
   AtRule(string* keyword);

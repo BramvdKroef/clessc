@@ -41,8 +41,9 @@ void Ruleset::addDeclaration (Declaration* declaration) {
 }
 
 
-void AtRule::AtRule (string* keyword) {
+AtRule::AtRule (string* keyword) {
   this->keyword = keyword;
+  rule = NULL;
 }
 
 AtRule::~AtRule() {
