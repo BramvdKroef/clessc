@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 /**
  * Parses CSS code according to the syntax spec at
  * http://www.w3.org/TR/CSS2/syndata.html.
