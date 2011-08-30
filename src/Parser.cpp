@@ -47,7 +47,7 @@ bool Parser::parseStatement(Stylesheet* stylesheet) {
 AtRule* Parser::parseAtRule () {
   AtRule* atrule = new AtRule();
   if (tokenizer->getTokenType() != Tokenizer::ATKEYWORD) {
-    delete rule;
+    delete atrule;
     return NULL;
   }
   
@@ -67,7 +67,7 @@ AtRule* Parser::parseAtRule () {
     skipWhitespace();
   }
   atrule->setRule(rule);
-  return rule;
+  return atrule;
 }
 
 bool Parser::parseBlock (vector<string*>* tokens) {
