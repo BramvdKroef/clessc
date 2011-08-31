@@ -56,8 +56,6 @@ using namespace std;
  * the CssTokenizer throws a ParseException. This may change in the
  * future so the Parser can handle them.
  *
- * FUNCTION tokens are not generated. If an identifier is followed by a '(' the
- * parser will handle it from there.
  *
  * The macros in curly braces ({}) above are defined as follows:
  *   Macro      	Definition

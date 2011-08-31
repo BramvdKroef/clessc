@@ -68,11 +68,15 @@ Token::Type CssTokenizer::readNextToken(){
 
     if (currentToken.str == "url" && readUrl())
       currentToken.type = Token::URL;
-    if (currentToken.str == "u" && lastRead == '+') {
+    else if (currentToken.str == "u" && lastRead == '+') {
       currentToken.add(lastRead);
       readChar();
       currentToken.type = Token::UNICODE_RANGE;
       readUnicodeRange();
+    } else if (lastRead == '(') {
+      currentToken.add(lastRead);
+      readChar();
+      currentToken.type = Token::FUNCTION;
     }
   } else if (readWhitespace()) {
     currentToken.type = Token::WHITESPACE;

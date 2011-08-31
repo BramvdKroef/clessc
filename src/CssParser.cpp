@@ -265,21 +265,23 @@ bool CssParser::parseAny (vector<Token*>* tokens) {
   case Token::IDENTIFIER:
     tokens->push_back(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
-
-    if (tokenizer->getTokenType() == Token::PAREN_OPEN) {
-      tokens->push_back(tokenizer->getToken()->clone());
-      tokenizer->readNextToken();
-      skipWhitespace();
-      while (parseAny(tokens) || parseUnused(tokens)) {}
-      if (tokenizer->getTokenType() != Token::PAREN_CLOSED) {
-        throw new ParseException(tokenizer->getToken()->str,
-                                 "closing parenthesis (')')");
-      }
-      tokens->push_back(tokenizer->getToken()->clone());
-      tokenizer->readNextToken();
-    }
     break;
-      
+
+  case Token::FUNCTION:
+    tokens->push_back(tokenizer->getToken()->clone());
+    tokenizer->readNextToken();
+
+    skipWhitespace();
+    while (parseAny(tokens) || parseUnused(tokens)) {}
+    
+    if (tokenizer->getTokenType() != Token::PAREN_CLOSED) {
+      throw new ParseException(tokenizer->getToken()->str,
+                               "closing parenthesis (')')");
+    }
+    tokens->push_back(tokenizer->getToken()->clone());
+    tokenizer->readNextToken();
+    break;
+    
   case Token::BRACE_OPEN:
     tokens->push_back(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
