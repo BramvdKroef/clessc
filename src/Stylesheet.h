@@ -15,6 +15,9 @@ public:
   virtual ~Declaration();
   void setProperty(string* property);
   void setValue(vector<string*>* value);
+  
+  string* getProperty();
+  vector<string*>* getValue();
 };
   
 class Ruleset {
@@ -23,9 +26,12 @@ private:
   vector<Declaration*> declarations;
   
 public:
+  virtual ~Ruleset();
   void setSelector (vector<string*>* selector);
   void addDeclaration (Declaration* declaration);
-  virtual ~Ruleset();
+
+  vector<string*>* getSelector();
+  vector<Declaration*>* getDeclarations();
 };
 
 class AtRule {
@@ -38,6 +44,9 @@ public:
   virtual ~AtRule();
   void setKeyword (string* keyword);
   void setRule(vector<string*>* rule);
+
+  string* getKeyword();
+  vector<string*>* getRule();
 };
 
 class Stylesheet {
@@ -51,6 +60,9 @@ public:
   
   void addAtRule(AtRule* atrule);
   void addRuleset(Ruleset* ruleset);
+
+  vector<AtRule*>* getAtRules();
+  vector<Ruleset*>* getRulesets();
 };
 
 #endif

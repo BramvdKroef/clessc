@@ -24,7 +24,12 @@ void Declaration::setProperty(string* property) {
 void Declaration::setValue(vector<string*>* value) {
   this->value = value;
 }
-
+string* Declaration::getProperty() {
+  return property;
+}
+vector<string*>* Declaration::getValue() {
+  return value;
+}
 
 Ruleset::~Ruleset() {
   if (selector != NULL) {
@@ -47,7 +52,12 @@ void Ruleset::setSelector (vector<string*>* selector) {
 void Ruleset::addDeclaration (Declaration* declaration) {
   declarations.push_back(declaration);
 }
-
+vector<string*>* Ruleset::getSelector() {
+  return selector;
+}
+vector<Declaration*>* Ruleset::getDeclarations() {
+  return &declarations;
+}
 
 AtRule::AtRule (string* keyword) {
   this->keyword = keyword;
@@ -73,6 +83,12 @@ void AtRule::setKeyword (string* keyword) {
 void AtRule::setRule(vector<string*>* rule) {
   this->rule = rule;
 }
+string* AtRule::getKeyword() {
+  return keyword;
+}
+vector<string*>* AtRule::getRule() {
+  return rule;
+}
 
 
 Stylesheet::~Stylesheet() {
@@ -93,4 +109,9 @@ void Stylesheet::addRuleset(Ruleset* ruleset) {
 void Stylesheet::addAtRule(AtRule* atrule) {
   atrules.push_back(atrule);
 }
-
+vector<AtRule*>* Stylesheet::getAtRules() {
+  return &atrules;
+}
+vector<Ruleset*>* Stylesheet::getRulesets() {
+  return &rulesets;
+}
