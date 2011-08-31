@@ -184,6 +184,7 @@ bool Tokenizer::readNonAscii () {
 bool Tokenizer::readEscape () {
   if (lastRead != '\\')
     return false;
+  currentToken.append(1, lastRead);
   IDchar();
   
   if (readUnicode()) 
@@ -208,8 +209,10 @@ bool Tokenizer::readUnicode () {
     currentToken.append(1, lastRead);
     IDchar();
     if (!isHex(lastRead)) {
-      throw new ParseException(&lastRead,
-                               "hex code(0-9a-f) in unicode character");
+      /*throw new ParseException(&lastRead,
+        "hex code(0-9a-f) in unicode character");*/
+      /* Just ignore and assume the unicode stops here  */
+      break;
     }
   }
   return true;
@@ -262,7 +265,6 @@ bool Tokenizer::readString() {
     } else if (lastRead == '\n' ||
         lastRead == '\r' ||
         lastRead == '\f') {
-      cout << currentToken.c_str() << endl;
       throw new ParseException("end of line",
                                "end of string");
     } else if (lastRead == '\\') 
