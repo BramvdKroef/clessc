@@ -5,6 +5,7 @@
 
 #include "Tokenizer.h"
 #include "Parser.h"
+#include "Writer.h"
 #include "Stylesheet.h"
 #include "IOException.h"
 
@@ -32,12 +33,13 @@ void out(const char* msg, int len){
 void processInput(istream* in){
   Tokenizer* tokenizer = new Tokenizer(in);
   Parser* parser = new Parser(tokenizer);
+  Writer *w = new Writer(&cout);
   
-  string str;
-	
   try{
     Stylesheet* s = parser->parseStylesheet();
-    
+    w->writeStylesheet(s);
+    cout << endl;
+    delete s;
   } catch(ParseException* e) {
     ostringstream stream1(ostringstream::out);
     stream1 << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
@@ -47,6 +49,7 @@ void processInput(istream* in){
   
   delete tokenizer;
   delete parser;
+  delete w;
 }
 
 int main(int argc, char * argv[]){
