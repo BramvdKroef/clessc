@@ -63,9 +63,9 @@ AtRule* CssParser::parseAtRule () {
 
   atrule = new AtRule(new string(tokenizer->getToken()->str));
   tokenizer->readNextToken();
-
+  skipWhitespace();
+  
   vector<Token*>* rule = new vector<Token*>();
-  parseWhitespace(rule);
   
   while(parseAny(rule)) {};
   
