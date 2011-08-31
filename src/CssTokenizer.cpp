@@ -42,8 +42,7 @@ CssTokenizer::tokenType CssTokenizer::readNextToken(){
     currentToken.append(1, lastRead);
     IDchar();
     if (!readIdent()) {
-      throw new ParseException(&lastRead,
-                               "identifier following '@'");
+      currentTokenType = OTHER;
     }
   } else if (lastRead == '#') {
     currentTokenType = HASH;
