@@ -4,6 +4,7 @@
 #include "Stylesheet.h"
 #include <string>
 #include <vector>
+#include <iostream>
 using namespace std;
 
 class Writer {
@@ -17,6 +18,6 @@ private:
   void writeRuleset(Ruleset* ruleset);
   void writeDeclaration(Declaration* declaration);
   
-}
+};
   
 #endif
