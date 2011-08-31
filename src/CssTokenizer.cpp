@@ -4,13 +4,13 @@ CssTokenizer::CssTokenizer(istream* in){
   this->in = in;
   lineNum = 1;
   position = 0;
-  IDchar();
+  readChar();
 }
 
 CssTokenizer::~CssTokenizer(){
 }
 
-void CssTokenizer::IDchar(){
+void CssTokenizer::readChar(){
   if (in != NULL) {
     in->get(lastRead);
 
@@ -29,124 +29,119 @@ void CssTokenizer::IDchar(){
   }
 }
 
-CssTokenizer::tokenType CssTokenizer::readNextToken(){
+Token::Type CssTokenizer::readNextToken(){
   if (in == NULL) {
-    currentTokenType = EOS;
-    return EOS;
+    currentToken.type = Token::EOS;
+    return Token::EOS;
   }
 
   currentToken.clear();
   
   if (lastRead == '@') {
-    currentTokenType = ATKEYWORD;
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.type = Token::ATKEYWORD;
+    currentToken.add(lastRead);
+    readChar();
     if (!readIdent()) {
-      currentTokenType = OTHER;
+      currentToken.type = Token::OTHER;
     }
   } else if (lastRead == '#') {
-    currentTokenType = HASH;
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.type = Token::HASH;
+    currentToken.add(lastRead);
+    readChar();
     if (!readName()) {
       throw new ParseException(&lastRead,
                                "name following '#'");
     }
   } else if (readString()) {
-    currentTokenType = STRING;
+    currentToken.type = Token::STRING;
   } else if (readNum()) {
-    currentTokenType = NUMBER;
+    currentToken.type = Token::NUMBER;
     if (lastRead == '%') {
-      currentTokenType = PERCENTAGE;
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.type = Token::PERCENTAGE;
+      currentToken.add(lastRead);
+      readChar();
     } else if (readIdent()) {
-      currentTokenType = DIMENSION;
+      currentToken.type = Token::DIMENSION;
     }
   } else if (readIdent()) {
-    currentTokenType = IDENTIFIER;
+    currentToken.type = Token::IDENTIFIER;
 
-    if (currentToken.compare("url") == 0 && readUrl())
-      currentTokenType = URL;
-    if (currentToken == "u" && lastRead == '+') {
-      currentToken.append(1, lastRead);
-      IDchar();
-      currentTokenType = UNICODE_RANGE;
+    if (currentToken.str == "url" && readUrl())
+      currentToken.type = Token::URL;
+    if (currentToken.str == "u" && lastRead == '+') {
+      currentToken.add(lastRead);
+      readChar();
+      currentToken.type = Token::UNICODE_RANGE;
       readUnicodeRange();
     }
   } else if (readWhitespace()) {
-    currentTokenType = WHITESPACE;
+    currentToken.type = Token::WHITESPACE;
     while (readWhitespace()) {};
   } else if (lastRead == '~') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     if (lastRead == '=') {
-      currentToken.append(1, lastRead);
-      IDchar();
-      currentTokenType = INCLUDES;
+      currentToken.add(lastRead);
+      readChar();
+      currentToken.type = Token::INCLUDES;
     } else
-      currentTokenType = OTHER;
+      currentToken.type = Token::OTHER;
   } else if (lastRead == '|') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     if (lastRead == '=') {
-      currentToken.append(1, lastRead);
-      IDchar();
-      currentTokenType = DASHMATCH;
+      currentToken.add(lastRead);
+      readChar();
+      currentToken.type = Token::DASHMATCH;
     } else
-      currentTokenType = OTHER;
+      currentToken.type = Token::OTHER;
   } else if (lastRead == '/') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     if (readComment()) 
-      currentTokenType = COMMENT;
+      currentToken.type = Token::COMMENT;
     else
-      currentTokenType = OTHER;
+      currentToken.type = Token::OTHER;
   } else {
     switch (lastRead) {
     case ';':
-      currentTokenType = DELIMITER;
+      currentToken.type = Token::DELIMITER;
       break;
     case ':':
-      currentTokenType = COLON;
+      currentToken.type = Token::COLON;
       break;
     case '{':
-      currentTokenType = BRACKET_OPEN;
+      currentToken.type = Token::BRACKET_OPEN;
       break;
     case '}':
-      currentTokenType = BRACKET_CLOSED;
+      currentToken.type = Token::BRACKET_CLOSED;
       break;
     case '(':
-      currentTokenType = PAREN_OPEN;
+      currentToken.type = Token::PAREN_OPEN;
       break;
     case ')':
-      currentTokenType = PAREN_CLOSED;
+      currentToken.type = Token::PAREN_CLOSED;
       break;
     case '[':
-      currentTokenType = BRACE_OPEN;
+      currentToken.type = Token::BRACE_OPEN;
       break;
     case ']':
-      currentTokenType = BRACE_CLOSED;
+      currentToken.type = Token::BRACE_CLOSED;
       break;
     default:
-      currentTokenType = OTHER;
+      currentToken.type = Token::OTHER;
     }
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
   }
-  return currentTokenType;
-}
-
-string* CssTokenizer::nextToken(){
-  readNextToken();
-  return getToken();
+  return currentToken.type;
 }
 
 
 bool CssTokenizer::readIdent () {
   if (lastRead == '-') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
   }
   if (!readNMStart())
     return false;
@@ -166,16 +161,16 @@ bool CssTokenizer::readNMStart () {
   if (lastRead == '_' ||
       (lastRead >= 'a' && lastRead <= 'z') ||
       (lastRead >= 'F' && lastRead <= 'Z')) {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     return true;
   } else
     return (readNonAscii() || readEscape());
 }
 bool CssTokenizer::readNonAscii () {
   if (lastRead > 237) {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     return true;
   } else
     return false;
@@ -183,16 +178,16 @@ bool CssTokenizer::readNonAscii () {
 bool CssTokenizer::readEscape () {
   if (lastRead != '\\')
     return false;
-  currentToken.append(1, lastRead);
-  IDchar();
+  currentToken.add(lastRead);
+  readChar();
   
   if (readUnicode()) 
     return true;    
   else if (lastRead != '\n' ||
            lastRead != '\r' ||
            lastRead != '\f') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     return true;
   } else
     return false;
@@ -205,8 +200,8 @@ bool CssTokenizer::readUnicode () {
   for (int i=0; i < 6; i++) {
     if (readWhitespace())
       break;
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     if (!isHex(lastRead)) {
       /*throw new ParseException(&lastRead,
         "hex code(0-9a-f) in unicode character");*/
@@ -223,8 +218,8 @@ bool CssTokenizer::readNMChar () {
       (lastRead >= 'A' && lastRead <= 'Z') ||
       isdigit(lastRead) ||
       lastRead == '-') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     return true;
   } else
     return (readNonAscii() || readEscape());
@@ -234,16 +229,16 @@ bool CssTokenizer::readNum () {
   if (!isdigit(lastRead) && lastRead != '.')
     return false;
   while (isdigit(lastRead)) {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
   }
   if (lastRead == '.') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
 
     while (isdigit(lastRead)) {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
     }
   }
   return true;
@@ -254,12 +249,12 @@ bool CssTokenizer::readString() {
     return false;
   char delim = lastRead;
 
-  currentToken.append(1, lastRead);
-  IDchar();
+  currentToken.add(lastRead);
+  readChar();
   while (lastRead != -1) {
     if (lastRead == delim) {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
       return true;
     } else if (lastRead == '\n' ||
         lastRead == '\r' ||
@@ -269,8 +264,8 @@ bool CssTokenizer::readString() {
     } else if (lastRead == '\\') 
       readEscape() || readNewline();
     else {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
     }
   }
   throw new ParseException(&lastRead,
@@ -280,17 +275,17 @@ bool CssTokenizer::readString() {
 
 bool CssTokenizer::readNewline () {
   if (lastRead == '\r') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     if (lastRead == '\n') {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
     }
     return true;
   } else if (lastRead == '\n' ||
              lastRead == '\f') {
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
     return true;
   } else
     return false;
@@ -304,8 +299,8 @@ bool CssTokenizer::readWhitespace () {
       lastRead != '\f')
     return false;
   
-  currentToken.append(1, lastRead);
-  IDchar();
+  currentToken.add(lastRead);
+  readChar();
   return true;
 }
 
@@ -314,14 +309,14 @@ bool CssTokenizer::readUrl() {
   
   if (lastRead != '(') 
     return false;
-  currentToken.append(1, lastRead);
-  IDchar();
+  currentToken.add(lastRead);
+  readChar();
   while(readWhitespace()) {};
     
   if (readString()) {
     if (lastRead == ')') {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
       return true;
     } else {
       throw new ParseException(&lastRead,
@@ -333,16 +328,16 @@ bool CssTokenizer::readUrl() {
     if (readWhitespace() || lastRead == ')') {
       while (readWhitespace()) {};
       if (lastRead == ')') {
-        currentToken.append(1, lastRead);
-        IDchar();
+        currentToken.add(lastRead);
+        readChar();
         return true;
       } else {
         throw new ParseException(&lastRead,
                                  "end of url (')')");
       }
     } else if (urlchars.find(lastRead)) {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
     } else if (!readNonAscii() &&
                !readEscape()) {
       throw new ParseException(&lastRead,
@@ -365,21 +360,21 @@ bool CssTokenizer::isHex(char c) {
 bool CssTokenizer::readComment () {
   if (lastRead != '*')
     return false;
-  currentToken.append(1, lastRead);
-  IDchar();
+  currentToken.add(lastRead);
+  readChar();
   while (in != NULL) {
     if (lastRead == '*') {
-      currentToken.append(1, lastRead);
-      IDchar();
+      currentToken.add(lastRead);
+      readChar();
       
       if (lastRead == '/') {
-        currentToken.append(1, lastRead);
-        IDchar();
+        currentToken.add(lastRead);
+        readChar();
         return true;
       }
     }
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
   }
   throw new ParseException(&lastRead,
                            "end of comment (*/)");
@@ -390,8 +385,8 @@ bool CssTokenizer::readUnicodeRange () {
   for (int i=0; i < 6; i++) {
     if (isHex(lastRead))
       break;
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
   }
   if (lastRead != '-')
     return true;
@@ -399,19 +394,16 @@ bool CssTokenizer::readUnicodeRange () {
   for (int i=0; i < 6; i++) {
     if (isHex(lastRead))
       break;
-    currentToken.append(1, lastRead);
-    IDchar();
+    currentToken.add(lastRead);
+    readChar();
   }
   return true;
 }
 
-string * CssTokenizer::getToken(){
-  return &currentToken;
+Token CssTokenizer::getToken(){
+  return currentToken;
 }
 
-CssTokenizer::tokenType CssTokenizer::getTokenType(){
-  return currentTokenType;
-}
 int CssTokenizer::getLineNumber(){
   return lineNum;
 }

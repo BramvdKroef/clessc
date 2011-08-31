@@ -9,6 +9,24 @@
 
 using namespace std;
 
+class Token {
+public:
+  enum Type{IDENTIFIER, ATKEYWORD, STRING, HASH, NUMBER, PERCENTAGE,
+            DIMENSION, URL, UNICODE_RANGE, COLON, DELIMITER, BRACKET_OPEN,
+            BRACKET_CLOSED, PAREN_OPEN, PAREN_CLOSED, BRACE_OPEN,
+            BRACE_CLOSED, WHITESPACE, COMMENT, INCLUDES, DASHMATCH, OTHER,
+            EOS} type; 
+
+  string str;
+
+  void add(char c) {
+    str.append(1, c);
+  }
+  void clear () {
+    str.clear();
+    type = OTHER;
+  }
+};
 
 /**
  * Converts the input stream to CSS tokens according to the syntax spec at
@@ -87,35 +105,26 @@ using namespace std;
  */
 class CssTokenizer {
 public:
-  enum tokenType{IDENTIFIER, ATKEYWORD, STRING, HASH, NUMBER, PERCENTAGE,
-                 DIMENSION, URL, UNICODE_RANGE, COLON, DELIMITER, BRACKET_OPEN,
-                 BRACKET_CLOSED, PAREN_OPEN, PAREN_CLOSED, BRACE_OPEN,
-                 BRACE_CLOSED, WHITESPACE, COMMENT, INCLUDES, DASHMATCH, OTHER,
-                 EOS}; 
 	
   CssTokenizer(istream* in);
 		
   ~CssTokenizer();
   
-  tokenType readNextToken();
-  string* nextToken();
+  Token::Type readNextToken();
+  
+  Token getToken();
 
-  
-  string* getToken();
-  tokenType getTokenType();
-  
   int getLineNumber();
   int getPosition();
 		
 private:
   istream* in;
-		
-  string currentToken;
-  tokenType currentTokenType;
-						
+
+  Token currentToken;
+
   int lineNum, position;
   
-  void IDchar();
+  void readChar();
 
   bool readIdent();
   bool readName();
@@ -134,7 +143,6 @@ private:
   bool readUnicodeRange ();
 		
 protected:
-  tokenType lastReadType;
   char lastRead;
 };
 
