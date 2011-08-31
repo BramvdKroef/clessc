@@ -50,7 +50,6 @@ int main(int argc, char * argv[]){
 
   try {
     if(argc <= 1){
-      cerr << "For help run 'Interpreter -h'" << endl;
       processInput(&cin);
     } else {
       for (int i=1; i < argc; i++){
