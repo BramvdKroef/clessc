@@ -25,7 +25,7 @@ void CssWriter::writeAtRule(AtRule* atrule) {
   
   out->write(atrule->getKeyword()->c_str(),
              atrule->getKeyword()->size());
-  out->write(" ");
+  out->write(" ", 1);
   
   for (it = rule->begin(); it < rule->end(); it++) {
     out->write((*it)->str.c_str(), (*it)->str.size());
