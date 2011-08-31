@@ -35,7 +35,7 @@ using namespace std;
  */
 
 class CssParser{
- private:
+protected:
   CssTokenizer* tokenizer;
 
   /**
@@ -143,7 +143,7 @@ class CssParser{
    */
   bool parseUnused(vector<Token*>* tokens);
   
- public:
+public:
 
   /**
    * Initializes the CssParser with the given CssTokenizer argument.
