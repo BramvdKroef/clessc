@@ -20,15 +20,6 @@ void usage () {
   cout << "  cat infile.txt | Interpreter > output.txt" << endl;
 }
 
-/*	
-	pre: msg wijst naar een array can len chars
-	post: de tekst in msg wordt naar het bestand en het schem geschreven 
-*/
-void out(const char* msg, int len){
-  cout.write(msg, len);
-}
-
-
 
 void processInput(istream* in){
   Tokenizer* tokenizer = new Tokenizer(in);
@@ -41,10 +32,8 @@ void processInput(istream* in){
     cout << endl;
     delete s;
   } catch(ParseException* e) {
-    ostringstream stream1(ostringstream::out);
-    stream1 << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
+    cerr << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
       tokenizer->getPosition() << " Parse Error: " << e->what() << endl; 
-    cout << stream1.str();
   }
   
   delete tokenizer;
@@ -61,7 +50,7 @@ int main(int argc, char * argv[]){
 
   try {
     if(argc <= 1){
-      cout << "For help run 'Interpreter -h'" << endl;
+      cerr << "For help run 'Interpreter -h'" << endl;
       processInput(&cin);
     } else {
       for (int i=1; i < argc; i++){
@@ -77,10 +66,7 @@ int main(int argc, char * argv[]){
     }
   } catch (IOException* e) {
     ostringstream stream1(ostringstream::out);
-    string str;
-    stream1 << " Error: " << e->what() << endl; 
-    str = stream1.str();
-    out(str.c_str(), str.size());
+    cerr << " Error: " << e->what() << endl; 
   }
 		
   return 0;
