@@ -3,9 +3,9 @@
 #include <string>
 #include <sstream>
 
-#include "Tokenizer.h"
-#include "Parser.h"
-#include "Writer.h"
+#include "CssTokenizer.h"
+#include "CssParser.h"
+#include "CssWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
 
@@ -22,9 +22,9 @@ void usage () {
 
 
 void processInput(istream* in){
-  Tokenizer* tokenizer = new Tokenizer(in);
-  Parser* parser = new Parser(tokenizer);
-  Writer *w = new Writer(&cout);
+  CssTokenizer* tokenizer = new CssTokenizer(in);
+  CssParser* parser = new CssParser(tokenizer);
+  CssWriter *w = new CssWriter(&cout);
   
   try{
     Stylesheet* s = parser->parseStylesheet();
