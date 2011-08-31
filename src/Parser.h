@@ -38,10 +38,16 @@ class Parser{
   Tokenizer* tokenizer;
 
   /**
-   * Parse whitespace tokens and skip them.
+   * Parse whitespace tokens and comments and skip them.
    */
   void skipWhitespace();
 
+  /**
+   * Parse whitespace tokens and add them to the tokens
+   * argument. Comments are skipped.
+   */
+  bool parseWhitespace(vector<string*>* tokens);
+  
   /**
    * Parses a Ruleset or an AtRule and adds it to the stylesheet.
    *

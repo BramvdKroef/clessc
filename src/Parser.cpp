@@ -28,6 +28,18 @@ void Parser::skipWhitespace () {
     tokenizer->readNextToken();
   }
 }
+bool Parser::parseWhitespace(vector<string*>* tokens) {
+  while (tokenizer->getTokenType() == Tokenizer::WHITESPACE ||
+         tokenizer->getTokenType() == Tokenizer::COMMENT) {
+    
+    if (tokenizer->getTokenType() == Tokenizer::WHITESPACE) {
+      tokens->push_back(new string(" "));
+    }
+    
+    tokenizer->readNextToken();
+  }
+  return true;
+}
 
 bool Parser::parseStatement(Stylesheet* stylesheet) {
   Ruleset* ruleset = parseRuleset();
@@ -51,9 +63,10 @@ AtRule* Parser::parseAtRule () {
 
   atrule = new AtRule(new string(*tokenizer->getToken()));
   tokenizer->readNextToken();
-  skipWhitespace();
 
   vector<string*>* rule = new vector<string*>();
+  parseWhitespace(rule);
+  
   while(parseAny(rule)) {};
   
   if (!parseBlock(rule)) {
@@ -81,7 +94,7 @@ bool Parser::parseBlock (vector<string*>* tokens) {
       if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
         tokens->push_back(new string(*tokenizer->getToken()));
         tokenizer->readNextToken();
-        skipWhitespace();
+        parseWhitespace(tokens);
       } else if (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
         tokens->push_back(new string(*tokenizer->getToken()));
         tokenizer->readNextToken();
@@ -149,6 +162,12 @@ vector<string*>* Parser::parseSelector() {
   }
   
   while (parseAny(selector)) {};
+
+  // delete trailing whitespace
+  while (*(selector->back()) == " ") {
+    delete selector->back();
+    selector->pop_back();
+  }
   return selector;
 }
 
@@ -194,7 +213,7 @@ vector<string*>* Parser::parseValue () {
   } else if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
     value->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
-    skipWhitespace();
+    parseWhitespace(value);
   } else {
     delete value;
     return NULL;
@@ -205,7 +224,7 @@ vector<string*>* Parser::parseValue () {
     } else if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
       value->push_back(new string(*tokenizer->getToken()));
       tokenizer->readNextToken();
-      skipWhitespace();
+      parseWhitespace(value);
     } else 
       return value;
   }
@@ -277,7 +296,7 @@ bool Parser::parseAny (vector<string*>* tokens) {
   default:
     return false;
   }
-  skipWhitespace();
+  parseWhitespace(tokens);
   return true;
 }
 
@@ -286,7 +305,7 @@ bool Parser::parseUnused(vector<string*>* tokens) {
   } else if (tokenizer->getTokenType() == Tokenizer::ATKEYWORD) {
     tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
-    skipWhitespace();
+    parseWhitespace(tokens);
   } else if (tokenizer->getTokenType() == Tokenizer::DELIMITER) {
     tokens->push_back(new string(*tokenizer->getToken()));
     tokenizer->readNextToken();
