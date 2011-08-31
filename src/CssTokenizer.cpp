@@ -128,8 +128,6 @@ Token::Type CssTokenizer::readNextToken(){
     case ']':
       currentToken.type = Token::BRACE_CLOSED;
       break;
-    default:
-      currentToken.type = Token::OTHER;
     }
     currentToken.add(lastRead);
     readChar();
@@ -400,8 +398,11 @@ bool CssTokenizer::readUnicodeRange () {
   return true;
 }
 
-Token CssTokenizer::getToken(){
-  return currentToken;
+Token* CssTokenizer::getToken(){
+  return &currentToken;
+}
+Token::Type CssTokenizer::getTokenType() {
+  return currentToken.type;
 }
 
 int CssTokenizer::getLineNumber(){

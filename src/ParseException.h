@@ -10,15 +10,15 @@ class ParseException: public exception{
 public:
   string err;
 	
-  ParseException(string* found, string& expected){
+  ParseException(string found, string& expected){
     err.append("Found \"");
-    err.append(*found);
+    err.append(found);
     err.append("\" when expecting ");
     err.append(expected);
   }
-  ParseException(string* found, const char* expected){
+  ParseException(string found, const char* expected){
     err.append("Found \"");
-    err.append(*found);
+    err.append(found);
     err.append("\" when expecting ");
     err.append(expected);
   }

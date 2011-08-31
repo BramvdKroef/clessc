@@ -21,13 +21,13 @@ Declaration::~Declaration() {
 void Declaration::setProperty(string* property) {
   this->property = property;
 }
-void Declaration::setValue(vector<string*>* value) {
+void Declaration::setValue(vector<Token*>* value) {
   this->value = value;
 }
 string* Declaration::getProperty() {
   return property;
 }
-vector<string*>* Declaration::getValue() {
+vector<Token*>* Declaration::getValue() {
   return value;
 }
 
@@ -46,13 +46,13 @@ Ruleset::~Ruleset() {
   }
 }
 
-void Ruleset::setSelector (vector<string*>* selector) {
+void Ruleset::setSelector (vector<Token*>* selector) {
   this->selector = selector;
 }
 void Ruleset::addDeclaration (Declaration* declaration) {
   declarations.push_back(declaration);
 }
-vector<string*>* Ruleset::getSelector() {
+vector<Token*>* Ruleset::getSelector() {
   return selector;
 }
 vector<Declaration*>* Ruleset::getDeclarations() {
@@ -80,13 +80,13 @@ AtRule::~AtRule() {
 void AtRule::setKeyword (string* keyword) {
   this->keyword = keyword;
 }
-void AtRule::setRule(vector<string*>* rule) {
+void AtRule::setRule(vector<Token*>* rule) {
   this->rule = rule;
 }
 string* AtRule::getKeyword() {
   return keyword;
 }
-vector<string*>* AtRule::getRule() {
+vector<Token*>* AtRule::getRule() {
   return rule;
 }
 

@@ -1,6 +1,7 @@
 #ifndef __Stylesheet_h__
 #define __Stylesheet_h__
 
+#include "Token.h"
 #include <string>
 #include <vector>
 using namespace std;
@@ -8,45 +9,45 @@ using namespace std;
 class Declaration {
 private:
   string* property;
-  vector<string*>* value;
+  vector<Token*>* value;
   
 public:
   Declaration(string* property);
   virtual ~Declaration();
   void setProperty(string* property);
-  void setValue(vector<string*>* value);
+  void setValue(vector<Token*>* value);
   
   string* getProperty();
-  vector<string*>* getValue();
+  vector<Token*>* getValue();
 };
   
 class Ruleset {
 private:
-  vector<string*>* selector;
+  vector<Token*>* selector;
   vector<Declaration*> declarations;
   
 public:
   virtual ~Ruleset();
-  void setSelector (vector<string*>* selector);
+  void setSelector (vector<Token*>* selector);
   void addDeclaration (Declaration* declaration);
 
-  vector<string*>* getSelector();
+  vector<Token*>* getSelector();
   vector<Declaration*>* getDeclarations();
 };
 
 class AtRule {
 private:
   string* keyword;
-  vector<string*>* rule;
+  vector<Token*>* rule;
 
 public:
   AtRule(string* keyword);
   virtual ~AtRule();
   void setKeyword (string* keyword);
-  void setRule(vector<string*>* rule);
+  void setRule(vector<Token*>* rule);
 
   string* getKeyword();
-  vector<string*>* getRule();
+  vector<Token*>* getRule();
 };
 
 class Stylesheet {

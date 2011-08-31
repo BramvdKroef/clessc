@@ -3,6 +3,7 @@
 
 #include "CssTokenizer.h"
 #include "Stylesheet.h"
+#include "Token.h"
 #include <string>
 #include <vector>
 
@@ -46,7 +47,7 @@ class CssParser{
    * Parse whitespace tokens and add them to the tokens
    * argument. Comments are skipped.
    */
-  bool parseWhitespace(vector<string*>* tokens);
+  bool parseWhitespace(vector<Token*>* tokens);
   
   /**
    * Parses a Ruleset or an AtRule and adds it to the stylesheet.
@@ -70,7 +71,7 @@ class CssParser{
    * @return true if a block was parsed or false if the next token was
    *    not '{'.
    */
-  bool parseBlock (vector<string*>* tokens);
+  bool parseBlock (vector<Token*>* tokens);
 
   /**
    * Parses an optional selector and a decleration block.
@@ -85,7 +86,7 @@ class CssParser{
    * @return a vector containing the list of tokens or NULL if no
    *    selector was found.
    */
-  vector<string*>* parseSelector();
+  vector<Token*>* parseSelector();
 
   /**
    * Parses a 'property: value' pair.
@@ -107,7 +108,7 @@ class CssParser{
    * @return a vector containing a list of tokens or NULL if none
    *         could be found.
    */
-  vector<string*>* parseValue ();
+  vector<Token*>* parseValue ();
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
@@ -128,7 +129,7 @@ class CssParser{
    *  @return true if the token found was one of the tokens in the
    *          above list.
    */
-  bool parseAny (vector<string*>* tokens);
+  bool parseAny (vector<Token*>* tokens);
 
 
   /**
@@ -140,7 +141,7 @@ class CssParser{
    *
    *  @return true if a block, atkeyword or delimiter could be parsed.
    */
-  bool parseUnused(vector<string*>* tokens);
+  bool parseUnused(vector<Token*>* tokens);
   
  public:
 
