@@ -1,10 +1,10 @@
-#include "Writer.h"
+#include "CssWriter.h"
 
-Writer::Writer(ostream* out) {
+CssWriter::CssWriter(ostream* out) {
   this->out = out;
 }
 
-void Writer::writeStylesheet(Stylesheet* s) {
+void CssWriter::writeStylesheet(Stylesheet* s) {
   vector<AtRule*>* atrules = s->getAtRules();
   vector<AtRule*>::iterator aIt;
   vector<Ruleset*>* rulesets = s->getRulesets();
@@ -19,7 +19,7 @@ void Writer::writeStylesheet(Stylesheet* s) {
   }
 }
 
-void Writer::writeAtRule(AtRule* atrule) {
+void CssWriter::writeAtRule(AtRule* atrule) {
   vector<string*>* rule = atrule->getRule();
   vector<string*>::iterator it;
   
@@ -31,7 +31,7 @@ void Writer::writeAtRule(AtRule* atrule) {
   }
 }
 
-void Writer::writeRuleset(Ruleset* ruleset) {
+void CssWriter::writeRuleset(Ruleset* ruleset) {
   vector<string*>* selector = ruleset->getSelector();
   vector<string*>::iterator it;
   
@@ -52,7 +52,7 @@ void Writer::writeRuleset(Ruleset* ruleset) {
   out->write("}", 1);
 }
 
-void Writer::writeDeclaration(Declaration* declaration) {
+void CssWriter::writeDeclaration(Declaration* declaration) {
   vector<string*>* value = declaration->getValue();
   vector<string*>::iterator it;
   out->write(declaration->getProperty()->c_str(),

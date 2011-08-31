@@ -1,5 +1,5 @@
-#ifndef __Writer_h__
-#define __Writer_h__
+#ifndef __CssWriter_h__
+#define __CssWriter_h__
 
 #include "Stylesheet.h"
 #include <string>
@@ -7,9 +7,9 @@
 #include <iostream>
 using namespace std;
 
-class Writer {
+class CssWriter {
 public:
-  Writer(ostream* out);
+  CssWriter(ostream* out);
   void writeStylesheet(Stylesheet* s);
 
 private:

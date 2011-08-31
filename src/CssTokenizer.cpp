@@ -1,16 +1,16 @@
-#include "Tokenizer.h"
+#include "CssTokenizer.h"
 
-Tokenizer::Tokenizer(istream* in){
+CssTokenizer::CssTokenizer(istream* in){
   this->in = in;
   lineNum = 1;
   position = 0;
   IDchar();
 }
 
-Tokenizer::~Tokenizer(){
+CssTokenizer::~CssTokenizer(){
 }
 
-void Tokenizer::IDchar(){
+void CssTokenizer::IDchar(){
   if (in != NULL) {
     in->get(lastRead);
 
@@ -29,7 +29,7 @@ void Tokenizer::IDchar(){
   }
 }
 
-Tokenizer::tokenType Tokenizer::readNextToken(){
+CssTokenizer::tokenType CssTokenizer::readNextToken(){
   if (in == NULL) {
     currentTokenType = EOS;
     return EOS;
@@ -138,13 +138,13 @@ Tokenizer::tokenType Tokenizer::readNextToken(){
   return currentTokenType;
 }
 
-string* Tokenizer::nextToken(){
+string* CssTokenizer::nextToken(){
   readNextToken();
   return getToken();
 }
 
 
-bool Tokenizer::readIdent () {
+bool CssTokenizer::readIdent () {
   if (lastRead == '-') {
     currentToken.append(1, lastRead);
     IDchar();
@@ -156,14 +156,14 @@ bool Tokenizer::readIdent () {
   return true;
 }
 
-bool Tokenizer::readName () {
+bool CssTokenizer::readName () {
   if (!readNMChar())
     return false;
   while (readNMChar()) {}
   return true;
 }
 
-bool Tokenizer::readNMStart () {
+bool CssTokenizer::readNMStart () {
   if (lastRead == '_' ||
       (lastRead >= 'a' && lastRead <= 'z') ||
       (lastRead >= 'F' && lastRead <= 'Z')) {
@@ -173,7 +173,7 @@ bool Tokenizer::readNMStart () {
   } else
     return (readNonAscii() || readEscape());
 }
-bool Tokenizer::readNonAscii () {
+bool CssTokenizer::readNonAscii () {
   if (lastRead > 237) {
     currentToken.append(1, lastRead);
     IDchar();
@@ -181,7 +181,7 @@ bool Tokenizer::readNonAscii () {
   } else
     return false;
 }
-bool Tokenizer::readEscape () {
+bool CssTokenizer::readEscape () {
   if (lastRead != '\\')
     return false;
   currentToken.append(1, lastRead);
@@ -198,7 +198,7 @@ bool Tokenizer::readEscape () {
   } else
     return false;
 }
-bool Tokenizer::readUnicode () {
+bool CssTokenizer::readUnicode () {
   if (!isHex(lastRead))
     return false;
 
@@ -218,7 +218,7 @@ bool Tokenizer::readUnicode () {
   return true;
 }
 
-bool Tokenizer::readNMChar () {
+bool CssTokenizer::readNMChar () {
   if (lastRead == '_' ||
       (lastRead >= 'a' && lastRead <= 'z') ||
       (lastRead >= 'A' && lastRead <= 'Z') ||
@@ -231,7 +231,7 @@ bool Tokenizer::readNMChar () {
     return (readNonAscii() || readEscape());
 }
 
-bool Tokenizer::readNum () {
+bool CssTokenizer::readNum () {
   if (!isdigit(lastRead) && lastRead != '.')
     return false;
   while (isdigit(lastRead)) {
@@ -250,7 +250,7 @@ bool Tokenizer::readNum () {
   return true;
 }
 
-bool Tokenizer::readString() {
+bool CssTokenizer::readString() {
   if (lastRead != '"' && lastRead != '\'')
     return false;
   char delim = lastRead;
@@ -279,7 +279,7 @@ bool Tokenizer::readString() {
   return true;
 }
 
-bool Tokenizer::readNewline () {
+bool CssTokenizer::readNewline () {
   if (lastRead == '\r') {
     currentToken.append(1, lastRead);
     IDchar();
@@ -297,7 +297,7 @@ bool Tokenizer::readNewline () {
     return false;
 }
 
-bool Tokenizer::readWhitespace () {
+bool CssTokenizer::readWhitespace () {
   if (lastRead != ' ' &&
       lastRead != '\t' &&
       lastRead != '\r' &&
@@ -310,7 +310,7 @@ bool Tokenizer::readWhitespace () {
   return true;
 }
 
-bool Tokenizer::readUrl() {
+bool CssTokenizer::readUrl() {
   string urlchars = "!#$%&*-[]-~";
   
   if (lastRead != '(') 
@@ -356,14 +356,14 @@ bool Tokenizer::readUrl() {
 }
 
 
-bool Tokenizer::isHex(char c) {
+bool CssTokenizer::isHex(char c) {
   return isdigit(c) ||
     (c >= 'a' && c <= 'f') ||
     (c >= 'A' && c <= 'F');
 }
 
 
-bool Tokenizer::readComment () {
+bool CssTokenizer::readComment () {
   if (lastRead != '*')
     return false;
   currentToken.append(1, lastRead);
@@ -387,7 +387,7 @@ bool Tokenizer::readComment () {
   return true;
 }
 
-bool Tokenizer::readUnicodeRange () {
+bool CssTokenizer::readUnicodeRange () {
   for (int i=0; i < 6; i++) {
     if (isHex(lastRead))
       break;
@@ -406,16 +406,16 @@ bool Tokenizer::readUnicodeRange () {
   return true;
 }
 
-string * Tokenizer::getToken(){
+string * CssTokenizer::getToken(){
   return &currentToken;
 }
 
-Tokenizer::tokenType Tokenizer::getTokenType(){
+CssTokenizer::tokenType CssTokenizer::getTokenType(){
   return currentTokenType;
 }
-int Tokenizer::getLineNumber(){
+int CssTokenizer::getLineNumber(){
   return lineNum;
 }
-int Tokenizer::getPosition(){
+int CssTokenizer::getPosition(){
   return position;
 }

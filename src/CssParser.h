@@ -1,7 +1,7 @@
-#ifndef __Parser_h__
-#define __Parser_h__
+#ifndef __CssParser_h__
+#define __CssParser_h__
 
-#include "Tokenizer.h"
+#include "CssTokenizer.h"
 #include "Stylesheet.h"
 #include <string>
 #include <vector>
@@ -33,9 +33,9 @@ using namespace std;
  * they are not expected in a .css file.
  */
 
-class Parser{
+class CssParser{
  private:
-  Tokenizer* tokenizer;
+  CssTokenizer* tokenizer;
 
   /**
    * Parse whitespace tokens and comments and skip them.
@@ -145,9 +145,9 @@ class Parser{
  public:
 
   /**
-   * Initializes the Parser with the given Tokenizer argument.
+   * Initializes the CssParser with the given CssTokenizer argument.
    */
-  Parser(Tokenizer* tokenizer);
+  CssParser(CssTokenizer* tokenizer);
   
   /**
    * Parses a stylesheet from the tokenizer. After parsing the

@@ -1,5 +1,5 @@
-#ifndef __Tokenizer_h__
-#define __Tokenizer_h__
+#ifndef __CssTokenizer_h__
+#define __CssTokenizer_h__
 
 #include <ctype.h>
 #include <string>
@@ -53,8 +53,8 @@ using namespace std;
  * css file.
  *
  * Instead of generating BAD_STRING, BAD_URI and BAD_COMMENT tokens
- * the Tokenizer throws a ParseException. This may change in the future so the
- * Parser can handle them.
+ * the CssTokenizer throws a ParseException. This may change in the
+ * future so the Parser can handle them.
  *
  * FUNCTION tokens are not generated. If an identifier is followed by a '(' the
  * parser will handle it from there.
@@ -85,7 +85,7 @@ using namespace std;
  *   nl         	\n|\r\n|\r|\f
  *   w          	[ \t\r\n\f]*
  */
-class Tokenizer {
+class CssTokenizer {
 public:
   enum tokenType{IDENTIFIER, ATKEYWORD, STRING, HASH, NUMBER, PERCENTAGE,
                  DIMENSION, URL, UNICODE_RANGE, COLON, DELIMITER, BRACKET_OPEN,
@@ -93,9 +93,9 @@ public:
                  BRACE_CLOSED, WHITESPACE, COMMENT, INCLUDES, DASHMATCH, OTHER,
                  EOS}; 
 	
-  Tokenizer(istream* in);
+  CssTokenizer(istream* in);
 		
-  ~Tokenizer();
+  ~CssTokenizer();
   
   tokenType readNextToken();
   string* nextToken();
