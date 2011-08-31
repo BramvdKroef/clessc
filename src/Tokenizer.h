@@ -14,7 +14,7 @@ using namespace std;
  * Converts the input stream to CSS tokens according to the syntax spec at
  * http://www.w3.org/TR/CSS2/syndata.html.
  *
- * Excerpt:
+ * Excerpt (replace '(forward-slash)' with '/'):
  *
  *   IDENT      	{ident}
  *   ATKEYWORD  	@{ident}
@@ -40,7 +40,7 @@ using namespace std;
  *   [          	\[
  *   ]          	\]
  *   S          	[ \t\r\n\f]+
- *   COMMENT     	\/\*[^*]*\*+([^/*][^*]*\*+)*\/
+ *   COMMENT     	\/\*[^*]*\*+([^(forward-slash)*][^*]*\*+)*\/
  *   FUNCTION   	{ident}\(
  *   INCLUDES    	~=
  *   DASHMATCH   	|=
@@ -76,8 +76,8 @@ using namespace std;
  *   badstring1 	\"([^\n\r\f\\"]|\\{nl}|{escape})*\\?
  *   badstring2 	\'([^\n\r\f\\']|\\{nl}|{escape})*\\?
  *   badcomment 	{badcomment1}|{badcomment2}
- *   badcomment1 	\/\*[^*]*\*+([^/*][^*]*\*+)*
- *   badcomment2 	\/\*[^*]*(\*+[^/*][^*]*)*
+ *   badcomment1 	\/\*[^*]*\*+([^(forward-slash)*][^*]*\*+)*
+ *   badcomment2 	\/\*[^*]*(\*+[^(forward-slash)*][^*]*)*
  *   baduri     	{baduri1}|{baduri2}|{baduri3}
  *   baduri1    	url\({w}([!#$%&*-~]|{nonascii}|{escape})*{w}
  *   baduri2    	url\({w}{string}{w}
