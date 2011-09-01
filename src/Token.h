@@ -13,25 +13,14 @@ public:
             DASHMATCH, OTHER, EOS} type; 
   string str;
 
-  Token () {
-    type = OTHER;
-  }
-  Token (string s, Type t) {
-    str = s;
-    type = t;
-  }
+  Token ();
+  Token (string s, Type t);
   
-  void add(char c) {
-    str.append(1, c);
-  }
+  void add(char c);
   
-  void clear () {
-    str.clear();
-    type = OTHER;
-  }
-  Token* clone () {
-    return new Token(str, type);
-  }
+  void clear ();
+  bool equals (Token* t);
+  Token* clone ();
 };
 
 #endif

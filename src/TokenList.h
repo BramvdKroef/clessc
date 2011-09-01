@@ -11,29 +11,13 @@ private:
   
 public:
   TokenListIterator(list<Token*>::iterator begin,
-                    list<Token*>::iterator end) {
-    this->it = begin;
-    this->begin = begin;
-    this->end = --end;
-  }
-  void toEnd () {
-    it = end;
-  }
-  Token* previous () {
-    return *--it;
-  }
-  Token* next () {
-    return *++it;
-  }
-  Token* peek () {
-    return *it;
-  }
-  bool hasNext () {
-    return (it != end);
-  }
-  bool hasPrevious () {
-    return (it != begin);
-  }
+                    list<Token*>::iterator end);
+  void toEnd ();
+  Token* previous ();
+  Token* next ();
+  Token* peek ();
+  bool hasNext ();
+  bool hasPrevious ();
 };
 
 class TokenList {
@@ -41,92 +25,34 @@ private:
   list<Token*> tokens;
   
 public:
-  ~TokenList() {
-    while (!empty()) 
-      delete pop();
-  }
+  ~TokenList();
   
-  void push (Token* token) {
-    tokens.push_back(token);
-  }
-  Token* pop () {
-    Token* token = tokens.back();
-    tokens.pop_back();
-    return token;
-  }
+  void push (Token* token);
+  Token* pop ();
 
-  void unshift (Token* token) {
-    tokens.push_front(token);
-  }
+  void unshift (Token* token);
   
-  Token* shift () {
-    Token* token = tokens.front();
-    tokens.pop_front();
-    return token;
-  }
+  Token* shift ();
 
-  bool empty () {
-    return tokens.empty();
-  }
+  bool empty ();
 
-  int size() {
-    return tokens.size();
-  }
+  int size();
 
-  bool equals(TokenList* list) {
-    return false;
-  }
+  bool equals(TokenList* list);
 
-  Token* back() {
-    return tokens.back();
-  }
+  Token* back();
 
-  Token* front() {
-    return tokens.front();
-  }
+  Token* front();
 
-  TokenListIterator* iterator() {
-    return new TokenListIterator(tokens.begin(), tokens.end());
-  }
-  TokenListIterator* reverseIterator () {
-    TokenListIterator* it =
-      new TokenListIterator(tokens.begin(), tokens.end());
-    it->toEnd();
-    return it;
-  }
+  TokenListIterator* iterator();
+  TokenListIterator* reverseIterator ();
 
-  void push(TokenList* list) {
-    TokenListIterator* it = list->iterator();
-    while (it->hasNext())
-      push(it->next()->clone());
-    delete it;
-  }
-  void unshift(TokenList* list) {
-    TokenListIterator* it = list->reverseIterator();
-    while (it->hasNext())
-      unshift(it->next()->clone());
-    delete it;
-  }
+  void push(TokenList* list);
+  void unshift(TokenList* list);
 
-  TokenList* clone() {
-    TokenList* newtokens = new TokenList();
-    list<Token*>::iterator it;
-    
-    for (it = tokens.begin(); it != tokens.end(); it++) {
-      newtokens->push((*it)->clone());
-    }
-    return newtokens;
-  }
+  TokenList* clone();
   
-  string* toString() {
-    string* str = new string();
-    list<Token*>::iterator it;
-    
-    for (it = tokens.begin(); it != tokens.end(); it++) {
-      str->append((*it)->str);
-    }
-    return str;
-  }
+  string* toString();
 };
 
 #endif
