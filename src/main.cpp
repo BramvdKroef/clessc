@@ -3,8 +3,8 @@
 #include <string>
 #include <sstream>
 
-#include "CssTokenizer.h"
-#include "CssParser.h"
+#include "LessTokenizer.h"
+#include "LessParser.h"
 #include "CssWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
@@ -12,18 +12,18 @@
 using namespace std;
 
 /**
- * /main Interpreter
+ * /main Less CSS compiler, implemented in C++.
  * 
  */
 
 void usage () {
-  cout << "  cat infile.txt | Interpreter > output.txt" << endl;
+  cout << "  cat infile.txt | clessc > output.txt" << endl;
 }
 
 
 void processInput(istream* in){
-  CssTokenizer* tokenizer = new CssTokenizer(in);
-  CssParser* parser = new CssParser(tokenizer);
+  LessTokenizer* tokenizer = new LessTokenizer(in);
+  LessParser* parser = new LessParser(tokenizer);
   CssWriter *w = new CssWriter(&cout);
   
   try{
