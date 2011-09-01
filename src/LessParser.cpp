@@ -137,9 +137,14 @@ bool LessParser::parseRulesetStatement (Ruleset* ruleset) {
   // mixin.
   if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
     Ruleset* nested = parseRuleset();
+    processNestedRuleset(ruleset, nested);
     parseRulesetStatement(ruleset);
   } else {
     /* Ruleset* mixin = stylesheet->getRuleset(selector);*/
+    // if (mixin == NULL)
+    //  throw new ParseException(tokenizer->getToken()->str,
+    //               "value for variable");
+    // processMixin(ruleset, mixin);
     if (tokenizer->getTokenType() == Token::DELIMITER) {
       tokenizer->readNextToken();
       skipWhitespace();
@@ -216,4 +221,22 @@ bool LessParser::processDeepVariable (Token* token, Token* nexttoken,
     }
   }
   return false;
+}
+
+void LessParser::processNestedRuleset (Ruleset* parent,
+                                       Ruleset* nested) {
+  vector<Token*>* selector = parent->getSelector();
+  vector<Token*>* nSelector = nested->getSelector();
+  vector<Token*>::iterator it;
+  for (it = selector->begin(); it < selector->end(); it++) {
+    nSelector->insert(nSelector->begin(), (*it)->clone());
+  }
+}
+void LessParser::processMixin(Ruleset* parent, Ruleset* mixin) {
+  vector<Declaration*>* declarations = mixin->getDeclarations();
+  vector<Declaration*>::iterator it;
+
+  for (it = declarations->begin(); it < declarations->end(); it++) {
+    parent->addDeclaration((*it)->clone());
+  }
 }

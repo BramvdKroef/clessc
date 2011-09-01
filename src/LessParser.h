@@ -63,6 +63,9 @@ private:
   bool processVariable (Token* token, vector<Token*>* newvalue);
   bool processDeepVariable (Token* token, Token* nexttoken,
                             vector<Token*>* newvalue);
+
+  void processNestedRuleset (Ruleset* parent, Ruleset* nested);
+  void processMixin(Ruleset* parent, Ruleset* mixin);
 };
 
 #endif
