@@ -55,7 +55,7 @@ protected:
    * @return true if a Ruleset or AtRule could be parsed, false if
    *         neither were found.
    */
-  bool parseStatement(Stylesheet* stylesheet);
+  virtual bool parseStatement(Stylesheet* stylesheet);
 
   /**
    * Parses an keyword that begins with '@' and the rule following the keyword.
@@ -108,7 +108,7 @@ protected:
    * @return a vector containing a list of tokens or NULL if none
    *         could be found.
    */
-  vector<Token*>* parseValue ();
+  virtual vector<Token*>* parseValue ();
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
