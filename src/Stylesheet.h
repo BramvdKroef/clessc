@@ -64,6 +64,8 @@ public:
 
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();
+
+  Ruleset* getRuleset(vector<Token*> selector);
 };
 
 #endif

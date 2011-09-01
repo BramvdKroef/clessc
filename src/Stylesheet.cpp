@@ -115,3 +115,6 @@ vector<AtRule*>* Stylesheet::getAtRules() {
 vector<Ruleset*>* Stylesheet::getRulesets() {
   return &rulesets;
 }
+Ruleset* Stylesheet::getRuleset(vector<Token*> selector) {
+  return NULL;
+}

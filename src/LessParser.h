@@ -23,9 +23,9 @@
  * parameter: ATKEYWORD [ ':' S* value ]? S*
  * 
  * * Nested Rules
- *  ruleset: [selector parameters]? '{' S* [ declaration | ruleset ]?
- *              [ ';' S* [ declaration | ruleset ]? ]* '}' S*;
- * 
+ *  ruleset: [selector parameters]? '{' S* r-statement? '}' S*;
+ *  r-statement: [ declaration [';' S* r-statement ]?
+ *                | ruleset r-statement? ]
  * * Operations
  *
  *  value: value-old [ [  '+' | '-' | '*' | '/' ] value-old ]*

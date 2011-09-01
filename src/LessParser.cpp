@@ -77,12 +77,6 @@ Ruleset* LessParser::parseRuleset () {
   skipWhitespace();
   parseRulesetStatement(ruleset);
   
-  while (tokenizer->getTokenType() == Token::DELIMITER) {
-    tokenizer->readNextToken();
-    skipWhitespace();
-    parseRulesetStatement(ruleset);
-  }
-  
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken()->str,
                              "end of declaration block ('}')");
@@ -97,7 +91,7 @@ bool LessParser::parseRulesetStatement (Ruleset* ruleset) {
   Declaration* declaration = NULL;
   vector<Token*>* selector = NULL;
   string* property = parseProperty();
-  
+    
   // if we can parse a property and the next token is a COLON then the
   // statement is a declaration.
   if (property != NULL) {
@@ -115,17 +109,43 @@ bool LessParser::parseRulesetStatement (Ruleset* ruleset) {
       }
       declaration->setValue(value);
       ruleset->addDeclaration(declaration);
+
+      if (tokenizer->getTokenType() == Token::DELIMITER) {
+        tokenizer->readNextToken();
+        skipWhitespace();
+        parseRulesetStatement(ruleset);
+      }
       return true;
     }
   }
   
   // otherwise parse a selector
   selector = parseSelector();
-  if (selector == NULL)
+  if (selector == NULL && property == NULL)
     return false;
-  
+
+  // Insert property at the front
+  if (selector == NULL)
+    selector = new vector<Token*>();
+  if (property != NULL) {
+    selector->insert(selector->begin(),
+                     new Token(*property, Token::IDENTIFIER));
+    delete property;
+  }
+
   // if followed by a ruleset it's a nested rule, otherwise it's a
   // mixin.
+  if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
+    Ruleset* nested = parseRuleset();
+    parseRulesetStatement(ruleset);
+  } else {
+    /* Ruleset* mixin = stylesheet->getRuleset(selector);*/
+    if (tokenizer->getTokenType() == Token::DELIMITER) {
+      tokenizer->readNextToken();
+      skipWhitespace();
+      parseRulesetStatement(ruleset);
+    }
+  }
   return true;
 }
 
