@@ -20,28 +20,31 @@ void CssWriter::writeStylesheet(Stylesheet* s) {
 }
 
 void CssWriter::writeAtRule(AtRule* atrule) {
-  vector<Token*>* rule = atrule->getRule();
-  vector<Token*>::iterator it;
+  TokenList* rule = atrule->getRule();
+  TokenListIterator* it = rule->iterator();
   
   out->write(atrule->getKeyword()->c_str(),
              atrule->getKeyword()->size());
   out->write(" ", 1);
   
-  for (it = rule->begin(); it < rule->end(); it++) {
-    out->write((*it)->str.c_str(), (*it)->str.size());
+  while (it->hasNext()) {
+    Token* next = it->next();
+    out->write(next->str.c_str(), next->str.size());
   }
+
 }
 
 void CssWriter::writeRuleset(Ruleset* ruleset) {
-  vector<Token*>* selector = ruleset->getSelector();
-  vector<Token*>::iterator it;
+  TokenList* selector = ruleset->getSelector();
+  TokenListIterator* it;
   
   vector<Declaration*>* declarations = ruleset->getDeclarations();
   vector<Declaration*>::iterator dIt;
   
   if (selector != NULL) {
-    for (it = selector->begin(); it < selector->end(); it++) {
-      out->write((*it)->str.c_str(), (*it)->str.size());
+    for (it = selector->iterator(); it->hasNext();) {
+      Token* next = it->next();
+      out->write(next->str.c_str(), next->str.size());
     }
   }
   out->write("{", 1);
@@ -54,14 +57,16 @@ void CssWriter::writeRuleset(Ruleset* ruleset) {
 }
 
 void CssWriter::writeDeclaration(Declaration* declaration) {
-  vector<Token*>* value = declaration->getValue();
-  vector<Token*>::iterator it;
+  TokenList* value = declaration->getValue();
+  TokenListIterator* it = value->iterator();
+    
   out->write(declaration->getProperty()->c_str(),
              declaration->getProperty()->size());
   out->write(":", 1);
   
-  for (it = value->begin(); it < value->end(); it++) {
-    out->write((*it)->str.c_str(), (*it)->str.size());
+  while (it->hasNext()) {
+    Token* next = it->next();
+    out->write(next->str.c_str(), next->str.size());
   }
 }
 
