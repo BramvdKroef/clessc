@@ -4,8 +4,8 @@
 #include "CssTokenizer.h"
 #include "Stylesheet.h"
 #include "Token.h"
+#include "TokenList.h"
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -47,7 +47,7 @@ protected:
    * Parse whitespace tokens and add them to the tokens
    * argument. Comments are skipped.
    */
-  bool parseWhitespace(vector<Token*>* tokens);
+  bool parseWhitespace(TokenList* tokens);
   
   /**
    * Parses a Ruleset or an AtRule and adds it to the stylesheet.
@@ -66,12 +66,12 @@ protected:
   
   /**
    * Parse tokens inside brackets ('{', '}'). The tokens are added to
-   * the vector.
+   * the list.
    *
    * @return true if a block was parsed or false if the next token was
    *    not '{'.
    */
-  bool parseBlock (vector<Token*>* tokens);
+  bool parseBlock (TokenList* tokens);
 
   /**
    * Parses an optional selector and a decleration block.
@@ -81,12 +81,12 @@ protected:
   Ruleset* parseRuleset ();
 
   /**
-   * Parses a selector into a vector of tokens.
+   * Parses a selector into a list of tokens.
    *
-   * @return a vector containing the list of tokens or NULL if no
+   * @return a list of tokens or NULL if no
    *    selector was found.
    */
-  vector<Token*>* parseSelector();
+  TokenList* parseSelector();
 
   /**
    * Parses a 'property: value' pair.
@@ -105,10 +105,10 @@ protected:
   /**
    * Parses a list of tokens that represent a value.
    *
-   * @return a vector containing a list of tokens or NULL if none
+   * @return a list of tokens or NULL if none
    *         could be found.
    */
-  virtual vector<Token*>* parseValue ();
+  virtual TokenList* parseValue ();
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
@@ -129,7 +129,7 @@ protected:
    *  @return true if the token found was one of the tokens in the
    *          above list.
    */
-  bool parseAny (vector<Token*>* tokens);
+  bool parseAny (TokenList* tokens);
 
 
   /**
@@ -141,7 +141,7 @@ protected:
    *
    *  @return true if a block, atkeyword or delimiter could be parsed.
    */
-  bool parseUnused(vector<Token*>* tokens);
+  bool parseUnused(TokenList* tokens);
   
 public:
 

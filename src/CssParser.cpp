@@ -28,12 +28,12 @@ void CssParser::skipWhitespace () {
     tokenizer->readNextToken();
   }
 }
-bool CssParser::parseWhitespace(vector<Token*>* tokens) {
+bool CssParser::parseWhitespace(TokenList* tokens) {
   while (tokenizer->getTokenType() == Token::WHITESPACE ||
          tokenizer->getTokenType() == Token::COMMENT) {
     
     if (tokenizer->getTokenType() == Token::WHITESPACE) {
-      tokens->push_back(new Token(" ", Token::WHITESPACE));
+      tokens->push(new Token(" ", Token::WHITESPACE));
     }
     
     tokenizer->readNextToken();
@@ -65,7 +65,7 @@ AtRule* CssParser::parseAtRule () {
   tokenizer->readNextToken();
   skipWhitespace();
   
-  vector<Token*>* rule = new vector<Token*>();
+  TokenList* rule = new TokenList();
   
   while(parseAny(rule)) {};
   
@@ -81,22 +81,22 @@ AtRule* CssParser::parseAtRule () {
   return atrule;
 }
 
-bool CssParser::parseBlock (vector<Token*>* tokens) {
+bool CssParser::parseBlock (TokenList* tokens) {
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
     return false;
 
-  tokens->push_back(tokenizer->getToken()->clone());
+  tokens->push(tokenizer->getToken()->clone());
   tokenizer->readNextToken();
   skipWhitespace();
   
   while (true) {
     if (!(parseAny(tokens) || parseBlock(tokens))) {
       if (tokenizer->getTokenType() == Token::ATKEYWORD) {
-        tokens->push_back(tokenizer->getToken()->clone());
+        tokens->push(tokenizer->getToken()->clone());
         tokenizer->readNextToken();
         parseWhitespace(tokens);
       } else if (tokenizer->getTokenType() == Token::DELIMITER) {
-        tokens->push_back(tokenizer->getToken()->clone());
+        tokens->push(tokenizer->getToken()->clone());
         tokenizer->readNextToken();
         skipWhitespace();
       } else
@@ -108,7 +108,7 @@ bool CssParser::parseBlock (vector<Token*>* tokens) {
     throw new ParseException(tokenizer->getToken()->str,
                              "end of block ('}')");
   }
-  tokens->push_back(tokenizer->getToken()->clone());
+  tokens->push(tokenizer->getToken()->clone());
   tokenizer->readNextToken();
   skipWhitespace();
   return true;
@@ -117,7 +117,7 @@ bool CssParser::parseBlock (vector<Token*>* tokens) {
 Ruleset* CssParser::parseRuleset () {
   Ruleset* ruleset = NULL;
   Declaration* declaration = NULL;
-  vector<Token*>* selector = parseSelector();
+  TokenList* selector = parseSelector();
   
   if (selector == NULL) {
     if (tokenizer->getTokenType() != Token::BRACKET_OPEN) 
@@ -154,8 +154,8 @@ Ruleset* CssParser::parseRuleset () {
   return ruleset;
 }
 
-vector<Token*>* CssParser::parseSelector() {
-  vector<Token*>* selector = new vector<Token*>();
+TokenList* CssParser::parseSelector() {
+  TokenList* selector = new TokenList();
   if (!parseAny(selector)) {
     delete selector;
     return NULL;
@@ -165,8 +165,7 @@ vector<Token*>* CssParser::parseSelector() {
 
   // delete trailing whitespace
   while (selector->back()->type == Token::WHITESPACE) {
-    delete selector->back();
-    selector->pop_back();
+    delete selector->pop();
   }
   return selector;
 }
@@ -189,7 +188,7 @@ Declaration* CssParser::parseDeclaration () {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  vector<Token*>* value = parseValue();
+  TokenList* value = parseValue();
   if (value == NULL) {
     throw new ParseException(tokenizer->getToken()->str,
                              "value for property");
@@ -206,12 +205,12 @@ string* CssParser::parseProperty () {
   return property;
 }
 
-vector<Token*>* CssParser::parseValue () {
-  vector<Token*>* value = new vector<Token*>();
+TokenList* CssParser::parseValue () {
+  TokenList* value = new TokenList();
   
   if (parseAny(value) || parseBlock(value)) {
   } else if (tokenizer->getTokenType() == Token::ATKEYWORD) {
-    value->push_back(tokenizer->getToken()->clone());
+    value->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     parseWhitespace(value);
   } else {
@@ -222,7 +221,7 @@ vector<Token*>* CssParser::parseValue () {
   while (true) {
     if (parseAny(value) || parseBlock(value)) {
     } else if (tokenizer->getTokenType() == Token::ATKEYWORD) {
-      value->push_back(tokenizer->getToken()->clone());
+      value->push(tokenizer->getToken()->clone());
       tokenizer->readNextToken();
       parseWhitespace(value);
     } else 
@@ -230,7 +229,7 @@ vector<Token*>* CssParser::parseValue () {
   }
 }
 
-bool CssParser::parseAny (vector<Token*>* tokens) {
+bool CssParser::parseAny (TokenList* tokens) {
   
   switch(tokenizer->getTokenType()) {
   case Token::NUMBER:
@@ -244,12 +243,12 @@ bool CssParser::parseAny (vector<Token*>* tokens) {
   case Token::DASHMATCH:
   case Token::COLON:
   case Token::OTHER:
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     break;
 
   case Token::PAREN_OPEN:
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     skipWhitespace();
 
@@ -258,17 +257,17 @@ bool CssParser::parseAny (vector<Token*>* tokens) {
       throw new ParseException(tokenizer->getToken()->str,
                                "closing parenthesis (')')");
     }
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     break;
       
   case Token::IDENTIFIER:
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     break;
 
   case Token::FUNCTION:
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
 
     skipWhitespace();
@@ -278,12 +277,12 @@ bool CssParser::parseAny (vector<Token*>* tokens) {
       throw new ParseException(tokenizer->getToken()->str,
                                "closing parenthesis (')')");
     }
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     break;
     
   case Token::BRACE_OPEN:
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     skipWhitespace();
     while (parseAny(tokens) || parseUnused(tokens)) {}
@@ -291,7 +290,7 @@ bool CssParser::parseAny (vector<Token*>* tokens) {
       throw new ParseException(tokenizer->getToken()->str,
                                "closing brace (']')");
     }
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     break;
 
@@ -302,14 +301,14 @@ bool CssParser::parseAny (vector<Token*>* tokens) {
   return true;
 }
 
-bool CssParser::parseUnused(vector<Token*>* tokens) {
+bool CssParser::parseUnused(TokenList* tokens) {
   if (parseBlock(tokens)) {
   } else if (tokenizer->getTokenType() == Token::ATKEYWORD) {
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     parseWhitespace(tokens);
   } else if (tokenizer->getTokenType() == Token::DELIMITER) {
-    tokens->push_back(tokenizer->getToken()->clone());
+    tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     skipWhitespace();
   } else

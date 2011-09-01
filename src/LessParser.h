@@ -4,8 +4,8 @@
 #include "CssParser.h"
 #include "Stylesheet.h"
 #include "Token.h"
+#include "TokenList.h"
 #include <map>
-#include <vector>
 
 /**
  * Extends the css spec with these parts:
@@ -36,7 +36,7 @@ public:
   LessParser(CssTokenizer* tokenizer): CssParser(tokenizer) {}
   
 protected:
-  map<string, vector<Token*>*> variables;
+  map<string, TokenList*> variables;
   vector<Ruleset*> mixins;
 
   /**
@@ -52,17 +52,18 @@ protected:
    */
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
-  Ruleset* parseRuleset ();
+  Ruleset* parseRuleset (Stylesheet* stylesheet);
 
-  bool parseRulesetStatement (Ruleset* ruleset);
+  bool parseRulesetStatement (Stylesheet* stylesheet,
+                              Ruleset* ruleset);
     
-  vector<Token*>* parseValue ();
+  TokenList* parseValue ();
 
 private:
-  vector<Token*>* processValue(vector<Token*>* value);
-  bool processVariable (Token* token, vector<Token*>* newvalue);
+  TokenList* processValue(TokenList* value);
+  bool processVariable (Token* token, TokenList* newvalue);
   bool processDeepVariable (Token* token, Token* nexttoken,
-                            vector<Token*>* newvalue);
+                            TokenList* newvalue);
 
   void processNestedRuleset (Ruleset* parent, Ruleset* nested);
   void processMixin(Ruleset* parent, Ruleset* mixin);

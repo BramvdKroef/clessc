@@ -10,10 +10,8 @@ Declaration::~Declaration() {
     delete property;
 
   if (value != NULL) {
-    while (!value->empty()) {
-      delete value->back();
-      value->pop_back();
-    }
+    while (!value->empty()) 
+      delete value->pop();
     delete value;
   }
 }
@@ -21,33 +19,25 @@ Declaration::~Declaration() {
 void Declaration::setProperty(string* property) {
   this->property = property;
 }
-void Declaration::setValue(vector<Token*>* value) {
+void Declaration::setValue(TokenList* value) {
   this->value = value;
 }
 string* Declaration::getProperty() {
   return property;
 }
-vector<Token*>* Declaration::getValue() {
+TokenList* Declaration::getValue() {
   return value;
 }
 Declaration* Declaration::clone() {
-  Declaration* clone = new Declaration(new
-                                       string(this->getProperty()));
-  vector<Token*>* newvalue = new vector<Token*>();
-  vector<Token*>::iterator it;
-  for (it = value->begin(); it < value->end(); it++) {
-    newvalue->push_back((*it)->clone());
-  }
-  clone->setValue(newvalue);
+  Declaration* clone =
+    new Declaration(new string(*this->getProperty()));
+  
+  clone->setValue(value->clone());
   return clone;
 }
 
 Ruleset::~Ruleset() {
   if (selector != NULL) {
-    while (!selector->empty()) {
-      delete selector->back();
-      selector->pop_back();
-    }
     delete selector;
   }
   
@@ -57,13 +47,13 @@ Ruleset::~Ruleset() {
   }
 }
 
-void Ruleset::setSelector (vector<Token*>* selector) {
+void Ruleset::setSelector (TokenList* selector) {
   this->selector = selector;
 }
 void Ruleset::addDeclaration (Declaration* declaration) {
   declarations.push_back(declaration);
 }
-vector<Token*>* Ruleset::getSelector() {
+TokenList* Ruleset::getSelector() {
   return selector;
 }
 vector<Declaration*>* Ruleset::getDeclarations() {
@@ -79,28 +69,22 @@ AtRule::~AtRule() {
   if (keyword != NULL)
     delete keyword;
 
-  if (rule != NULL) {
-    while (!rule->empty()) {
-      delete rule->back();
-      rule->pop_back();
-    }
+  if (rule != NULL) 
     delete rule;
-  }
 }
 
 void AtRule::setKeyword (string* keyword) {
   this->keyword = keyword;
 }
-void AtRule::setRule(vector<Token*>* rule) {
+void AtRule::setRule(TokenList* rule) {
   this->rule = rule;
 }
 string* AtRule::getKeyword() {
   return keyword;
 }
-vector<Token*>* AtRule::getRule() {
+TokenList* AtRule::getRule() {
   return rule;
 }
-
 
 Stylesheet::~Stylesheet() {
   while (!atrules.empty()) {
@@ -126,6 +110,11 @@ vector<AtRule*>* Stylesheet::getAtRules() {
 vector<Ruleset*>* Stylesheet::getRulesets() {
   return &rulesets;
 }
-Ruleset* Stylesheet::getRuleset(vector<Token*> selector) {
+Ruleset* Stylesheet::getRuleset(TokenList* selector) {
+  vector<Ruleset*>::iterator it;
+  for (it = rulesets.begin(); it < rulesets.end(); it++) {
+    if ((*it)->getSelector()->equals(selector)) 
+      return *it;
+  }
   return NULL;
 }

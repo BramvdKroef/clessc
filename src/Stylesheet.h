@@ -2,53 +2,55 @@
 #define __Stylesheet_h__
 
 #include "Token.h"
+#include "TokenList.h"
 #include <string>
 #include <vector>
+
 using namespace std;
 
 class Declaration {
 private:
   string* property;
-  vector<Token*>* value;
+  TokenList* value;
   
 public:
   Declaration(string* property);
   virtual ~Declaration();
   void setProperty(string* property);
-  void setValue(vector<Token*>* value);
+  void setValue(TokenList* value);
   
   string* getProperty();
-  vector<Token*>* getValue();
+  TokenList* getValue();
   Declaration* clone();
 };
   
 class Ruleset {
 private:
-  vector<Token*>* selector;
+  TokenList* selector;
   vector<Declaration*> declarations;
   
 public:
   virtual ~Ruleset();
-  void setSelector (vector<Token*>* selector);
+  void setSelector (TokenList* selector);
   void addDeclaration (Declaration* declaration);
 
-  vector<Token*>* getSelector();
+  TokenList* getSelector();
   vector<Declaration*>* getDeclarations();
 };
 
 class AtRule {
 private:
   string* keyword;
-  vector<Token*>* rule;
+  TokenList* rule;
 
 public:
   AtRule(string* keyword);
   virtual ~AtRule();
   void setKeyword (string* keyword);
-  void setRule(vector<Token*>* rule);
+  void setRule(TokenList* rule);
 
   string* getKeyword();
-  vector<Token*>* getRule();
+  TokenList* getRule();
 };
 
 class Stylesheet {
@@ -66,7 +68,7 @@ public:
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();
 
-  Ruleset* getRuleset(vector<Token*> selector);
+  Ruleset* getRuleset(TokenList* selector);
 };
 
 #endif
