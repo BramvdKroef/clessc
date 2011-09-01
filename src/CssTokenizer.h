@@ -1,7 +1,6 @@
 #ifndef __CssTokenizer_h__
 #define __CssTokenizer_h__
 
-#include <ctype.h>
 #include <iostream>
 #include <string>
 #include "Token.h"
@@ -98,11 +97,12 @@ public:
   int getLineNumber();
   int getPosition();
 		
-private:
+protected:
   istream* in;
 
   Token currentToken;
-
+  char lastRead;
+  
   int lineNum, position;
   
   void readChar();
@@ -120,11 +120,8 @@ private:
   bool readWhitespace();
   bool readUrl();
   bool isHex(char c);
-  bool readComment();
+  virtual bool readComment();
   bool readUnicodeRange ();
-		
-protected:
-  char lastRead;
 };
 
 #endif
