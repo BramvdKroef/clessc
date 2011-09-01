@@ -60,7 +60,6 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
 
 Ruleset* LessParser::parseRuleset () {
   Ruleset* ruleset = NULL;
-  Declaration* declaration = NULL;
   vector<Token*>* selector = parseSelector();
   
   if (selector == NULL) {
@@ -74,18 +73,14 @@ Ruleset* LessParser::parseRuleset () {
 
   ruleset = new Ruleset();
   ruleset->setSelector(selector);
-  
+
   skipWhitespace();
-  declaration = parseDeclaration();
-  if (declaration != NULL)
-    ruleset->addDeclaration(declaration);
+  parseRulesetStatement(ruleset);
   
   while (tokenizer->getTokenType() == Token::DELIMITER) {
     tokenizer->readNextToken();
     skipWhitespace();
-    declaration = parseDeclaration();
-    if (declaration != NULL)
-      ruleset->addDeclaration(declaration);
+    parseRulesetStatement(ruleset);
   }
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
@@ -98,7 +93,41 @@ Ruleset* LessParser::parseRuleset () {
   return ruleset;
 }
 
-
+bool LessParser::parseRulesetStatement (Ruleset* ruleset) {
+  Declaration* declaration = NULL;
+  vector<Token*>* selector = NULL;
+  string* property = parseProperty();
+  
+  // if we can parse a property and the next token is a COLON then the
+  // statement is a declaration.
+  if (property != NULL) {
+    skipWhitespace();
+    if (tokenizer->getTokenType() == Token::COLON) {
+      tokenizer->readNextToken();
+      skipWhitespace();
+      
+      declaration = new Declaration(property);
+      
+      vector<Token*>* value = parseValue();
+      if (value == NULL) {
+        throw new ParseException(tokenizer->getToken()->str,
+                                 "value for property");
+      }
+      declaration->setValue(value);
+      ruleset->addDeclaration(declaration);
+      return true;
+    }
+  }
+  
+  // otherwise parse a selector
+  selector = parseSelector();
+  if (selector == NULL)
+    return false;
+  
+  // if followed by a ruleset it's a nested rule, otherwise it's a
+  // mixin.
+  return true;
+}
 
 vector<Token*>* LessParser::parseValue () {
   vector<Token*>* value = CssParser::parseValue();

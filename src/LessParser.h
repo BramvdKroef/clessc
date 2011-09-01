@@ -54,6 +54,8 @@ protected:
 
   Ruleset* parseRuleset ();
 
+  bool parseRulesetStatement (Ruleset* ruleset);
+    
   vector<Token*>* parseValue ();
 
 private:
