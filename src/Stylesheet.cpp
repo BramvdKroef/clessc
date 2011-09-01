@@ -30,6 +30,17 @@ string* Declaration::getProperty() {
 vector<Token*>* Declaration::getValue() {
   return value;
 }
+Declaration* Declaration::clone() {
+  Declaration* clone = new Declaration(new
+                                       string(this->getProperty()));
+  vector<Token*>* newvalue = new vector<Token*>();
+  vector<Token*>::iterator it;
+  for (it = value->begin(); it < value->end(); it++) {
+    newvalue->push_back((*it)->clone());
+  }
+  clone->setValue(newvalue);
+  return clone;
+}
 
 Ruleset::~Ruleset() {
   if (selector != NULL) {

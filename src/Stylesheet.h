@@ -19,6 +19,7 @@ public:
   
   string* getProperty();
   vector<Token*>* getValue();
+  Declaration* clone();
 };
   
 class Ruleset {
