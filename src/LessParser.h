@@ -5,6 +5,7 @@
 #include "Stylesheet.h"
 #include "Token.h"
 #include "TokenList.h"
+#include "ParameterRuleset.h"
 #include <map>
 
 /**
@@ -37,7 +38,7 @@ public:
   
 protected:
   map<string, TokenList*> variables;
-  vector<Ruleset*> mixins;
+  vector<ParameterRuleset*> parameterRulesets;
 
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to
@@ -52,7 +53,7 @@ protected:
    */
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
-  Ruleset* parseRuleset (Stylesheet* stylesheet,
+  bool parseRuleset (Stylesheet* stylesheet,
                          TokenList* selector = NULL);
 
   bool parseRulesetStatement (Stylesheet* stylesheet,

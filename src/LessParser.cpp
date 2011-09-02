@@ -1,13 +1,7 @@
 #include "LessParser.h"
 
 bool LessParser::parseStatement(Stylesheet* stylesheet) {
-  Ruleset* ruleset = parseRuleset(stylesheet);
-  if (ruleset != NULL) {
-    stylesheet->addRuleset(ruleset);
-    return true;
-  }
-  
-  return parseAtRuleOrVariable(stylesheet);
+  return parseRuleset(stylesheet) || parseAtRuleOrVariable(stylesheet);
 }
 
 bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
@@ -58,7 +52,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
   return true;
 }
 
-Ruleset* LessParser::parseRuleset (Stylesheet* stylesheet,
+bool LessParser::parseRuleset (Stylesheet* stylesheet,
                                    TokenList* selector) {
   Ruleset* ruleset = NULL;
   if (selector == NULL)
@@ -66,7 +60,7 @@ Ruleset* LessParser::parseRuleset (Stylesheet* stylesheet,
   
   if (selector == NULL) {
     if (tokenizer->getTokenType() != Token::BRACKET_OPEN) 
-      return NULL;
+      return false;
   } else if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken()->str,
                              "a declaration block ('{...}')");
@@ -75,7 +69,8 @@ Ruleset* LessParser::parseRuleset (Stylesheet* stylesheet,
 
   ruleset = new Ruleset();
   ruleset->setSelector(selector);
-
+  stylesheet->addRuleset(ruleset);
+  
   skipWhitespace();
   parseRulesetStatement(stylesheet, ruleset);
   
@@ -86,7 +81,7 @@ Ruleset* LessParser::parseRuleset (Stylesheet* stylesheet,
   tokenizer->readNextToken();
   skipWhitespace();
   
-  return ruleset;
+  return true;
 }
 
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
@@ -139,8 +134,7 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
   // mixin.
   if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
     processNestedSelector(ruleset->getSelector(), selector);
-    Ruleset* nested = parseRuleset(stylesheet, selector);
-    stylesheet->addRuleset(nested);
+    parseRuleset(stylesheet, selector);
     
     parseRulesetStatement(stylesheet, ruleset);
   } else {
