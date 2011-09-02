@@ -9,6 +9,7 @@ TokenListIterator::TokenListIterator(list<Token*>::iterator begin,
 }
 void TokenListIterator::toEnd () {
   it = end;
+  it++;
 }
 Token* TokenListIterator::previous () {
   return *--it;
@@ -106,8 +107,8 @@ void TokenList::push(TokenList* list) {
 }
 void TokenList::unshift(TokenList* list) {
   TokenListIterator* it = list->reverseIterator();
-  while (it->hasNext())
-    unshift(it->next()->clone());
+  while (it->hasPrevious())
+    unshift(it->previous()->clone());
   delete it;
 }
 
