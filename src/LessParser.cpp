@@ -58,9 +58,11 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
   return true;
 }
 
-Ruleset* LessParser::parseRuleset (Stylesheet* stylesheet) {
+Ruleset* LessParser::parseRuleset (Stylesheet* stylesheet,
+                                   TokenList* selector) {
   Ruleset* ruleset = NULL;
-  TokenList* selector = parseSelector();
+  if (selector == NULL)
+    selector = parseSelector();
   
   if (selector == NULL) {
     if (tokenizer->getTokenType() != Token::BRACKET_OPEN) 
@@ -136,8 +138,10 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
   // if followed by a ruleset it's a nested rule, otherwise it's a
   // mixin.
   if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
-    Ruleset* nested = parseRuleset(stylesheet);
-    processNestedRuleset(ruleset, nested);
+    processNestedSelector(ruleset->getSelector(), selector);
+    Ruleset* nested = parseRuleset(stylesheet, selector);
+    stylesheet->addRuleset(nested);
+    
     parseRulesetStatement(stylesheet, ruleset);
   } else {
     Ruleset* mixin = stylesheet->getRuleset(selector);
@@ -222,12 +226,6 @@ bool LessParser::processDeepVariable (Token* token, Token* nexttoken,
   return true;
 }
 
-void LessParser::processNestedRuleset (Ruleset* parent,
-                                       Ruleset* nested) {
-  TokenList* selector = parent->getSelector();
-  TokenList* nSelector = nested->getSelector();
-  nSelector->unshift(selector);
-}
 void LessParser::processMixin(Ruleset* parent, Ruleset* mixin) {
   vector<Declaration*>* declarations = mixin->getDeclarations();
   vector<Declaration*>::iterator it;
@@ -235,4 +233,12 @@ void LessParser::processMixin(Ruleset* parent, Ruleset* mixin) {
   for (it = declarations->begin(); it < declarations->end(); it++) {
     parent->addDeclaration((*it)->clone());
   }
+}
+
+void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
+  if (nested->front()->str == "&")
+    delete nested->shift();
+  else
+    nested->unshift(new Token(" ", Token::WHITESPACE));
+  nested->unshift(parent);
 }

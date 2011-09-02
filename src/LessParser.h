@@ -52,7 +52,8 @@ protected:
    */
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
-  Ruleset* parseRuleset (Stylesheet* stylesheet);
+  Ruleset* parseRuleset (Stylesheet* stylesheet,
+                         TokenList* selector = NULL);
 
   bool parseRulesetStatement (Stylesheet* stylesheet,
                               Ruleset* ruleset);
@@ -65,8 +66,8 @@ private:
   bool processDeepVariable (Token* token, Token* nexttoken,
                             TokenList* newvalue);
 
-  void processNestedRuleset (Ruleset* parent, Ruleset* nested);
   void processMixin(Ruleset* parent, Ruleset* mixin);
+  void processNestedSelector(TokenList* parent, TokenList* nested);
 };
 
 #endif
