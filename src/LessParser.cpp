@@ -67,10 +67,12 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   }
   tokenizer->readNextToken();
 
-  ruleset = new Ruleset();
-  ruleset->setSelector(selector);
-  if (selector->back()->type != Token::PAREN_CLOSED)
+  if (selector->back()->type != Token::PAREN_CLOSED) {
+    ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
+  } else {
+    processParametricRuleset(ruleset);
+  }
     
   skipWhitespace();
   parseRulesetStatement(stylesheet, ruleset);
@@ -236,4 +238,6 @@ void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
   else
     nested->unshift(new Token(" ", Token::WHITESPACE));
   nested->unshift(parent);
+}
+void LessParser::processParametricRuleset() {
 }

@@ -128,8 +128,7 @@ Ruleset* CssParser::parseRuleset () {
   }
   tokenizer->readNextToken();
 
-  ruleset = new Ruleset();
-  ruleset->setSelector(selector);
+  ruleset = new Ruleset(selector);
   
   skipWhitespace();
   declaration = parseDeclaration();

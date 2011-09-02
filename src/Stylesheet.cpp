@@ -36,6 +36,12 @@ Declaration* Declaration::clone() {
   return clone;
 }
 
+Ruleset::Ruleset() {
+}
+Ruleset::Ruleset(TokenList* selector) {
+  this->selector = selector;
+}
+
 Ruleset::~Ruleset() {
   if (selector != NULL) {
     delete selector;

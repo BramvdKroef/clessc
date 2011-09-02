@@ -30,6 +30,8 @@ private:
   vector<Declaration*> declarations;
   
 public:
+  Ruleset ();
+  Ruleset(TokenList* selector);
   virtual ~Ruleset();
   void setSelector (TokenList* selector);
   void addDeclaration (Declaration* declaration);
