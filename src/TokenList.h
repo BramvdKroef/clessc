@@ -16,6 +16,7 @@ public:
   Token* previous ();
   Token* next ();
   Token* peek ();
+  Token* current ();
   bool hasNext ();
   bool hasPrevious ();
 };
@@ -31,17 +32,14 @@ public:
   Token* pop ();
 
   void unshift (Token* token);
-  
   Token* shift ();
 
   bool empty ();
-
   int size();
 
   bool equals(TokenList* list);
 
   Token* back();
-
   Token* front();
 
   TokenListIterator* iterator();

@@ -24,6 +24,10 @@ Token* TokenListIterator::peek () {
   it--;
   return ret;
 }
+Token* TokenListIterator::current () {
+  return *it;
+}
+
 bool TokenListIterator::hasNext () {
   return (it != end);
 }
