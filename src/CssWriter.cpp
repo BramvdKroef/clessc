@@ -40,6 +40,9 @@ void CssWriter::writeRuleset(Ruleset* ruleset) {
   
   vector<Declaration*>* declarations = ruleset->getDeclarations();
   vector<Declaration*>::iterator dIt;
+
+  if (declarations->size() == 0)
+    return;
   
   if (selector != NULL) {
     for (it = selector->iterator(); it->hasNext();) {
