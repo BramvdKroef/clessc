@@ -69,8 +69,9 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 
   ruleset = new Ruleset();
   ruleset->setSelector(selector);
-  stylesheet->addRuleset(ruleset);
-  
+  if (selector->back()->type != Token::PAREN_CLOSED)
+    stylesheet->addRuleset(ruleset);
+    
   skipWhitespace();
   parseRulesetStatement(stylesheet, ruleset);
   
