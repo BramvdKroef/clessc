@@ -41,6 +41,7 @@ public:
 
   Token* back();
   Token* front();
+  Token* at(unsigned int i);
 
   TokenListIterator* iterator();
   TokenListIterator* reverseIterator ();

@@ -92,6 +92,17 @@ Token* TokenList::back() {
 Token* TokenList::front() {
   return tokens.front();
 }
+Token* TokenList::at(unsigned int i) {
+  list<Token*>::iterator it;
+  
+  if (i < 0 || i > tokens.size())
+    return NULL;
+
+  it = tokens.begin();
+  for (unsigned int j = 0; j < i; j++)
+    it++;
+  return *it;
+}
 
 TokenListIterator* TokenList::iterator() {
   return new TokenListIterator(tokens.begin(), tokens.end());
