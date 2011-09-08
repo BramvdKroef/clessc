@@ -29,6 +29,7 @@ public:
   int getPercent();
   string getUnit();
   void setValue(double d);
+  void setPercent(int i);
 };
 
 class Color: public Value {

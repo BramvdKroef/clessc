@@ -35,7 +35,7 @@ bool Value::add(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() + v->getValue());
   else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setValue(getPercent() + v->getPercent());
+    setPercent(getPercent() + v->getPercent());
   else
     return false;
   
@@ -45,7 +45,7 @@ bool Value::substract(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() - v->getValue());
   else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setValue(getPercent() - v->getPercent());
+    setPercent(getPercent() - v->getPercent());
   else
     return false;
   
@@ -54,8 +54,8 @@ bool Value::substract(Value* v) {
 bool Value::multiply(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() * v->getValue());
-  else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setValue(getPercent() * v->getPercent());
+  else if (type == PERCENTAGE && v->type == NUMBER)
+    setPercent(getPercent() * v->getValue());
   else
     return false;
   
@@ -64,8 +64,8 @@ bool Value::multiply(Value* v) {
 bool Value::divide(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() * v->getValue());
-  else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setValue(getPercent() * v->getPercent());
+  else if (type == PERCENTAGE && v->type == NUMBER)
+    setPercent(getPercent() * v->getValue());
   else
     return false;
   
@@ -103,6 +103,15 @@ void Value::setValue(double d) {
     stm << getUnit();
   else if (type == Value::PERCENTAGE)
     stm << "%";
+  token->str = stm.str();
+}
+void Value::setPercent(int i) {
+  ostringstream stm;
+  if (type != Value::PERCENTAGE)
+    return;
+
+  stm << i;
+  stm << "%";
   token->str = stm.str();
 }
 
