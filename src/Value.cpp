@@ -107,10 +107,10 @@ void Value::setValue(double d) {
 }
 
 Color::Color(Token* token): Value() {
-  unsigned int color[3];
   int len;
 
   this->token = token;
+  type = Value::COLOR;
   
   if (token->str.size() == 4)
     len = 1;
@@ -125,9 +125,8 @@ Color::Color(Token* token): Value() {
     istringstream stm(token->str.substr(1 + (i * len), len));
     stm >> hex >> color[i];
     if (len == 1)
-      color[i] = color[i] * 11;
+      color[i] = color[i] * 0x11;
   }
-  Color(color[0], color[1], color[2]);
 }
 Color::Color(unsigned int red, unsigned int green, unsigned int blue): Value(NULL) {
   type = Value::COLOR;
@@ -135,10 +134,10 @@ Color::Color(unsigned int red, unsigned int green, unsigned int blue): Value(NUL
   color[1] = green;
   color[2] = blue;
   
-  if (token == NULL)
-    token = new Token("#", Token::HASH);
+  token = new Token("#", Token::HASH);
 }
-Color::~Color() {}
+Color::~Color() {
+}
 
 Token* Color::getToken() {
   ostringstream stm;
@@ -151,19 +150,23 @@ Token* Color::getToken() {
     sColor[i] = stm.str();
   }
   stm.str("");
+  stm << "#";
   
-  if (sColor[0].size() == 1 && sColor[1].size() == 1 &&
-      sColor[2].size() == 1) {
-    stm << "#" << sColor[0] << sColor[1] << sColor[2];
-  } else {
-    stm << "#";
-    for (i = 0; i < 3; i++) {
-      if (sColor[i].size() == 1)
-        stm << "0";
-      stm << sColor[i];
-    }
+  for (i = 0; i < 3; i++) {
+    if (sColor[i].size() == 1)
+      stm << "0";
+    stm << sColor[i];
   }
   token->str = stm.str();
+
+  // convert to shorthand if possible
+  if (token->str[1] == token->str[2] &&
+      token->str[3] == token->str[4] &&
+      token->str[5] == token->str[6]) {
+    stm.str("");
+    stm << "#" << token->str[1] << token->str[3] << token->str[4];
+    token->str = stm.str();
+  }
   return token;
 }
   
