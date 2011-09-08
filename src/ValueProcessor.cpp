@@ -1,6 +1,7 @@
 #include "ValueProcessor.h"
 
 #include <sstream>
+#include <iostream>
 
 template <class T>
 inline std::string to_string (const T& t)
@@ -13,7 +14,7 @@ inline std::string to_string (const T& t)
 TokenList* ValueProcessor::processValue(TokenList* value) {
   TokenList newvalue;
   Value* v;
-
+  std::cout << *value->toString() << endl;
   while (value->size() > 0) {
     v = processStatement(value);
     if (v != NULL) {
@@ -49,7 +50,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   Token* op;
   string operators("+-*/");
       
-  if (!operators.find(value->front()->str))
+  if (value->size() == 0 || !operators.find(value->front()->str))
     return NULL;
   
   if (lastop != NULL &&
@@ -74,10 +75,13 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   return v1;
 }
 Value* ValueProcessor::processConstant(TokenList* value) {
-  Token* token = value->front();
+  Token* token;
   Value* ret;
   vector<Value*> arguments;
+  if (value->size() == 0)
+    return NULL;
   
+  token = value->front();
   switch(token->type) {
   case Token::HASH:
     // generate color from hex value
@@ -183,7 +187,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->darken(arguments[1]->getPercent()());
+      static_cast<Color*>(arguments[0])->darken(arguments[1]->getPercent());
       return arguments[0];
     }
 
