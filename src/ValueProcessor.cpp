@@ -143,7 +143,9 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     
   case Token::ATKEYWORD:
     if (variables.count(token->str)) {
-      ret = processConstant(variables[token->str]);
+      TokenList* var = variables[token->str]->clone();
+      ret = processConstant(var);
+      delete var;
       delete value->shift();
       return ret;
     } else
