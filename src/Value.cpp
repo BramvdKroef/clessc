@@ -63,9 +63,9 @@ bool Value::multiply(Value* v) {
 }
 bool Value::divide(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
-    setValue(getValue() * v->getValue());
+    setValue(getValue() / v->getValue());
   else if (type == PERCENTAGE && v->type == NUMBER)
-    setPercent(getPercent() * v->getValue());
+    setPercent(getPercent() / v->getValue());
   else
     return false;
   
@@ -178,7 +178,55 @@ Token* Color::getToken() {
   }
   return token;
 }
+bool Color::add(Value* v) {
+  Color* c;
+  double percent;
   
+  if (v->type == COLOR) {
+    c = static_cast<Color*>(v);
+    color[0] += c->getRed();
+    color[1] += c->getGreen();
+    color[2] += c->getBlue();
+  } else if (v->type == PERCENTAGE) {
+    percent = v->getPercent() * 0.01;
+    color[0] *= percent;
+    color[1] *= percent;
+    color[2] *= percent;
+  } else 
+    return false;
+  return true;
+}
+bool Color::substract(Value* v) {
+  Color* c;
+  
+  if (v->type == COLOR) {
+    c = static_cast<Color*>(v);
+    color[0] -= c->getRed();
+    color[1] -= c->getGreen();
+    color[2] -= c->getBlue();
+  } else 
+    return false;
+  return true;
+}
+bool Color::multiply(Value* v) {
+  if (v->type == NUMBER) {
+    color[0] *= v->getValue();
+    color[1] *= v->getValue();
+    color[2] *= v->getValue();
+  } else 
+    return false;
+  return true;
+}
+bool Color::divide(Value* v) {
+  if (v->type == NUMBER) {
+    color[0] /= v->getValue();
+    color[1] /= v->getValue();
+    color[2] /= v->getValue();
+  } else 
+    return false;
+  return true;
+}
+    
 void Color::setHSL(unsigned int hue, unsigned int saturation, unsigned int
             lightness) {
 }
@@ -195,6 +243,16 @@ void Color::fadein(unsigned int percent) {
 void Color::fadeout(unsigned int percent) {
 }
 void Color::spin(unsigned int percent) {
+}
+
+unsigned int Color::getRed() {
+  return color[0];
+}
+unsigned int Color::getGreen() {
+  return color[1];
+}
+unsigned int Color::getBlue() {
+  return color[2];
 }
 
 int Color::getHue() {

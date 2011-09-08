@@ -21,10 +21,10 @@ public:
   
   virtual Token* getToken();
   
-  bool add(Value* v);
-  bool substract(Value* v);
-  bool multiply(Value* v);
-  bool divide(Value* v);
+  virtual bool add(Value* v);
+  virtual bool substract(Value* v);
+  virtual bool multiply(Value* v);
+  virtual bool divide(Value* v);
   double getValue();
   int getPercent();
   string getUnit();
@@ -42,6 +42,11 @@ public:
 
   Token* getToken();
   
+  bool add(Value* v);
+  bool substract(Value* v);
+  bool multiply(Value* v);
+  bool divide(Value* v);
+  
   void setHSL(unsigned int hue, unsigned int saturation,
               unsigned int lightness);
   void lighten(unsigned int percent);
@@ -52,6 +57,9 @@ public:
   void fadeout(unsigned int percent);
   void spin(unsigned int percent);
 
+  unsigned int getRed();
+  unsigned int getGreen();
+  unsigned int getBlue();
   int getHue();
   int getSaturation();
   int getLightness();
