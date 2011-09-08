@@ -11,12 +11,16 @@ inline std::string to_string (const T& t)
   return ss.str();
 }
 
+ValueProcessor::ValueProcessor() {}
+ValueProcessor::~ValueProcessor() {}
+
 TokenList* ValueProcessor::processValue(TokenList* value) {
   TokenList newvalue;
   Value* v;
   std::cout << *value->toString() << endl;
   while (value->size() > 0) {
     v = processStatement(value);
+
     if (v != NULL) {
       newvalue.push(v->getToken()->clone());
       delete v;
@@ -36,6 +40,7 @@ void ValueProcessor::putVariable(string key, TokenList* value) {
 
 Value* ValueProcessor::processStatement(TokenList* value) {
   Value* op, *v = processConstant(value);
+  
   if (v != NULL) {
     while ((op = processOperator(value, v))) 
       v = op;
