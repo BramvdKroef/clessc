@@ -6,7 +6,7 @@
 #include "Token.h"
 #include "TokenList.h"
 #include "ParameterRuleset.h"
-#include <map>
+#include "ValueProcessor.h"
 
 /**
  * Extends the css spec with these parts:
@@ -34,12 +34,17 @@
  */
 class LessParser: public CssParser {
 public:
-  LessParser(CssTokenizer* tokenizer): CssParser(tokenizer) {}
+  LessParser(CssTokenizer* tokenizer): CssParser(tokenizer) {
+    valueProcessor = new ValueProcessor();
+  }
+  virtual ~LessParser () {
+    delete valueProcessor;
+  }
   
 protected:
-  map<string, TokenList*> variables;
   vector<ParameterRuleset*> parameterRulesets;
-
+  ValueProcessor* valueProcessor;
+  
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to
    * variables and don't add it to the Stylesheet.
@@ -69,6 +74,9 @@ private:
 
   void processMixin(Ruleset* parent, Ruleset* mixin);
   void processNestedSelector(TokenList* parent, TokenList* nested);
+  void processParameterRuleset(ParameterRuleset* ruleset);
+  bool processParameter(TokenListIterator* it,
+                        ParameterRuleset* ruleset);
 };
 
 #endif

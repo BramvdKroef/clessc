@@ -264,7 +264,7 @@ bool CssParser::parseAny (TokenList* tokens) {
     tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
     break;
-
+    
   case Token::FUNCTION:
     tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();

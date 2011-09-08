@@ -5,14 +5,14 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
 }
 
 bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
-  string* keyword = NULL;
+  string keyword;
   TokenList* rule;
   AtRule* atrule = NULL;
   
   if (tokenizer->getTokenType() != Token::ATKEYWORD) 
     return false;
 
-  keyword = new string(tokenizer->getToken()->str);
+  keyword = tokenizer->getToken()->str;
   tokenizer->readNextToken();
   skipWhitespace();
 
@@ -29,7 +29,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
       throw new ParseException(tokenizer->getToken()->str,
                                "delimiter (';') at end of @-rule");
     }
-    variables[*(keyword)] = rule;
+    valueProcessor->putVariable(keyword, rule);
     tokenizer->readNextToken();
     skipWhitespace();
     
@@ -45,7 +45,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
       tokenizer->readNextToken();
       skipWhitespace();
     }
-    atrule = new AtRule(keyword);
+    atrule = new AtRule(new string(keyword));
     atrule->setRule(rule);
     stylesheet->addAtRule(atrule);
   }
@@ -71,7 +71,8 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
   } else {
-    processParametricRuleset(ruleset);
+    ruleset = new ParameterRuleset(selector);
+    processParameterRuleset((ParameterRuleset*)ruleset);
   }
     
   skipWhitespace();
@@ -133,14 +134,14 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     delete property;
   }
 
-  // if followed by a ruleset it's a nested rule, otherwise it's a
-  // mixin.
+  // if followed by a ruleset it's a nested rule
   if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
     processNestedSelector(ruleset->getSelector(), selector);
     parseRuleset(stylesheet, selector);
     
     parseRulesetStatement(stylesheet, ruleset);
   } else {
+    // otherwise it's a mixin.
     Ruleset* mixin = stylesheet->getRuleset(selector);
     if (mixin == NULL)
       throw new ParseException(*selector->toString(),
@@ -158,70 +159,12 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
 
 TokenList* LessParser::parseValue () {
   TokenList* value = CssParser::parseValue();
-  if (value != NULL) {
-    TokenList* newvalue = processValue(value);
-    delete value;
-    return newvalue;
-  } else
-    return value;
+  if (value != NULL) 
+    valueProcessor->processValue(value);
+  
+  return value;
 }
 
-TokenList* LessParser::processValue(TokenList* value) {
-  TokenList* newvalue = new TokenList();
-  TokenListIterator* it = value->iterator();
-  Token* token = NULL;
-  
-  while(it->hasNext()) {
-    token = it->next();
-    
-    if (processVariable(token, newvalue)) {
-    } else if (it->hasNext(),
-               processDeepVariable(token, it->peek(), newvalue)) { 
-      it->next();
-    } else
-      newvalue->push(token->clone());
-  }
-  return newvalue;
-}
-
-bool LessParser::processVariable (Token* token, TokenList* newvalue) {
-  if (token->type == Token::ATKEYWORD && variables.count(token->str)) {
-    newvalue->push(variables[token->str]);
-    return true;
-  } else
-    return false;
-}
-
-bool LessParser::processDeepVariable (Token* token, Token* nexttoken,
-                                      TokenList* newvalue) {
-  TokenList* var;
-  string key("@");
-  
-  if (token->type != Token::OTHER ||
-      token->str != "@")
-    return false;
-  
-  if (nexttoken->type != Token::ATKEYWORD ||
-      !variables.count(nexttoken->str))
-    return false;
-  
-  var = variables[nexttoken->str];
-
-  if (var->size() > 1 ||
-      var->front()->type != Token::STRING)
-    return false;
-
-  // generate key with '@' + var without quotes
-  key.append(var->front()->
-             str.substr(1, var->front()->str.size() - 2));
-
-  if (!variables.count(key))
-    return false;
-  
-  var = variables[key];
-  newvalue->push(var);
-  return true;
-}
 
 void LessParser::processMixin(Ruleset* parent, Ruleset* mixin) {
   vector<Declaration*>* declarations = mixin->getDeclarations();
@@ -239,5 +182,58 @@ void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
     nested->unshift(new Token(" ", Token::WHITESPACE));
   nested->unshift(parent);
 }
-void LessParser::processParametricRuleset() {
+void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
+  TokenList* selector = ruleset->getSelector();
+  TokenListIterator* it = selector->reverseIterator();
+  
+  while (it->hasPrevious() && it->previous()->type != Token::PAREN_OPEN) {}
+  if (!it->hasPrevious()) {
+    throw new ParseException(*selector->toString(),
+                             "matching parentheses.");
+  }
+  while (processParameter(it, ruleset)) {
+  }
+  while (selector->back()->type != Token::PAREN_OPEN) {
+    delete selector->pop();
+  }
+  delete selector->pop();
+  parameterRulesets.push_back(ruleset);
+  delete it;
 }
+
+bool LessParser::processParameter(TokenListIterator* it,
+                                  ParameterRuleset* ruleset) {
+  Token* current;
+  string keyword;
+  TokenList* value = NULL;
+
+  while (it->hasNext()) {
+    if(it->next()->type != Token::WHITESPACE) {
+      it->previous();
+      break;
+    }
+  }
+
+  if (!it->hasNext() || (current = it->next())->type != Token::ATKEYWORD)
+    return false;
+  
+  keyword = current->str;
+
+  if (it->next()->type == Token::COLON) {
+    value = new TokenList();
+    
+    while ((current = it->next())->type != Token::PAREN_CLOSED &&
+           current->str != ",") {
+      value->push(current->clone());
+    }
+        
+    if (value->size() == 0) {
+      throw new ParseException(current->str,
+                               "default value following ':'");
+    }
+  }
+
+  ruleset->addParameter(keyword, value);
+  return true;
+}
+
