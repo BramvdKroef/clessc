@@ -22,14 +22,28 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
     v = processStatement(value);
 
     if (v != NULL) {
+      if (newvalue.size() > 0)
+        newvalue.push(new Token(" ", Token::WHITESPACE));
       newvalue.push(v->getToken()->clone());
       delete v;
-    } else if (value->front()->type == Token::ATKEYWORD &&
+    } else if (value->size() > 0) {
+      if (value->front()->type == Token::ATKEYWORD &&
                variables.count(value->front()->str)) {
-      newvalue.push(variables[value->front()->str]);
-      delete value->shift();
-    } else
-      newvalue.push(value->shift());
+        newvalue.push(variables[value->front()->str]);
+        delete value->shift();
+      } else {
+        if (value->size() > 1) {
+          TokenList* var = processDeepVariable(value->front(), value->at(1));
+          if (var != NULL) {
+            newvalue.push(var);
+            delete value->shift();
+            delete value->shift();
+          } else
+            newvalue.push(value->shift());
+        } else
+          newvalue.push(value->shift());
+      }
+    }
   }
   value->push(&newvalue);
   return value;
@@ -54,8 +68,13 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   Value* v2, *tmp;
   Token* op;
   string operators("+-*/");
-      
-  if (value->size() == 0 || !operators.find(value->front()->str))
+
+  while (value->size() > 0 &&
+         value->front()->type == Token::WHITESPACE) {
+    delete value->shift();
+  }
+  if (value->size() == 0 ||
+      operators.find(value->front()->str) == string::npos)
     return NULL;
   
   if (lastop != NULL &&
@@ -65,6 +84,12 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   }
   op = value->shift();
   v2 = processConstant(value);
+  if (v2 == NULL) {
+    if (value->size() > 0) 
+      throw new ParseException(value->front()->str, "Constant or @-variable");
+    else
+      throw new ParseException("end of line", "Constant or @-variable");
+  }
   while ((tmp = processOperator(value, v2, op))) 
     v2 = tmp;
     
@@ -83,6 +108,12 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   Token* token;
   Value* ret;
   vector<Value*> arguments;
+
+  while (value->size() > 0 &&
+         value->front()->type == Token::WHITESPACE) {
+    delete value->shift();
+  }
+
   if (value->size() == 0)
     return NULL;
   
@@ -130,10 +161,14 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   default:
     if (value->size() > 1) {
       TokenList* var = processDeepVariable(token, value->at(1));
+
       if (var != NULL) {
         ret = processStatement(var);
-        delete value->shift();
-        return ret;
+        if (ret != NULL) {
+          delete value->shift();
+          delete value->shift();
+          return ret;
+        }
       }
     }
     return NULL;
