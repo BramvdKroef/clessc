@@ -2,6 +2,7 @@
 #define __Value_h__
 
 #include "Token.h"
+#include "ParseException.h"
 #include <sstream>
 using namespace std;
 
@@ -14,6 +15,7 @@ protected:
   
 public:
   enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR} type;
+  Value();
   Value(Token* token);
   virtual ~Value();
   
@@ -25,9 +27,13 @@ public:
   bool divide(Value* v);
   double getValue();
   int getPercent();
+  string getUnit();
+  void setValue(double d);
 };
 
 class Color: public Value {
+private:
+  unsigned int color[3];
 public:
   Color(Token* token);
   Color(unsigned int red, unsigned int green, unsigned int blue);
