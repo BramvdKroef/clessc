@@ -80,7 +80,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   if (lastop != NULL &&
       operators.find(lastop->str) >
       operators.find(value->front()->str)) {
-    return v1;
+    return NULL;
   }
   op = value->shift();
   v2 = processConstant(value);
@@ -273,8 +273,8 @@ Value* ValueProcessor::processFunction(Token* function,
     // Color fadein(Color, PERCENTAGE)
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->spin(arguments[1]->getPercent());
+        arguments[1]->type == Value::NUMBER) {
+      static_cast<Color*>(arguments[0])->spin(arguments[1]->getValue());
       return arguments[0];
     }
 
