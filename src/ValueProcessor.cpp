@@ -332,14 +332,26 @@ Value* ValueProcessor::processFunction(Token* function,
   return NULL;
 }
 
-void ValueProcessor::processString(Token* str) {
+void ValueProcessor::processString(Token* token) {
   size_t start, end;
-  string key;
+  string key = "@", value;
+  TokenList* var;
   
-  if ((start = token->str.find("@{")) != string::npos &&
-      (end = token->str.find("}", start)) != string::npos) {
-    key = token->str.substr(start, end - start);
-    if (variables.count(key)) 
-      token->str.replace(start, end - start, variables[key]);
-  }
+  if ((start = token->str.find("@{")) == string::npos ||
+      (end = token->str.find("}", start)) == string::npos)
+    return;
+  
+  key.append(token->str.substr(start + 2, end - (start + 2)));
+  cout << key << endl;
+  if (!variables.count(key))
+    return;
+
+  var = variables[key];
+  value = *var->toString();
+
+  // Remove quotes of strings.
+  if (var->size() == 1 && var->front()->type == Token::STRING) 
+    value = value.substr(1, value.size() - 2);
+  
+  token->str.replace(start, (end + 1) - start, value);
 }
