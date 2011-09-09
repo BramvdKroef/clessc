@@ -21,6 +21,7 @@ private:
   TokenList* processDeepVariable (Token* token, Token* nexttoken);
   Value* processFunction(Token* function,
                          vector<Value*> arguments);
+  void processString(Token* str);
   
 public:
   ValueProcessor();

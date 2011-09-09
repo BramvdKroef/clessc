@@ -24,13 +24,21 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
     if (v != NULL) {
       if (newvalue.size() > 0)
         newvalue.push(new Token(" ", Token::WHITESPACE));
+
       newvalue.push(v->getToken()->clone());
       delete v;
     } else if (value->size() > 0) {
+      if (newvalue.size() > 0)
+        newvalue.push(new Token(" ", Token::WHITESPACE));
+
       if (value->front()->type == Token::ATKEYWORD &&
                variables.count(value->front()->str)) {
         newvalue.push(variables[value->front()->str]);
         delete value->shift();
+      } else if (value->front()->type == Token::STRING ||
+                 value->front()->type == Token::URL) {
+        processString(value->front());
+        newvalue.push(value->shift());
       } else {
         if (value->size() > 1) {
           TokenList* var = processDeepVariable(value->front(), value->at(1));
@@ -136,8 +144,10 @@ Value* ValueProcessor::processConstant(TokenList* value) {
       delete value->shift();
       arguments.push_back(processConstant(value));
     }
-    if (value->front()->type == Token::PAREN_CLOSED)
-      delete value->shift();
+    if (value->front()->type != Token::PAREN_CLOSED) 
+      throw new ParseException(value->front()->str, ")");
+    
+    delete value->shift();
     
     return processFunction(token, arguments);
     
@@ -284,6 +294,7 @@ Value* ValueProcessor::processFunction(Token* function,
         arguments[0]->type == Value::PERCENTAGE &&
         arguments[1]->type == Value::PERCENTAGE &&
         arguments[2]->type == Value::PERCENTAGE) {
+      cout << arguments[0]->getToken()->str << endl;
       color = new Color(0,0,0);
       color->setHSL(arguments[0]->getPercent(),
                     arguments[1]->getPercent(),
@@ -319,4 +330,16 @@ Value* ValueProcessor::processFunction(Token* function,
   } else 
     return NULL;
   return NULL;
+}
+
+void ValueProcessor::processString(Token* str) {
+  size_t start, end;
+  string key;
+  
+  if ((start = token->str.find("@{")) != string::npos &&
+      (end = token->str.find("}", start)) != string::npos) {
+    key = token->str.substr(start, end - start);
+    if (variables.count(key)) 
+      token->str.replace(start, end - start, variables[key]);
+  }
 }
