@@ -101,7 +101,13 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   }
   while ((tmp = processOperator(value, v2, op))) 
     v2 = tmp;
-    
+
+  if (v2->type == Value::COLOR && v1->type != Value::COLOR) {
+    tmp = v1;
+    v1 = v2;
+    v2 = tmp;
+  }
+  
   if (op->str == "+") 
     v1->add(v2);
   else if (op->str == "-")
