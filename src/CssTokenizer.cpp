@@ -54,15 +54,35 @@ Token::Type CssTokenizer::readNextToken(){
     }
   } else if (readString()) {
     currentToken.type = Token::STRING;
+  } else if (lastRead == '-') {
+    currentToken.add(lastRead);
+    readChar();
+    if (readNum()) {
+      currentToken.type = Token::NUMBER;
+      if (lastRead == '%') {
+        currentToken.type = Token::PERCENTAGE;
+        currentToken.add(lastRead);
+        readChar();
+      } else if (readIdent()) 
+        currentToken.type = Token::DIMENSION;
+    } else if (readIdent()) {
+      currentToken.type = Token::IDENTIFIER;
+      if (lastRead == '(') {
+        currentToken.add(lastRead);
+        readChar();
+        currentToken.type = Token::FUNCTION;
+      }
+    } else
+      currentToken.type = Token::OTHER;
   } else if (readNum()) {
     currentToken.type = Token::NUMBER;
     if (lastRead == '%') {
       currentToken.type = Token::PERCENTAGE;
       currentToken.add(lastRead);
       readChar();
-    } else if (readIdent()) {
+    } else if (readIdent()) 
       currentToken.type = Token::DIMENSION;
-    }
+    
   } else if (readIdent()) {
     currentToken.type = Token::IDENTIFIER;
 
