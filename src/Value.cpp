@@ -137,7 +137,7 @@ Color::Color(Token* token): Value() {
       color[i] = color[i] * 0x11;
   }
 }
-Color::Color(unsigned int red, unsigned int green, unsigned int blue): Value(NULL) {
+Color::Color(unsigned int red, unsigned int green, unsigned int blue): Value() {
   type = Value::COLOR;
   color[0] = red;
   color[1] = green;
