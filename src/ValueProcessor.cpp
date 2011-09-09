@@ -17,6 +17,9 @@ ValueProcessor::~ValueProcessor() {}
 TokenList* ValueProcessor::processValue(TokenList* value) {
   TokenList newvalue;
   Value* v;
+  TokenList* var;
+  Token* token;
+  
   std::cout << *value->toString() << endl;
   while (value->size() > 0) {
     v = processStatement(value);
@@ -40,15 +43,13 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
         processString(value->front());
         newvalue.push(value->shift());
       } else {
-        if (value->size() > 1) {
-          TokenList* var = processDeepVariable(value->front(), value->at(1));
-          if (var != NULL) {
-            newvalue.push(var);
-            delete value->shift();
-            delete value->shift();
-          } else
-            newvalue.push(value->shift());
-        } else
+        if ((var = processDeepVariable(value)) != NULL) {
+          newvalue.push(var);
+          delete value->shift();
+          delete value->shift();
+        } else if ((token = processEscape(value)) != NULL)
+            newvalue.push(token);
+        else
           newvalue.push(value->shift());
       }
     }
@@ -171,33 +172,35 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return ret;
 
   default:
-    if (value->size() > 1) {
-      TokenList* var = processDeepVariable(token, value->at(1));
+    TokenList* var = processDeepVariable(value);
 
-      if (var != NULL) {
-        ret = processStatement(var);
-        if (ret != NULL) {
-          delete value->shift();
-          delete value->shift();
-          return ret;
-        }
-      }
-    }
-    return NULL;
+    if (var != NULL) {
+      ret = processConstant(var);
+      delete var;
+      return ret;
+    } else
+      return NULL;
   }
 }
 
-TokenList* ValueProcessor::processDeepVariable (Token* token, Token* nexttoken) {
+TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
+  Token* first, *second;
   TokenList* var;
-  string key("@");
+  string key = "@";
   
-  if (token->type != Token::OTHER ||
-      token->str != "@" ||
-      nexttoken->type != Token::ATKEYWORD ||
-      !variables.count(nexttoken->str))
+  if (value->size() < 2) 
     return NULL;
   
-  var = variables[nexttoken->str];
+  first = value->front();
+  second = value->at(1);
+  
+  if (first->type != Token::OTHER ||
+      first->str != "@" ||
+      second->type != Token::ATKEYWORD ||
+      !variables.count(second->str))
+    return NULL;
+  
+  var = variables[second->str];
 
   if (var->size() > 1 || var->front()->type != Token::STRING)
     return NULL;
@@ -208,8 +211,10 @@ TokenList* ValueProcessor::processDeepVariable (Token* token, Token* nexttoken) 
 
   if (!variables.count(key))
     return NULL;
-  
-  return variables[key];
+
+  delete value->shift();
+  delete value->shift();
+  return variables[key]->clone();
 }
 
 Value* ValueProcessor::processFunction(Token* function,
@@ -354,4 +359,22 @@ void ValueProcessor::processString(Token* token) {
     value = value.substr(1, value.size() - 2);
   
   token->str.replace(start, (end + 1) - start, value);
+}
+
+Token* ValueProcessor::processEscape (TokenList* value) {
+  Token* first, *second;
+  
+  if (value->size() < 2) 
+    return NULL;
+  
+  first = value->front();
+  second = value->at(1);
+  
+  if (first->str != "~" ||
+      second->type != Token::STRING) 
+    return NULL;
+
+  delete value->shift();
+  second->str = second->str.substr(1, second->str.size() - 2);
+  return value->shift();
 }

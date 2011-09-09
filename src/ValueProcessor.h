@@ -18,10 +18,11 @@ private:
   Value* processOperator(TokenList* value, Value* v1,
                          Token* lastop = NULL);
   Value* processConstant(TokenList* value);
-  TokenList* processDeepVariable (Token* token, Token* nexttoken);
+  TokenList* processDeepVariable (TokenList* value);
   Value* processFunction(Token* function,
                          vector<Value*> arguments);
   void processString(Token* str);
+  Token* processEscape (TokenList* value);
   
 public:
   ValueProcessor();
