@@ -45,6 +45,7 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
       } else {
         if ((var = processDeepVariable(value)) != NULL) {
           newvalue.push(var);
+          delete var;
           delete value->shift();
           delete value->shift();
         } else if ((token = processEscape(value)) != NULL)
@@ -182,6 +183,10 @@ Value* ValueProcessor::processConstant(TokenList* value) {
 
     if (var != NULL) {
       ret = processConstant(var);
+      if (ret != NULL) {
+        delete value->shift();
+        delete value->shift();
+      }
       delete var;
       return ret;
     } else
@@ -205,7 +210,7 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
       second->type != Token::ATKEYWORD ||
       !variables.count(second->str))
     return NULL;
-  
+
   var = variables[second->str];
 
   if (var->size() > 1 || var->front()->type != Token::STRING)
@@ -218,8 +223,6 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
   if (!variables.count(key))
     return NULL;
 
-  delete value->shift();
-  delete value->shift();
   return variables[key]->clone();
 }
 
