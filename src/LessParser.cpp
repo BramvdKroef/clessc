@@ -142,12 +142,8 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     parseRulesetStatement(stylesheet, ruleset);
   } else {
     // otherwise it's a mixin.
-    Ruleset* mixin = stylesheet->getRuleset(selector);
-    if (mixin == NULL)
-      throw new ParseException(*selector->toString(),
-                               "a mixin that has been defined");
-
-    processMixin(ruleset, mixin);
+    parseMixin(selector, ruleset, stylesheet);
+    
     if (tokenizer->getTokenType() == Token::DELIMITER) {
       tokenizer->readNextToken();
       skipWhitespace();
@@ -161,18 +157,53 @@ TokenList* LessParser::parseValue () {
   TokenList* value = CssParser::parseValue();
   if (value != NULL) 
     valueProcessor->processValue(value);
-  
+  cout << "processed: " << *value->toString() << endl;
   return value;
 }
 
-
-void LessParser::processMixin(Ruleset* parent, Ruleset* mixin) {
-  vector<Declaration*>* declarations = mixin->getDeclarations();
+void LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
+                            Stylesheet* stylesheet) {
+  ParameterRuleset* pmixin = getParameterRuleset(selector);
+  Ruleset* mixin;
+  vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
+  
+  if (pmixin != NULL) {
+    declarations = pmixin->getDeclarations();
+    for (it = declarations->begin(); it < declarations->end(); it++) {
+      ruleset->addDeclaration((*it)->clone());
+    }
 
-  for (it = declarations->begin(); it < declarations->end(); it++) {
-    parent->addDeclaration((*it)->clone());
+  } else if((mixin = stylesheet->getRuleset(selector)) != NULL) {
+    declarations = mixin->getDeclarations();
+    for (it = declarations->begin(); it < declarations->end(); it++) {
+      ruleset->addDeclaration((*it)->clone());
+    }
+  } else {
+    throw new ParseException(*selector->toString(),
+                             "a mixin that has been defined");
   }
+}
+
+ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
+  vector<ParameterRuleset*>::iterator it;
+  TokenList key;
+  TokenListIterator* tli = selector->iterator();
+  Token* current;
+
+  while (tli->hasNext()) {
+    current = tli->next();
+    if (current->type == Token::PAREN_OPEN)
+      break;
+    key.push(current->clone());
+  }
+  delete tli;
+  
+  for (it = parameterRulesets.begin(); it < parameterRulesets.end(); it++) {
+    if ((*it)->getSelector()->equals(&key)) 
+      return *it;
+  }
+  return NULL;
 }
 
 void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
@@ -184,53 +215,66 @@ void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
 }
 void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
   TokenList* selector = ruleset->getSelector();
-  TokenListIterator* it = selector->reverseIterator();
-  
-  while (it->hasPrevious() && it->previous()->type != Token::PAREN_OPEN) {}
-  if (!it->hasPrevious()) {
+  TokenList* newselector = new TokenList();
+
+  while (selector->size() > 0 &&
+         selector->front()->type != Token::PAREN_OPEN) {
+    newselector->push(selector->shift());
+  }
+  if (selector->size() == 0) {
     throw new ParseException(*selector->toString(),
                              "matching parentheses.");
   }
-  while (processParameter(it, ruleset)) {
+  
+  delete selector->shift();
+  while (newselector->back()->type == Token::WHITESPACE) 
+    delete newselector->pop();
+  ruleset->setSelector(newselector);
+  
+  while (processParameter(selector, ruleset)) {
   }
-  while (selector->back()->type != Token::PAREN_OPEN) {
-    delete selector->pop();
+  if (selector->front()->type != Token::PAREN_CLOSED) {
+    throw new ParseException(*selector->toString(),
+                             "matching parentheses.");
   }
-  delete selector->pop();
+  delete selector;
   parameterRulesets.push_back(ruleset);
-  delete it;
 }
 
-bool LessParser::processParameter(TokenListIterator* it,
+bool LessParser::processParameter(TokenList* selector,
                                   ParameterRuleset* ruleset) {
   Token* current;
   string keyword;
   TokenList* value = NULL;
 
-  while (it->hasNext()) {
-    if(it->next()->type != Token::WHITESPACE) {
-      it->previous();
-      break;
-    }
+  while (selector->size() > 0 &&
+         selector->front()->type == Token::WHITESPACE) {
+    delete selector->shift();
   }
 
-  if (!it->hasNext() || (current = it->next())->type != Token::ATKEYWORD)
+  if (selector->size() == 0 ||
+      selector->front()->type != Token::ATKEYWORD)
     return false;
-  
-  keyword = current->str;
 
-  if (it->next()->type == Token::COLON) {
+  keyword = selector->front()->str;
+  delete selector->shift();
+  
+  if (selector->front()->type == Token::COLON) {
+    delete selector->shift();
     value = new TokenList();
     
-    while ((current = it->next())->type != Token::PAREN_CLOSED &&
-           current->str != ",") {
-      value->push(current->clone());
+    while (selector->size() > 0 &&
+           selector->front()->type != Token::PAREN_CLOSED &&
+           selector->front()->str != ",") {
+      value->push(selector->shift());
     }
-        
+    
     if (value->size() == 0) {
       throw new ParseException(current->str,
                                "default value following ':'");
     }
+    if (selector->size() > 0 && selector->front()->str == ",") 
+      delete selector->shift();
   }
 
   ruleset->addParameter(keyword, value);

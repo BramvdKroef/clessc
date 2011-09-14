@@ -65,17 +65,18 @@ protected:
                               Ruleset* ruleset);
     
   TokenList* parseValue ();
-
+  void parseMixin(TokenList* selector, Ruleset* ruleset,
+                  Stylesheet* stylesheet);
+  
+  ParameterRuleset* getParameterRuleset(TokenList* selector);
+  
 private:
+    
   TokenList* processValue(TokenList* value);
-  bool processVariable (Token* token, TokenList* newvalue);
-  bool processDeepVariable (Token* token, Token* nexttoken,
-                            TokenList* newvalue);
-
-  void processMixin(Ruleset* parent, Ruleset* mixin);
+  
   void processNestedSelector(TokenList* parent, TokenList* nested);
   void processParameterRuleset(ParameterRuleset* ruleset);
-  bool processParameter(TokenListIterator* it,
+  bool processParameter(TokenList* selector,
                         ParameterRuleset* ruleset);
 };
 
