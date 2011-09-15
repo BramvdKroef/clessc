@@ -63,11 +63,12 @@ protected:
 
   bool parseRulesetStatement (Stylesheet* stylesheet,
                               Ruleset* ruleset);
-    
+
+  Declaration* parseDeclaration(string* property);
   TokenList* parseValue ();
   void parseMixin(TokenList* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
-  
+
   ParameterRuleset* getParameterRuleset(TokenList* selector);
   
 private:

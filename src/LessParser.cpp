@@ -90,28 +90,16 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
                                         Ruleset* ruleset) {
-  Declaration* declaration = NULL;
+  Declaration* declaration;
   TokenList* selector = NULL;
   string* property = parseProperty();
     
   // if we can parse a property and the next token is a COLON then the
   // statement is a declaration.
   if (property != NULL) {
-    skipWhitespace();
-    if (tokenizer->getTokenType() == Token::COLON) {
-      tokenizer->readNextToken();
-      skipWhitespace();
-      
-      declaration = new Declaration(property);
-      
-      TokenList* value = parseValue();
-      if (value == NULL) {
-        throw new ParseException(tokenizer->getToken()->str,
-                                 "value for property");
-      }
-      declaration->setValue(value);
+    declaration = parseDeclaration(property);
+    if (declaration != NULL) {
       ruleset->addDeclaration(declaration);
-
       if (tokenizer->getTokenType() == Token::DELIMITER) {
         tokenizer->readNextToken();
         skipWhitespace();
@@ -136,7 +124,12 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
 
   // if followed by a ruleset it's a nested rule
   if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
-    processNestedSelector(ruleset->getSelector(), selector);
+    if (selector->front()->str == "&")
+      delete selector->shift();
+    else
+      selector->unshift(new Token(" ", Token::WHITESPACE));
+    selector->unshift(ruleset->getSelector());
+    
     parseRuleset(stylesheet, selector);
     
     parseRulesetStatement(stylesheet, ruleset);
@@ -151,6 +144,26 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     }
   }
   return true;
+}
+
+Declaration* LessParser::parseDeclaration (string* property) {
+  Declaration* declaration;
+  
+  skipWhitespace();
+  if (tokenizer->getTokenType() != Token::COLON) 
+    return NULL;
+  tokenizer->readNextToken();
+  skipWhitespace();
+      
+  declaration = new Declaration(property);
+      
+  TokenList* value = parseValue();
+  if (value == NULL) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "value for property");
+  }
+  declaration->setValue(value);
+  return declaration;
 }
 
 TokenList* LessParser::parseValue () {
@@ -207,11 +220,7 @@ ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
 }
 
 void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
-  if (nested->front()->str == "&")
-    delete nested->shift();
-  else
-    nested->unshift(new Token(" ", Token::WHITESPACE));
-  nested->unshift(parent);
+
 }
 void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
   TokenList* selector = ruleset->getSelector();
