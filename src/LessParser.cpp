@@ -162,17 +162,12 @@ Declaration* LessParser::parseDeclaration (string* property) {
     throw new ParseException(tokenizer->getToken()->str,
                              "value for property");
   }
+  valueProcessor->processValue(value);
+  
   declaration->setValue(value);
   return declaration;
 }
 
-TokenList* LessParser::parseValue () {
-  TokenList* value = CssParser::parseValue();
-  if (value != NULL) 
-    valueProcessor->processValue(value);
-  cout << "processed: " << *value->toString() << endl;
-  return value;
-}
 
 void LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
                             Stylesheet* stylesheet) {
