@@ -12,7 +12,7 @@
  */
 class ValueProcessor {
 private:
-  map<string, TokenList*> variables;
+  list<map<string, TokenList*>*> scopes;
   
   Value* processStatement(TokenList* value);
   Value* processOperator(TokenList* value, Value* v1,
@@ -29,7 +29,11 @@ public:
   virtual ~ValueProcessor();
 
   void putVariable(string key, TokenList* value);
+  TokenList* getVariable(string key);
   TokenList* processValue(TokenList* value);
+
+  void pushScope();
+  void popScope();
 };
 
 #endif

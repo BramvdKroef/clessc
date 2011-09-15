@@ -11,14 +11,19 @@ inline std::string to_string (const T& t)
   return ss.str();
 }
 
-ValueProcessor::ValueProcessor() {}
-ValueProcessor::~ValueProcessor() {}
+ValueProcessor::ValueProcessor() {
+  pushScope();
+}
+ValueProcessor::~ValueProcessor() {
+  popScope();
+}
 
 TokenList* ValueProcessor::processValue(TokenList* value) {
   TokenList newvalue;
   Value* v;
   TokenList* var;
   Token* token;
+  TokenList* variable;
   
   std::cout << *value->toString() << endl;
   while (value->size() > 0) {
@@ -35,8 +40,8 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
         newvalue.push(new Token(" ", Token::WHITESPACE));
 
       if (value->front()->type == Token::ATKEYWORD &&
-               variables.count(value->front()->str)) {
-        newvalue.push(variables[value->front()->str]);
+          (variable = getVariable(value->front()->str)) != NULL) {
+        newvalue.push(variable);
         delete value->shift();
       } else if (value->front()->type == Token::STRING ||
                  value->front()->type == Token::URL) {
@@ -59,8 +64,29 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   return value;
 }
 void ValueProcessor::putVariable(string key, TokenList* value) {
-  variables[key] = value;
+  scopes.back()->insert(pair<string, TokenList*>(key, value));
 }
+TokenList* ValueProcessor::getVariable(string key) {
+  list<map<string, TokenList*>*>::reverse_iterator it;
+  map<string, TokenList*>::iterator mit;
+  
+  for (it = scopes.rbegin(); it != scopes.rend(); it++) {
+    mit = (*it)->find(key);
+    if (mit != (*it)->end()) 
+      return mit->second;
+  }
+  
+  return NULL;
+}
+
+void ValueProcessor::pushScope() {
+  scopes.push_back(new map<string, TokenList*>());
+}
+void ValueProcessor::popScope() {
+  delete scopes.back();
+  scopes.pop_back();
+}
+
 
 Value* ValueProcessor::processStatement(TokenList* value) {
   Value* op, *v = processConstant(value);
@@ -124,6 +150,7 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   Token* token;
   Value* ret;
   vector<Value*> arguments;
+  TokenList* variable;
 
   while (value->size() > 0 &&
          value->front()->type == Token::WHITESPACE) {
@@ -160,8 +187,8 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return processFunction(token, arguments);
     
   case Token::ATKEYWORD:
-    if (variables.count(token->str)) {
-      TokenList* var = variables[token->str]->clone();
+    if ((variable = getVariable(token->str)) != NULL) {
+      TokenList* var = variable->clone();
       ret = processConstant(var);
       delete var;
       delete value->shift();
@@ -208,10 +235,8 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
   if (first->type != Token::OTHER ||
       first->str != "@" ||
       second->type != Token::ATKEYWORD ||
-      !variables.count(second->str))
+      (var = getVariable(second->str)) != NULL)
     return NULL;
-
-  var = variables[second->str];
 
   if (var->size() > 1 || var->front()->type != Token::STRING)
     return NULL;
@@ -220,10 +245,11 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
   key.append(var->front()->
              str.substr(1, var->front()->str.size() - 2));
 
-  if (!variables.count(key))
+  var = getVariable(key);
+  if (var == NULL)
     return NULL;
 
-  return variables[key]->clone();
+  return var->clone();
 }
 
 Value* ValueProcessor::processFunction(Token* function,
@@ -357,10 +383,10 @@ void ValueProcessor::processString(Token* token) {
   
   key.append(token->str.substr(start + 2, end - (start + 2)));
   cout << key << endl;
-  if (!variables.count(key))
+  var = getVariable(key);
+  if (var == NULL)
     return;
 
-  var = variables[key];
   value = *var->toString();
 
   // Remove quotes of strings.
