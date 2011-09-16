@@ -8,18 +8,29 @@
 
 class ParameterRuleset: public Ruleset {
 public:
-  map<string, TokenList*> parameters;
+  list<string> parameters;
+  list<TokenList*> defaults;
 
   ParameterRuleset(TokenList* selector): Ruleset(selector) {
   }
 
   void addParameter(string keyword, TokenList* value) {
-    parameters[keyword] = value;
+    parameters.push_back(keyword);
+    defaults.push_back(value);
   }
 
-  TokenList* getParameter(string keyword) {
-    if (parameters.count(keyword))
-      return parameters[keyword];
+  TokenList* getDefault(string keyword) {
+    list<string>::iterator pit = parameters.begin();
+    list<TokenList*>::iterator dit = defaults.begin();
+    for (;pit != parameters.end(); pit++, dit++) {
+      if ((*pit) == keyword)
+        return (*dit);
+    }
+    return NULL;
+  }
+
+  list<string> getKeywords() {
+    return parameters;
   }
 };
 

@@ -68,17 +68,19 @@ protected:
 
   void parseMixin(TokenList* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
-
+  bool processParameterMixin(TokenList* selector, Ruleset* parent);
+  
   ParameterRuleset* getParameterRuleset(TokenList* selector);
   
 private:
     
   TokenList* processValue(TokenList* value);
   
-  void processNestedSelector(TokenList* parent, TokenList* nested);
   void processParameterRuleset(ParameterRuleset* ruleset);
   bool processParameter(TokenList* selector,
                         ParameterRuleset* ruleset);
+
+  list<TokenList*>* processArguments(TokenList* arguments);
 };
 
 #endif

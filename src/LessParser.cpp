@@ -171,26 +171,96 @@ Declaration* LessParser::parseDeclaration (string* property) {
 
 void LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
                             Stylesheet* stylesheet) {
-  ParameterRuleset* pmixin = getParameterRuleset(selector);
   Ruleset* mixin;
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
   
-  if (pmixin != NULL) {
-    declarations = pmixin->getDeclarations();
-    for (it = declarations->begin(); it < declarations->end(); it++) {
-      ruleset->addDeclaration((*it)->clone());
-    }
+  if (processParameterMixin(selector, ruleset)) {
 
   } else if((mixin = stylesheet->getRuleset(selector)) != NULL) {
-    declarations = mixin->getDeclarations();
+    declarations = mixin->getDeclarations();  
     for (it = declarations->begin(); it < declarations->end(); it++) {
       ruleset->addDeclaration((*it)->clone());
     }
+    
   } else {
     throw new ParseException(*selector->toString(),
                              "a mixin that has been defined");
   }
+}
+
+bool LessParser::processParameterMixin(TokenList* selector, Ruleset* parent) {
+  ParameterRuleset* mixin = getParameterRuleset(selector);
+  list<TokenList*>* arguments;
+  list<TokenList*>::iterator ait;
+  list<string> parameters;
+  list<string>::iterator pit;
+  vector<Declaration*>* declarations;
+  vector<Declaration*>::iterator it;
+  Declaration* declaration;
+
+  if (mixin == NULL)
+    return false;
+  
+  // new scope
+  valueProcessor->pushScope();
+
+  // pull values 
+  arguments = processArguments(selector);
+  parameters = mixin->getKeywords();
+
+  // combine with parameter names and add to local scope
+  ait = arguments->begin();
+  for(pit = parameters.begin(); pit != parameters.end(); pit++) {
+    cout << "key" << *pit << endl;
+    if (ait != arguments->end()) {
+      cout << *(*ait)->toString() << endl;
+      valueProcessor->putVariable(*pit, *ait);
+      ait++;
+    } else {
+      cout << mixin->getDefault(*pit)->toString() << endl;
+      valueProcessor->putVariable(*pit, mixin->getDefault(*pit)->clone());
+    }
+  }
+  
+      
+  declarations = mixin->getDeclarations();  
+  for (it = declarations->begin(); it < declarations->end(); it++) {
+    declaration = (*it)->clone();
+    cout << *declaration->getValue()->toString() << endl;
+    valueProcessor->processValue(declaration->getValue());
+    cout << *declaration->getValue()->toString() << endl;
+    parent->addDeclaration(declaration);
+  }
+    
+  valueProcessor->popScope();
+  return true;
+}
+
+list<TokenList*>* LessParser::processArguments(TokenList* arguments) {
+  TokenList* value;
+  TokenListIterator* it = arguments->iterator();
+  Token* current;
+  list<TokenList*>* ret = new list<TokenList*>();
+  
+  while (it->hasNext() && 
+         it->next()->type != Token::PAREN_OPEN) {
+  }
+  
+  while (it->hasNext()) {
+    value = new TokenList();
+    
+    while (it->hasNext()) {
+      current = it->next();
+      if (current->str == "," || current->type == Token::PAREN_CLOSED)
+        break;
+      value->push(current->clone());
+    }
+    valueProcessor->processValue(value);
+    cout << "value" << *value->toString() << endl;
+    ret->push_back(value);
+  }
+  return ret;
 }
 
 ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
@@ -214,18 +284,15 @@ ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
   return NULL;
 }
 
-void LessParser::processNestedSelector(TokenList* parent, TokenList* nested) {
-
-}
 void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
   TokenList* selector = ruleset->getSelector();
   TokenList* newselector = new TokenList();
 
-  while (selector->size() > 0 &&
+  while (!selector->empty() &&
          selector->front()->type != Token::PAREN_OPEN) {
     newselector->push(selector->shift());
   }
-  if (selector->size() == 0) {
+  if (selector->empty()) {
     throw new ParseException(*selector->toString(),
                              "matching parentheses.");
   }
@@ -251,12 +318,12 @@ bool LessParser::processParameter(TokenList* selector,
   string keyword;
   TokenList* value = NULL;
 
-  while (selector->size() > 0 &&
+  while (!selector->empty() &&
          selector->front()->type == Token::WHITESPACE) {
     delete selector->shift();
   }
 
-  if (selector->size() == 0 ||
+  if (selector->empty() ||
       selector->front()->type != Token::ATKEYWORD)
     return false;
 
@@ -267,17 +334,17 @@ bool LessParser::processParameter(TokenList* selector,
     delete selector->shift();
     value = new TokenList();
     
-    while (selector->size() > 0 &&
+    while (!selector->empty() &&
            selector->front()->type != Token::PAREN_CLOSED &&
            selector->front()->str != ",") {
       value->push(selector->shift());
     }
     
-    if (value->size() == 0) {
+    if (value->empty()) {
       throw new ParseException(current->str,
                                "default value following ':'");
     }
-    if (selector->size() > 0 && selector->front()->str == ",") 
+    if (!selector->empty() && selector->front()->str == ",") 
       delete selector->shift();
   }
 
