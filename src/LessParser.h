@@ -71,6 +71,8 @@ protected:
   bool processParameterMixin(TokenList* selector, Ruleset* parent);
   
   ParameterRuleset* getParameterRuleset(TokenList* selector);
+
+  TokenList* parseValue ();
   
 private:
     

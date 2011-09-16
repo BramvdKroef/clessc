@@ -21,6 +21,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
     skipWhitespace();
     
     rule = parseValue();
+
     if (rule == NULL) {
       throw new ParseException(tokenizer->getToken()->str,
                                "value for variable");
@@ -70,13 +71,22 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   if (selector->back()->type != Token::PAREN_CLOSED) {
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
+    
+    skipWhitespace();
+    parseRulesetStatement(stylesheet, ruleset);
+
   } else {
     ruleset = new ParameterRuleset(selector);
     processParameterRuleset((ParameterRuleset*)ruleset);
+
+    valueProcessor->pushScope();
+    
+    skipWhitespace();
+    parseRulesetStatement(stylesheet, ruleset);
+    
+    valueProcessor->popScope();
   }
     
-  skipWhitespace();
-  parseRulesetStatement(stylesheet, ruleset);
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken()->str,
@@ -162,10 +172,17 @@ Declaration* LessParser::parseDeclaration (string* property) {
     throw new ParseException(tokenizer->getToken()->str,
                              "value for property");
   }
-  valueProcessor->processValue(value);
   
   declaration->setValue(value);
   return declaration;
+}
+
+TokenList* LessParser::parseValue () {
+  TokenList* value = CssParser::parseValue();
+  if (value != NULL) 
+    valueProcessor->processValue(value);
+
+  return value;
 }
 
 
@@ -198,7 +215,9 @@ bool LessParser::processParameterMixin(TokenList* selector, Ruleset* parent) {
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
   Declaration* declaration;
-
+  TokenList* variable;
+  TokenList* argsCombined;
+  
   if (mixin == NULL)
     return false;
   
@@ -208,28 +227,33 @@ bool LessParser::processParameterMixin(TokenList* selector, Ruleset* parent) {
   // pull values 
   arguments = processArguments(selector);
   parameters = mixin->getKeywords();
+  argsCombined = new TokenList();
 
   // combine with parameter names and add to local scope
   ait = arguments->begin();
   for(pit = parameters.begin(); pit != parameters.end(); pit++) {
-    cout << "key" << *pit << endl;
     if (ait != arguments->end()) {
-      cout << *(*ait)->toString() << endl;
       valueProcessor->putVariable(*pit, *ait);
+      argsCombined->push((*ait)->clone());
       ait++;
     } else {
-      cout << mixin->getDefault(*pit)->toString() << endl;
-      valueProcessor->putVariable(*pit, mixin->getDefault(*pit)->clone());
+      variable = mixin->getDefault(*pit);
+      if (variable == NULL) {
+        throw new ParseException(*selector->toString(),
+                                 "at least one more argument");
+      }
+      valueProcessor->putVariable(*pit, variable->clone());
+      argsCombined->push(variable->clone());
     }
+    argsCombined->push(new Token(" ", Token::WHITESPACE));
   }
+  delete argsCombined->pop();
+  valueProcessor->putVariable("@arguments", argsCombined);
   
-      
   declarations = mixin->getDeclarations();  
   for (it = declarations->begin(); it < declarations->end(); it++) {
     declaration = (*it)->clone();
-    cout << *declaration->getValue()->toString() << endl;
     valueProcessor->processValue(declaration->getValue());
-    cout << *declaration->getValue()->toString() << endl;
     parent->addDeclaration(declaration);
   }
     
@@ -257,7 +281,7 @@ list<TokenList*>* LessParser::processArguments(TokenList* arguments) {
       value->push(current->clone());
     }
     valueProcessor->processValue(value);
-    cout << "value" << *value->toString() << endl;
+
     ret->push_back(value);
   }
   return ret;
@@ -340,6 +364,10 @@ bool LessParser::processParameter(TokenList* selector,
       value->push(selector->shift());
     }
     
+    while (!value->empty() && value->front()->type ==
+           Token::WHITESPACE) {
+      delete value->shift();
+    }
     if (value->empty()) {
       throw new ParseException(current->str,
                                "default value following ':'");

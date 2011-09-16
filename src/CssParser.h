@@ -108,7 +108,7 @@ protected:
    * @return a list of tokens or NULL if none
    *         could be found.
    */
-  TokenList* parseValue ();
+  virtual TokenList* parseValue ();
 
   /**
    * Parses a token and adds it to the tokens argument. The token can

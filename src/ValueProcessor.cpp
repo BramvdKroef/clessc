@@ -25,7 +25,6 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   Token* token;
   TokenList* variable;
   
-  std::cout << *value->toString() << endl;
   while (value->size() > 0) {
     v = processStatement(value);
 
@@ -83,6 +82,7 @@ void ValueProcessor::pushScope() {
   scopes.push_back(new map<string, TokenList*>());
 }
 void ValueProcessor::popScope() {
+  // delete tokenlists in scope
   delete scopes.back();
   scopes.pop_back();
 }
@@ -190,8 +190,16 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     if ((variable = getVariable(token->str)) != NULL) {
       TokenList* var = variable->clone();
       ret = processConstant(var);
+      while(!var->empty() && var->front()->type == Token::WHITESPACE)
+        delete var->shift();
+      
+      if (!var->empty()) {
+        delete ret;
+        ret = NULL;
+      } else
+        delete value->shift();
+      
       delete var;
-      delete value->shift();
       return ret;
     } else
       return NULL;
@@ -235,7 +243,7 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
   if (first->type != Token::OTHER ||
       first->str != "@" ||
       second->type != Token::ATKEYWORD ||
-      (var = getVariable(second->str)) != NULL)
+      (var = getVariable(second->str)) == NULL)
     return NULL;
 
   if (var->size() > 1 || var->front()->type != Token::STRING)
@@ -334,7 +342,6 @@ Value* ValueProcessor::processFunction(Token* function,
         arguments[0]->type == Value::PERCENTAGE &&
         arguments[1]->type == Value::PERCENTAGE &&
         arguments[2]->type == Value::PERCENTAGE) {
-      cout << arguments[0]->getToken()->str << endl;
       color = new Color(0,0,0);
       color->setHSL(arguments[0]->getPercent(),
                     arguments[1]->getPercent(),
@@ -382,7 +389,6 @@ void ValueProcessor::processString(Token* token) {
     return;
   
   key.append(token->str.substr(start + 2, end - (start + 2)));
-  cout << key << endl;
   var = getVariable(key);
   if (var == NULL)
     return;

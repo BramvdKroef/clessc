@@ -189,7 +189,6 @@ bool Color::add(Value* v) {
     color[2] += c->getBlue();
   } else if (v->type == PERCENTAGE) {
     percent = 1 + v->getPercent() * 0.01;
-    cout << percent << endl;
     color[0] *= percent;
     color[1] *= percent;
     color[2] *= percent;
