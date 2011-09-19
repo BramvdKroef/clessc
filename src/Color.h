@@ -13,15 +13,23 @@ using namespace std;
 class Color: public Value {
 private:
   unsigned int color[3];
-
+  double alpha;
+  /**
+   * If set to true getTokens() will generate new tokens with the
+   * updated color data.
+   */
+  bool valueChanged;
+  
   double maxArray(double* array, int len);
   double minArray(double* array, int len);
 public:
   Color(Token* token);
   Color(unsigned int red, unsigned int green, unsigned int blue);
+  Color(unsigned int red, unsigned int green, unsigned int blue,
+        double alpha);
   virtual ~Color();
 
-  Token* getToken();
+  virtual TokenList* getTokens();
   
   bool add(Value* v);
   bool substract(Value* v);

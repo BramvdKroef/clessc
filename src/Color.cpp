@@ -18,7 +18,9 @@ double Color::minArray(double* array, int len) {
 Color::Color(Token* token): Value() {
   int len;
 
-  this->token = token;
+  this->tokens.push(token);
+  valueChanged = false;
+    
   type = Value::COLOR;
   
   if (token->str.size() == 4)
@@ -36,22 +38,57 @@ Color::Color(Token* token): Value() {
     if (len == 1)
       color[i] = color[i] * 0x11;
   }
+  alpha = 1;
 }
 Color::Color(unsigned int red, unsigned int green, unsigned int blue): Value() {
   type = Value::COLOR;
   color[RGB_RED] = red;
   color[RGB_GREEN] = green;
   color[RGB_BLUE] = blue;
-  
-  token = new Token("#", Token::HASH);
+  alpha = 1;
+  valueChanged = true;
 }
+Color::Color(unsigned int red, unsigned int green, unsigned int blue,
+             double alpha): Value() { 
+  type = Value::COLOR;
+  color[RGB_RED] = red;
+  color[RGB_GREEN] = green;
+  color[RGB_BLUE] = blue;
+  this->alpha = alpha;
+  valueChanged = true;
+}
+
 Color::~Color() {
 }
 
-Token* Color::getToken() {
+TokenList* Color::getTokens() {
   ostringstream stm;
   string sColor[3];
+  string hash;
   int i;
+
+  if (!valueChanged)
+    return &tokens;
+
+  tokens.clear();
+  
+  // If the color is not opaque the rgba() function needs to be used.
+  if (alpha < 1) {
+    tokens.push(new Token("rgba(", Token::FUNCTION));
+
+    for (i = 0; i < 3; i++) {
+      stm.str("");
+      stm << (color[i] & 0xFF);
+      tokens.push(new Token(stm.str(), Token::NUMBER));
+      tokens.push(new Token(",", Token::OTHER));
+    }
+    stm.str("");
+    stm << alpha;
+    tokens.push(new Token(stm.str(), Token::NUMBER));
+    tokens.push(new Token(")", Token::PAREN_CLOSED));
+    valueChanged = false;
+    return &tokens;
+  }
   
   for (i = 0; i < 3; i++) {
     stm.str("");
@@ -68,17 +105,20 @@ Token* Color::getToken() {
       sColor[i] = sColor[i].substr(0, 2);
     stm << sColor[i];
   }
-  token->str = stm.str();
+  hash = stm.str();
 
   // convert to shorthand if possible
-  if (token->str[1] == token->str[2] &&
-      token->str[3] == token->str[4] &&
-      token->str[5] == token->str[6]) {
+  if (hash[1] == hash[2] &&
+      hash[3] == hash[4] &&
+      hash[5] == hash[6]) {
     stm.str("");
-    stm << "#" << token->str[1] << token->str[3] << token->str[4];
-    token->str = stm.str();
+    stm << "#" << hash[1] << hash[3] << hash[4];
+    hash = stm.str();
   }
-  return token;
+
+  tokens.push(new Token(hash, Token::HASH));
+  valueChanged = false;
+  return &tokens;
 }
 bool Color::add(Value* v) {
   Color* c;
@@ -96,6 +136,7 @@ bool Color::add(Value* v) {
     color[RGB_BLUE] *= percent;
   } else 
     return false;
+  valueChanged = true;
   return true;
 }
 bool Color::substract(Value* v) {
@@ -104,9 +145,12 @@ bool Color::substract(Value* v) {
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
-    color[RGB_RED] -= c->getRed();
-    color[RGB_GREEN] -= c->getGreen();
-    color[RGB_BLUE] -= c->getBlue();
+    color[RGB_RED] = color[RGB_RED] > c->getRed() ?
+      color[RGB_RED] - c->getRed() : 0;
+    color[RGB_GREEN] = color[RGB_GREEN] > c->getGreen() ?
+      color[RGB_GREEN] - c->getGreen() : 0;
+    color[RGB_BLUE] = color[RGB_BLUE] > c->getBlue() ?
+      color[RGB_BLUE] - c->getBlue() : 0;
   } else if (v->type == PERCENTAGE) {
     percent = 1 - v->getPercent() * 0.01;
     cout << percent << endl;
@@ -115,6 +159,7 @@ bool Color::substract(Value* v) {
     color[RGB_BLUE] *= percent;
   } else 
     return false;
+  valueChanged = true;
   return true;
 }
 bool Color::multiply(Value* v) {
@@ -124,6 +169,7 @@ bool Color::multiply(Value* v) {
     color[RGB_BLUE] *= v->getValue();
   } else 
     return false;
+  valueChanged = true;
   return true;
 }
 bool Color::divide(Value* v) {
@@ -133,6 +179,7 @@ bool Color::divide(Value* v) {
     color[RGB_BLUE] /= v->getValue();
   } else 
     return false;
+  valueChanged = true;
   return true;
 }
     
@@ -184,6 +231,7 @@ void Color::setHSL(double hue, double saturation, double lightness) {
     // add the .5 and truncate to round to int.
     color[i] = rgb[i] * 255 + 0.5;
   }
+  valueChanged = true;
 }
 void Color::lighten(double percent) {
   double* hsl = getHSL();
@@ -202,16 +250,16 @@ void Color::desaturate(double percent) {
   setHSL(hsl[0], max(hsl[1] * 100 - percent, 0.00), hsl[2] * 100);
 }
 void Color::fadein(double percent) {
-  double* hsl = getHSL();
-  setHSL(hsl[0], hsl[1] * 100, hsl[2] * 100);
+  alpha *= min(1 + percent * .01, 100.00);
+  valueChanged = true;
 }
 void Color::fadeout(double percent) {
-  double* hsl = getHSL();
-  setHSL(hsl[0], hsl[1] * 100, hsl[2] * 100);
+  alpha *= max(1 - percent * .01, 0.00);
+  valueChanged = true;
 }
 void Color::spin(double degrees) {
   double* hsl = getHSL();
-  setHSL(hsl[0] + degrees, hsl[1] * 100, hsl[2] * 100);
+  setHSL((int)hsl[0] + degrees, hsl[1] * 100, hsl[2] * 100);
 }
 
 unsigned int Color::getRed() {

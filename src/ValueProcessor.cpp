@@ -32,7 +32,7 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
       if (newvalue.size() > 0)
         newvalue.push(new Token(" ", Token::WHITESPACE));
 
-      newvalue.push(v->getToken()->clone());
+      newvalue.push(v->getTokens());
       delete v;
     } else if (value->size() > 0) {
       if (newvalue.size() > 0)
@@ -266,13 +266,34 @@ Value* ValueProcessor::processFunction(Token* function,
   string percentage;
   
   if(function->str == "rgb(") {
+    // Color rgb(@red: NUMBER, @green: NUMBER, @blue: NUMBER)
     if (arguments.size() == 3 &&
         arguments[0]->type == Value::NUMBER &&
         arguments[1]->type == Value::NUMBER &&
         arguments[2]->type == Value::NUMBER) {
-      return new Color(0,0,0);
-    }      
-    // Color rgb(@red: NUMBER, @green: NUMBER, @blue: NUMBER)
+      return new Color(arguments[0]->getValue(),
+                       arguments[1]->getValue(),
+                       arguments[2]->getValue());
+    }
+  } else if(function->str == "rgba(") {
+    // Color rgba(@red: NUMBER, @green: NUMBER, @blue: NUMBER,
+    //            @alpha: NUMBER)
+    if (arguments.size() == 4 &&
+        arguments[0]->type == Value::NUMBER &&
+        arguments[1]->type == Value::NUMBER &&
+        arguments[2]->type == Value::NUMBER) {
+      if (arguments[3]->type == Value::NUMBER) {
+        return new Color(arguments[0]->getValue(),
+                         arguments[1]->getValue(),
+                         arguments[2]->getValue(),
+                         arguments[3]->getValue());
+      } else if (arguments[3]->type == Value::PERCENTAGE) {
+        return new Color(arguments[0]->getValue(),
+                         arguments[1]->getValue(),
+                         arguments[2]->getValue(),
+                         arguments[3]->getPercent() * .01);
+      }
+    }
   } else if (function->str == "lighten(") {
     // Color lighten(Color, PERCENTAGE)
     if (arguments.size() == 2 &&
