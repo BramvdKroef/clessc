@@ -4,7 +4,7 @@ Value::Value() {
 }
 
 Value::Value(Token* token) {
-  this->token = token;
+  tokens.push(token);
   
   switch(token->type) {
   case Token::NUMBER:
@@ -21,12 +21,10 @@ Value::Value(Token* token) {
   }
 }
 Value::~Value() {
-  if (token != NULL)
-    delete token;
 }
 
-Token* Value::getToken() {
-  return token;
+TokenList* Value::getTokens() {
+  return &tokens;
 }
 
 bool Value::add(Value* v) {
@@ -72,7 +70,7 @@ bool Value::divide(Value* v) {
 double Value::getValue() {
   istringstream stm;
   double ret;
-  stm.str(token->str);
+  stm.str(tokens.front()->str);
   stm >>ret;
   return ret;
 }
@@ -80,10 +78,10 @@ string Value::getUnit () {
   char c;
   unsigned int i;
   
-  for (i = 0; i < token->str.size(); i++) {
-    c = token->str[i];
+  for (i = 0; i < tokens.front()->str.size(); i++) {
+    c = tokens.front()->str[i];
     if (!isdigit(c) && c != '.' && c != '-')
-      return token->str.substr(i);
+      return tokens.front()->str.substr(i);
   }
   return string("");
 }
@@ -101,7 +99,7 @@ void Value::setValue(double d) {
     stm << getUnit();
   else if (type == Value::PERCENTAGE)
     stm << "%";
-  token->str = stm.str();
+  tokens.front()->str = stm.str();
 }
 void Value::setPercent(int i) {
   ostringstream stm;
@@ -110,6 +108,6 @@ void Value::setPercent(int i) {
 
   stm << i;
   stm << "%";
-  token->str = stm.str();
+  tokens.front()->str = stm.str();
 }
 
