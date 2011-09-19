@@ -49,6 +49,11 @@ public:
   void push(TokenList* list);
   void unshift(TokenList* list);
 
+  /**
+   * Delete all tokens in the list and remove them from the list.
+   */
+  void clear();
+
   TokenList* clone();
   
   string* toString();

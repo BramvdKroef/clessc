@@ -36,8 +36,7 @@ bool TokenListIterator::hasPrevious () {
 }
 
 TokenList::~TokenList() {
-  while (!empty()) 
-    delete pop();
+  clear();
 }
   
 void TokenList::push (Token* token) {
@@ -125,6 +124,11 @@ void TokenList::unshift(TokenList* list) {
   while (it->hasPrevious())
     unshift(it->previous()->clone());
   delete it;
+}
+
+void TokenList::clear() {
+  while (!empty()) 
+    delete pop();
 }
 
 TokenList* TokenList::clone() {
