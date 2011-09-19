@@ -1,7 +1,5 @@
 #include "Value.h"
 
-#include <iostream>
-
 Value::Value() {
 }
 

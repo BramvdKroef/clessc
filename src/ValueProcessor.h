@@ -4,6 +4,7 @@
 #include "TokenList.h"
 #include "Token.h"
 #include "Value.h"
+#include "Color.h"
 #include <map>
 #include <vector>
 

@@ -1,5 +1,20 @@
 #include "Color.h"
 
+#include <iostream>
+
+double Color::maxArray(double* array, int len) {
+  double ret = array[0];
+  for (int i = 0; i < len; i++)
+    ret = max(ret, array[i]);
+  return ret;
+}
+double Color::minArray(double* array, int len) {
+  double ret = array[0];
+  for (int i = 0; i < len; i++) 
+    ret = min(ret, array[i]);
+  return ret;
+}
+
 Color::Color(Token* token): Value() {
   int len;
 
@@ -24,9 +39,9 @@ Color::Color(Token* token): Value() {
 }
 Color::Color(unsigned int red, unsigned int green, unsigned int blue): Value() {
   type = Value::COLOR;
-  color[RED] = red;
-  color[GREEN] = green;
-  color[BLUE] = blue;
+  color[RGB_RED] = red;
+  color[RGB_GREEN] = green;
+  color[RGB_BLUE] = blue;
   
   token = new Token("#", Token::HASH);
 }
@@ -40,7 +55,7 @@ Token* Color::getToken() {
   
   for (i = 0; i < 3; i++) {
     stm.str("");
-    stm << hex << color[i];
+    stm << hex << (color[i] & 0xFF);
     sColor[i] = stm.str();
   }
   stm.str("");
@@ -49,6 +64,8 @@ Token* Color::getToken() {
   for (i = 0; i < 3; i++) {
     if (sColor[i].size() == 1)
       stm << "0";
+    else if (sColor[i].size() > 2) 
+      sColor[i] = sColor[i].substr(0, 2);
     stm << sColor[i];
   }
   token->str = stm.str();
@@ -69,14 +86,14 @@ bool Color::add(Value* v) {
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
-    color[RED] += c->getRed();
-    color[GREEN] += c->getGreen();
-    color[BLUE] += c->getBlue();
+    color[RGB_RED] += c->getRed();
+    color[RGB_GREEN] += c->getGreen();
+    color[RGB_BLUE] += c->getBlue();
   } else if (v->type == PERCENTAGE) {
     percent = 1 + v->getPercent() * 0.01;
-    color[RED] *= percent;
-    color[GREEN] *= percent;
-    color[BLUE] *= percent;
+    color[RGB_RED] *= percent;
+    color[RGB_GREEN] *= percent;
+    color[RGB_BLUE] *= percent;
   } else 
     return false;
   return true;
@@ -87,46 +104,45 @@ bool Color::substract(Value* v) {
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
-    color[RED] -= c->getRed();
-    color[GREEN] -= c->getGreen();
-    color[BLUE] -= c->getBlue();
+    color[RGB_RED] -= c->getRed();
+    color[RGB_GREEN] -= c->getGreen();
+    color[RGB_BLUE] -= c->getBlue();
   } else if (v->type == PERCENTAGE) {
     percent = 1 - v->getPercent() * 0.01;
     cout << percent << endl;
-    color[RED] *= percent;
-    color[GREEN] *= percent;
-    color[BLUE] *= percent;
+    color[RGB_RED] *= percent;
+    color[RGB_GREEN] *= percent;
+    color[RGB_BLUE] *= percent;
   } else 
     return false;
   return true;
 }
 bool Color::multiply(Value* v) {
   if (v->type == NUMBER) {
-    color[RED] *= v->getValue();
-    color[GREEN] *= v->getValue();
-    color[BLUE] *= v->getValue();
+    color[RGB_RED] *= v->getValue();
+    color[RGB_GREEN] *= v->getValue();
+    color[RGB_BLUE] *= v->getValue();
   } else 
     return false;
   return true;
 }
 bool Color::divide(Value* v) {
   if (v->type == NUMBER) {
-    color[RED] /= v->getValue();
-    color[GREEN] /= v->getValue();
-    color[BLUE] /= v->getValue();
+    color[RGB_RED] /= v->getValue();
+    color[RGB_GREEN] /= v->getValue();
+    color[RGB_BLUE] /= v->getValue();
   } else 
     return false;
   return true;
 }
     
-void Color::setHSL(int hue, unsigned int saturation,
-                   unsigned int lightness) {
+void Color::setHSL(int hue, double saturation, double lightness) {
   double c, x, m;
   
   while (hue < 0) 
-    hue = 360 - hue;
+    hue = hue + 360;
   hue = hue % 360;
-  
+  cout << "set h: " << hue << ", s: " << saturation << ", l: " << lightness << endl;
   saturation = saturation * .01;
   lightness = lightness * .01;
   
@@ -135,88 +151,90 @@ void Color::setHSL(int hue, unsigned int saturation,
   x = c * (1 - abs(hue % 2 - 1));
 
   if (hue < 1) {
-    color[RED] = c;
-    color[GREEN] = x;
-    color[BLUE] = 0;
+    color[RGB_RED] = c;
+    color[RGB_GREEN] = x;
+    color[RGB_BLUE] = 0;
   } else if (hue < 2) {
-    color[RED] = x;
-    color[GREEN] = c;
-    color[BLUE] = 0;
+    color[RGB_RED] = x;
+    color[RGB_GREEN] = c;
+    color[RGB_BLUE] = 0;
   } else if (hue < 3) {
-    color[RED] = 0;
-    color[GREEN] = c;
-    color[BLUE] = x;
+    color[RGB_RED] = 0;
+    color[RGB_GREEN] = c;
+    color[RGB_BLUE] = x;
   } else if (hue < 4) {
-    color[RED] = 0;
-    color[GREEN] = x;
-    color[BLUE] = c;
+    color[RGB_RED] = 0;
+    color[RGB_GREEN] = x;
+    color[RGB_BLUE] = c;
   } else if (hue < 5) {
-    color[RED] = x;
-    color[GREEN] = 0;
-    color[BLUE] = c;
+    color[RGB_RED] = x;
+    color[RGB_GREEN] = 0;
+    color[RGB_BLUE] = c;
   } else if (hue < 6) {
-    color[RED] = c;
-    color[GREEN] = 0;
-    color[BLUE] = x;
+    color[RGB_RED] = c;
+    color[RGB_GREEN] = 0;
+    color[RGB_BLUE] = x;
   }
   m = lightness - .5 * c;
-  for (int i = 0; i < 3; i++)
-    color[i] = color[i] + m;
+  for (int i = 0; i < 3; i++) 
+    color[i] = (color[i] + m) * 255;
 }
-void Color::lighten(unsigned int percent) {
-  unsigned double* hsl = getHSL();
-  setHSL(hsl[0], hsl[1] * 100, max(hsl[2] * 100 + percent, 100));
+void Color::lighten(double percent) {
+  double* hsl = getHSL();
+  setHSL(hsl[0], hsl[1] * 100, min(hsl[2] * 100 + percent, 100.00));
 }
-void Color::darken(unsigned int percent) {
-  unsigned double* hsl = getHSL();
-  setHSL(hsl[0], hsl[1] * 100, min(hsl[2] * 100 - percent, 0));
+void Color::darken(double percent) {
+  double* hsl = getHSL();
+  setHSL(hsl[0], hsl[1] * 100, max(hsl[2] * 100 - percent, 0.0));
 }
-void Color::saturate(unsigned int percent) {
-  unsigned double* hsl = getHSL();
-  setHSL(hsl[0], max(hsl[1] * 100 + percent, 100), hsl[2]);
+void Color::saturate(double percent) {
+  double* hsl = getHSL();
+  setHSL(hsl[0], min(hsl[1] * 100 + percent, 100.00), hsl[2]);
 }
-void Color::desaturate(unsigned int percent) {
-  unsigned double* hsl = getHSL();
-  setHSL(hsl[0], max(hsl[1] * 100 - percent, 100), hsl[2]);
+void Color::desaturate(double percent) {
+  double* hsl = getHSL();
+  setHSL(hsl[0], max(hsl[1] * 100 - percent, 0.00), hsl[2]);
 }
-void Color::fadein(unsigned int percent) {
+void Color::fadein(double percent) {
 }
-void Color::fadeout(unsigned int percent) {
+void Color::fadeout(double percent) {
 }
-void Color::spin(int percent) {
-  unsigned double* hsl = getHSL();
-  setHSL(getHue() + percent, getSaturation(), getLightness());
+void Color::spin(double degrees) {
+  double* hsl = getHSL();
+  setHSL(hsl[0] + degrees, hsl[1] * 100, hsl[2] * 100);
 }
 
 unsigned int Color::getRed() {
-  return color[RED];
+  return color[RGB_RED];
 }
 unsigned int Color::getGreen() {
-  return color[GREEN];
+  return color[RGB_GREEN];
 }
 unsigned int Color::getBlue() {
-  return color[BLUE];
+  return color[RGB_BLUE];
 }
 
-unsigned double* Color::getHSL() {
-  unsigned double max, min, c;
-  unsigned double rgb[3], hsl[3];
+double* Color::getHSL() {
+  double max, min, c;
+  double rgb[3], * hsl = new double[3];
 
   for (int i = 0; i < 3; i++)
-    rgb[i] = color[i] / 255;
-  
-  max = max(rgb);
-  min = min(rgb);
+    rgb[i] = (double)color[i] / 255;
+
+  max = maxArray(rgb, 3);
+  min = minArray(rgb, 3);
   c = max - min;
   
   if (c == 0)
     hsl[0] = 0;
-  else if (max == color[RED])
-    hsl[0] = (color[GREEN] - color[BLUE]) / c % 6;
-  else if (max == color[GREEN])
-    hsl[0] = (color[BLUE] - color[RED]) / c + 2;
-  else if (max == color[BLUE])
-    hsl[0] = (color[RED] - color[GREEN]) / c + 4;
+  else if (max == rgb[RGB_RED]) {
+    hsl[0] = (rgb[RGB_GREEN] - rgb[RGB_BLUE]) / c;
+    while (hsl[0] > 6)
+      hsl[0] = hsl[0] - 6;
+  } else if (max == rgb[RGB_GREEN])
+    hsl[0] = (rgb[RGB_BLUE] - rgb[RGB_RED]) / c + 2.0;
+  else if (max == rgb[RGB_BLUE])
+    hsl[0] = (rgb[RGB_RED] - rgb[RGB_GREEN]) / c + 4.0;
   hsl[0] = 60 * hsl[0];
 
   hsl[2] = .5 * (max + min);
@@ -225,18 +243,20 @@ unsigned double* Color::getHSL() {
     hsl[1] = 0;
   else
     hsl[1] = c / (1 - abs(2 * hsl[2] - 1));
+
+  cout << "get h: " << hsl[0] << ", s: " << hsl[1] << ", l: " << hsl[2] << endl;
   return hsl;
 }
 
-unsigned double Color::getHue() {
-  unsigned double* hsl = getHSL();
+double Color::getHue() {
+  double* hsl = getHSL();
   return hsl[0];
 }
-unsigned double Color::getSaturation() {
-  unsigned double* hsl = getHSL();
+double Color::getSaturation() {
+  double* hsl = getHSL();
   return hsl[1] * 100;
 }
-unsigned double Color::getLightness() {
-  unsigned double* hsl = getHSL();
+double Color::getLightness() {
+  double* hsl = getHSL();
   return hsl[2] * 100;
 }
