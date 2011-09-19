@@ -22,7 +22,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
     
     rule = parseValue();
 
-    if (rule == NULL) {
+    if (rule == NULL || rule->size() == 0) {
       throw new ParseException(tokenizer->getToken()->str,
                                "value for variable");
     }
