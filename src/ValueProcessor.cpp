@@ -339,22 +339,21 @@ Value* ValueProcessor::processFunction(Token* function,
   } else if (function->str == "hsl(") {
     // Color hsl(PERCENTAGE, PERCENTAGE, PERCENTAGE)
     if (arguments.size() == 3 &&
-        arguments[0]->type == Value::PERCENTAGE &&
+        arguments[0]->type == Value::NUMBER &&
         arguments[1]->type == Value::PERCENTAGE &&
         arguments[2]->type == Value::PERCENTAGE) {
       color = new Color(0,0,0);
-      color->setHSL(arguments[0]->getPercent(),
+      color->setHSL(arguments[0]->getValue(),
                     arguments[1]->getPercent(),
                     arguments[2]->getPercent());
       return color;
     }      
   } else if (function->str == "hue(") {
-    // PERCENTAGE hue(Color)
+    // NUMBER hue(Color)
     if (arguments.size() == 1 &&
         arguments[0]->type == Value::COLOR) {
       percentage.append(to_string(static_cast<Color*>(arguments[0])->getHue()));
-      percentage.append("%");
-      return new Value(new Token(percentage, Token::PERCENTAGE));
+      return new Value(new Token(percentage, Token::NUMBER));
     }
     
   } else if (function->str == "saturation(") {

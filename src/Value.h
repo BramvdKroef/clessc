@@ -32,37 +32,4 @@ public:
   void setPercent(int i);
 };
 
-class Color: public Value {
-private:
-  unsigned int color[3];
-public:
-  Color(Token* token);
-  Color(unsigned int red, unsigned int green, unsigned int blue);
-  virtual ~Color();
-
-  Token* getToken();
-  
-  bool add(Value* v);
-  bool substract(Value* v);
-  bool multiply(Value* v);
-  bool divide(Value* v);
-  
-  void setHSL(unsigned int hue, unsigned int saturation,
-              unsigned int lightness);
-  void lighten(unsigned int percent);
-  void darken(unsigned int percent);
-  void saturate(unsigned int percent);
-  void desaturate(unsigned int percent);
-  void fadein(unsigned int percent);
-  void fadeout(unsigned int percent);
-  void spin(unsigned int percent);
-
-  unsigned int getRed();
-  unsigned int getGreen();
-  unsigned int getBlue();
-  int getHue();
-  int getSaturation();
-  int getLightness();
-};
-
 #endif
