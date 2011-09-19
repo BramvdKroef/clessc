@@ -136,48 +136,54 @@ bool Color::divide(Value* v) {
   return true;
 }
     
-void Color::setHSL(int hue, double saturation, double lightness) {
-  double c, x, m;
+void Color::setHSL(double hue, double saturation, double lightness) {
+  double c, x, rgb[3];
+  int i;
   
   while (hue < 0) 
-    hue = hue + 360;
-  hue = hue % 360;
-  cout << "set h: " << hue << ", s: " << saturation << ", l: " << lightness << endl;
-  saturation = saturation * .01;
-  lightness = lightness * .01;
-  
-  c = (1 - abs(2 * lightness - 1)) * saturation;
-  hue = hue / 60;
-  x = c * (1 - abs(hue % 2 - 1));
+    hue += 360;
+  while (hue > 360)
+    hue -= 360;
+  hue /= 360;
+  saturation *= .01;
+  lightness *= .01;
 
-  if (hue < 1) {
-    color[RGB_RED] = c;
-    color[RGB_GREEN] = x;
-    color[RGB_BLUE] = 0;
-  } else if (hue < 2) {
-    color[RGB_RED] = x;
-    color[RGB_GREEN] = c;
-    color[RGB_BLUE] = 0;
-  } else if (hue < 3) {
-    color[RGB_RED] = 0;
-    color[RGB_GREEN] = c;
-    color[RGB_BLUE] = x;
-  } else if (hue < 4) {
-    color[RGB_RED] = 0;
-    color[RGB_GREEN] = x;
-    color[RGB_BLUE] = c;
-  } else if (hue < 5) {
-    color[RGB_RED] = x;
-    color[RGB_GREEN] = 0;
-    color[RGB_BLUE] = c;
-  } else if (hue < 6) {
-    color[RGB_RED] = c;
-    color[RGB_GREEN] = 0;
-    color[RGB_BLUE] = x;
+  if (saturation > 0) {
+    if (lightness < 0.5)
+      c = lightness * (1.0 + saturation);
+    else
+      c = lightness + saturation - lightness * saturation;
+
+    x = 2.0 * lightness - c;
+
+    rgb[RGB_RED] = hue + 1.0/3.0;
+    rgb[RGB_GREEN] = hue;
+    rgb[RGB_BLUE] = hue - 1.0/3.0;
+
+    for (i = 0; i < 3; i++) {
+      // bring into 0-1 range
+      if (rgb[i] > 1)
+        rgb[i] -= 1.0;
+      if (rgb[i] < 0)
+        rgb[i] += 1.0;
+
+      if (6.0 * rgb[i] < 1) 
+        rgb[i] = x + (c - x) * 6.0 * rgb[i];
+      else if (2.0 * rgb[i] < 1)
+        rgb[i] = c;
+      else if (3.0 * rgb[i] < 2)
+        rgb[i] = x + (c - x) * ((2.0/3.0) - rgb[i]) * 6.0;
+      else
+        rgb[i] = x;
+    }
+  } else
+    rgb[RGB_RED] = rgb[RGB_GREEN] = rgb[RGB_BLUE] = lightness;
+  
+  for (i = 0; i < 3; i++) {
+    // convert to 0-255 range.
+    // add the .5 and truncate to round to int.
+    color[i] = rgb[i] * 255 + 0.5;
   }
-  m = lightness - .5 * c;
-  for (int i = 0; i < 3; i++) 
-    color[i] = (color[i] + m) * 255;
 }
 void Color::lighten(double percent) {
   double* hsl = getHSL();
@@ -189,15 +195,19 @@ void Color::darken(double percent) {
 }
 void Color::saturate(double percent) {
   double* hsl = getHSL();
-  setHSL(hsl[0], min(hsl[1] * 100 + percent, 100.00), hsl[2]);
+  setHSL(hsl[0], min(hsl[1] * 100 + percent, 100.00), hsl[2] * 100);
 }
 void Color::desaturate(double percent) {
   double* hsl = getHSL();
-  setHSL(hsl[0], max(hsl[1] * 100 - percent, 0.00), hsl[2]);
+  setHSL(hsl[0], max(hsl[1] * 100 - percent, 0.00), hsl[2] * 100);
 }
 void Color::fadein(double percent) {
+  double* hsl = getHSL();
+  setHSL(hsl[0], hsl[1] * 100, hsl[2] * 100);
 }
 void Color::fadeout(double percent) {
+  double* hsl = getHSL();
+  setHSL(hsl[0], hsl[1] * 100, hsl[2] * 100);
 }
 void Color::spin(double degrees) {
   double* hsl = getHSL();
@@ -237,26 +247,29 @@ double* Color::getHSL() {
     hsl[0] = (rgb[RGB_RED] - rgb[RGB_GREEN]) / c + 4.0;
   hsl[0] = 60 * hsl[0];
 
-  hsl[2] = .5 * (max + min);
-  
+  hsl[2] = (max + min) / 2;
+    
   if (c == 0)
     hsl[1] = 0;
+  /* this part does not work */
+  //else
+  //  hsl[1] = c / (1.0 - abs(2.0 * hsl[2] - 1.0));
+  else if (hsl[2] < .5)
+    hsl[1] = c / (max + min);
   else
-    hsl[1] = c / (1 - abs(2 * hsl[2] - 1));
-
-  cout << "get h: " << hsl[0] << ", s: " << hsl[1] << ", l: " << hsl[2] << endl;
+    hsl[1] = c / (2.0 - max - min);
   return hsl;
 }
 
-double Color::getHue() {
+int Color::getHue() {
   double* hsl = getHSL();
   return hsl[0];
 }
-double Color::getSaturation() {
+int Color::getSaturation() {
   double* hsl = getHSL();
   return hsl[1] * 100;
 }
-double Color::getLightness() {
+int Color::getLightness() {
   double* hsl = getHSL();
   return hsl[2] * 100;
 }
