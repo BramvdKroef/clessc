@@ -5,6 +5,7 @@
 #include "Token.h"
 #include "Value.h"
 #include "Color.h"
+#include "ValueException.h"
 #include <map>
 #include <vector>
 

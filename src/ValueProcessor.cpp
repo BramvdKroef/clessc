@@ -130,6 +130,10 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
     v2 = tmp;
 
   if (v2->type == Value::COLOR && v1->type != Value::COLOR) {
+    if (op->str == "-" || op->str == "/") 
+      throw new ValueException("Cannot substract or divide a color \
+from a number");
+
     tmp = v1;
     v1 = v2;
     v2 = tmp;

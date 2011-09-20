@@ -31,7 +31,7 @@ void processInput(istream* in){
     w->writeStylesheet(s);
     cout << endl;
     delete s;
-  } catch(ParseException* e) {
+  } catch(exception* e) {
     cerr << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
       tokenizer->getPosition() << " Parse Error: " << e->what() << endl; 
   }
