@@ -28,6 +28,7 @@ public:
   virtual bool divide(Value* v);
   double getValue();
   string getUnit();
+  void setUnit(string unit);
   void setValue(double d);
 };
 

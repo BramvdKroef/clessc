@@ -29,12 +29,15 @@ TokenList* Value::getTokens() {
 }
 
 bool Value::add(Value* v) {
-  if (type == NUMBER && v->type == NUMBER)
-    setValue(getValue() + v->getValue());
-  else if (type == PERCENTAGE || type == DIMENSION)
-    setValue(getValue() + v->getValue());
-  else
-    return false;
+  
+  if (type == NUMBER) {
+    type = v->type;
+    if (v->type == DIMENSION)
+      setUnit(v->getUnit());
+    else if (v->type == PERCENTAGE) 
+      tokens.front()->type = Token::PERCENTAGE;
+  }
+  setValue(getValue() + v->getValue());
   
   return true;
 }
@@ -99,12 +102,21 @@ string Value::getUnit () {
   return string("");
 }
 
+void Value::setUnit(string unit) {
+  ostringstream stm;
+  stm << getValue();
+  stm << unit;
+  type = DIMENSION;
+  tokens.front()->type = Token::DIMENSION;
+  tokens.front()->str = stm.str();
+}
+
 void Value::setValue(double d) {
   ostringstream stm;
   stm << d;
-  if (type == Value::DIMENSION)
+  if (type == DIMENSION)
     stm << getUnit();
-  else if (type == Value::PERCENTAGE)
+  else if (type == PERCENTAGE)
     stm << "%";
   tokens.front()->str = stm.str();
 }
