@@ -122,26 +122,22 @@ TokenList* Color::getTokens() {
 }
 bool Color::add(Value* v) {
   Color* c;
-  double percent;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
     color[RGB_RED] += c->getRed();
     color[RGB_GREEN] += c->getGreen();
     color[RGB_BLUE] += c->getBlue();
-  } else if (v->type == PERCENTAGE) {
-    percent = 1 + v->getPercent() * 0.01;
-    color[RGB_RED] *= percent;
-    color[RGB_GREEN] *= percent;
-    color[RGB_BLUE] *= percent;
-  } else 
-    return false;
+  } else {
+    color[RGB_RED] += v->getValue();
+    color[RGB_GREEN] += v->getValue();
+    color[RGB_BLUE] += v->getValue();
+  }
   valueChanged = true;
   return true;
 }
 bool Color::substract(Value* v) {
   Color* c;
-  double percent;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
@@ -151,34 +147,47 @@ bool Color::substract(Value* v) {
       color[RGB_GREEN] - c->getGreen() : 0;
     color[RGB_BLUE] = color[RGB_BLUE] > c->getBlue() ?
       color[RGB_BLUE] - c->getBlue() : 0;
-  } else if (v->type == PERCENTAGE) {
-    percent = 1 - v->getPercent() * 0.01;
-    cout << percent << endl;
-    color[RGB_RED] *= percent;
-    color[RGB_GREEN] *= percent;
-    color[RGB_BLUE] *= percent;
-  } else 
-    return false;
+  } else {
+    color[RGB_RED] -= v->getValue();
+    color[RGB_GREEN] -= v->getValue();
+    color[RGB_BLUE] -= v->getValue();
+  }
   valueChanged = true;
   return true;
 }
 bool Color::multiply(Value* v) {
-  if (v->type == NUMBER) {
+  Color* c;
+  int result;
+  
+  if (v->type == COLOR) {
+    c = static_cast<Color*>(v);
+    result = color[RGB_RED] * c->getRed();
+    color[RGB_RED] = max(min(result, 255), 0);
+    result = color[RGB_GREEN] * c->getGreen();
+    color[RGB_GREEN] = max(min(result, 255), 0);
+    result = color[RGB_BLUE] * c->getBlue();
+    color[RGB_BLUE] = max(min(result, 255), 0);
+  } else {
     color[RGB_RED] *= v->getValue();
     color[RGB_GREEN] *= v->getValue();
     color[RGB_BLUE] *= v->getValue();
-  } else 
-    return false;
+  }
   valueChanged = true;
   return true;
 }
 bool Color::divide(Value* v) {
-  if (v->type == NUMBER) {
+  Color* c;
+
+  if (v->type == COLOR) {
+    c = static_cast<Color*>(v);
+    color[RGB_RED] /= c->getRed();
+    color[RGB_GREEN] /= c->getGreen();
+    color[RGB_BLUE] /= c->getBlue();
+  } else {
     color[RGB_RED] /= v->getValue();
     color[RGB_GREEN] /= v->getValue();
     color[RGB_BLUE] /= v->getValue();
-  } else 
-    return false;
+  }
   valueChanged = true;
   return true;
 }

@@ -1,4 +1,5 @@
 #include "Value.h"
+#include <iostream>
 
 Value::Value() {
 }
@@ -32,6 +33,8 @@ bool Value::add(Value* v) {
     setValue(getValue() + v->getValue());
   else if (type == PERCENTAGE && v->type == PERCENTAGE)
     setPercent(getPercent() + v->getPercent());
+  else if (type == DIMENSION)
+    setValue(getValue() + v->getValue());
   else
     return false;
   
@@ -68,9 +71,21 @@ bool Value::divide(Value* v) {
   return true;
 }
 double Value::getValue() {
+  string number;
   istringstream stm;
   double ret;
-  stm.str(tokens.front()->str);
+  char c;
+
+  for (unsigned int i = 0; i < tokens.front()->str.size(); i++) {
+    c = tokens.front()->str[i];
+    if (!isdigit(c) && c != '.' && c != '-') {
+      number = tokens.front()->str.substr(0, i);
+      break;
+    }
+  }
+  if (number == "")
+    number = tokens.front()->str;
+  stm.str(number);
   stm >>ret;
   return ret;
 }
