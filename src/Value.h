@@ -27,10 +27,8 @@ public:
   virtual bool multiply(Value* v);
   virtual bool divide(Value* v);
   double getValue();
-  int getPercent();
   string getUnit();
   void setValue(double d);
-  void setPercent(int i);
 };
 
 #endif

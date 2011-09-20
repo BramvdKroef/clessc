@@ -31,9 +31,7 @@ TokenList* Value::getTokens() {
 bool Value::add(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() + v->getValue());
-  else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setPercent(getPercent() + v->getPercent());
-  else if (type == DIMENSION)
+  else if (type == PERCENTAGE || type == DIMENSION)
     setValue(getValue() + v->getValue());
   else
     return false;
@@ -44,7 +42,7 @@ bool Value::substract(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() - v->getValue());
   else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setPercent(getPercent() - v->getPercent());
+    setValue(getValue() - v->getValue());
   else
     return false;
   
@@ -54,7 +52,7 @@ bool Value::multiply(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() * v->getValue());
   else if (type == PERCENTAGE && v->type == NUMBER)
-    setPercent(getPercent() * v->getValue());
+    setValue(getValue() * v->getValue());
   else
     return false;
   
@@ -64,7 +62,7 @@ bool Value::divide(Value* v) {
   if (type == NUMBER && v->type == NUMBER)
     setValue(getValue() / v->getValue());
   else if (type == PERCENTAGE && v->type == NUMBER)
-    setPercent(getPercent() / v->getValue());
+    setValue(getValue() / v->getValue());
   else
     return false;
   
@@ -101,12 +99,6 @@ string Value::getUnit () {
   return string("");
 }
 
-int Value::getPercent() {
-  if (type != Value::PERCENTAGE)
-    return -1;
-  else
-    return (int)getValue();
-}
 void Value::setValue(double d) {
   ostringstream stm;
   stm << d;
@@ -116,13 +108,3 @@ void Value::setValue(double d) {
     stm << "%";
   tokens.front()->str = stm.str();
 }
-void Value::setPercent(int i) {
-  ostringstream stm;
-  if (type != Value::PERCENTAGE)
-    return;
-
-  stm << i;
-  stm << "%";
-  tokens.front()->str = stm.str();
-}
-

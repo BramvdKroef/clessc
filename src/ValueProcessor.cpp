@@ -291,7 +291,7 @@ Value* ValueProcessor::processFunction(Token* function,
         return new Color(arguments[0]->getValue(),
                          arguments[1]->getValue(),
                          arguments[2]->getValue(),
-                         arguments[3]->getPercent() * .01);
+                         arguments[3]->getValue() * .01);
       }
     }
   } else if (function->str == "lighten(") {
@@ -299,7 +299,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->lighten(arguments[1]->getPercent());
+      static_cast<Color*>(arguments[0])->lighten(arguments[1]->getValue());
       return arguments[0];
     }
     
@@ -308,7 +308,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->darken(arguments[1]->getPercent());
+      static_cast<Color*>(arguments[0])->darken(arguments[1]->getValue());
       return arguments[0];
     }
 
@@ -317,7 +317,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->saturate(arguments[1]->getPercent());
+      static_cast<Color*>(arguments[0])->saturate(arguments[1]->getValue());
       return arguments[0];
     }
 
@@ -326,7 +326,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->desaturate(arguments[1]->getPercent());
+      static_cast<Color*>(arguments[0])->desaturate(arguments[1]->getValue());
       return arguments[0];
     }
 
@@ -335,7 +335,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->fadein(arguments[1]->getPercent());
+      static_cast<Color*>(arguments[0])->fadein(arguments[1]->getValue());
       return arguments[0];
     }
 
@@ -344,7 +344,7 @@ Value* ValueProcessor::processFunction(Token* function,
     if (arguments.size() == 2 &&
         arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->fadeout(arguments[1]->getPercent());
+      static_cast<Color*>(arguments[0])->fadeout(arguments[1]->getValue());
       return arguments[0];
     }
 
@@ -365,8 +365,8 @@ Value* ValueProcessor::processFunction(Token* function,
         arguments[2]->type == Value::PERCENTAGE) {
       color = new Color(0,0,0);
       color->setHSL(arguments[0]->getValue(),
-                    arguments[1]->getPercent(),
-                    arguments[2]->getPercent());
+                    arguments[1]->getValue(),
+                    arguments[2]->getValue());
       return color;
     }      
   } else if (function->str == "hue(") {
