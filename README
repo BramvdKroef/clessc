@@ -1,0 +1,38 @@
+* Introduction
+
+The LESS CSS compiler compiles stylesheet in the LESS stylesheet
+language to CSS. Read more on http://lesscss.org/
+
+* Differences from the original compiler
+
+This compiler does not apply formatting to the code. The CSS in the
+output contains no whitespace except where necessary. If you need it
+to be user-readable you can use a CSS formatter. Try CSSTidy:
+http://csstidy.sourceforge.net/
+
+Parentheses are not required in compound values:
+
+border: @width * 2 solid black;
+
+The spin() function produces slightly different results.
+
+* Installation
+
+To compile just run make. g++ or another c++ compiler is required. If
+you are using a compiler other than g++ you'll need to change the
+Makefile.
+
+After compiling you will have the binary lessc. You can copy this to
+/usr/local/bin/ or wherever you prefer to have your binaries.
+
+Note that the original compiler is also named lessc. If you already
+have another LESS CSS compiler installed you should rename the lessc
+binary you just created before copying.
+
+* Usage
+
+To compile the LESS stylesheet stylesheet.less and write the resulting
+CSS to stylsheet.css run:
+
+lessc stylesheet.less > stylesheet.css
+
