@@ -27,7 +27,8 @@ void processInput(istream* in){
   CssWriter *w = new CssWriter(&cout);
   
   try{
-    Stylesheet* s = parser->parseStylesheet();
+    Stylesheet* s = new Stylesheet();
+    parser->parseStylesheet(s);
     w->writeStylesheet(s);
     cout << endl;
     delete s;

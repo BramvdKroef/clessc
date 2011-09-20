@@ -5,8 +5,7 @@ CssParser::CssParser(CssTokenizer* tokenizer){
   this->tokenizer = tokenizer;
 }
 
-Stylesheet* CssParser::parseStylesheet(){
-  Stylesheet* stylesheet = new Stylesheet();
+void CssParser::parseStylesheet(Stylesheet* stylesheet){
   tokenizer->readNextToken();
   
   skipWhitespace();
@@ -19,7 +18,6 @@ Stylesheet* CssParser::parseStylesheet(){
     throw new ParseException(tokenizer->getToken()->str,
                              "end of input");
   }
-  return stylesheet;
 }
 
 void CssParser::skipWhitespace () {

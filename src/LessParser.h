@@ -7,6 +7,11 @@
 #include "TokenList.h"
 #include "ParameterRuleset.h"
 #include "ValueProcessor.h"
+#include "LessTokenizer.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
 
 /**
  * Extends the css spec with these parts:
@@ -73,7 +78,8 @@ protected:
   ParameterRuleset* getParameterRuleset(TokenList* selector);
 
   TokenList* parseValue ();
-  
+
+  void importFile(string file, Stylesheet* stylesheet);
 private:
     
   TokenList* processValue(TokenList* value);

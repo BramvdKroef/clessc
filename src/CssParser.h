@@ -158,7 +158,7 @@ public:
    * @throws ParseException if the parser comes across a mistake in
    *   the input, such as unterminated strings or parentheses.
    */
-  Stylesheet* parseStylesheet();
+  void parseStylesheet(Stylesheet* stylesheet);
   
   
 };

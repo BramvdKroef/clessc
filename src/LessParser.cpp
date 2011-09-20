@@ -5,7 +5,7 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
 }
 
 bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
-  string keyword;
+  string keyword, import;
   TokenList* rule;
   AtRule* atrule = NULL;
   
@@ -33,7 +33,6 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
     valueProcessor->putVariable(keyword, rule);
     tokenizer->readNextToken();
     skipWhitespace();
-    
   } else {
     rule = new TokenList();
     while(parseAny(rule)) {};
@@ -46,6 +45,21 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
       tokenizer->readNextToken();
       skipWhitespace();
     }
+    if (keyword == "@import") {
+      if (rule->size() != 1 ||
+          rule->front()->type != Token::STRING)
+        throw new ParseException(*rule->toString(), "A string with the \
+file path");
+      import = rule->front()->str;
+      if (import.size() < 5 ||
+          import.substr(import.size() - 5, 4) != ".css") {
+        if (import.size() < 6 || import.substr(import.size() - 6, 5) != ".less")
+          import.insert(import.size() - 1, ".less");
+        
+        importFile(import.substr(1, import.size() - 2), stylesheet);
+        return true;
+      }
+    } 
     atrule = new AtRule(new string(keyword));
     atrule->setRule(rule);
     stylesheet->addAtRule(atrule);
@@ -380,3 +394,17 @@ bool LessParser::processParameter(TokenList* selector,
   return true;
 }
 
+void LessParser::importFile(string filename, Stylesheet* stylesheet) {
+  cerr << "importing: " << filename << endl;
+  ifstream* in = new ifstream(filename.c_str());
+  if (in->fail() || in->bad())
+    throw new ParseException(filename, "existing file");
+  
+  LessTokenizer* tokenizer = new LessTokenizer(in);
+  LessParser* parser = new LessParser(tokenizer);
+  parser->parseStylesheet(stylesheet);
+  in->close();
+  delete parser;
+  delete tokenizer;
+  delete in;
+}
