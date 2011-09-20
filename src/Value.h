@@ -22,10 +22,12 @@ public:
   
   virtual TokenList* getTokens();
   
-  virtual bool add(Value* v);
-  virtual bool substract(Value* v);
-  virtual bool multiply(Value* v);
-  virtual bool divide(Value* v);
+  virtual void add(Value* v);
+  virtual void substract(Value* v);
+  virtual void multiply(Value* v);
+  virtual void divide(Value* v);
+  void setType(Value* v);
+  
   double getValue();
   string getUnit();
   void setUnit(string unit);

@@ -28,49 +28,40 @@ TokenList* Value::getTokens() {
   return &tokens;
 }
 
-bool Value::add(Value* v) {
-  
-  if (type == NUMBER) {
-    type = v->type;
-    if (v->type == DIMENSION)
-      setUnit(v->getUnit());
-    else if (v->type == PERCENTAGE) 
-      tokens.front()->type = Token::PERCENTAGE;
-  }
+void Value::add(Value* v) {
+  if (type == NUMBER) 
+    setType(v);
   setValue(getValue() + v->getValue());
-  
-  return true;
 }
-bool Value::substract(Value* v) {
-  if (type == NUMBER && v->type == NUMBER)
-    setValue(getValue() - v->getValue());
-  else if (type == PERCENTAGE && v->type == PERCENTAGE)
-    setValue(getValue() - v->getValue());
-  else
-    return false;
-  
-  return true;
+void Value::substract(Value* v) {
+  if (type == NUMBER) 
+    setType(v);
+  setValue(getValue() - v->getValue());
 }
-bool Value::multiply(Value* v) {
-  if (type == NUMBER && v->type == NUMBER)
-    setValue(getValue() * v->getValue());
-  else if (type == PERCENTAGE && v->type == NUMBER)
-    setValue(getValue() * v->getValue());
-  else
-    return false;
-  
-  return true;
+void Value::multiply(Value* v) {
+  if (type == NUMBER) 
+    setType(v);
+  setValue(getValue() * v->getValue());
 }
-bool Value::divide(Value* v) {
-  if (type == NUMBER && v->type == NUMBER)
-    setValue(getValue() / v->getValue());
-  else if (type == PERCENTAGE && v->type == NUMBER)
-    setValue(getValue() / v->getValue());
-  else
-    return false;
-  
-  return true;
+
+void Value::divide(Value* v) {
+  if (type == NUMBER) 
+    setType(v);
+  setValue(getValue() / v->getValue());
 }
+
+void Value::setType(Value* v) {
+  type = v->type;
+  if (v->type == DIMENSION)
+    setUnit(v->getUnit());
+  else if (v->type == PERCENTAGE) 
+    tokens.front()->type = Token::PERCENTAGE;
+  else if (v->type == NUMBER) {
+    setUnit("");
+    tokens.front()->type = Token::NUMBER;
+  }
+}
+
 double Value::getValue() {
   string number;
   istringstream stm;

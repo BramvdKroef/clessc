@@ -120,7 +120,7 @@ TokenList* Color::getTokens() {
   valueChanged = false;
   return &tokens;
 }
-bool Color::add(Value* v) {
+void Color::add(Value* v) {
   Color* c;
   
   if (v->type == COLOR) {
@@ -134,9 +134,8 @@ bool Color::add(Value* v) {
     color[RGB_BLUE] += v->getValue();
   }
   valueChanged = true;
-  return true;
 }
-bool Color::substract(Value* v) {
+void Color::substract(Value* v) {
   Color* c;
   
   if (v->type == COLOR) {
@@ -153,9 +152,8 @@ bool Color::substract(Value* v) {
     color[RGB_BLUE] -= v->getValue();
   }
   valueChanged = true;
-  return true;
 }
-bool Color::multiply(Value* v) {
+void Color::multiply(Value* v) {
   Color* c;
   int result;
   
@@ -173,9 +171,8 @@ bool Color::multiply(Value* v) {
     color[RGB_BLUE] *= v->getValue();
   }
   valueChanged = true;
-  return true;
 }
-bool Color::divide(Value* v) {
+void Color::divide(Value* v) {
   Color* c;
 
   if (v->type == COLOR) {
@@ -189,7 +186,6 @@ bool Color::divide(Value* v) {
     color[RGB_BLUE] /= v->getValue();
   }
   valueChanged = true;
-  return true;
 }
     
 void Color::setHSL(double hue, double saturation, double lightness) {

@@ -31,10 +31,10 @@ public:
 
   virtual TokenList* getTokens();
   
-  bool add(Value* v);
-  bool substract(Value* v);
-  bool multiply(Value* v);
-  bool divide(Value* v);
+  void add(Value* v);
+  void substract(Value* v);
+  void multiply(Value* v);
+  void divide(Value* v);
 
   /**
    * The HSL to RGB conversion on
