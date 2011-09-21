@@ -17,55 +17,66 @@ using namespace std;
  */
 
 void usage () {
-  cout << "  cat infile.txt | clessc > output.txt" << endl;
+  cout << "  clessc in.less -o out.css" << endl;
 }
 
 
-void processInput(istream* in){
+Stylesheet* processInput(istream* in){
   LessTokenizer* tokenizer = new LessTokenizer(in);
   LessParser* parser = new LessParser(tokenizer);
-  CssWriter *w = new CssWriter(&cout);
+  Stylesheet* s;
   
   try{
-    Stylesheet* s = new Stylesheet();
+    s = new Stylesheet();
     parser->parseStylesheet(s);
-    w->writeStylesheet(s);
-    cout << endl;
-    delete s;
   } catch(exception* e) {
     cerr << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
-      tokenizer->getPosition() << " Parse Error: " << e->what() << endl; 
+      tokenizer->getPosition() << " Parse Error: " << e->what() << endl;
+    return NULL;
   }
   
   delete tokenizer;
   delete parser;
+  return s;
+}
+void writeOutput (ostream* out, Stylesheet* stylesheet) {
+  CssWriter *w = new CssWriter(out);
+  w->writeStylesheet(stylesheet);
+  *out << endl;
   delete w;
 }
 
 int main(int argc, char * argv[]){
-  string helpstr("-h");
-  if (argc > 1 && helpstr.compare(argv[1]) == 0) {
-    usage();
-    return 0;
-  }
-
+  Stylesheet* s;
+  istream* in = &cin;
+  ostream* out = &cout;
+  
   try {
-    if(argc <= 1){
-      processInput(&cin);
-    } else {
-      for (int i=1; i < argc; i++){
-        ifstream* file = new ifstream(argv[i]);
-        
-        if (file->fail() || file->bad())
-          throw new IOException("Error opening file");
-
-        processInput(file);
-        file->close();
-        delete file;
+    int c;
+    while((c = getopt(argc, argv, ":o:h")) != EOF) {
+      switch (c) {
+      case 'h':
+        usage();
+        return 0;
+      case 'o':
+        out = new ofstream(optarg);
+        break;
       }
     }
+
+    if(argc - optind >= 1){
+      in = new ifstream(argv[optind]);
+      if (in->fail() || in->bad())
+        throw new IOException("Error opening file");
+    }
+
+    s = processInput(in);
+    if (s != NULL) {
+      writeOutput(out, s);
+      delete s;
+    }
+
   } catch (IOException* e) {
-    ostringstream stream1(ostringstream::out);
     cerr << " Error: " << e->what() << endl; 
   }
 		
