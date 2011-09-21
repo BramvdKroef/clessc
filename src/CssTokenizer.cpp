@@ -182,7 +182,7 @@ bool CssTokenizer::readName () {
 bool CssTokenizer::readNMStart () {
   if (lastRead == '_' ||
       (lastRead >= 'a' && lastRead <= 'z') ||
-      (lastRead >= 'F' && lastRead <= 'Z')) {
+      (lastRead >= 'A' && lastRead <= 'Z')) {
     currentToken.add(lastRead);
     readChar();
     return true;
