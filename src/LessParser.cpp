@@ -16,24 +16,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  if (tokenizer->getTokenType() == Token::COLON) {
-    tokenizer->readNextToken();
-    skipWhitespace();
-    
-    rule = parseValue();
-
-    if (rule == NULL || rule->size() == 0) {
-      throw new ParseException(tokenizer->getToken()->str,
-                               "value for variable");
-    }
-    if (tokenizer->getTokenType() != Token::DELIMITER) {
-      throw new ParseException(tokenizer->getToken()->str,
-                               "delimiter (';') at end of @-rule");
-    }
-    valueProcessor->putVariable(keyword, rule);
-    tokenizer->readNextToken();
-    skipWhitespace();
-  } else {
+  if (!parseVariable(keyword)) {
     rule = new TokenList();
     while(parseAny(rule)) {};
   
@@ -45,6 +28,7 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
       tokenizer->readNextToken();
       skipWhitespace();
     }
+    // parse import
     if (keyword == "@import") {
       if (rule->size() != 1 ||
           rule->front()->type != Token::STRING)
@@ -64,6 +48,42 @@ file path");
     atrule->setRule(rule);
     stylesheet->addAtRule(atrule);
   }
+  return true;
+}
+
+bool LessParser::parseVariable (string keyword = "") {
+  TokenList* rule;
+  
+  if (keyword == "") {
+    if (tokenizer->getTokenType() != Token::ATKEYWORD) 
+      return false;
+    keyword = tokenizer->getToken()->str;
+    tokenizer->readNextToken();
+    skipWhitespace();
+
+    if (tokenizer->getTokenType() != Token::COLON)
+      throw new ParseException(tokenizer->getToken()->str,
+                               "colon (':') following @keyword in \
+variable declaration.");
+  } else if (tokenizer->getTokenType() != Token::COLON)
+    return false;
+  
+  tokenizer->readNextToken();
+  skipWhitespace();
+    
+  rule = parseValue();
+
+  if (rule == NULL || rule->size() == 0) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "value for variable");
+  }
+  if (tokenizer->getTokenType() != Token::DELIMITER) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "delimiter (';') at end of @-rule");
+  }
+  valueProcessor->putVariable(keyword, rule);
+  tokenizer->readNextToken();
+  skipWhitespace();
   return true;
 }
 
@@ -91,9 +111,8 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 
   } else {
     ruleset = new ParameterRuleset(selector);
-    processParameterRuleset((ParameterRuleset*)ruleset);
-
     valueProcessor->pushScope();
+    processParameterRuleset((ParameterRuleset*)ruleset);
     
     skipWhitespace();
     parseRulesetStatement(stylesheet, ruleset);
@@ -131,6 +150,10 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
       }
       return true;
     }
+  }
+  if (property == NULL && parseVariable()) {
+    parseRulesetStatement(stylesheet, ruleset);
+    return true;
   }
   
   // otherwise parse a selector
@@ -325,7 +348,9 @@ ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
 void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
   TokenList* selector = ruleset->getSelector();
   TokenList* newselector = new TokenList();
-
+  list<string> parameters;
+  list<string>::iterator pit;
+  
   while (!selector->empty() &&
          selector->front()->type != Token::PAREN_OPEN) {
     newselector->push(selector->shift());
@@ -348,6 +373,15 @@ void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
   }
   delete selector;
   parameterRulesets.push_back(ruleset);
+
+  // Add a NULL value to the local scope for each parameter so they
+  // don't get replaced in the ruleset. For example this statement:
+  // @x: 5; .class (@x: 0) {left: @x }
+  // 'left: @x' would be replaced with 'left: 5' if we didn't do this
+  parameters = ruleset->getKeywords();
+  for(pit = parameters.begin(); pit != parameters.end(); pit++) {
+    valueProcessor->putVariable(*pit, NULL);
+  }
 }
 
 bool LessParser::processParameter(TokenList* selector,
@@ -395,7 +429,6 @@ bool LessParser::processParameter(TokenList* selector,
 }
 
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {
-  cerr << "importing: " << filename << endl;
   ifstream* in = new ifstream(filename.c_str());
   if (in->fail() || in->bad())
     throw new ParseException(filename, "existing file");
