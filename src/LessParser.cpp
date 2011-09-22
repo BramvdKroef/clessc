@@ -102,24 +102,23 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   }
   tokenizer->readNextToken();
 
+  // add new scope for the ruleset
+  valueProcessor->pushScope();
+  
   if (selector->back()->type != Token::PAREN_CLOSED) {
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
-    
-    skipWhitespace();
-    parseRulesetStatement(stylesheet, ruleset);
-
   } else {
     ruleset = new ParameterRuleset(selector);
-    valueProcessor->pushScope();
+    // note: this adds the parameters to the local scope
     processParameterRuleset((ParameterRuleset*)ruleset);
-    
-    skipWhitespace();
-    parseRulesetStatement(stylesheet, ruleset);
-    
-    valueProcessor->popScope();
-  }
-    
+  }    
+
+  skipWhitespace();
+  parseRulesetStatement(stylesheet, ruleset);
+
+  // remove scope
+  valueProcessor->popScope();
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken()->str,
