@@ -10,6 +10,9 @@ output contains no whitespace except where necessary. If you need it
 to be user-readable you can use a CSS formatter. Try CSSTidy:
 http://csstidy.sourceforge.net/
 
+CSS comments are not included in the output. The purpose of this
+compiler is to produce the smallest amount of output as possible. 
+
 Parentheses are not required in compound values:
 
 border: @width * 2 solid black;
