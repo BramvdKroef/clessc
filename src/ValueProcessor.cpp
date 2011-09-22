@@ -176,6 +176,10 @@ Value* ValueProcessor::processConstant(TokenList* value) {
 
   case Token::FUNCTION:
     value->shift();
+    // TODO: Check if the function can be processed before parsing
+    // arguments. Right now the arguments are lost if the function
+    // isn't reckognized.
+
     if (value->front()->type != Token::PAREN_CLOSED) 
       arguments.push_back(processConstant(value));
     
@@ -212,9 +216,20 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     delete value->shift();
     
     ret = processStatement(value);
-    
-    if (value->front()->type == Token::PAREN_CLOSED)
+
+    if (ret == NULL)
+      throw new ValueException("Expecting a valid expression in \
+parentheses. Something like '(5 + @x)'. Alternatively, one of the \
+variables in the expression may not contain a proper value like 5, \
+5%, 5em or #555555."); 
+
+    if (value->size() == 0)
+      throw new ParseException("end of line", ")");
+    else if (value->front()->type == Token::PAREN_CLOSED)
       delete value->shift();
+    else
+      throw new ParseException(value->front()->str, ")");
+
     return ret;
 
   default:
