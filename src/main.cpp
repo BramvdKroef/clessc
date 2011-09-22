@@ -31,7 +31,7 @@ Stylesheet* processInput(istream* in){
     parser->parseStylesheet(s);
   } catch(exception* e) {
     cerr << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
-      tokenizer->getPosition() << " Parse Error: " << e->what() << endl;
+      tokenizer->getColumn() << " Parse Error: " << e->what() << endl;
     return NULL;
   }
   

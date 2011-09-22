@@ -2,8 +2,9 @@
 
 CssTokenizer::CssTokenizer(istream* in){
   this->in = in;
-  lineNum = 1;
-  position = 0;
+  line = 1;
+  column = 0;
+  nextline = false;
   readChar();
 }
 
@@ -12,6 +13,12 @@ CssTokenizer::~CssTokenizer(){
 
 void CssTokenizer::readChar(){
   if (in != NULL) {
+    // Last char was a newline. Increment the line counter.
+    if (lastRead == '\n') {
+      line++;
+      column = 0;
+    }
+    
     in->get(lastRead);
 
     // check for end of file or escape key
@@ -20,12 +27,9 @@ void CssTokenizer::readChar(){
       lastRead = -1;
     } else if (in->fail() || in->bad())
       throw new IOException("Error reading input");
-    
-    position++;
-    if (lastRead == '\n') {
-      lineNum++;
-      position = 1;
-    }
+
+    if (lastRead != '\n') // count chars that aren't newlines
+      column++; 
   }
 }
 
@@ -429,9 +433,9 @@ Token::Type CssTokenizer::getTokenType() {
   return currentToken.type;
 }
 
-int CssTokenizer::getLineNumber(){
-  return lineNum;
+unsigned int CssTokenizer::getLineNumber(){
+  return line;
 }
-int CssTokenizer::getPosition(){
-  return position;
+unsigned int CssTokenizer::getColumn(){
+  return column;
 }

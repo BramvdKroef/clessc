@@ -94,8 +94,8 @@ public:
   Token* getToken();
   Token::Type getTokenType();
 
-  int getLineNumber();
-  int getPosition();
+  unsigned int getLineNumber();
+  unsigned int getColumn();
 		
 protected:
   istream* in;
@@ -103,7 +103,7 @@ protected:
   Token currentToken;
   char lastRead;
   
-  int lineNum, position;
+  unsigned int line, column;
   
   void readChar();
 
