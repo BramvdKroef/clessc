@@ -4,7 +4,6 @@ CssTokenizer::CssTokenizer(istream* in){
   this->in = in;
   line = 1;
   column = 0;
-  nextline = false;
   readChar();
 }
 
