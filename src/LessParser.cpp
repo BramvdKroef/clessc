@@ -133,12 +133,17 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
                                         Ruleset* ruleset) {
   Declaration* declaration;
-  TokenList* selector = NULL;
+  TokenList* selector = new TokenList();
+  TokenList* selectorEnd;
   string* property = parseProperty();
     
   // if we can parse a property and the next token is a COLON then the
   // statement is a declaration.
   if (property != NULL) {
+    // If this doesn't turn out to be a declaration we'll need this
+    // whitespace for the selector.
+    parseWhitespace(selector);
+    
     declaration = parseDeclaration(property);
     if (declaration != NULL) {
       ruleset->addDeclaration(declaration);
@@ -147,22 +152,27 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
         skipWhitespace();
         parseRulesetStatement(stylesheet, ruleset);
       }
+      delete selector;
       return true;
     }
-  }
-  if (property == NULL && parseVariable()) {
+  } else if (parseVariable()) {
     parseRulesetStatement(stylesheet, ruleset);
+    delete selector;
     return true;
   }
   
   // otherwise parse a selector
-  selector = parseSelector();
-  if (selector == NULL && property == NULL)
+  selectorEnd = parseSelector();
+  if (selectorEnd == NULL && property == NULL) {
+    delete selector;
     return false;
+  }
 
   // Insert property at the front
-  if (selector == NULL)
-    selector = new TokenList();
+  if (selectorEnd != NULL) {
+    selector->push(selectorEnd);
+    delete selectorEnd;
+  }
   if (property != NULL) {
     selector->unshift(new Token(*property, Token::IDENTIFIER));
     delete property;
