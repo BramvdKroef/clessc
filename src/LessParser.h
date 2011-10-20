@@ -73,6 +73,9 @@ protected:
 
   bool parseVariable(string keyword);
 
+  bool parseNestedRule(TokenList* selector, Ruleset*
+                       ruleset, Stylesheet* stylesheet);
+  
   bool parseMixin(TokenList* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
   bool processParameterMixin(TokenList* selector, Ruleset* parent);

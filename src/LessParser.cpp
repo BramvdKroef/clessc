@@ -144,19 +144,15 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     return false;
   }
 
-  // if followed by a ruleset it's a nested rule
-  if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
-    if (selector->front()->str == "&")
-      delete selector->shift();
-    else
-      selector->unshift(new Token(" ", Token::WHITESPACE));
-    selector->unshift(ruleset->getSelector());
-    
-    parseRuleset(stylesheet, selector);
-    
+  // a selector followed by a ruleset is a nested rule
+  if (parseNestedRule(selector, ruleset, stylesheet)) {
+    delete selector;
     parseRulesetStatement(stylesheet, ruleset);
     return true;
+      
+    // a selector by itself might be a mixin.
   } else if (parseMixin(selector, ruleset, stylesheet)) {
+    delete selector;
     if (tokenizer->getTokenType() == Token::DELIMITER) {
       tokenizer->readNextToken();
       skipWhitespace();
@@ -195,6 +191,41 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     throw new ParseException(*selector->toString(),
                              "a mixin that has been defined");
   }
+}
+
+bool LessParser::parseNestedRule(TokenList* selector, Ruleset*
+                                 ruleset, Stylesheet* stylesheet) {
+  TokenListIterator* it;
+  TokenList* selector2;
+  Token* next;
+  
+  if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
+    return false;
+  
+  // if the selector has commas put the parent selector in front of
+  // each part.
+  selector2 = new TokenList();
+  it = selector->iterator();
+    
+  while (it->hasNext()) {
+    selector2->push(ruleset->getSelector());
+    next = it->next();
+    
+    if (next->str == "&") 
+      next = it->next();
+    else if (next->type != Token::WHITESPACE)
+      selector2->push(new Token(" ", Token::WHITESPACE));
+
+    while (it->hasNext() && next->type != Token::OTHER &&
+           next->str != ",") {
+      selector2->push(next->clone());
+      next = it->next();
+    }
+    selector2->push(next->clone());
+  }
+
+  parseRuleset(stylesheet, selector2);
+  return true;
 }
 
 Declaration* LessParser::parseDeclaration (string* property) {
