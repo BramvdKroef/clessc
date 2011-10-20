@@ -73,7 +73,7 @@ protected:
 
   bool parseVariable(string keyword);
 
-  void parseMixin(TokenList* selector, Ruleset* ruleset,
+  bool parseMixin(TokenList* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
   bool processParameterMixin(TokenList* selector, Ruleset* parent);
   

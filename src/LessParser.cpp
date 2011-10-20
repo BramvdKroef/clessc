@@ -133,49 +133,15 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
                                         Ruleset* ruleset) {
   Declaration* declaration;
-  TokenList* selector = new TokenList();
-  TokenList* selectorEnd;
-  string* property = parseProperty();
-    
-  // if we can parse a property and the next token is a COLON then the
-  // statement is a declaration.
-  if (property != NULL) {
-    // If this doesn't turn out to be a declaration we'll need this
-    // whitespace for the selector.
-    parseWhitespace(selector);
-    
-    declaration = parseDeclaration(property);
-    if (declaration != NULL) {
-      ruleset->addDeclaration(declaration);
-      if (tokenizer->getTokenType() == Token::DELIMITER) {
-        tokenizer->readNextToken();
-        skipWhitespace();
-        parseRulesetStatement(stylesheet, ruleset);
-      }
-      delete selector;
+  TokenList* selector = parseSelector();
+  TokenList* value;
+
+  if (selector == NULL) {
+    if (parseVariable()) {
+      parseRulesetStatement(stylesheet, ruleset);
       return true;
     }
-  } else if (parseVariable()) {
-    parseRulesetStatement(stylesheet, ruleset);
-    delete selector;
-    return true;
-  }
-  
-  // otherwise parse a selector
-  selectorEnd = parseSelector();
-  if (selectorEnd == NULL && property == NULL) {
-    delete selector;
     return false;
-  }
-
-  // Insert property at the front
-  if (selectorEnd != NULL) {
-    selector->push(selectorEnd);
-    delete selectorEnd;
-  }
-  if (property != NULL) {
-    selector->unshift(new Token(*property, Token::IDENTIFIER));
-    delete property;
   }
 
   // if followed by a ruleset it's a nested rule
@@ -189,17 +155,46 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     parseRuleset(stylesheet, selector);
     
     parseRulesetStatement(stylesheet, ruleset);
-  } else {
-    // otherwise it's a mixin.
-    parseMixin(selector, ruleset, stylesheet);
-    
+    return true;
+  } else if (parseMixin(selector, ruleset, stylesheet)) {
     if (tokenizer->getTokenType() == Token::DELIMITER) {
       tokenizer->readNextToken();
       skipWhitespace();
       parseRulesetStatement(stylesheet, ruleset);
     }
+    return true;
+  } 
+  
+  // if we can parse a property and the next token is a COLON then the
+  // statement is a declaration.
+  if (selector->size() > 1 &&
+      selector->front()->type == Token::IDENTIFIER &&
+      selector->at(1)->type == Token::COLON) {
+    
+    declaration = new Declaration(new string(selector->front()->str));
+    delete selector->shift();
+    delete selector->shift();
+    // parse any leftover value parts.
+    value = CssParser::parseValue();
+    if (value != NULL) {
+      selector->push(value);
+      delete value;
+    }
+    valueProcessor->processValue(selector);
+    declaration->setValue(selector);
+    
+    ruleset->addDeclaration(declaration);
+    if (tokenizer->getTokenType() == Token::DELIMITER) {
+      tokenizer->readNextToken();
+      skipWhitespace();
+      parseRulesetStatement(stylesheet, ruleset);
+    }
+    
+    return true;
+  } else {
+    throw new ParseException(*selector->toString(),
+                             "a mixin that has been defined");
   }
-  return true;
 }
 
 Declaration* LessParser::parseDeclaration (string* property) {
@@ -232,24 +227,23 @@ TokenList* LessParser::parseValue () {
 }
 
 
-void LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
+bool LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
                             Stylesheet* stylesheet) {
   Ruleset* mixin;
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
-  
-  if (processParameterMixin(selector, ruleset)) {
 
+  if (processParameterMixin(selector, ruleset)) {
+    return true;
   } else if((mixin = stylesheet->getRuleset(selector)) != NULL) {
     declarations = mixin->getDeclarations();  
     for (it = declarations->begin(); it < declarations->end(); it++) {
       ruleset->addDeclaration((*it)->clone());
     }
     
-  } else {
-    throw new ParseException(*selector->toString(),
-                             "a mixin that has been defined");
-  }
+    return true;
+  } 
+  return false;
 }
 
 bool LessParser::processParameterMixin(TokenList* selector, Ruleset* parent) {
