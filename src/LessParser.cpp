@@ -196,36 +196,13 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
 
 bool LessParser::parseNestedRule(Selector* selector, Ruleset*
                                  ruleset, Stylesheet* stylesheet) {
-  TokenListIterator* it;
-  Selector* selector2;
-  Token* next;
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
     return false;
+
+  selector->addPrefix(ruleset->getSelector());
   
-  // if the selector has commas put the parent selector in front of
-  // each part.
-  selector2 = new Selector();
-  it = selector->iterator();
-    
-  while (it->hasNext()) {
-    selector2->push(ruleset->getSelector());
-    next = it->next();
-    
-    if (next->str == "&") 
-      next = it->next();
-    else if (next->type != Token::WHITESPACE)
-      selector2->push(new Token(" ", Token::WHITESPACE));
-
-    while (it->hasNext() && next->type != Token::OTHER &&
-           next->str != ",") {
-      selector2->push(next->clone());
-      next = it->next();
-    }
-    selector2->push(next->clone());
-  }
-
-  parseRuleset(stylesheet, selector2);
+  parseRuleset(stylesheet, selector);
   return true;
 }
 

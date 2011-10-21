@@ -12,7 +12,7 @@ class Selector: public TokenList {
 public:
   virtual ~Selector();
 
-  void addPrefix(Selector prefix);
+  void addPrefix(Selector* prefix);
 
   /**
    * If the selector contains commas then it is split up into multiple

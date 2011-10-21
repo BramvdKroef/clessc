@@ -1,12 +1,69 @@
 #include "Selector.h"
+#include <iostream>
 
 Selector::~Selector() {
   clear();
 }
 
-void Selector::addPrefix(Selector prefix) {
+void Selector::addPrefix(Selector* prefix) {
+  list<TokenList*>* prefixParts = prefix->split();
+  list<TokenList*>* sepParts = split();
+  list<TokenList*>::iterator prefixIt;
+  list<TokenList*>::iterator sepIt;
+  TokenList* tmp;
+  cout << *prefix->toString() << " + " << *toString() << endl;
+  clear();
+
+  for (sepIt = sepParts->begin(); sepIt !=
+         sepParts->end(); sepIt++) {
+      
+    if ((*sepIt)->front()->str == "&") 
+      delete (*sepIt)->shift();
+    else 
+      (*sepIt)->unshift(new Token(" ", Token::WHITESPACE));
+  }
+
+  for (prefixIt = prefixParts->begin(); prefixIt !=
+         prefixParts->end(); prefixIt++) {
+    
+    for (sepIt = sepParts->begin(); sepIt !=
+           sepParts->end(); sepIt++) {
+      push(*prefixIt);
+      push(*sepIt);
+      push(new Token(",", Token::OTHER));
+    }
+  }
+  delete pop();
+  
+  while (prefixParts->size() > 0) {
+    tmp = prefixParts->back();
+    prefixParts->pop_back();
+    delete tmp;
+  }
+  while (sepParts->size() > 0) {
+    tmp = sepParts->back();
+    sepParts->pop_back();
+    delete tmp;
+  }
+  cout << *toString() << endl;
 }
 
 list<TokenList*>* Selector::split() {
-  return NULL;
+  list<TokenList*>* l = new list<TokenList*>();
+  TokenListIterator* it = iterator();
+  TokenList* current = new TokenList();
+  Token* t;
+  
+  l->push_back(current);
+
+  while (it->hasNext()) {
+    t = it->next();
+    if (t->type == Token::OTHER && t->str == ",") {
+      current = new TokenList();
+      l->push_back(current);
+    } else
+      current->push(t->clone());
+  }
+  
+  return l;
 }
