@@ -1,6 +1,8 @@
 #include "Selector.h"
 
-Selector::~Selector() {}
+Selector::~Selector() {
+  clear();
+}
 
 void Selector::addPrefix(Selector prefix) {
 }
