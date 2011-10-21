@@ -1,11 +1,12 @@
 CC = g++
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 SRCDIR = src
 ODIR = build
 OBJS = $(ODIR)/Token.o $(ODIR)/TokenList.o $(ODIR)/CssTokenizer.o \
 	$(ODIR)/CssParser.o $(ODIR)/Stylesheet.o  $(ODIR)/CssWriter.o \
 	$(ODIR)/LessTokenizer.o $(ODIR)/LessParser.o $(ODIR)/Value.o \
-	$(ODIR)/Color.o $(ODIR)/ValueProcessor.o $(ODIR)/main.o
+	$(ODIR)/Color.o $(ODIR)/ValueProcessor.o $(ODIR)/Selector.o \
+	$(ODIR)/main.o
 EXEC = lessc
 RM = rm
 
