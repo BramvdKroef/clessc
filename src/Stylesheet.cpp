@@ -38,7 +38,7 @@ Declaration* Declaration::clone() {
 
 Ruleset::Ruleset() {
 }
-Ruleset::Ruleset(TokenList* selector) {
+Ruleset::Ruleset(Selector* selector) {
   this->selector = selector;
 }
 
@@ -53,13 +53,13 @@ Ruleset::~Ruleset() {
   }
 }
 
-void Ruleset::setSelector (TokenList* selector) {
+void Ruleset::setSelector (Selector* selector) {
   this->selector = selector;
 }
 void Ruleset::addDeclaration (Declaration* declaration) {
   declarations.push_back(declaration);
 }
-TokenList* Ruleset::getSelector() {
+Selector* Ruleset::getSelector() {
   return selector;
 }
 vector<Declaration*>* Ruleset::getDeclarations() {
@@ -116,7 +116,7 @@ vector<AtRule*>* Stylesheet::getAtRules() {
 vector<Ruleset*>* Stylesheet::getRulesets() {
   return &rulesets;
 }
-Ruleset* Stylesheet::getRuleset(TokenList* selector) {
+Ruleset* Stylesheet::getRuleset(Selector* selector) {
   vector<Ruleset*>::iterator it;
   for (it = rulesets.begin(); it < rulesets.end(); it++) {
     if ((*it)->getSelector()->equals(selector)) 

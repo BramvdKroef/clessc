@@ -64,7 +64,7 @@ protected:
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
   bool parseRuleset (Stylesheet* stylesheet,
-                         TokenList* selector = NULL);
+                     Selector* selector = NULL);
 
   bool parseRulesetStatement (Stylesheet* stylesheet,
                               Ruleset* ruleset);
@@ -73,14 +73,14 @@ protected:
 
   bool parseVariable(string keyword);
 
-  bool parseNestedRule(TokenList* selector, Ruleset*
+  bool parseNestedRule(Selector* selector, Ruleset*
                        ruleset, Stylesheet* stylesheet);
   
-  bool parseMixin(TokenList* selector, Ruleset* ruleset,
+  bool parseMixin(Selector* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
-  bool processParameterMixin(TokenList* selector, Ruleset* parent);
+  bool processParameterMixin(Selector* selector, Ruleset* parent);
   
-  ParameterRuleset* getParameterRuleset(TokenList* selector);
+  ParameterRuleset* getParameterRuleset(Selector* selector);
 
   TokenList* parseValue ();
 
@@ -90,7 +90,7 @@ private:
   TokenList* processValue(TokenList* value);
   
   void processParameterRuleset(ParameterRuleset* ruleset);
-  bool processParameter(TokenList* selector,
+  bool processParameter(Selector* selector,
                         ParameterRuleset* ruleset);
 
   list<TokenList*>* processArguments(TokenList* arguments);

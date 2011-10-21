@@ -115,7 +115,7 @@ bool CssParser::parseBlock (TokenList* tokens) {
 Ruleset* CssParser::parseRuleset () {
   Ruleset* ruleset = NULL;
   Declaration* declaration = NULL;
-  TokenList* selector = parseSelector();
+  Selector* selector = parseSelector();
   
   if (selector == NULL) {
     if (tokenizer->getTokenType() != Token::BRACKET_OPEN) 
@@ -151,8 +151,8 @@ Ruleset* CssParser::parseRuleset () {
   return ruleset;
 }
 
-TokenList* CssParser::parseSelector() {
-  TokenList* selector = new TokenList();
+Selector* CssParser::parseSelector() {
+  Selector* selector = new Selector();
   if (!parseAny(selector)) {
     delete selector;
     return NULL;

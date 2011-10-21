@@ -86,7 +86,7 @@ protected:
    * @return a list of tokens or NULL if no
    *    selector was found.
    */
-  TokenList* parseSelector();
+  Selector* parseSelector();
 
   /**
    * Parses a 'property: value' pair.

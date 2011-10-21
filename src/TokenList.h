@@ -26,7 +26,7 @@ private:
   list<Token*> tokens;
   
 public:
-  ~TokenList();
+  virtual ~TokenList();
   
   void push (Token* token);
   Token* pop ();

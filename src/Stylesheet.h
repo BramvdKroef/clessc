@@ -3,6 +3,7 @@
 
 #include "Token.h"
 #include "TokenList.h"
+#include "Selector.h"
 #include <string>
 #include <vector>
 
@@ -26,17 +27,17 @@ public:
   
 class Ruleset {
 private:
-  TokenList* selector;
+  Selector* selector;
   vector<Declaration*> declarations;
   
 public:
   Ruleset ();
-  Ruleset(TokenList* selector);
+  Ruleset(Selector* selector);
   virtual ~Ruleset();
-  void setSelector (TokenList* selector);
+  void setSelector (Selector* selector);
   void addDeclaration (Declaration* declaration);
 
-  TokenList* getSelector();
+  Selector* getSelector();
   vector<Declaration*>* getDeclarations();
 };
 
@@ -70,7 +71,7 @@ public:
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();
 
-  Ruleset* getRuleset(TokenList* selector);
+  Ruleset* getRuleset(Selector* selector);
 };
 
 #endif

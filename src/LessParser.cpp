@@ -88,17 +88,18 @@ variable declaration.");
 }
 
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
-                                   TokenList* selector) {
+                               Selector* selector) {
   Ruleset* ruleset = NULL;
   if (selector == NULL)
     selector = parseSelector();
   
-  if (selector == NULL) {
-    if (tokenizer->getTokenType() != Token::BRACKET_OPEN) 
+  if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
+    if (selector == NULL) 
       return false;
-  } else if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
-    throw new ParseException(tokenizer->getToken()->str,
-                             "a declaration block ('{...}')");
+    else {
+      throw new ParseException(tokenizer->getToken()->str,
+                               "a declaration block ('{...}')");
+    }
   }
   tokenizer->readNextToken();
 
@@ -133,7 +134,7 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
                                         Ruleset* ruleset) {
   Declaration* declaration;
-  TokenList* selector = parseSelector();
+  Selector* selector = parseSelector();
   TokenList* value;
 
   if (selector == NULL) {
@@ -193,10 +194,10 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
   }
 }
 
-bool LessParser::parseNestedRule(TokenList* selector, Ruleset*
+bool LessParser::parseNestedRule(Selector* selector, Ruleset*
                                  ruleset, Stylesheet* stylesheet) {
   TokenListIterator* it;
-  TokenList* selector2;
+  Selector* selector2;
   Token* next;
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
@@ -204,7 +205,7 @@ bool LessParser::parseNestedRule(TokenList* selector, Ruleset*
   
   // if the selector has commas put the parent selector in front of
   // each part.
-  selector2 = new TokenList();
+  selector2 = new Selector();
   it = selector->iterator();
     
   while (it->hasNext()) {
@@ -258,7 +259,7 @@ TokenList* LessParser::parseValue () {
 }
 
 
-bool LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
+bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
                             Stylesheet* stylesheet) {
   Ruleset* mixin;
   vector<Declaration*>* declarations;
@@ -277,7 +278,7 @@ bool LessParser::parseMixin(TokenList* selector, Ruleset* ruleset,
   return false;
 }
 
-bool LessParser::processParameterMixin(TokenList* selector, Ruleset* parent) {
+bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
   ParameterRuleset* mixin = getParameterRuleset(selector);
   list<TokenList*>* arguments;
   list<TokenList*>::iterator ait;
@@ -358,7 +359,7 @@ list<TokenList*>* LessParser::processArguments(TokenList* arguments) {
   return ret;
 }
 
-ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
+ParameterRuleset* LessParser::getParameterRuleset(Selector* selector) {
   vector<ParameterRuleset*>::iterator it;
   TokenList key;
   TokenListIterator* tli = selector->iterator();
@@ -380,8 +381,8 @@ ParameterRuleset* LessParser::getParameterRuleset(TokenList* selector) {
 }
 
 void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
-  TokenList* selector = ruleset->getSelector();
-  TokenList* newselector = new TokenList();
+  Selector* selector = ruleset->getSelector();
+  Selector* newselector = new Selector();
   list<string> parameters;
   list<string>::iterator pit;
   
@@ -418,7 +419,7 @@ void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
   }
 }
 
-bool LessParser::processParameter(TokenList* selector,
+bool LessParser::processParameter(Selector* selector,
                                   ParameterRuleset* ruleset) {
   Token* current;
   string keyword;

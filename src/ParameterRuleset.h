@@ -2,7 +2,7 @@
 #define __ParameterRuleset_h__
 
 #include "Stylesheet.h"
-#include "TokenList.h"
+#include "Selector.h"
 #include <map>
 
 
@@ -11,7 +11,7 @@ public:
   list<string> parameters;
   list<TokenList*> defaults;
 
-  ParameterRuleset(TokenList* selector): Ruleset(selector) {
+  ParameterRuleset(Selector* selector): Ruleset(selector) {
   }
 
   void addParameter(string keyword, TokenList* value) {
