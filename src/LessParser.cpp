@@ -319,7 +319,10 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
     }
     argsCombined->push(new Token(" ", Token::WHITESPACE));
   }
-  delete argsCombined->pop();
+  
+  if (argsCombined->size() > 0)
+    delete argsCombined->pop();
+  
   valueProcessor->putVariable("@arguments", argsCombined);
   
   declarations = mixin->getDeclarations();  
