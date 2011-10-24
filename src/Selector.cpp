@@ -11,7 +11,6 @@ void Selector::addPrefix(Selector* prefix) {
   list<TokenList*>::iterator prefixIt;
   list<TokenList*>::iterator sepIt;
   TokenList* tmp;
-  cout << *prefix->toString() << " + " << *toString() << endl;
   clear();
 
   for (sepIt = sepParts->begin(); sepIt !=
@@ -19,7 +18,7 @@ void Selector::addPrefix(Selector* prefix) {
       
     if ((*sepIt)->front()->str == "&") 
       delete (*sepIt)->shift();
-    else 
+    else if ((*sepIt)->front()->type != Token::WHITESPACE)
       (*sepIt)->unshift(new Token(" ", Token::WHITESPACE));
   }
 
@@ -45,7 +44,6 @@ void Selector::addPrefix(Selector* prefix) {
     sepParts->pop_back();
     delete tmp;
   }
-  cout << *toString() << endl;
 }
 
 list<TokenList*>* Selector::split() {

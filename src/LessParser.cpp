@@ -147,7 +147,6 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
 
   // a selector followed by a ruleset is a nested rule
   if (parseNestedRule(selector, ruleset, stylesheet)) {
-    delete selector;
     parseRulesetStatement(stylesheet, ruleset);
     return true;
       
@@ -201,7 +200,6 @@ bool LessParser::parseNestedRule(Selector* selector, Ruleset*
     return false;
 
   selector->addPrefix(ruleset->getSelector());
-  
   parseRuleset(stylesheet, selector);
   return true;
 }
@@ -242,6 +240,7 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
 
+  cout << *selector->toString() << endl;
   if (processParameterMixin(selector, ruleset)) {
     return true;
   } else if((mixin = stylesheet->getRuleset(selector)) != NULL) {
