@@ -3,35 +3,25 @@
 
 #include "Stylesheet.h"
 #include "Selector.h"
+#include "ParseException.h"
 #include <map>
 
 
 class ParameterRuleset: public Ruleset {
+protected:
+  bool processParameter(Selector* selector);
+  
 public:
   list<string> parameters;
   list<TokenList*> defaults;
 
-  ParameterRuleset(Selector* selector): Ruleset(selector) {
-  }
+  ParameterRuleset(Selector* selector);
 
-  void addParameter(string keyword, TokenList* value) {
-    parameters.push_back(keyword);
-    defaults.push_back(value);
-  }
+  void addParameter(string keyword, TokenList* value);
 
-  TokenList* getDefault(string keyword) {
-    list<string>::iterator pit = parameters.begin();
-    list<TokenList*>::iterator dit = defaults.begin();
-    for (;pit != parameters.end(); pit++, dit++) {
-      if ((*pit) == keyword)
-        return (*dit);
-    }
-    return NULL;
-  }
+  TokenList* getDefault(string keyword);
 
-  list<string> getKeywords() {
-    return parameters;
-  }
+  list<string> getKeywords();
 };
 
 #endif

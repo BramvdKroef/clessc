@@ -89,10 +89,6 @@ private:
     
   TokenList* processValue(TokenList* value);
   
-  void processParameterRuleset(ParameterRuleset* ruleset);
-  bool processParameter(Selector* selector,
-                        ParameterRuleset* ruleset);
-
   list<TokenList*>* processArguments(TokenList* arguments);
 };
 

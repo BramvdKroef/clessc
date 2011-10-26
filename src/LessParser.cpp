@@ -90,6 +90,10 @@ variable declaration.");
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
                                Selector* selector) {
   Ruleset* ruleset = NULL;
+  ParameterRuleset* pruleset;
+  list<string> parameters;
+  list<string>::iterator pit;
+  
   if (selector == NULL)
     selector = parseSelector();
   
@@ -110,9 +114,17 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
   } else {
-    ruleset = new ParameterRuleset(selector);
-    // note: this adds the parameters to the local scope
-    processParameterRuleset((ParameterRuleset*)ruleset);
+    ruleset = pruleset = new ParameterRuleset(selector);
+    parameterRulesets.push_back(pruleset);
+
+    // Add a NULL value to the local scope for each parameter so they
+    // don't get replaced in the ruleset. For example this statement:
+    // @x: 5; .class (@x: 0) {left: @x }
+    // 'left: @x' would be replaced with 'left: 5' if we didn't do this
+    parameters = pruleset->getKeywords();
+    for(pit = parameters.begin(); pit != parameters.end(); pit++) {
+      valueProcessor->putVariable(*pit, NULL);
+    }
   }    
 
   skipWhitespace();
@@ -240,7 +252,6 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
 
-  cout << *selector->toString() << endl;
   if (processParameterMixin(selector, ruleset)) {
     return true;
   } else if((mixin = stylesheet->getRuleset(selector)) != NULL) {
@@ -359,88 +370,6 @@ ParameterRuleset* LessParser::getParameterRuleset(Selector* selector) {
   return NULL;
 }
 
-void LessParser::processParameterRuleset(ParameterRuleset* ruleset) {
-  Selector* selector = ruleset->getSelector();
-  Selector* newselector = new Selector();
-  list<string> parameters;
-  list<string>::iterator pit;
-  
-  while (!selector->empty() &&
-         selector->front()->type != Token::PAREN_OPEN) {
-    newselector->push(selector->shift());
-  }
-  if (selector->empty()) {
-    throw new ParseException(*selector->toString(),
-                             "matching parentheses.");
-  }
-  
-  delete selector->shift();
-  while (newselector->back()->type == Token::WHITESPACE) 
-    delete newselector->pop();
-  ruleset->setSelector(newselector);
-  
-  while (processParameter(selector, ruleset)) {
-  }
-  if (selector->front()->type != Token::PAREN_CLOSED) {
-    throw new ParseException(*selector->toString(),
-                             "matching parentheses.");
-  }
-  delete selector;
-  parameterRulesets.push_back(ruleset);
-
-  // Add a NULL value to the local scope for each parameter so they
-  // don't get replaced in the ruleset. For example this statement:
-  // @x: 5; .class (@x: 0) {left: @x }
-  // 'left: @x' would be replaced with 'left: 5' if we didn't do this
-  parameters = ruleset->getKeywords();
-  for(pit = parameters.begin(); pit != parameters.end(); pit++) {
-    valueProcessor->putVariable(*pit, NULL);
-  }
-}
-
-bool LessParser::processParameter(Selector* selector,
-                                  ParameterRuleset* ruleset) {
-  Token* current;
-  string keyword;
-  TokenList* value = NULL;
-
-  while (!selector->empty() &&
-         selector->front()->type == Token::WHITESPACE) {
-    delete selector->shift();
-  }
-
-  if (selector->empty() ||
-      selector->front()->type != Token::ATKEYWORD)
-    return false;
-
-  keyword = selector->front()->str;
-  delete selector->shift();
-  
-  if (selector->front()->type == Token::COLON) {
-    delete selector->shift();
-    value = new TokenList();
-    
-    while (!selector->empty() &&
-           selector->front()->type != Token::PAREN_CLOSED &&
-           selector->front()->str != ",") {
-      value->push(selector->shift());
-    }
-    
-    while (!value->empty() && value->front()->type ==
-           Token::WHITESPACE) {
-      delete value->shift();
-    }
-    if (value->empty()) {
-      throw new ParseException(current->str,
-                               "default value following ':'");
-    }
-    if (!selector->empty() && selector->front()->str == ",") 
-      delete selector->shift();
-  }
-
-  ruleset->addParameter(keyword, value);
-  return true;
-}
 
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   ifstream* in = new ifstream(filename.c_str());
