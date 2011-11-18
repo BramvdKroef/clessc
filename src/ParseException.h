@@ -12,13 +12,13 @@ public:
 	
   ParseException(string found, string& expected){
     err.append("Found \"");
-    err.append(found);
+    err.append(translate(found));
     err.append("\" when expecting ");
     err.append(expected);
   }
   ParseException(string found, const char* expected){
     err.append("Found \"");
-    err.append(found);
+    err.append(translate(found));
     err.append("\" when expecting ");
     err.append(expected);
   }
@@ -27,7 +27,7 @@ public:
     if (found[0] == -1)
       err.append("end of file");
     else
-      err.append(found);
+      err.append(translate(string(found)));
     err.append("\" when expecting ");
     err.append(expected);
   }
@@ -37,6 +37,14 @@ public:
   virtual const char* what() const throw(){
     return err.c_str();
   }
+
+protected:
+  string translate(string found) {
+    if (found == "\n")
+      return "newline";
+    return found;
+  }
+
 };
 
 #endif
