@@ -74,10 +74,12 @@ int main(int argc, char * argv[]){
     if (s != NULL) {
       writeOutput(out, s);
       delete s;
-    }
+    } else
+      return 1;
 
   } catch (IOException* e) {
-    cerr << " Error: " << e->what() << endl; 
+    cerr << " Error: " << e->what() << endl;
+    return 1;
   }
 		
   return 0;
