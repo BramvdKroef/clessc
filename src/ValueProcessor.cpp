@@ -153,7 +153,6 @@ from a number");
 Value* ValueProcessor::processConstant(TokenList* value) {
   Token* token;
   Value* ret;
-  vector<Value*> arguments;
   TokenList* variable;
 
   while (value->size() > 0 &&
@@ -175,24 +174,10 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return new Value(value->shift());
 
   case Token::FUNCTION:
-    value->shift();
     // TODO: Check if the function can be processed before parsing
     // arguments. Right now the arguments are lost if the function
     // isn't reckognized.
-
-    if (value->front()->type != Token::PAREN_CLOSED) 
-      arguments.push_back(processConstant(value));
-    
-    while (value->front()->str == ",") {
-      delete value->shift();
-      arguments.push_back(processConstant(value));
-    }
-    if (value->front()->type != Token::PAREN_CLOSED) 
-      throw new ParseException(value->front()->str, ")");
-    
-    delete value->shift();
-    
-    return processFunction(token, arguments);
+    return processFunction(token, value);
     
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
@@ -279,15 +264,16 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
   return var->clone();
 }
 
-Value* ValueProcessor::processFunction(Token* function,
-                                   vector<Value*> arguments) {
+Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
   Color* color;
   string percentage;
+  vector<Value*> arguments;
   
   if(function->str == "rgb(") {
     // Color rgb(@red: NUMBER, @green: NUMBER, @blue: NUMBER)
-    if (arguments.size() == 3 &&
-        arguments[0]->type == Value::NUMBER &&
+    value->shift();
+    arguments = processArguments(value, 3);
+    if (arguments[0]->type == Value::NUMBER &&
         arguments[1]->type == Value::NUMBER &&
         arguments[2]->type == Value::NUMBER) {
       return new Color(arguments[0]->getValue(),
@@ -297,8 +283,9 @@ Value* ValueProcessor::processFunction(Token* function,
   } else if(function->str == "rgba(") {
     // Color rgba(@red: NUMBER, @green: NUMBER, @blue: NUMBER,
     //            @alpha: NUMBER)
-    if (arguments.size() == 4 &&
-        arguments[0]->type == Value::NUMBER &&
+    value->shift();
+    arguments = processArguments(value, 4);
+    if (arguments[0]->type == Value::NUMBER &&
         arguments[1]->type == Value::NUMBER &&
         arguments[2]->type == Value::NUMBER) {
       if (arguments[3]->type == Value::NUMBER) {
@@ -315,8 +302,9 @@ Value* ValueProcessor::processFunction(Token* function,
     }
   } else if (function->str == "lighten(") {
     // Color lighten(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
       static_cast<Color*>(arguments[0])->lighten(arguments[1]->getValue());
       return arguments[0];
@@ -324,8 +312,9 @@ Value* ValueProcessor::processFunction(Token* function,
     
   } else if (function->str == "darken(") {
     // Color darken(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
       static_cast<Color*>(arguments[0])->darken(arguments[1]->getValue());
       return arguments[0];
@@ -333,8 +322,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "saturate(") {
     // Color saturate(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
       static_cast<Color*>(arguments[0])->saturate(arguments[1]->getValue());
       return arguments[0];
@@ -342,8 +332,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "desaturate(") {
     // Color desaturate(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
       static_cast<Color*>(arguments[0])->desaturate(arguments[1]->getValue());
       return arguments[0];
@@ -351,8 +342,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "fadein(") {
     // Color fadein(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
       static_cast<Color*>(arguments[0])->fadein(arguments[1]->getValue());
       return arguments[0];
@@ -360,8 +352,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "fadeout(") {
     // Color fadeout(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::PERCENTAGE) {
       static_cast<Color*>(arguments[0])->fadeout(arguments[1]->getValue());
       return arguments[0];
@@ -369,8 +362,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "spin(") {
     // Color fadein(Color, PERCENTAGE)
-    if (arguments.size() == 2 &&
-        arguments[0]->type == Value::COLOR &&
+    value->shift();
+    arguments = processArguments(value, 2);
+    if (arguments[0]->type == Value::COLOR &&
         arguments[1]->type == Value::NUMBER) {
       static_cast<Color*>(arguments[0])->spin(arguments[1]->getValue());
       return arguments[0];
@@ -378,8 +372,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "hsl(") {
     // Color hsl(PERCENTAGE, PERCENTAGE, PERCENTAGE)
-    if (arguments.size() == 3 &&
-        arguments[0]->type == Value::NUMBER &&
+    value->shift();
+    arguments = processArguments(value, 3);
+    if (arguments[0]->type == Value::NUMBER &&
         arguments[1]->type == Value::PERCENTAGE &&
         arguments[2]->type == Value::PERCENTAGE) {
       color = new Color(0,0,0);
@@ -390,16 +385,18 @@ Value* ValueProcessor::processFunction(Token* function,
     }      
   } else if (function->str == "hue(") {
     // NUMBER hue(Color)
-    if (arguments.size() == 1 &&
-        arguments[0]->type == Value::COLOR) {
+    value->shift();
+    arguments = processArguments(value, 1);
+    if (arguments[0]->type == Value::COLOR) {
       percentage.append(to_string(static_cast<Color*>(arguments[0])->getHue()));
       return new Value(new Token(percentage, Token::NUMBER));
     }
     
   } else if (function->str == "saturation(") {
     // PERCENTAGE saturation(Color)
-    if (arguments.size() == 1 &&
-        arguments[0]->type == Value::COLOR) {
+    value->shift();
+    arguments = processArguments(value, 1);
+    if (arguments[0]->type == Value::COLOR) {
       percentage.append(to_string(static_cast<Color*>(arguments[0])->getSaturation())); 
       percentage.append("%");
       return new Value(new Token(percentage, Token::PERCENTAGE));
@@ -407,8 +404,9 @@ Value* ValueProcessor::processFunction(Token* function,
 
   } else if (function->str == "lightness(") {
     // PERCENTAGE lightness(Color)
-    if (arguments.size() == 1 &&
-        arguments[0]->type == Value::COLOR) {
+    value->shift();
+    arguments = processArguments(value, 1);
+    if (arguments[0]->type == Value::COLOR) {
       percentage.append(to_string(static_cast<Color*>(arguments[0])->getLightness()));
       percentage.append("%");
       return new Value(new Token(percentage, Token::PERCENTAGE));
@@ -417,6 +415,40 @@ Value* ValueProcessor::processFunction(Token* function,
     return NULL;
   return NULL;
 }
+
+vector<Value*> ValueProcessor::processArguments (TokenList* value,
+                                                 unsigned int len) {
+  vector<Value*> arguments;
+  vector<Value*>::iterator it;
+  ostringstream found, expected; // error strings
+  
+  if (value->front()->type != Token::PAREN_CLOSED) 
+    arguments.push_back(processConstant(value));
+    
+  while (value->front()->str == ",") {
+    delete value->shift();
+    arguments.push_back(processConstant(value));
+  }
+  if (value->front()->type != Token::PAREN_CLOSED) 
+    throw new ParseException(value->front()->str, ")");
+    
+  delete value->shift();
+
+  if (arguments.size() != len) {
+    found << "(";
+    for (it = arguments.begin(); it != arguments.end(); it++) {
+      if (it != arguments.begin())
+        found << ", ";
+      found << (*it)->getTokens()->toString();
+    }
+    found << ")";
+    expected << len << " arguments";
+    throw new ParseException(found.str(), expected.str().c_str());
+  }
+
+  return arguments;
+}
+
 
 void ValueProcessor::processString(Token* token) {
   size_t start, end;
