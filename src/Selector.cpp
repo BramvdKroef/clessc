@@ -15,10 +15,13 @@ void Selector::addPrefix(Selector* prefix) {
 
   for (sepIt = sepParts->begin(); sepIt !=
          sepParts->end(); sepIt++) {
-      
+
+    while ((*sepIt)->front()->type == Token::WHITESPACE)
+      delete (*sepIt)->shift();
+
     if ((*sepIt)->front()->str == "&") 
       delete (*sepIt)->shift();
-    else if ((*sepIt)->front()->type != Token::WHITESPACE)
+    else 
       (*sepIt)->unshift(new Token(" ", Token::WHITESPACE));
   }
 
