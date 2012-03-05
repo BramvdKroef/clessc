@@ -11,10 +11,13 @@ EXEC = lessc
 PREFIX = /usr/local
 RM = rm
 
+$(ODIR) :
+	mkdir $(ODIR)
+
 $(ODIR)/%.o : $(SRCDIR)/%.cpp $(SRCDIR)/%.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(EXEC) : $(OBJS) 
+$(EXEC) : $(ODIR) $(OBJS) 
 	$(CC) $(CFLAGS) $^ -o $@
 
 $(ODIR)/main.o : $(SRCDIR)/main.cpp
