@@ -1,7 +1,9 @@
 * Introduction
 
-The LESS CSS compiler compiles stylesheet in the LESS stylesheet
-language to CSS. Read more on http://lesscss.org/
+This is a LESS CSS compiler written in C++.
+
+A LESS CSS compiler compiles stylesheets in the LESS format to
+CSS. Read more on http://lesscss.org/ 
 
 * Differences from the original compiler
 
@@ -21,12 +23,12 @@ The spin() function produces slightly different results.
 
 * Installation
 
-To compile just run make. g++ or another c++ compiler is required. If
+To compile just run 'make'. g++ or another c++ compiler is required. If
 you are using a compiler other than g++ you'll need to change the
 Makefile.
 
-After compiling you will have the binary lessc. You can copy this to
-/usr/local/bin/ or wherever you prefer to have your binaries.
+After compiling you will have the binary lessc. You can run 'make
+install' as root to install the binary to /local/bin/.
 
 Note that the original compiler is also named lessc. If you already
 have another LESS CSS compiler installed you should rename the lessc
@@ -39,3 +41,6 @@ CSS to stylsheet.css run:
 
 lessc stylesheet.less > stylesheet.css
 
+or:
+
+lessc stylesheet.less -o stylesheet.css
