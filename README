@@ -28,7 +28,7 @@ you are using a compiler other than g++ you'll need to change the
 Makefile.
 
 After compiling you will have the binary lessc. You can run 'make
-install' as root to install the binary to /local/bin/.
+install' as root to install the binary to /usr/local/bin/.
 
 Note that the original compiler is also named lessc. If you already
 have another LESS CSS compiler installed you should rename the lessc
