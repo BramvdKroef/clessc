@@ -27,6 +27,8 @@ install : $(EXEC)
 	install -m 0755 $(EXEC) $(PREFIX)/bin
 
 clean:
-	rm $(BIN)/*.o 
+	rm -f $(BIN)/*.o 
 	rmdir $(BIN)
+	rm -f $(EXEC)
+
 
