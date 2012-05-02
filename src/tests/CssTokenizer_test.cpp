@@ -47,10 +47,10 @@ TEST(CssTokenizerTest, ReckognizesTokens) {
 }
 
 TEST(CssTokenizerTest, String) {
-  instringstream in("\"string\"")
+  istringstream in("\"string\"")
 }
 TEST(CssTokenizerTest, URL) {
-  instringstream in("url(../img/img.png)");
+  istringstream in("url(../img/img.png)");
 }
 
 TEST(CssTokenizerTest, UnicodeRange) {
