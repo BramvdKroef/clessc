@@ -48,8 +48,8 @@ using namespace std;
  *
  * Notes
  *
- * The CDO and CDC tokens are not supported as they are not expected in a
- * css file.
+ * The CDO and CDC tokens(html comments) are not supported as they are
+ * not expected in a css file.
  *
  * Instead of generating BAD_STRING, BAD_URI and BAD_COMMENT tokens
  * the CssTokenizer throws a ParseException. This may change in the
