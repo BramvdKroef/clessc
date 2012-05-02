@@ -47,7 +47,7 @@ TEST(CssTokenizerTest, ReckognizesTokens) {
 }
 
 TEST(CssTokenizerTest, String) {
-  istringstream in("\"string\"")
+  istringstream in("\"string\"");
 }
 TEST(CssTokenizerTest, URL) {
   istringstream in("url(../img/img.png)");
