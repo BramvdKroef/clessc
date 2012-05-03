@@ -56,8 +56,11 @@ TEST(CssTokenizerTest, ReckognizesTokens) {
 TEST(CssTokenizerTest, String) {
   istringstream in("\"string\" 'string' 'string\\\nstring' '\\12EF'"),
     inBad1("'string\n'"),
-    inBad2("'string");
-  CssTokenizer t(&in), tBad1(&inBad1), tBad2(&inBad2);
+    inBad2("'string"),
+    newlines("'\\\n \\\r\n \\\r'");
+
+  CssTokenizer t(&in), tBad1(&inBad1), tBad2(&inBad2),
+    tNewlines(&newlines);
 
   EXPECT_EQ(Token::STRING, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
@@ -69,6 +72,9 @@ TEST(CssTokenizerTest, String) {
 
   EXPECT_THROW(tBad1.readNextToken(), ParseException*);
   EXPECT_THROW(tBad2.readNextToken(), ParseException*);
+
+  ASSERT_EQ(Token::STRING, tNewlines.readNextToken());
+  EXPECT_STREQ("'\\\n \\\r\n \\\r'", tNewlines.getToken()->str.c_str());
 }
 
 TEST(CssTokenizerTest, URL) {
