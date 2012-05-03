@@ -54,8 +54,11 @@ TEST(CssTokenizerTest, ReckognizesTokens) {
  * containing newlines, and strings containing unicode characters.
  */
 TEST(CssTokenizerTest, String) {
-  istringstream in("\"string\" 'string' 'string\\\nstring' '\\12EF'");
-  CssTokenizer t(&in);
+  istringstream in("\"string\" 'string' 'string\\\nstring' '\\12EF'"),
+    inBad1("'string\n'"),
+    inBad2("'string");
+  CssTokenizer t(&in), tBad1(&inBad1), tBad2(&inBad2);
+
   EXPECT_EQ(Token::STRING, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::STRING, t.readNextToken());
@@ -63,6 +66,9 @@ TEST(CssTokenizerTest, String) {
   EXPECT_EQ(Token::STRING, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::STRING, t.readNextToken());
+
+  EXPECT_THROW(tBad1.readNextToken(), ParseException*);
+  EXPECT_THROW(tBad2.readNextToken(), ParseException*);
 }
 
 TEST(CssTokenizerTest, URL) {
@@ -83,7 +89,8 @@ TEST(CssTokenizerTest, UnicodeRange) {
 }
 
 TEST(CssTokenizerTest, NonAscii) {
-  istringstream in("a\238");
+  istringstream in("a\xEE€");
   CssTokenizer t(&in);
   EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
+  EXPECT_STREQ("a\xEE€", t.getToken()->str.c_str());
 }
