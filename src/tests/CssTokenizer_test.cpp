@@ -1,6 +1,9 @@
 #include "../CssTokenizer.h"
 #include "gtest/gtest.h"
 
+/**
+ * Test if the tokenizer reckognizes the tokens in the input string.
+ */
 TEST(CssTokenizerTest, ReckognizesTokens) {
   istringstream in("identifier @atkeyword #hash 1234 100% 1.5em : ; { } ( ) [ ] /* comment */ function( ~= |= ~ ");
     
@@ -46,14 +49,27 @@ TEST(CssTokenizerTest, ReckognizesTokens) {
   EXPECT_EQ(Token::EOS, t.readNextToken());
 }
 
+/**
+ * Test strings quoted with double quotes, single quotes, strings
+ * containing newlines, and strings containing unicode characters.
+ */
 TEST(CssTokenizerTest, String) {
-  istringstream in("\"string\"");
+  istringstream in("\"string\" 'string' 'string\\\nstring' '\\12EF'");
+  CssTokenizer t(&in);
+  EXPECT_EQ(Token::STRING, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::STRING, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::STRING, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::STRING, t.readNextToken());
 }
+
 TEST(CssTokenizerTest, URL) {
   istringstream in("url(../img/img.png)");
 }
 
 TEST(CssTokenizerTest, UnicodeRange) {
-  istringstream in("u+/123");
-
+  istringstream in("u+123");
+  
 }
