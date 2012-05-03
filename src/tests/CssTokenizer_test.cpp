@@ -66,10 +66,24 @@ TEST(CssTokenizerTest, String) {
 }
 
 TEST(CssTokenizerTest, URL) {
-  istringstream in("url(../img/img.png)");
+  istringstream in("url(../img/img.png) url('http://example.com/image.jpg')");
+
+  CssTokenizer t(&in);
+  EXPECT_EQ(Token::URL, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::URL, t.readNextToken());
 }
 
 TEST(CssTokenizerTest, UnicodeRange) {
-  istringstream in("u+123");
-  
+  istringstream in("u+123 u+123DEF-123");
+  CssTokenizer t(&in);
+  EXPECT_EQ(Token::UNICODE_RANGE, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::UNICODE_RANGE, t.readNextToken());
+}
+
+TEST(CssTokenizerTest, NonAscii) {
+  istringstream in("a\238");
+  CssTokenizer t(&in);
+  EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
 }
