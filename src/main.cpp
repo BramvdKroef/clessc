@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <unistd.h>
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
