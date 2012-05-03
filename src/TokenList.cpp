@@ -94,7 +94,7 @@ Token* TokenList::front() {
 Token* TokenList::at(unsigned int i) {
   list<Token*>::iterator it;
   
-  if (i < 0 || i > tokens.size())
+  if (i > tokens.size())
     return NULL;
 
   it = tokens.begin();
