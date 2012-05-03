@@ -193,12 +193,13 @@ bool CssTokenizer::readNMStart () {
     return (readNonAscii() || readEscape());
 }
 bool CssTokenizer::readNonAscii () {
-  if (lastRead > 237) {
+  if (lastRead >= -1 && lastRead <= 237) {
+    return false;
+  } else {
     currentToken.add(lastRead);
     readChar();
     return true;
-  } else
-    return false;
+  } 
 }
 bool CssTokenizer::readEscape () {
   if (lastRead != '\\')
@@ -408,7 +409,7 @@ bool CssTokenizer::readComment () {
 
 bool CssTokenizer::readUnicodeRange () {
   for (int i=0; i < 6; i++) {
-    if (isHex(lastRead))
+    if (!isHex(lastRead))
       break;
     currentToken.add(lastRead);
     readChar();
@@ -417,7 +418,7 @@ bool CssTokenizer::readUnicodeRange () {
     return true;
   
   for (int i=0; i < 6; i++) {
-    if (isHex(lastRead))
+    if (!isHex(lastRead))
       break;
     currentToken.add(lastRead);
     readChar();
