@@ -16,6 +16,8 @@ TESTS = $(BIN)/CssTokenizer_test
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
+all : $(EXEC)
+
 $(BIN) :
 	mkdir $(BIN)
 
@@ -23,7 +25,7 @@ $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(EXEC) : $(BIN) $(OBJS) 
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
 $(BIN)/main.o : $(SRC)/main.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -38,6 +40,7 @@ clean:
 
 
 unittest : $(TESTS)
+	$(TESTS)
 
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
