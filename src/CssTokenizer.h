@@ -119,9 +119,13 @@ protected:
   bool readNewline();
   bool readWhitespace();
   bool readUrl();
-  bool isHex(char c);
   virtual bool readComment();
   bool readUnicodeRange ();
+
+  bool lastReadEq(char c);
+  bool lastReadInRange(char c1, char c2);
+  bool lastReadIsDigit();
+  bool lastReadIsHex();
 };
 
 #endif
