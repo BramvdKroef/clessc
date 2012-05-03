@@ -201,7 +201,7 @@ bool CssTokenizer::readNonAscii () {
   if (in == NULL)
     return false;
   
-  if (lastRead >= 0 && lastRead <= 237) {
+  if (lastRead >= 0) {
     return false;
   } else {
     currentToken.add(lastRead);
