@@ -6,13 +6,14 @@ OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
 	$(BIN)/CssParser.o $(BIN)/Stylesheet.o  $(BIN)/CssWriter.o \
 	$(BIN)/LessTokenizer.o $(BIN)/LessParser.o $(BIN)/Value.o \
 	$(BIN)/Color.o $(BIN)/ValueProcessor.o $(BIN)/Selector.o \
-	$(BIN)/ParameterRuleset.o $(BIN)/main.o
+	$(BIN)/ParameterRuleset.o 
 EXEC = lessc
 PREFIX = /usr/local
 
 GTEST_DIR = gtest
 CPPFLAGS += -I$(GTEST_DIR)/include
-TESTS = $(BIN)/CssTokenizer_test
+TEST_EXEC = unittest
+TESTS = $(BIN)/CssTokenizer_test.o $(BIN)/CssParser_test.o
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
@@ -24,8 +25,8 @@ $(BIN) :
 $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(EXEC) : $(BIN) $(OBJS) 
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
+$(EXEC) : $(BIN) $(OBJS) $(BIN)/main.o
+	$(CXX) $(CXXFLAGS) $(OBJS) $(BIN)/main.o -o $@
 
 $(BIN)/main.o : $(SRC)/main.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -34,20 +35,13 @@ install : $(EXEC)
 	install -m 0755 $(EXEC) $(PREFIX)/bin
 
 clean:
-	rm -f $(BIN)/*.o 
+	rm -f $(BIN)/*.o $(BIN)/*.a
 	rmdir $(BIN)
-	rm -f $(EXEC)
+	rm -f $(EXEC) $(TEST_EXEC)
 
-
-unittest : $(TESTS)
-	$(TESTS)
-
+# Google test rules
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
-# For simplicity and to avoid depending on Google Test's
-# implementation details, the dependencies specified below are
-# conservative and not optimized.  This is fine as Google Test
-# compiles fast and for ordinary users its source rarely changes.
 $(BIN)/gtest-all.o : $(GTEST_SRCS_)
 	$(CXX) $(CPPFLAGS) -I$(GTEST_DIR) $(CXXFLAGS) -c \
             $(GTEST_DIR)/src/gtest-all.cc -o $@
@@ -62,12 +56,11 @@ $(BIN)/gtest.a : $(BIN)/gtest-all.o
 $(BIN)/gtest_main.a : $(BIN)/gtest-all.o $(BIN)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-$(BIN)/CssTokenizer_test.o : $(SRC)/tests/CssTokenizer_test.cpp \
-	$(SRC)/CssTokenizer.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c \
-	$(SRC)/tests/CssTokenizer_test.cpp -o $@
+# Compile test cases
+$(BIN)/%_test.o : $(SRC)/tests/%_test.cpp $(SRC)/%.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(BIN)/CssTokenizer_test : $(BIN)/CssTokenizer.o $(BIN)/Token.o \
-	$(BIN)/CssTokenizer_test.o $(BIN)/gtest_main.a
+# Create unit test executable
+$(TEST_EXEC) : $(OBJS) $(TESTS) $(BIN)/gtest_main.a 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
