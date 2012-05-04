@@ -12,7 +12,7 @@ public:
   CssWriter(ostream* out);
   void writeStylesheet(Stylesheet* s);
 
-private:
+protected:
   ostream* out;
   void writeAtRule(AtRule* rule);
   void writeRuleset(Ruleset* ruleset);
