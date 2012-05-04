@@ -114,3 +114,27 @@ TEST(CssTokenizerTest, Minus) {
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::FUNCTION, t.readNextToken());
 }
+TEST(CssTokenizerTest, Other) {
+  istringstream in("@ - ~ | / + =");
+  CssTokenizer t(&in);
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("@", t.getToken()->str.c_str());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("-", t.getToken()->str.c_str());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("~", t.getToken()->str.c_str());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("|", t.getToken()->str.c_str());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("/", t.getToken()->str.c_str());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("+", t.getToken()->str.c_str());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::OTHER, t.readNextToken());
+  EXPECT_STREQ("=", t.getToken()->str.c_str());
+}
