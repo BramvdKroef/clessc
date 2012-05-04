@@ -6,6 +6,7 @@
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
+#include "CssWriter.h"
 #include "CssPrettyWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
@@ -40,8 +41,13 @@ Stylesheet* processInput(istream* in){
   delete parser;
   return s;
 }
-void writeOutput (ostream* out, Stylesheet* stylesheet) {
-  CssWriter *w = new CssPrettyWriter(out);
+void writeOutput (ostream* out, Stylesheet* stylesheet, bool format) {
+  CssWriter *w;
+  if (format)
+    w = new CssPrettyWriter(out);
+  else
+    w = new CssWriter(out);
+  
   w->writeStylesheet(stylesheet);
   *out << endl;
   delete w;
@@ -51,16 +57,20 @@ int main(int argc, char * argv[]){
   Stylesheet* s;
   istream* in = &cin;
   ostream* out = &cout;
+  bool formatoutput = false;
   
   try {
     int c;
-    while((c = getopt(argc, argv, ":o:h")) != EOF) {
+    while((c = getopt(argc, argv, ":o:hf")) != EOF) {
       switch (c) {
       case 'h':
         usage();
         return 0;
       case 'o':
         out = new ofstream(optarg);
+        break;
+      case 'f':
+        formatoutput = true;
         break;
       }
     }
@@ -73,7 +83,7 @@ int main(int argc, char * argv[]){
 
     s = processInput(in);
     if (s != NULL) {
-      writeOutput(out, s);
+      writeOutput(out, s, formatoutput);
       delete s;
     } else
       return 1;
