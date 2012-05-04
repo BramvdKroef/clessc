@@ -2,16 +2,14 @@
 
 
 bool LessTokenizer::readComment () {
-  if (lastRead != '/')
+  if (!lastReadEq('/'))
     return CssTokenizer::readComment();
 
   currentToken.add(lastRead);
   readChar();
-  while (in != NULL) {
+  while (in != NULL && !lastReadEq('\n')) {
     currentToken.add(lastRead);
     readChar();
-    if (lastRead == '\n') 
-      break;
   }
   return true;
 }
