@@ -6,7 +6,7 @@ OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
 	$(BIN)/CssParser.o $(BIN)/Stylesheet.o  $(BIN)/CssWriter.o \
 	$(BIN)/LessTokenizer.o $(BIN)/LessParser.o $(BIN)/Value.o \
 	$(BIN)/Color.o $(BIN)/ValueProcessor.o $(BIN)/Selector.o \
-	$(BIN)/ParameterRuleset.o 
+	$(BIN)/ParameterRuleset.o $(BIN)/CssPrettyWriter.o
 EXEC = lessc
 PREFIX = /usr/local
 
@@ -63,4 +63,3 @@ $(BIN)/%_test.o : $(SRC)/tests/%_test.cpp $(SRC)/%.h $(GTEST_HEADERS)
 # Create unit test executable
 $(TEST_EXEC) : $(OBJS) $(TESTS) $(BIN)/gtest_main.a 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
