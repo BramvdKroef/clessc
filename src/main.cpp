@@ -6,7 +6,7 @@
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
-#include "CssWriter.h"
+#include "CssPrettyWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
 
@@ -41,7 +41,7 @@ Stylesheet* processInput(istream* in){
   return s;
 }
 void writeOutput (ostream* out, Stylesheet* stylesheet) {
-  CssWriter *w = new CssWriter(out);
+  CssWriter *w = new CssPrettyWriter(out);
   w->writeStylesheet(stylesheet);
   *out << endl;
   delete w;
