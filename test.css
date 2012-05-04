@@ -1,0 +1,183 @@
+/* Variables */
+
+@nice-blue: #5B83AD;
+@light-blue: @nice-blue + #111; 
+
+#header { color: @light-blue; }
+
+@fnord: "I am fnord.";
+@var: 'fnord';
+.class {
+//    content: @@var;
+}
+
+/* Mixins */
+
+.bordered {
+  border-top: dotted 1px black;
+  border-bottom: solid 2px black;
+}
+
+#menu a {
+    color: #111;
+    .bordered; 
+}
+.post a {
+    color: red;
+    .bordered;
+}
+
+/* Parametric Mixins */
+@radius: 5px;
+.border-radius (@radius) {
+  border-radius: @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+}
+
+#header {
+    .border-radius(4px);
+}
+.button {
+    .border-radius(6px); 
+}
+
+.wrap () {
+  text-wrap: wrap;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  word-wrap: break-word;
+}
+
+pre { .wrap  }
+
+/* The @arguments variable */
+
+.box-shadow (@x: 0, @y: 0, @blur: 1px, @color: #000) {
+  box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  -webkit-box-shadow: @arguments;
+}
+.class {
+    .box-shadow(2px, 5px);
+}
+
+/* Nested rules */
+#header {
+  color: black;
+
+  .navigation {
+      font-size: 12px;
+  }
+  .logo {
+      width: 300px;
+      &:hover { text-decoration: none }
+
+      &:hover,
+      &:focus{ text-decoration: none }
+
+      h2 a {
+          height: 10px;
+      } 
+      a:hover {
+          text-decoration: underline;
+      }
+      div, span {
+          color: #FFF;
+      }
+  }
+}
+
+#header {
+    .class1, .class2 {
+      a {
+          font-weight: bold;
+      }
+  }
+}
+
+/* Operations */
+
+@base: 5%;
+@filler: @base * 2;
+@other: @base + @filler;
+@width: 10px;
+
+.class {
+    background-color: @base + #111;
+    width: (@width + 5) * 2;
+    border: @width * 2 solid black;
+    height: 100% / 2 + @filler;
+}
+
+/* Color Functions */
+@color: #d41212;
+.class {
+    color: lighten(@color, 10%);
+    color: darken(@color, 10%);
+    color: saturate(@color, 10%);
+    color: desaturate(@color, 10%);
+
+    color: fadein(@color, 10%);
+    color: fadeout(@color, 10%);
+
+    color: spin(@color, 10);
+    color: spin(@color, -10);
+    color: hsl(hue(@color), 45%, 90%);
+    clip: rect(1px, 1px, 1px, 1px);
+}
+
+
+
+/* Namespaces */
+
+#bundle {
+    .button {
+        display: block;
+        border: 1px solid black;
+        background-color: grey;
+        &:hover { background-color: white }
+    }
+    .tab { }
+    .citation { } 
+}
+
+#header a {
+    color: orange;
+    #bundle .button; 
+}
+
+/* Scope */
+@scopevar: red;
+
+#page {
+    @scopevar: white;
+    #header {
+        color: @scopevar; // white
+    }
+
+}
+
+#footer {
+    color: @scopevar; // red
+}
+
+/* comments */
+
+// comment 
+
+/* Importing */
+
+@import "lib.less";
+@import "lib.css";
+
+/* String interpolation */
+
+@base-url: "http://assets.fnord.com";
+.class {
+    background-image: url("@{base-url}/images/bg.png");
+}
+
+.class {
+  filter: ~"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')";
+}

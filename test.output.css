@@ -1,0 +1,111 @@
+@import "lib.css";
+#header{
+    color:#6c94be;
+}
+.bordered{
+    border-top:dotted 1px black;
+    border-bottom:solid 2px black;
+}
+#menu a{
+    color:#111;
+    border-top:dotted 1px black;
+    border-bottom:solid 2px black;
+}
+.post a{
+    color:red;
+    border-top:dotted 1px black;
+    border-bottom:solid 2px black;
+}
+#header{
+    border-radius:4px;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+}
+.button{
+    border-radius:6px;
+    -moz-border-radius:6px;
+    -webkit-border-radius:6px;
+}
+pre{
+    text-wrap:wrap;
+    white-space:pre-wrap;
+    white-space:-moz-pre-wrap;
+    word-wrap:break-word;
+}
+.class{
+    box-shadow:2px 5px 1px #000;
+    -moz-box-shadow:2px 5px 1px #000;
+    -webkit-box-shadow:2px 5px 1px #000;
+}
+#header{
+    color:black;
+}
+#header .navigation{
+    font-size:12px;
+}
+#header .logo{
+    width:300px;
+}
+#header .logo:hover{
+    text-decoration:none;
+}
+#header .logo:hover,#header .logo:focus{
+    text-decoration:none;
+}
+#header .logo h2 a{
+    height:10px;
+}
+#header .logo a:hover{
+    text-decoration:underline;
+}
+#header .logo div,#header .logo span{
+    color:#FFF;
+}
+#header .class1 a,#header .class2 a{
+    font-weight:bold;
+}
+.class{
+    background-color:#161616;
+    width:30px;
+    border:20px solid black;
+    height:60%;
+}
+.class{
+    color:#ed2c2c;
+    color:#a50e0e;
+    color:#e00606;
+    color:#c91d1d;
+    color:#d41212;
+    color:rgba(212,18,18,0.9);
+    color:#d43212;
+    color:#d41232;
+    color:#f1dada;
+    clip:rect( 1px , 1px , 1px , 1px );
+}
+#bundle .button{
+    display:block;
+    border:1px solid black;
+    background-color:grey;
+}
+#bundle .button:hover{
+    background-color:white;
+}
+#header a{
+    color:orange;
+    display:block;
+    border:1px solid black;
+    background-color:grey;
+}
+#page #header{
+    color:white;
+}
+#footer{
+    color:red;
+}
+.class{
+    background-image:url("http://assets.fnord.com/images/bg.png");
+}
+.class{
+    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png');
+}
+
