@@ -28,16 +28,21 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   while (value->size() > 0) {
     v = processStatement(value);
 
-    if (v != NULL) {
-      if (newvalue.size() > 0)
+    if (v != NULL || value->size() > 0) {
+      if (newvalue.size() == 0 ||
+          !needsSpace(newvalue.back(), true) ||
+          (v == NULL &&
+           !needsSpace(value->front(), false))) {
+        
+      } else {
         newvalue.push(new Token(" ", Token::WHITESPACE));
-
+      }
+    }
+    
+    if (v != NULL) {
       newvalue.push(v->getTokens());
       delete v;
     } else if (value->size() > 0) {
-      if (newvalue.size() > 0)
-        newvalue.push(new Token(" ", Token::WHITESPACE));
-
       if (value->front()->type == Token::ATKEYWORD &&
           (variable = getVariable(value->front()->str)) != NULL) {
         newvalue.push(variable);
@@ -489,4 +494,16 @@ Token* ValueProcessor::processEscape (TokenList* value) {
   delete value->shift();
   second->str = second->str.substr(1, second->str.size() - 2);
   return value->shift();
+}
+
+bool ValueProcessor::needsSpace(Token* t, bool suffix) {
+  if (t->type == Token::OTHER &&
+      t->str.compare(",") == 0) {
+    return false;
+  }
+  if (suffix && t->type == Token::FUNCTION) 
+    return false;
+  return !(t->type == Token::FUNCTION ||
+           t->type == Token::PAREN_OPEN ||
+           t->type == Token::PAREN_CLOSED);
 }

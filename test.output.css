@@ -80,7 +80,7 @@ pre{
     color:#d43212;
     color:#d41232;
     color:#f1dada;
-    clip:rect( 1px , 1px , 1px , 1px );
+    clip:rect(1px,1px,1px,1px);
 }
 #bundle .button{
     display:block;

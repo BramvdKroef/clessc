@@ -27,6 +27,7 @@ private:
                                    unsigned int len);
   void processString(Token* str);
   Token* processEscape (TokenList* value);
+  bool needsSpace(Token* t, bool suffix);
   
 public:
   ValueProcessor();
