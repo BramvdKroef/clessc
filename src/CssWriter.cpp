@@ -12,7 +12,6 @@ void CssWriter::writeStylesheet(Stylesheet* s) {
 
   for (aIt = atrules->begin(); aIt < atrules->end(); aIt++) {
     writeAtRule(*aIt);
-    out->write(";", 1);
   }
   for (rIt = rulesets->begin(); rIt < rulesets->end(); rIt++) {
     writeRuleset(*rIt);
@@ -31,7 +30,7 @@ void CssWriter::writeAtRule(AtRule* atrule) {
     Token* next = it->next();
     out->write(next->str.c_str(), next->str.size());
   }
-
+  out->write(";", 1);
 }
 
 void CssWriter::writeRuleset(Ruleset* ruleset) {
