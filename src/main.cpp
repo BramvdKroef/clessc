@@ -19,7 +19,13 @@ using namespace std;
  */
 
 void usage () {
-  cout << "  clessc in.less -o out.css" << endl;
+  cout << "Usage: lessc [OPTION] FILE" << endl;
+  cout << endl;
+  cout << "   -o FILE	Send output to FILE" << endl;
+  cout << "   -f    	Format output." << endl;
+  cout << endl;
+  cout << "Example:" << endl;
+  cout << "   lessc in.less -o out.css" << endl;
 }
 
 
