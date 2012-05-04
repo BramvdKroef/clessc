@@ -100,3 +100,17 @@ TEST(CssTokenizerTest, NonAscii) {
   EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
   EXPECT_STREQ("a\xEE€", t.getToken()->str.c_str());
 }
+
+TEST(CssTokenizerTest, Minus) {
+  istringstream in("-10 -50% -5em -identifier -moz-border-radius( -");
+  CssTokenizer t(&in);
+  EXPECT_EQ(Token::NUMBER, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::PERCENTAGE, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::DIMENSION, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
+  EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
+  EXPECT_EQ(Token::FUNCTION, t.readNextToken());
+}
