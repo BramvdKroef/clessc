@@ -39,6 +39,11 @@ clean:
 	rmdir $(BIN)
 	rm -f $(EXEC) $(TEST_EXEC)
 
+test: $(TEST_EXEC) $(EXEC)
+	./$(TEST_EXEC)
+	./$(EXEC) -f test.css -o out.css
+	diff out.css test.output.css
+
 # Google test rules
 GTEST_SRCS_ = $(GTEST_DIR)/src/*.cc $(GTEST_DIR)/src/*.h $(GTEST_HEADERS)
 
