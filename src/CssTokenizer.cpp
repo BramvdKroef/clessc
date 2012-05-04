@@ -183,6 +183,9 @@ Token::Type CssTokenizer::readNextToken(){
     } else if (readWhitespace()) {
       currentToken.type = Token::WHITESPACE;
       while (readWhitespace()) {};
+    } else {
+      currentToken.add(lastRead);
+      readChar();
     }
     break;
   }
