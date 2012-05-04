@@ -11,24 +11,25 @@ CssTokenizer::~CssTokenizer(){
 }
 
 void CssTokenizer::readChar(){
-  if (in != NULL) {
-    // Last char was a newline. Increment the line counter.
-    if (lastReadEq('\n')) {
-      line++;
-      column = 0;
-    }
-    
-    in->get(lastRead);
-
-    // check for end of file or escape key
-    if(in->eof() || lastRead == 27) 
-      in = NULL;
-    else if (in->fail() || in->bad())
-      throw new IOException("Error reading input");
-
-    if (!lastReadEq('\n')) // count chars that aren't newlines
-      column++; 
+  if (in == NULL) 
+    return;
+  
+  // Last char was a newline. Increment the line counter.
+  if (lastReadEq('\n')) {
+    line++;
+    column = 0;
   }
+    
+  in->get(lastRead);
+
+  // check for end of file or escape key
+  if(in->eof() || lastRead == 27) 
+    in = NULL;
+  else if (in->fail() || in->bad())
+    throw new IOException("Error reading input");
+
+  if (!lastReadEq('\n')) // count chars that aren't newlines
+    column++; 
 }
 
 Token::Type CssTokenizer::readNextToken(){
@@ -182,8 +183,10 @@ Token::Type CssTokenizer::readNextToken(){
     } else if (readWhitespace()) {
       currentToken.type = Token::WHITESPACE;
       while (readWhitespace()) {};
-    } 
+    }
+    break;
   }
+
   return currentToken.type;
 }
 
@@ -255,16 +258,10 @@ bool CssTokenizer::readUnicode () {
 
   // [0-9a-f]{1,6}(\r\n|[ \n\r\t\f])?
   for (int i=0; i < 6; i++) {
-    if (readWhitespace())
-      break;
     currentToken.add(lastRead);
     readChar();
-    if (!lastReadIsHex()) {
-      /*throw new ParseException(&lastRead,
-        "hex code(0-9a-f) in unicode character");*/
-      /* Just ignore and assume the unicode stops here  */
+    if (readWhitespace() || !lastReadIsHex())
       break;
-    }
   }
   return true;
 }
@@ -354,16 +351,16 @@ bool CssTokenizer::readNewline () {
 }
 
 bool CssTokenizer::readWhitespace () {
-  if (!lastReadEq(' ') &&
-      !lastReadEq('\t') &&
-      !lastReadEq('\r') &&
-      !lastReadEq('\n') &&
-      !lastReadEq('\f'))
+  if (lastReadEq(' ') ||
+      lastReadEq('\t') ||
+      lastReadEq('\r') ||
+      lastReadEq('\n') ||
+      lastReadEq('\f')) {
+    currentToken.add(lastRead);
+    readChar();
+    return true;
+  } else
     return false;
-  
-  currentToken.add(lastRead);
-  readChar();
-  return true;
 }
 
 bool CssTokenizer::readUrl() {
