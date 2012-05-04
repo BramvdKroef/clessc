@@ -14,8 +14,8 @@ public:
 
 protected:
   ostream* out;
-  void writeAtRule(AtRule* rule);
-  void writeRuleset(Ruleset* ruleset);
+  virtual void writeAtRule(AtRule* rule);
+  virtual void writeRuleset(Ruleset* ruleset);
   void writeDeclaration(Declaration* declaration);
   
 };
