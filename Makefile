@@ -13,7 +13,8 @@ PREFIX = /usr/local
 GTEST_DIR = gtest
 CPPFLAGS += -I$(GTEST_DIR)/include
 TEST_EXEC = unittest
-TESTS = $(BIN)/CssTokenizer_test.o $(BIN)/CssParser_test.o
+TESTS = $(BIN)/CssTokenizer_test.o $(BIN)/CssParser_test.o \
+	$(BIN)/LessParser_test.o
 GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
                 $(GTEST_DIR)/include/gtest/internal/*.h
 
