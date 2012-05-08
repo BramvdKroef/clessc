@@ -179,9 +179,6 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return new Value(value->shift());
 
   case Token::FUNCTION:
-    // TODO: Check if the function can be processed before parsing
-    // arguments. Right now the arguments are lost if the function
-    // isn't reckognized.
     return processFunction(token, value);
     
   case Token::ATKEYWORD:
