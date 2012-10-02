@@ -67,7 +67,6 @@ list<string> ParameterRuleset::getKeywords() {
 }
 
 bool ParameterRuleset::processParameter(Selector* selector) {
-  Token* current;
   string keyword;
   TokenList* value = NULL;
 
@@ -98,7 +97,7 @@ bool ParameterRuleset::processParameter(Selector* selector) {
       delete value->shift();
     }
     if (value->empty()) {
-      throw new ParseException(current->str,
+      throw new ParseException("",
                                "default value following ':'");
     }
     if (!selector->empty() && selector->front()->str == ",") 
