@@ -384,6 +384,11 @@ ParameterRuleset* LessParser::getParameterRuleset(Selector* selector) {
   }
   delete tli;
   
+  // delete trailing whitespace
+  while (key.back()->type == Token::WHITESPACE) {
+    delete key.pop();
+  }
+
   for (it = parameterRulesets.begin(); it < parameterRulesets.end(); it++) {
     if ((*it)->getSelector()->equals(&key)) 
       return *it;
