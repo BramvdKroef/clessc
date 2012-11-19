@@ -59,7 +59,7 @@ Stylesheet* processInput(istream* in){
     s = new Stylesheet();
     parser->parseStylesheet(s);
   } catch(exception* e) {
-    cerr << "Line " << tokenizer->getLineNumber() << ", Collumn " << 
+    cerr << "Line " << tokenizer->getLineNumber() << ", Column " << 
       tokenizer->getColumn() << " Parse Error: " << e->what() << endl;
     return NULL;
   }
