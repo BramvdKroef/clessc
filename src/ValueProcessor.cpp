@@ -89,7 +89,15 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   return value;
 }
 void ValueProcessor::putVariable(string key, TokenList* value) {
-  scopes.back()->insert(pair<string, TokenList*>(key, value));
+  map<string, TokenList*>* scope = scopes.back();
+  map<string, TokenList*>::iterator mit;
+  
+  // check if variable is alread declared
+  mit = scope->find(key);
+  if (mit != scope->end()) {
+    cerr << "Variable " << key << " defined twice in same scope." << endl;
+  }
+  scope->insert(pair<string, TokenList*>(key, value));
 }
 TokenList* ValueProcessor::getVariable(string key) {
   list<map<string, TokenList*>*>::reverse_iterator it;
