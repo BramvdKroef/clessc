@@ -64,9 +64,16 @@ pre { .wrap  }
     -moz-box-shadow: @arguments;
     -webkit-box-shadow: @arguments;
 }
+.box-shadow3 (@x; @y; @blur; @color) {
+    box-shadow: @arguments;
+    -moz-box-shadow: @arguments;
+    -webkit-box-shadow: @arguments;
+}
 
 .class {
     .box-shadow(2px, 5px);
+    .box-shadow2(4px, 10px, 2px, #000);
+    .box-shadow3(8px, 20px, 2px, #000);
 }
 
 /* Nested rules */

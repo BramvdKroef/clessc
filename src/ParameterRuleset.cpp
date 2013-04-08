@@ -88,7 +88,8 @@ bool ParameterRuleset::processParameter(Selector* selector) {
     
     while (!selector->empty() &&
            selector->front()->type != Token::PAREN_CLOSED &&
-           selector->front()->str != ",") {
+           selector->front()->str != "," &&
+           selector->front()->str != ";") {
       value->push(selector->shift());
     }
     
@@ -101,8 +102,11 @@ bool ParameterRuleset::processParameter(Selector* selector) {
                                "default value following ':'");
     }
   }
-  if (!selector->empty() && selector->front()->str == ",") 
+  if (!selector->empty() &&
+      (selector->front()->str == "," ||
+       selector->front()->str == ";")) {
     delete selector->shift();
+  }
   
   addParameter(keyword, value);
   return true;
