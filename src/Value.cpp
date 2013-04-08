@@ -132,3 +132,16 @@ void Value::setValue(double d) {
     stm << "%";
   tokens.front()->str = stm.str();
 }
+const char* Value::typeToString(Type t) {
+  switch (t) {
+  case NUMBER:
+    return "Number";
+  case PERCENTAGE:
+    return "Percentage";
+  case DIMENSION:
+    return "Dimension";
+  case COLOR:
+    return "Color";
+  }
+  return "Undefined";
+}

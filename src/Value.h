@@ -53,6 +53,8 @@ public:
   string getUnit();
   void setUnit(string unit);
   void setValue(double d);
+
+  static const char* typeToString(Type t);
 };
 
 #endif
