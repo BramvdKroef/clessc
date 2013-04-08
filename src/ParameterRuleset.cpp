@@ -100,10 +100,10 @@ bool ParameterRuleset::processParameter(Selector* selector) {
       throw new ParseException("",
                                "default value following ':'");
     }
-    if (!selector->empty() && selector->front()->str == ",") 
-      delete selector->shift();
   }
-
+  if (!selector->empty() && selector->front()->str == ",") 
+    delete selector->shift();
+  
   addParameter(keyword, value);
   return true;
 }

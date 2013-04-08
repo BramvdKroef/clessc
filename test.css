@@ -10,6 +10,7 @@
 .class {
 //    content: @@var;
 }
+@var: 'defined twice';
 
 /* Mixins */
 
@@ -58,6 +59,12 @@ pre { .wrap  }
   -moz-box-shadow: @arguments;
   -webkit-box-shadow: @arguments;
 }
+.box-shadow2 (@x, @y, @blur, @color) {
+    box-shadow: @arguments;
+    -moz-box-shadow: @arguments;
+    -webkit-box-shadow: @arguments;
+}
+
 .class {
     .box-shadow(2px, 5px);
 }
