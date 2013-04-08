@@ -95,7 +95,7 @@ void ValueProcessor::putVariable(string key, TokenList* value) {
   // check if variable is alread declared
   mit = scope->find(key);
   if (mit != scope->end()) {
-    cerr << "Variable " << key << " defined twice in same scope." << endl;
+    cerr << "Warning: Variable " << key << " defined twice in same scope." << endl;
   }
   scope->insert(pair<string, TokenList*>(key, value));
 }
@@ -171,6 +171,12 @@ from a number");
     tmp = v1;
     v1 = v2;
     v2 = tmp;
+  }
+
+  if (v1->type == Value::DIMENSION &&
+      v2->type == Value::DIMENSION &&
+      v1->getUnit().compare(v2->getUnit()) != 0) {
+    throw new ValueException("Can't do math on dimensions with different units.");
   }
   
   if (op->str == "+") 
@@ -482,25 +488,25 @@ bool ValueProcessor::checkTypes (vector<Value*> arguments,
     case 'N':
       if ((*it)->type != Value::NUMBER) {
         throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 "Number");
+                                 Value::typeToString(Value::NUMBER));
       }
       break;
     case 'P':
       if ((*it)->type != Value::PERCENTAGE) {
         throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 "Percentage");
+                                 Value::typeToString(Value::PERCENTAGE));
       }
       break;
     case 'D':
       if ((*it)->type != Value::DIMENSION) {
         throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 "Dimension (e.g. 1px or 2em)");
+                                 Value::typeToString(Value::DIMENSION));
       }
       break;
     case 'C':
       if ((*it)->type != Value::COLOR) {
         throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 "Color");
+                                 Value::typeToString(Value::COLOR));
       }
       break;
     default:
