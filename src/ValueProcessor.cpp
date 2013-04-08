@@ -303,7 +303,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
   if(function->str == "rgb(") {
     // Color rgb(@red: NUMBER, @green: NUMBER, @blue: NUMBER)
     value->shift();
-    arguments = processArguments(value, 3);
+    arguments = processArguments(value);
+    checkTypes(arguments, "NNN", 3);
     if (arguments[0]->type == Value::NUMBER &&
         arguments[1]->type == Value::NUMBER &&
         arguments[2]->type == Value::NUMBER) {
@@ -315,128 +316,119 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color rgba(@red: NUMBER, @green: NUMBER, @blue: NUMBER,
     //            @alpha: NUMBER)
     value->shift();
-    arguments = processArguments(value, 4);
-    if (arguments[0]->type == Value::NUMBER &&
-        arguments[1]->type == Value::NUMBER &&
-        arguments[2]->type == Value::NUMBER) {
-      if (arguments[3]->type == Value::NUMBER) {
-        return new Color(arguments[0]->getValue(),
-                         arguments[1]->getValue(),
-                         arguments[2]->getValue(),
-                         arguments[3]->getValue());
-      } else if (arguments[3]->type == Value::PERCENTAGE) {
-        return new Color(arguments[0]->getValue(),
-                         arguments[1]->getValue(),
-                         arguments[2]->getValue(),
-                         arguments[3]->getValue() * .01);
-      }
+    arguments = processArguments(value);
+    checkTypes(arguments, "NNN ", 4);
+    
+    if (arguments[3]->type == Value::NUMBER) {
+      return new Color(arguments[0]->getValue(),
+                       arguments[1]->getValue(),
+                       arguments[2]->getValue(),
+                       arguments[3]->getValue());
+    } else if (arguments[3]->type == Value::PERCENTAGE) {
+      return new Color(arguments[0]->getValue(),
+                       arguments[1]->getValue(),
+                       arguments[2]->getValue(),
+                       arguments[3]->getValue() * .01);
     }
   } else if (function->str == "lighten(") {
     // Color lighten(Color, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->lighten(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CP", 2);
+
+    static_cast<Color*>(arguments[0])->lighten(arguments[1]->getValue());
+    return arguments[0];
     
   } else if (function->str == "darken(") {
     // Color darken(Color, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->darken(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CP", 2);
+
+    static_cast<Color*>(arguments[0])->darken(arguments[1]->getValue());
+    return arguments[0];
 
   } else if (function->str == "saturate(") {
     // Color saturate(Color, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->saturate(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CP", 2);
+
+    static_cast<Color*>(arguments[0])->saturate(arguments[1]->getValue());
+    return arguments[0];
 
   } else if (function->str == "desaturate(") {
     // Color desaturate(Color, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->desaturate(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CP", 2);
+
+    static_cast<Color*>(arguments[0])->desaturate(arguments[1]->getValue());
+    return arguments[0];
 
   } else if (function->str == "fadein(") {
     // Color fadein(Color, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->fadein(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CP", 2);
+
+    static_cast<Color*>(arguments[0])->fadein(arguments[1]->getValue());
+    return arguments[0];
 
   } else if (function->str == "fadeout(") {
     // Color fadeout(Color, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::PERCENTAGE) {
-      static_cast<Color*>(arguments[0])->fadeout(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CP", 2);
+
+    static_cast<Color*>(arguments[0])->fadeout(arguments[1]->getValue());
+    return arguments[0];
 
   } else if (function->str == "spin(") {
-    // Color fadein(Color, PERCENTAGE)
+    // Color fadein(Color, NUMBER)
     value->shift();
-    arguments = processArguments(value, 2);
-    if (arguments[0]->type == Value::COLOR &&
-        arguments[1]->type == Value::NUMBER) {
-      static_cast<Color*>(arguments[0])->spin(arguments[1]->getValue());
-      return arguments[0];
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "CN", 2);
+
+    static_cast<Color*>(arguments[0])->spin(arguments[1]->getValue());
+    return arguments[0];
 
   } else if (function->str == "hsl(") {
-    // Color hsl(PERCENTAGE, PERCENTAGE, PERCENTAGE)
+    // Color hsl(NUMBER, PERCENTAGE, PERCENTAGE)
     value->shift();
-    arguments = processArguments(value, 3);
-    if (arguments[0]->type == Value::NUMBER &&
-        arguments[1]->type == Value::PERCENTAGE &&
-        arguments[2]->type == Value::PERCENTAGE) {
-      color = new Color(0,0,0);
-      color->setHSL(arguments[0]->getValue(),
-                    arguments[1]->getValue(),
-                    arguments[2]->getValue());
-      return color;
-    }      
+    arguments = processArguments(value);
+    checkTypes(arguments, "NPP", 3);
+
+    color = new Color(0,0,0);
+    color->setHSL(arguments[0]->getValue(),
+                  arguments[1]->getValue(),
+                  arguments[2]->getValue());
+    return color;
+    
   } else if (function->str == "hue(") {
     // NUMBER hue(Color)
     value->shift();
-    arguments = processArguments(value, 1);
-    if (arguments[0]->type == Value::COLOR) {
-      percentage.append(to_string(static_cast<Color*>(arguments[0])->getHue()));
-      return new Value(new Token(percentage, Token::NUMBER));
-    }
-    
+    arguments = processArguments(value);
+    checkTypes(arguments, "C", 1);
+
+    percentage.append(to_string(static_cast<Color*>(arguments[0])->getHue()));
+    return new Value(new Token(percentage, Token::NUMBER));
+  
   } else if (function->str == "saturation(") {
     // PERCENTAGE saturation(Color)
     value->shift();
-    arguments = processArguments(value, 1);
-    if (arguments[0]->type == Value::COLOR) {
-      percentage.append(to_string(static_cast<Color*>(arguments[0])->getSaturation())); 
-      percentage.append("%");
-      return new Value(new Token(percentage, Token::PERCENTAGE));
-    }
+    arguments = processArguments(value);
+    checkTypes(arguments, "C", 1);
+
+    percentage.append(to_string(static_cast<Color*>(arguments[0])->getSaturation())); 
+    percentage.append("%");
+    return new Value(new Token(percentage, Token::PERCENTAGE));
 
   } else if (function->str == "lightness(") {
     // PERCENTAGE lightness(Color)
     value->shift();
-    arguments = processArguments(value, 1);
+    arguments = processArguments(value);
+    checkTypes(arguments, "C", 1);
     if (arguments[0]->type == Value::COLOR) {
       percentage.append(to_string(static_cast<Color*>(arguments[0])->getLightness()));
       percentage.append("%");
@@ -447,11 +439,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
   return NULL;
 }
 
-vector<Value*> ValueProcessor::processArguments (TokenList* value,
-                                                 unsigned int len) {
+vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   vector<Value*> arguments;
-  vector<Value*>::iterator it;
-  ostringstream found, expected; // error strings
   
   if (value->front()->type != Token::PAREN_CLOSED) 
     arguments.push_back(processConstant(value));
@@ -465,6 +454,16 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value,
     
   delete value->shift();
 
+  return arguments;
+}
+
+bool ValueProcessor::checkTypes (vector<Value*> arguments,
+                                 const char* types,
+                                 unsigned int len) {
+  vector<Value*>::iterator it;
+  ostringstream found, expected; // error strings
+  unsigned int i;
+  
   if (arguments.size() != len) {
     found << "(";
     for (it = arguments.begin(); it != arguments.end(); it++) {
@@ -477,7 +476,40 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value,
     throw new ParseException(found.str(), expected.str().c_str());
   }
 
-  return arguments;
+  for (it = arguments.begin(), i = 0; it != arguments.end();
+       it++, i++) {
+    switch (types[i]) {
+    case 'N':
+      if ((*it)->type != Value::NUMBER) {
+        throw new ParseException((*it)->getTokens()->toString()->c_str(),
+                                 "Number");
+      }
+      break;
+    case 'P':
+      if ((*it)->type != Value::PERCENTAGE) {
+        throw new ParseException((*it)->getTokens()->toString()->c_str(),
+                                 "Percentage");
+      }
+      break;
+    case 'D':
+      if ((*it)->type != Value::DIMENSION) {
+        throw new ParseException((*it)->getTokens()->toString()->c_str(),
+                                 "Dimension (e.g. 1px or 2em)");
+      }
+      break;
+    case 'C':
+      if ((*it)->type != Value::COLOR) {
+        throw new ParseException((*it)->getTokens()->toString()->c_str(),
+                                 "Color");
+      }
+      break;
+    default:
+      // ignore type
+      break;
+    }
+  }
+
+  return true;
 }
 
 

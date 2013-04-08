@@ -44,8 +44,8 @@ private:
   TokenList* processDeepVariable (TokenList* value);
   Value* processFunction(Token* function,
                          TokenList* value);
-  vector<Value*> processArguments (TokenList* value,
-                                   unsigned int len);
+  vector<Value*> processArguments (TokenList* value);
+  bool checkTypes(vector<Value*> arguments, const char* types, unsigned int len);
   void processString(Token* str);
   Token* processEscape (TokenList* value);
   bool needsSpace(Token* t, bool suffix);
