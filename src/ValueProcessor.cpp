@@ -435,11 +435,52 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     value->shift();
     arguments = processArguments(value);
     checkTypes(arguments, "C", 1);
-    if (arguments[0]->type == Value::COLOR) {
-      percentage.append(to_string(static_cast<Color*>(arguments[0])->getLightness()));
-      percentage.append("%");
-      return new Value(new Token(percentage, Token::PERCENTAGE));
+
+    percentage.append(to_string(static_cast<Color*>(arguments[0])->getLightness()));
+    percentage.append("%");
+    return new Value(new Token(percentage, Token::PERCENTAGE));
+
+  } else if (function->str == "unit(") {
+    // DIMENSION unit(DIMENSION, unit)
+    value->shift();
+    arguments.push_back(processConstant(value));
+    if (arguments[0]->type != Value::DIMENSION &&
+        arguments[0]->type != Value::NUMBER) {
+      throw new ParseException(*arguments[0]->getTokens()->toString(),
+                               "number or dimension");
     }
+
+    while (value->size() > 0 &&
+           value->front()->type == Token::WHITESPACE) {
+      delete value->shift();
+    }
+
+    if (value->front()->str != ",") {
+      throw new ParseException(value->front()->str, "','");
+    }
+    delete value->shift();
+
+    while (value->size() > 0 &&
+           value->front()->type == Token::WHITESPACE) {
+      delete value->shift();
+    }
+    
+    if (value->front()->type != Token::IDENTIFIER) {
+      throw new ParseException(value->front()->str, "unit");
+    }
+    arguments[0]->setUnit(value->front()->str);
+    delete value->shift();
+
+    while (value->size() > 0 &&
+           value->front()->type == Token::WHITESPACE) {
+      delete value->shift();
+    }
+
+    if (value->front()->type != Token::PAREN_CLOSED) 
+      throw new ParseException(value->front()->str, ")");
+    delete value->shift();
+
+    return arguments[0];
   } else 
     return NULL;
   return NULL;
