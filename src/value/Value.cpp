@@ -47,3 +47,17 @@ const char* Value::typeToString(Type t) {
   }
   return "Undefined";
 }
+Value::Type Value::codeToType(char code) {
+  switch (code) {
+  case 'N':
+    return Value::NUMBER;
+  case 'P':
+    return Value::PERCENTAGE;
+  case 'D':
+    return Value::DIMENSION;
+  case 'C':
+    return Value::COLOR;
+  default:
+    return Value::NUMBER;
+  }
+}

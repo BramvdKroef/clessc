@@ -344,6 +344,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
                        ((NumberValue*)arguments[1])->getValue(),
                        ((NumberValue*)arguments[2])->getValue(),
                        ((NumberValue*)arguments[3])->getValue() * .01);
+    } else {
+      throw new ValueException("Argument 3 needs to be a number or percentage.");
     }
   } else if (function->str == "lighten(") {
     // Color lighten(Color, PERCENTAGE)
@@ -540,34 +542,9 @@ bool ValueProcessor::checkTypes (vector<Value*> arguments,
 
   for (it = arguments.begin(), i = 0; it != arguments.end();
        it++, i++) {
-    switch (types[i]) {
-    case 'N':
-      if ((*it)->type != Value::NUMBER) {
-        throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 Value::typeToString(Value::NUMBER));
-      }
-      break;
-    case 'P':
-      if ((*it)->type != Value::PERCENTAGE) {
-        throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 Value::typeToString(Value::PERCENTAGE));
-      }
-      break;
-    case 'D':
-      if ((*it)->type != Value::DIMENSION) {
-        throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 Value::typeToString(Value::DIMENSION));
-      }
-      break;
-    case 'C':
-      if ((*it)->type != Value::COLOR) {
-        throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                                 Value::typeToString(Value::COLOR));
-      }
-      break;
-    default:
-      // ignore type
-      break;
+    if ((*it)->type != Value::codeToType(types[i])) {
+      throw new ParseException((*it)->getTokens()->toString()->c_str(),
+                               Value::typeToString(Value::codeToType(types[i])));
     }
   }
 

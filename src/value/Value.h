@@ -49,6 +49,15 @@ public:
   virtual Value* divide(Value* v) =0;
 
   static const char* typeToString(Type t);
+  /**
+   * return a type for a type code.
+   * N - Number
+   * P - Percentage
+   * D - Dimension
+   * C - Color
+   * S - String
+   */
+  static Type codeToType(const char code);
 };
 
 #endif
