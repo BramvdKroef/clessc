@@ -19,44 +19,44 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#include "String.h"
+#include "StringValue.h"
 
 
-String:String(Token* token) {
-  String(token, true);
+StringValue::StringValue(Token* token) {
+  StringValue(token, true);
 }
 
-String:String(Token* token, bool quotes) {
+StringValue::StringValue(Token* token, bool quotes) {
   this->tokens.push(token);
   this->quotes = quotes;
   type = Value::STRING;
 }
 
-String::~String() {
+StringValue::~StringValue() {
 }
 
 
-TokenList* String::getTokens() {
+TokenList* StringValue::getTokens() {
   return &tokens;
 }
 
-void String::setQuotes(bool quotes) {
+void StringValue::setQuotes(bool quotes) {
   this->quotes = quotes;
 }
-bool String::getQuotes() {
+bool StringValue::getQuotes() {
   return quotes;
 }
 
-void add(Value* v) {
+void StringValue::add(Value* v) {
   bool v_quotes;
   string* str;
   
   if (v->type == Value::STRING) {
-    v_quotes = ((String)v)->getQuotes();
-    ((String)v)->setQuotes(false);
+    v_quotes = ((StringValue)v)->getQuotes();
+    ((StringValue)v)->setQuotes(false);
 
     str = v->getTokens()->toString();
-    ((String)v)->setQuotes(v_quotes);
+    ((StringValue)v)->setQuotes(v_quotes);
   } else
     str = *v->getTokens()->toString();
   
@@ -64,10 +64,10 @@ void add(Value* v) {
   delete str;
 }
 
-void substract(Value* v) {
+void StringValue::substract(Value* v) {
   throw new ValueException("Can't substract from strings.");
 }
-void multiply(Value* v) {
+void StringValue::multiply(Value* v) {
   string str;
   double i;
   
@@ -81,27 +81,27 @@ void multiply(Value* v) {
   }
 }
 
-void divide(Value* v) {
+void StringValue::divide(Value* v) {
   throw new ValueException("Can't divide strings.");
 }
 
-void escape() {
+void StringValue::escape() {
   
 }
 
-void e() {
+void StringValue::e() {
   quotes = false;
 }
 
-void format(vector<Value*> args) {
+void StringValue::format(vector<Value*> args) {
   
 }
   
-Color* color() {
+Color* StringValue::color() {
   return new Color(tokens->front());
 }
 
-void data_uri() {
+void StringValue::data_uri() {
   
 }
 

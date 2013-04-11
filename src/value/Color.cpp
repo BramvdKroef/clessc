@@ -49,8 +49,7 @@ Color::Color(Token* token): Value() {
   else if (token->str.size() == 7)
     len = 2;
   else {
-    throw new ParseException(token->str,
-                             "Either three or six hexadecimal characters.");
+    throw new ValueException("A color value requires either three or six hexadecimal characters.");
   }
   
   for (int i = 0; i < 3; i++) {
@@ -143,21 +142,26 @@ TokenList* Color::getTokens() {
 }
 void Color::add(Value* v) {
   Color* c;
+  Number* n;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
     color[RGB_RED] += c->getRed();
     color[RGB_GREEN] += c->getGreen();
     color[RGB_BLUE] += c->getBlue();
-  } else {
-    color[RGB_RED] += v->getValue();
-    color[RGB_GREEN] += v->getValue();
-    color[RGB_BLUE] += v->getValue();
+  } else if (v->type == Value::NUMBER ||
+             v->type == Value::PERCENTAGE ||
+             v->type == Value::DIMENSION) {
+    n = static_cast<Number*>(v);
+    color[RGB_RED] += n->getValue();
+    color[RGB_GREEN] += n->getValue();
+    color[RGB_BLUE] += n->getValue();
   }
   valueChanged = true;
 }
 void Color::substract(Value* v) {
   Color* c;
+  Number* n;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
@@ -167,15 +171,19 @@ void Color::substract(Value* v) {
       color[RGB_GREEN] - c->getGreen() : 0;
     color[RGB_BLUE] = color[RGB_BLUE] > c->getBlue() ?
       color[RGB_BLUE] - c->getBlue() : 0;
-  } else {
-    color[RGB_RED] -= v->getValue();
-    color[RGB_GREEN] -= v->getValue();
-    color[RGB_BLUE] -= v->getValue();
+  } else if (v->type == Value::NUMBER ||
+             v->type == Value::PERCENTAGE ||
+             v->type == Value::DIMENSION) {
+    n = static_cast<Number*>(v);
+    color[RGB_RED] -= n->getValue();
+    color[RGB_GREEN] -= n->getValue();
+    color[RGB_BLUE] -= n->getValue();
   }
   valueChanged = true;
 }
 void Color::multiply(Value* v) {
   Color* c;
+  Number* n;
   int result;
   
   if (v->type == COLOR) {
@@ -186,25 +194,32 @@ void Color::multiply(Value* v) {
     color[RGB_GREEN] = max(min(result, 255), 0);
     result = color[RGB_BLUE] * c->getBlue();
     color[RGB_BLUE] = max(min(result, 255), 0);
-  } else {
-    color[RGB_RED] *= v->getValue();
-    color[RGB_GREEN] *= v->getValue();
-    color[RGB_BLUE] *= v->getValue();
+  } else if (v->type == Value::NUMBER ||
+             v->type == Value::PERCENTAGE ||
+             v->type == Value::DIMENSION) {
+    n = static_cast<Number*>(v);
+    color[RGB_RED] *= n->getValue();
+    color[RGB_GREEN] *= n->getValue();
+    color[RGB_BLUE] *= n->getValue();
   }
   valueChanged = true;
 }
 void Color::divide(Value* v) {
   Color* c;
-
+  Number* n;
+  
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
     color[RGB_RED] /= c->getRed();
     color[RGB_GREEN] /= c->getGreen();
     color[RGB_BLUE] /= c->getBlue();
-  } else {
-    color[RGB_RED] /= v->getValue();
-    color[RGB_GREEN] /= v->getValue();
-    color[RGB_BLUE] /= v->getValue();
+  } else if (v->type == Value::NUMBER ||
+             v->type == Value::PERCENTAGE ||
+             v->type == Value::DIMENSION){
+    n = static_cast<Number*>(v);
+    color[RGB_RED] /= n->getValue();
+    color[RGB_GREEN] /= n->getValue();
+    color[RGB_BLUE] /= n->getValue();
   }
   valueChanged = true;
 }

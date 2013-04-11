@@ -19,35 +19,51 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __String_h__
-#define __String_h__
+#ifndef __NumberValue_h__
+#define __NumberValue_h__
 
 #include "Value.h"
 
-class String: public Value {
+class NumberValue: public Value {
 private:
   const char* str;
   bool quotes;
 
 public:
-  String(Token* token);
-  String(Token* token, bool quotes);
-  virtual ~String();
+  NumberValue(Token* token);
+  NumberValue(Token* token, bool quotes);
+  virtual ~NumberValue();
   
   virtual TokenList* getTokens();
 
-  void setQuotes(bool quotes);
-  bool getQuotes();
-  
   void add(Value* v);
   void substract(Value* v);
   void multiply(Value* v);
   void divide(Value* v);
 
-  void escape();
-  void e();
-  void format(vector<Value*> args);
-  Color* color();
-  void data_uri();
+  void setType(Value* v);
   
-}
+  string getUnit();
+  void setUnit(string unit);
+  double getValue();
+  void setValue(double d);
+
+  void ceil();
+  void floor();
+  void percentage();
+  void round();
+  void sqrt();
+  void abs();
+  void sin();
+  void asin();
+  void cos();
+  void acos();
+  void tan();
+  void atan();
+  void pi();
+  void pow(Value* v);
+  void mod(Value* v);
+  void convert(Value* unit);
+};
+
+#endif

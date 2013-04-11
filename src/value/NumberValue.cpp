@@ -1,4 +1,4 @@
-Number::Number(Token* token) {
+NumberValue::NumberValue(Token* token) {
   tokens.push(token);
   
   switch(token->type) {
@@ -16,32 +16,32 @@ Number::Number(Token* token) {
   }
 }
 
-Number::~Number() {
+NumberValue::~NumberValue() {
 }
 
-void Number::add(Value* v) {
+void NumberValue::add(Value* v) {
   if (type == NUMBER) 
     setType(v);
   setValue(getValue() + v->getValue());
 }
-void Number::substract(Value* v) {
+void NumberValue::substract(Value* v) {
   if (type == NUMBER) 
     setType(v);
   setValue(getValue() - v->getValue());
 }
-void Number::multiply(Value* v) {
+void NumberValue::multiply(Value* v) {
   if (type == NUMBER) 
     setType(v);
   setValue(getValue() * v->getValue());
 }
 
-void Number::divide(Value* v) {
+void NumberValue::divide(Value* v) {
   if (type == NUMBER) 
     setType(v);
   setValue(getValue() / v->getValue());
 }
 
-void Number::setType(Value* v) {
+void NumberValue::setType(Value* v) {
   type = v->type;
   if (v->type == DIMENSION)
     setUnit(v->getUnit());
@@ -53,7 +53,7 @@ void Number::setType(Value* v) {
   }
 }
 
-double Number::getValue() {
+double NumberValue::getValue() {
   string number;
   istringstream stm;
   double ret;
@@ -72,7 +72,7 @@ double Number::getValue() {
   stm >>ret;
   return ret;
 }
-string Number::getUnit () {
+string NumberValue::getUnit () {
   char c;
   unsigned int i;
   
@@ -84,7 +84,7 @@ string Number::getUnit () {
   return string("");
 }
 
-void Number::setUnit(string unit) {
+void NumberValue::setUnit(string unit) {
   ostringstream stm;
   stm << getValue();
   stm << unit;
@@ -93,7 +93,7 @@ void Number::setUnit(string unit) {
   tokens.front()->str = stm.str();
 }
 
-void Number::setValue(double d) {
+void NumberValue::setValue(double d) {
   ostringstream stm;
   stm << d;
   if (type == DIMENSION)
