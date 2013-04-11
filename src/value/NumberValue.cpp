@@ -1,3 +1,26 @@
+/*
+ * Copyright 2012 Bram van der Kroef
+ *
+ * This file is part of LESS CSS Compiler.
+ *
+ * LESS CSS Compiler is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * LESS CSS Compiler is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with LESS CSS Compiler.  If not, see <http://www.gnu.org/licenses/>. 
+ *
+ * Author: Bram van der Kroef <bram@vanderkroef.net>
+ */
+
+#include "NumberValue.h"
+
 NumberValue::NumberValue(Token* token) {
   tokens.push(token);
   
@@ -20,36 +43,62 @@ NumberValue::~NumberValue() {
 }
 
 void NumberValue::add(Value* v) {
-  if (type == NUMBER) 
-    setType(v);
-  setValue(getValue() + v->getValue());
+  if (v->type == Value::NUMBER ||
+      v->type == Value::PERCENTAGE ||
+      v->type == Value::DIMENSION) {
+    
+    if (type == NUMBER) 
+      setType(v);
+    setValue(getValue() + ((NumberValue*)v)->getValue());
+  } 
 }
 void NumberValue::substract(Value* v) {
-  if (type == NUMBER) 
-    setType(v);
-  setValue(getValue() - v->getValue());
+  if (v->type == Value::NUMBER ||
+      v->type == Value::PERCENTAGE ||
+      v->type == Value::DIMENSION) {
+    if (type == NUMBER) 
+      setType(v);
+    setValue(getValue() - ((NumberValue*)v)->getValue());
+  }
 }
 void NumberValue::multiply(Value* v) {
-  if (type == NUMBER) 
-    setType(v);
-  setValue(getValue() * v->getValue());
+  if (v->type == Value::NUMBER ||
+      v->type == Value::PERCENTAGE ||
+      v->type == Value::DIMENSION) {
+    if (type == NUMBER) 
+      setType(v);
+    setValue(getValue() * ((NumberValue*)v)->getValue());
+  }
 }
 
 void NumberValue::divide(Value* v) {
-  if (type == NUMBER) 
-    setType(v);
-  setValue(getValue() / v->getValue());
+  if (v->type == Value::NUMBER ||
+      v->type == Value::PERCENTAGE ||
+      v->type == Value::DIMENSION) {
+    if (type == NUMBER) 
+      setType(v);
+    setValue(getValue() / ((NumberValue*)v)->getValue());
+  }
 }
 
 void NumberValue::setType(Value* v) {
-  type = v->type;
-  if (v->type == DIMENSION)
-    setUnit(v->getUnit());
-  else if (v->type == PERCENTAGE) 
-    tokens.front()->type = Token::PERCENTAGE;
-  else if (v->type == NUMBER) {
-    setUnit("");
-    tokens.front()->type = Token::NUMBER;
+  NumberValue* n;
+  
+  if (v->type == Value::NUMBER ||
+      v->type == Value::PERCENTAGE ||
+      v->type == Value::DIMENSION) {
+
+    n = static_cast<NumberValue*>(v);
+    
+    type = n->type;
+    if (n->type == DIMENSION)
+      setUnit(n->getUnit());
+    else if (n->type == PERCENTAGE) 
+      tokens.front()->type = Token::PERCENTAGE;
+    else if (n->type == NUMBER) {
+      setUnit("");
+      tokens.front()->type = Token::NUMBER;
+    }
   }
 }
 

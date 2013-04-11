@@ -21,6 +21,8 @@
 
 #include "LessTokenizer.h"
 
+LessTokenizer::~LessTokenizer() {
+}
 
 bool LessTokenizer::readComment () {
   if (!lastReadEq('/'))

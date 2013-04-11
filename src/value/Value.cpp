@@ -25,23 +25,6 @@
 Value::Value() {
 }
 
-Value::Value(Token* token) {
-  tokens.push(token);
-  
-  switch(token->type) {
-  case Token::NUMBER:
-    type = NUMBER;
-    break;
-  case Token::PERCENTAGE:
-    type = PERCENTAGE;
-    break;
-  case Token::DIMENSION:
-    type = DIMENSION;
-    break;
-  default:
-    throw new ValueException("Token used for Value that isn't a number, percentage or dimension");
-  }
-}
 Value::~Value() {
 }
 

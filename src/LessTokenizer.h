@@ -33,6 +33,7 @@
 class LessTokenizer: public CssTokenizer {
 public:
   LessTokenizer(istream* in) : CssTokenizer(in) {};
+  virtual ~LessTokenizer();
 protected:
   bool readComment();
 };

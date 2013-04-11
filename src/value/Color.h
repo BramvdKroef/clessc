@@ -23,7 +23,7 @@
 #define __Color_h__
 
 #include "Value.h"
-#include "Number.h"
+#include "NumberValue.h"
 #include <algorithm>
 using namespace std;
 

@@ -34,8 +34,6 @@ public:
   NumberValue(Token* token, bool quotes);
   virtual ~NumberValue();
   
-  virtual TokenList* getTokens();
-
   void add(Value* v);
   void substract(Value* v);
   void multiply(Value* v);

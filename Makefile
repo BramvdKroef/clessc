@@ -50,7 +50,7 @@ $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(EXEC) : $(BIN) $(OBJS) $(VAL_OBJS) $(BIN)/main.o
-	$(CXX) $(CXXFLAGS) $(OBJS) $(BIN)/main.o -o $@
+	$(CXX) $(CXXFLAGS) $(OBJS) $(VAL_OBJS) $(BIN)/main.o -o $@
 
 $(BIN)/main.o : $(SRC)/main.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
@@ -59,8 +59,8 @@ install : $(EXEC)
 	install -m 0755 $(EXEC) $(PREFIX)/bin
 
 clean:
-	rm -f $(BIN)/*.o $(BIN)/*.a
-	rmdir $(BIN)
+	rm -f $(BIN)/*.o $(BIN)/value/*.o $(BIN)/*.a
+	rmdir $(BIN)/value $(BIN)
 	rm -f $(EXEC) $(TEST_EXEC)
 
 test: $(TEST_EXEC) $(EXEC)

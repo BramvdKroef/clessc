@@ -27,7 +27,7 @@
 #include "Token.h"
 #include "TokenList.h"
 #include "ParameterRuleset.h"
-#include "ValueProcessor.h"
+#include "value/ValueProcessor.h"
 #include "LessTokenizer.h"
 
 #include <iostream>

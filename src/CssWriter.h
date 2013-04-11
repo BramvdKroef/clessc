@@ -31,6 +31,7 @@ using namespace std;
 class CssWriter {
 public:
   CssWriter(ostream* out);
+  virtual ~CssWriter();
   void writeStylesheet(Stylesheet* s);
 
 protected:

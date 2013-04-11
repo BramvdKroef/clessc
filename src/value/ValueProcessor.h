@@ -22,8 +22,9 @@
 #ifndef __ValueProcessor_h__
 #define __ValueProcessor_h__
 
-#include "TokenList.h"
-#include "Token.h"
+#include "../TokenList.h"
+#include "../Token.h"
+#include "../ParseException.h"
 #include "Value.h"
 #include "Color.h"
 #include "ValueException.h"

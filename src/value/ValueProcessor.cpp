@@ -175,7 +175,8 @@ from a number");
 
   if (v1->type == Value::DIMENSION &&
       v2->type == Value::DIMENSION &&
-      v1->getUnit().compare(v2->getUnit()) != 0) {
+      ((NumberValue*)v1)->getUnit()
+      .compare(((NumberValue*)v2)->getUnit()) != 0) {
     throw new ValueException("Can't do math on dimensions with different units.");
   }
   
@@ -211,7 +212,7 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   case Token::NUMBER:
   case Token::PERCENTAGE:
   case Token::DIMENSION:
-    return new Value(value->shift());
+    return new NumberValue(value->shift());
 
   case Token::FUNCTION:
     return processFunction(token, value);
@@ -302,8 +303,8 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
 }
 
 Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
-  Color* color;
   string percentage;
+  Color* color;
   vector<Value*> arguments;
   
   if(function->str == "rgb(") {
@@ -311,13 +312,9 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     value->shift();
     arguments = processArguments(value);
     checkTypes(arguments, "NNN", 3);
-    if (arguments[0]->type == Value::NUMBER &&
-        arguments[1]->type == Value::NUMBER &&
-        arguments[2]->type == Value::NUMBER) {
-      return new Color(arguments[0]->getValue(),
-                       arguments[1]->getValue(),
-                       arguments[2]->getValue());
-    }
+    return new Color(((NumberValue*)arguments[0])->getValue(),
+                     ((NumberValue*)arguments[1])->getValue(),
+                     ((NumberValue*)arguments[2])->getValue());
   } else if(function->str == "rgba(") {
     // Color rgba(@red: NUMBER, @green: NUMBER, @blue: NUMBER,
     //            @alpha: NUMBER)
@@ -326,15 +323,15 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     checkTypes(arguments, "NNN ", 4);
     
     if (arguments[3]->type == Value::NUMBER) {
-      return new Color(arguments[0]->getValue(),
-                       arguments[1]->getValue(),
-                       arguments[2]->getValue(),
-                       arguments[3]->getValue());
+      return new Color(((NumberValue*)arguments[0])->getValue(),
+                       ((NumberValue*)arguments[1])->getValue(),
+                       ((NumberValue*)arguments[2])->getValue(),
+                       ((NumberValue*)arguments[3])->getValue());
     } else if (arguments[3]->type == Value::PERCENTAGE) {
-      return new Color(arguments[0]->getValue(),
-                       arguments[1]->getValue(),
-                       arguments[2]->getValue(),
-                       arguments[3]->getValue() * .01);
+      return new Color(((NumberValue*)arguments[0])->getValue(),
+                       ((NumberValue*)arguments[1])->getValue(),
+                       ((NumberValue*)arguments[2])->getValue(),
+                       ((NumberValue*)arguments[3])->getValue() * .01);
     }
   } else if (function->str == "lighten(") {
     // Color lighten(Color, PERCENTAGE)
@@ -342,7 +339,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CP", 2);
 
-    static_cast<Color*>(arguments[0])->lighten(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->lighten(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
     
   } else if (function->str == "darken(") {
@@ -351,7 +349,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CP", 2);
 
-    static_cast<Color*>(arguments[0])->darken(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->darken(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
 
   } else if (function->str == "saturate(") {
@@ -360,7 +359,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CP", 2);
 
-    static_cast<Color*>(arguments[0])->saturate(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->saturate(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
 
   } else if (function->str == "desaturate(") {
@@ -369,7 +369,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CP", 2);
 
-    static_cast<Color*>(arguments[0])->desaturate(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->desaturate(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
 
   } else if (function->str == "fadein(") {
@@ -378,7 +379,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CP", 2);
 
-    static_cast<Color*>(arguments[0])->fadein(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->fadein(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
 
   } else if (function->str == "fadeout(") {
@@ -387,7 +389,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CP", 2);
 
-    static_cast<Color*>(arguments[0])->fadeout(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->fadeout(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
 
   } else if (function->str == "spin(") {
@@ -396,7 +399,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "CN", 2);
 
-    static_cast<Color*>(arguments[0])->spin(arguments[1]->getValue());
+    ((Color*)arguments[0])
+      ->spin(((NumberValue*)arguments[1])->getValue());
     return arguments[0];
 
   } else if (function->str == "hsl(") {
@@ -406,9 +410,9 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     checkTypes(arguments, "NPP", 3);
 
     color = new Color(0,0,0);
-    color->setHSL(arguments[0]->getValue(),
-                  arguments[1]->getValue(),
-                  arguments[2]->getValue());
+    color->setHSL(((NumberValue*)arguments[0])->getValue(),
+                  ((NumberValue*)arguments[1])->getValue(),
+                  ((NumberValue*)arguments[2])->getValue());
     return color;
     
   } else if (function->str == "hue(") {
@@ -417,8 +421,8 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "C", 1);
 
-    percentage.append(to_string(static_cast<Color*>(arguments[0])->getHue()));
-    return new Value(new Token(percentage, Token::NUMBER));
+    percentage.append(to_string(((Color*)arguments[0])->getHue()));
+    return new NumberValue(new Token(percentage, Token::NUMBER));
   
   } else if (function->str == "saturation(") {
     // PERCENTAGE saturation(Color)
@@ -426,9 +430,9 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "C", 1);
 
-    percentage.append(to_string(static_cast<Color*>(arguments[0])->getSaturation())); 
+    percentage.append(to_string(((Color*)arguments[0])->getSaturation())); 
     percentage.append("%");
-    return new Value(new Token(percentage, Token::PERCENTAGE));
+    return new NumberValue(new Token(percentage, Token::PERCENTAGE));
 
   } else if (function->str == "lightness(") {
     // PERCENTAGE lightness(Color)
@@ -436,9 +440,9 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     arguments = processArguments(value);
     checkTypes(arguments, "C", 1);
 
-    percentage.append(to_string(static_cast<Color*>(arguments[0])->getLightness()));
+    percentage.append(to_string(((Color*)arguments[0])->getLightness()));
     percentage.append("%");
-    return new Value(new Token(percentage, Token::PERCENTAGE));
+    return new NumberValue(new Token(percentage, Token::PERCENTAGE));
 
   } else if (function->str == "unit(") {
     // DIMENSION unit(DIMENSION, unit)
@@ -468,7 +472,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     if (value->front()->type != Token::IDENTIFIER) {
       throw new ParseException(value->front()->str, "unit");
     }
-    arguments[0]->setUnit(value->front()->str);
+    ((NumberValue*)arguments[0])->setUnit(value->front()->str);
     delete value->shift();
 
     while (value->size() > 0 &&

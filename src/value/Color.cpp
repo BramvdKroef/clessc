@@ -142,7 +142,7 @@ TokenList* Color::getTokens() {
 }
 void Color::add(Value* v) {
   Color* c;
-  Number* n;
+  NumberValue* n;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
@@ -152,7 +152,7 @@ void Color::add(Value* v) {
   } else if (v->type == Value::NUMBER ||
              v->type == Value::PERCENTAGE ||
              v->type == Value::DIMENSION) {
-    n = static_cast<Number*>(v);
+    n = static_cast<NumberValue*>(v);
     color[RGB_RED] += n->getValue();
     color[RGB_GREEN] += n->getValue();
     color[RGB_BLUE] += n->getValue();
@@ -161,7 +161,7 @@ void Color::add(Value* v) {
 }
 void Color::substract(Value* v) {
   Color* c;
-  Number* n;
+  NumberValue* n;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
@@ -174,7 +174,7 @@ void Color::substract(Value* v) {
   } else if (v->type == Value::NUMBER ||
              v->type == Value::PERCENTAGE ||
              v->type == Value::DIMENSION) {
-    n = static_cast<Number*>(v);
+    n = static_cast<NumberValue*>(v);
     color[RGB_RED] -= n->getValue();
     color[RGB_GREEN] -= n->getValue();
     color[RGB_BLUE] -= n->getValue();
@@ -183,7 +183,7 @@ void Color::substract(Value* v) {
 }
 void Color::multiply(Value* v) {
   Color* c;
-  Number* n;
+  NumberValue* n;
   int result;
   
   if (v->type == COLOR) {
@@ -197,7 +197,7 @@ void Color::multiply(Value* v) {
   } else if (v->type == Value::NUMBER ||
              v->type == Value::PERCENTAGE ||
              v->type == Value::DIMENSION) {
-    n = static_cast<Number*>(v);
+    n = static_cast<NumberValue*>(v);
     color[RGB_RED] *= n->getValue();
     color[RGB_GREEN] *= n->getValue();
     color[RGB_BLUE] *= n->getValue();
@@ -206,7 +206,7 @@ void Color::multiply(Value* v) {
 }
 void Color::divide(Value* v) {
   Color* c;
-  Number* n;
+  NumberValue* n;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
@@ -216,7 +216,7 @@ void Color::divide(Value* v) {
   } else if (v->type == Value::NUMBER ||
              v->type == Value::PERCENTAGE ||
              v->type == Value::DIMENSION){
-    n = static_cast<Number*>(v);
+    n = static_cast<NumberValue*>(v);
     color[RGB_RED] /= n->getValue();
     color[RGB_GREEN] /= n->getValue();
     color[RGB_BLUE] /= n->getValue();

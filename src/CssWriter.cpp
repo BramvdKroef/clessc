@@ -25,6 +25,9 @@ CssWriter::CssWriter(ostream* out) {
   this->out = out;
 }
 
+CssWriter::~CssWriter() {
+}
+
 void CssWriter::writeStylesheet(Stylesheet* s) {
   vector<AtRule*>* atrules = s->getAtRules();
   vector<AtRule*>::iterator aIt;

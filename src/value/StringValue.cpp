@@ -22,8 +22,10 @@
 #include "StringValue.h"
 
 
-StringValue::StringValue(Token* token) {
-  StringValue(token, true);
+StringValue::StringValue(Token* token): Value() {
+  this->tokens.push(token);
+  this->quotes = true;
+  type = Value::STRING;
 }
 
 StringValue::StringValue(Token* token, bool quotes) {
@@ -52,13 +54,13 @@ void StringValue::add(Value* v) {
   string* str;
   
   if (v->type == Value::STRING) {
-    v_quotes = ((StringValue)v)->getQuotes();
-    ((StringValue)v)->setQuotes(false);
+    v_quotes = ((StringValue*)v)->getQuotes();
+    ((StringValue*)v)->setQuotes(false);
 
     str = v->getTokens()->toString();
-    ((StringValue)v)->setQuotes(v_quotes);
+    ((StringValue*)v)->setQuotes(v_quotes);
   } else
-    str = *v->getTokens()->toString();
+    str = v->getTokens()->toString();
   
   tokens.front()->str.append(*str);
   delete str;
@@ -75,9 +77,9 @@ void StringValue::multiply(Value* v) {
     throw new ValueException("Strings can only be multiplied by a number.");
   }
 
-  str = tokens->front()->str;
-  for (i = 0; i < v->getValue(); i++) {
-    tokens->front()->str.append(str);
+  str = tokens.front()->str;
+  for (i = 0; i < ((NumberValue*)v)->getValue(); i++) {
+    tokens.front()->str.append(str);
   }
 }
 
@@ -94,11 +96,10 @@ void StringValue::e() {
 }
 
 void StringValue::format(vector<Value*> args) {
-  
 }
   
 Color* StringValue::color() {
-  return new Color(tokens->front());
+  return new Color(tokens.front());
 }
 
 void StringValue::data_uri() {

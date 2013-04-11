@@ -51,6 +51,5 @@ public:
   void format(vector<Value*> args);
   Color* color();
   void data_uri();
-  
-}
+};
 #endif
