@@ -19,36 +19,35 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Value_h__
-#define __Value_h__
+#ifndef __String_h__
+#define __String_h__
 
-#include "../Token.h"
-#include "../TokenList.h"
-#include "ValueException.h"
-#include <sstream>
-using namespace std;
+#include "Value.h"
 
-/**
- * 
- */
-class Value {
-protected:
-  TokenList tokens;
-  
+class String: public Value {
+private:
+  const char* str;
+  bool quotes;
+
 public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING} type;
-  Value();
-  Value(Token* token);
-  virtual ~Value();
+  String(Token* token);
+  String(Token* token, bool quotes);
+  virtual ~String();
   
   virtual TokenList* getTokens();
+
+  void setQuotes(bool quotes);
+  bool getQuotes();
   
-  virtual void add(Value* v) =0;
-  virtual void substract(Value* v) =0;
-  virtual void multiply(Value* v) =0;
-  virtual void divide(Value* v) =0;
+  void add(Value* v);
+  void substract(Value* v);
+  void multiply(Value* v);
+  void divide(Value* v);
 
-  static const char* typeToString(Type t);
-};
-
-#endif
+  void escape();
+  void e();
+  void format(vector<Value*> args);
+  Color* color();
+  void data_uri();
+  
+}

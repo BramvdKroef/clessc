@@ -19,36 +19,50 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Value_h__
-#define __Value_h__
+#ifndef __Number_h__
+#define __Number_h__
 
-#include "../Token.h"
-#include "../TokenList.h"
-#include "ValueException.h"
-#include <sstream>
-using namespace std;
+#include "Value.h"
 
-/**
- * 
- */
-class Value {
-protected:
-  TokenList tokens;
-  
+class Number: public Value {
+private:
+  const char* str;
+  bool quotes;
+
 public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING} type;
-  Value();
-  Value(Token* token);
-  virtual ~Value();
+  Number(Token* token);
+  Number(Token* token, bool quotes);
+  virtual ~Number();
   
   virtual TokenList* getTokens();
+
+  void add(Value* v);
+  void substract(Value* v);
+  void multiply(Value* v);
+  void divide(Value* v);
+
+  void setType(Value* v);
   
-  virtual void add(Value* v) =0;
-  virtual void substract(Value* v) =0;
-  virtual void multiply(Value* v) =0;
-  virtual void divide(Value* v) =0;
+  string getUnit();
+  void setUnit(string unit);
+  double getValue();
+  void setValue(double d);
 
-  static const char* typeToString(Type t);
-};
-
-#endif
+  void ceil();
+  void floor();
+  void percentage();
+  void round();
+  void sqrt();
+  void abs();
+  void sin();
+  void asin();
+  void cos();
+  void acos();
+  void tan();
+  void atan();
+  void pi();
+  void pow(Value* v);
+  void mod(Value* v);
+  void convert(Value* unit);
+    
+}
