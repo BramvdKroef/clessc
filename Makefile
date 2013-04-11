@@ -23,9 +23,11 @@ SRC = src
 BIN = build
 OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
 	$(BIN)/CssParser.o $(BIN)/Stylesheet.o  $(BIN)/CssWriter.o \
-	$(BIN)/LessTokenizer.o $(BIN)/LessParser.o $(BIN)/Value.o \
-	$(BIN)/Color.o $(BIN)/ValueProcessor.o $(BIN)/Selector.o \
+	$(BIN)/LessTokenizer.o $(BIN)/LessParser.o $(BIN)/Selector.o \
 	$(BIN)/ParameterRuleset.o $(BIN)/CssPrettyWriter.o
+
+VAL_OBJS = $(BIN)/value/Value.o $(BIN)/value/Color.o \
+	$(BIN)/value/ValueProcessor.o
 EXEC = lessc
 PREFIX = /usr/local
 
@@ -41,11 +43,12 @@ all : $(EXEC)
 
 $(BIN) :
 	mkdir $(BIN)
+	mkdir $(BIN)/value
 
 $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(EXEC) : $(BIN) $(OBJS) $(BIN)/main.o
+$(EXEC) : $(BIN) $(OBJS) $(VAL_OBJS) $(BIN)/main.o
 	$(CXX) $(CXXFLAGS) $(OBJS) $(BIN)/main.o -o $@
 
 $(BIN)/main.o : $(SRC)/main.cpp
