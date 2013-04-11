@@ -59,7 +59,7 @@ bool StringValue::getQuotes() {
   return quotes;
 }
 
-void StringValue::add(Value* v) {
+Value* StringValue::add(Value* v) {
   bool v_quotes;
   string* newstr;
   
@@ -74,12 +74,13 @@ void StringValue::add(Value* v) {
   
   stringvalue.append(*newstr);
   delete newstr;
+  return this;
 }
 
-void StringValue::substract(Value* v) {
+Value* StringValue::substract(Value* v) {
   throw new ValueException("Can't substract from strings.");
 }
-void StringValue::multiply(Value* v) {
+Value* StringValue::multiply(Value* v) {
   string newstr;
   double i;
   
@@ -91,9 +92,10 @@ void StringValue::multiply(Value* v) {
     newstr.append(stringvalue);
   }
   stringvalue = newstr;
+  return this;
 }
 
-void StringValue::divide(Value* v) {
+Value* StringValue::divide(Value* v) {
   throw new ValueException("Can't divide strings.");
 }
 
@@ -108,7 +110,7 @@ void StringValue::e() {
 void StringValue::format(vector<Value*> args) {
 }
   
-Color* StringValue::color() {
+Value* StringValue::color() {
   return new Color(tokens.front());
 }
 

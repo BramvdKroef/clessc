@@ -140,26 +140,36 @@ TokenList* Color::getTokens() {
   valueChanged = false;
   return &tokens;
 }
-void Color::add(Value* v) {
+Value* Color::add(Value* v) {
   Color* c;
   NumberValue* n;
+  StringValue* s;
+  string* str;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
     color[RGB_RED] += c->getRed();
     color[RGB_GREEN] += c->getGreen();
     color[RGB_BLUE] += c->getBlue();
-  } else if (v->type == Value::NUMBER ||
-             v->type == Value::PERCENTAGE ||
-             v->type == Value::DIMENSION) {
+  } else if (v->type == NUMBER ||
+             v->type == PERCENTAGE ||
+             v->type == DIMENSION) {
     n = static_cast<NumberValue*>(v);
     color[RGB_RED] += n->getValue();
     color[RGB_GREEN] += n->getValue();
     color[RGB_BLUE] += n->getValue();
+  } else if(v->type == STRING) {
+    str = this->getTokens()->toString();
+    s = new StringValue(new Token(*str, Token::STRING),
+                        ((StringValue*)v)->getQuotes());
+    s->add(v);
+    delete str;
+    return s;
   }
   valueChanged = true;
+  return this;
 }
-void Color::substract(Value* v) {
+Value* Color::substract(Value* v) {
   Color* c;
   NumberValue* n;
   
@@ -178,10 +188,15 @@ void Color::substract(Value* v) {
     color[RGB_RED] -= n->getValue();
     color[RGB_GREEN] -= n->getValue();
     color[RGB_BLUE] -= n->getValue();
+  } else {
+    throw new ValueException("You can only substract a color or \
+a number from a color.");
   }
   valueChanged = true;
+  return this;
 }
-void Color::multiply(Value* v) {
+
+Value* Color::multiply(Value* v) {
   Color* c;
   NumberValue* n;
   int result;
@@ -201,10 +216,14 @@ void Color::multiply(Value* v) {
     color[RGB_RED] *= n->getValue();
     color[RGB_GREEN] *= n->getValue();
     color[RGB_BLUE] *= n->getValue();
+  } else {
+    throw new ValueException("You can only multiply a color by a \
+color or a number.");
   }
   valueChanged = true;
+  return this;
 }
-void Color::divide(Value* v) {
+Value* Color::divide(Value* v) {
   Color* c;
   NumberValue* n;
   
@@ -220,8 +239,12 @@ void Color::divide(Value* v) {
     color[RGB_RED] /= n->getValue();
     color[RGB_GREEN] /= n->getValue();
     color[RGB_BLUE] /= n->getValue();
+  } else {
+    throw new ValueException("You can only divide a color by a \
+color or a number.");
   }
   valueChanged = true;
+  return this;
 }
     
 void Color::setHSL(double hue, double saturation, double lightness) {

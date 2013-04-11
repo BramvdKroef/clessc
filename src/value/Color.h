@@ -24,13 +24,14 @@
 
 #include "Value.h"
 #include "NumberValue.h"
+#include "StringValue.h"
 #include <algorithm>
 using namespace std;
 
 #define RGB_RED 0
 #define RGB_GREEN 1
 #define RGB_BLUE 2
-#define abs(x) (x < 0 ? 0 - x : x)
+//#define ABS(x) (x < 0 ? 0 - x : x)
 
 class Color: public Value {
 private:
@@ -53,10 +54,10 @@ public:
 
   virtual TokenList* getTokens();
   
-  void add(Value* v);
-  void substract(Value* v);
-  void multiply(Value* v);
-  void divide(Value* v);
+  Value* add(Value* v);
+  Value* substract(Value* v);
+  Value* multiply(Value* v);
+  Value* divide(Value* v);
 
   /**
    * The HSL to RGB conversion on

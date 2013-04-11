@@ -41,15 +41,15 @@ public:
   void setQuotes(bool quotes);
   bool getQuotes();
   
-  void add(Value* v);
-  void substract(Value* v);
-  void multiply(Value* v);
-  void divide(Value* v);
+  Value* add(Value* v);
+  Value* substract(Value* v);
+  Value* multiply(Value* v);
+  Value* divide(Value* v);
 
   void escape();
   void e();
   void format(vector<Value*> args);
-  Color* color();
+  Value* color();
   void data_uri();
 };
 #endif

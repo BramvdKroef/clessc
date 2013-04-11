@@ -42,7 +42,10 @@ NumberValue::NumberValue(Token* token) {
 NumberValue::~NumberValue() {
 }
 
-void NumberValue::add(Value* v) {
+Value* NumberValue::add(Value* v) {
+  Token* t;
+  StringValue* s;
+  
   if (v->type == Value::NUMBER ||
       v->type == Value::PERCENTAGE ||
       v->type == Value::DIMENSION) {
@@ -50,35 +53,58 @@ void NumberValue::add(Value* v) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() + ((NumberValue*)v)->getValue());
-  } 
+    return this;
+    
+  } else if (v->type == COLOR) {
+    return v->add(this);
+    
+  } else if (v->type == STRING) {
+    t = this->tokens.front()->clone();
+    t->type = Token::STRING;
+    s = new StringValue(t, ((StringValue*)v)->getQuotes());
+    s->add(v);
+    return s;
+  } else {
+    throw new ValueException("Unsupported type.");
+  }
 }
-void NumberValue::substract(Value* v) {
+Value* NumberValue::substract(Value* v) {
   if (v->type == Value::NUMBER ||
       v->type == Value::PERCENTAGE ||
       v->type == Value::DIMENSION) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() - ((NumberValue*)v)->getValue());
-  }
+    return this;
+  } else
+    throw new ValueException("You can only substract a *number* from a number.");
 }
-void NumberValue::multiply(Value* v) {
+Value* NumberValue::multiply(Value* v) {
   if (v->type == Value::NUMBER ||
       v->type == Value::PERCENTAGE ||
       v->type == Value::DIMENSION) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() * ((NumberValue*)v)->getValue());
+    return this;
+  } else if (v->type == COLOR ||
+             v->type == STRING) {
+    return v->multiply(this);
+  } else {
+    throw new ValueException("Unsupported type.");
   }
 }
 
-void NumberValue::divide(Value* v) {
+Value* NumberValue::divide(Value* v) {
   if (v->type == Value::NUMBER ||
       v->type == Value::PERCENTAGE ||
       v->type == Value::DIMENSION) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() / ((NumberValue*)v)->getValue());
-  }
+    return this;
+  } else
+    throw new ValueException("You can only divide a number by a *number*.");
 }
 
 void NumberValue::setType(Value* v) {

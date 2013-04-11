@@ -178,15 +178,19 @@ from a number");
   }
   
   if (op->str == "+") 
-    v1->add(v2);
+    tmp = v1->add(v2);
   else if (op->str == "-")
-    v1->substract(v2);
+    tmp = v1->substract(v2);
   else if (op->str == "*")
-    v1->multiply(v2);
+    tmp = v1->multiply(v2);
   else if (op->str == "/")
-    v1->divide(v2);
-  delete v2;
-  return v1;
+    tmp = v1->divide(v2);
+
+  if (tmp != v1)
+    delete v1;
+  if (tmp != v2)
+    delete v2;
+  return tmp;
 }
 Value* ValueProcessor::processConstant(TokenList* value) {
   Token* token;

@@ -23,6 +23,7 @@
 #define __NumberValue_h__
 
 #include "Value.h"
+#include "StringValue.h"
 
 class NumberValue: public Value {
 private:
@@ -34,10 +35,10 @@ public:
   NumberValue(Token* token, bool quotes);
   virtual ~NumberValue();
   
-  void add(Value* v);
-  void substract(Value* v);
-  void multiply(Value* v);
-  void divide(Value* v);
+  Value* add(Value* v);
+  Value* substract(Value* v);
+  Value* multiply(Value* v);
+  Value* divide(Value* v);
 
   void setType(Value* v);
   

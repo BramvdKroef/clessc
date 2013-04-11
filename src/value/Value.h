@@ -43,10 +43,10 @@ public:
   
   virtual TokenList* getTokens();
   
-  virtual void add(Value* v) =0;
-  virtual void substract(Value* v) =0;
-  virtual void multiply(Value* v) =0;
-  virtual void divide(Value* v) =0;
+  virtual Value* add(Value* v) =0;
+  virtual Value* substract(Value* v) =0;
+  virtual Value* multiply(Value* v) =0;
+  virtual Value* divide(Value* v) =0;
 
   static const char* typeToString(Type t);
 };
