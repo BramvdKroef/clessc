@@ -89,5 +89,5 @@ $(BIN)/%_test.o : $(SRC)/tests/%_test.cpp $(SRC)/%.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 # Create unit test executable
-$(TEST_EXEC) : $(OBJS) $(TESTS) $(BIN)/gtest_main.a 
+$(TEST_EXEC) : $(OBJS) $(VAL_OBJS) $(TESTS) $(BIN)/gtest_main.a 
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
