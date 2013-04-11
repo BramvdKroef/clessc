@@ -43,7 +43,6 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   TokenList newvalue;
   Value* v;
   TokenList* var;
-  Token* token;
   TokenList* variable;
   
   while (value->size() > 0) {
@@ -68,21 +67,19 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
           (variable = getVariable(value->front()->str)) != NULL) {
         newvalue.push(variable);
         delete value->shift();
-      } else if (value->front()->type == Token::STRING ||
-                 value->front()->type == Token::URL) {
+        
+      } else if (value->front()->type == Token::URL) {
         processString(value->front());
         newvalue.push(value->shift());
-      } else {
-        if ((var = processDeepVariable(value)) != NULL) {
-          newvalue.push(var);
-          delete var;
-          delete value->shift();
-          delete value->shift();
-        } else if ((token = processEscape(value)) != NULL)
-            newvalue.push(token);
-        else
-          newvalue.push(value->shift());
-      }
+        
+      } else if ((var = processDeepVariable(value)) != NULL) {
+        newvalue.push(var);
+        delete var;
+        delete value->shift();
+        delete value->shift();
+          
+      } else
+        newvalue.push(value->shift());
     }
   }
   value->push(&newvalue);
@@ -219,22 +216,29 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
-      TokenList* var = variable->clone();
-      ret = processConstant(var);
-      while(!var->empty() && var->front()->type == Token::WHITESPACE)
-        delete var->shift();
+      variable = variable->clone();
+      ret = processConstant(variable);
       
-      if (!var->empty()) {
+      while(!variable->empty() &&
+            variable->front()->type == Token::WHITESPACE)
+        delete variable->shift();
+      
+      if (!variable->empty()) {
         delete ret;
         ret = NULL;
-      } else
+      } else 
         delete value->shift();
       
-      delete var;
+      delete variable;
       return ret;
     } else
       return NULL;
 
+  case Token::STRING:
+    processString(value->front());
+    value->front()->str = removeQuotes(value->front()->str);
+    return new StringValue(value->shift(), true);
+    
   case Token::PAREN_OPEN:
     delete value->shift();
     
@@ -256,17 +260,21 @@ variables in the expression may not contain a proper value like 5, \
     return ret;
 
   default:
-    TokenList* var = processDeepVariable(value);
+    variable = processDeepVariable(value);
 
-    if (var != NULL) {
-      ret = processConstant(var);
+    if (variable != NULL) {
+      ret = processConstant(variable);
       if (ret != NULL) {
         delete value->shift();
         delete value->shift();
       }
-      delete var;
+      delete variable;
       return ret;
-    } else
+      
+    } else if ((token = processEscape(value)) != NULL)
+      return new StringValue(token, false);
+
+    else
       return NULL;
   }
 }
@@ -311,7 +319,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color rgb(@red: NUMBER, @green: NUMBER, @blue: NUMBER)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "NNN", 3);
+    checkTypes(arguments, "NNN");
     return new Color(((NumberValue*)arguments[0])->getValue(),
                      ((NumberValue*)arguments[1])->getValue(),
                      ((NumberValue*)arguments[2])->getValue());
@@ -320,7 +328,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     //            @alpha: NUMBER)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "NNN ", 4);
+    checkTypes(arguments, "NNN ");
     
     if (arguments[3]->type == Value::NUMBER) {
       return new Color(((NumberValue*)arguments[0])->getValue(),
@@ -337,7 +345,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color lighten(Color, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CP", 2);
+    checkTypes(arguments, "CP");
 
     ((Color*)arguments[0])
       ->lighten(((NumberValue*)arguments[1])->getValue());
@@ -347,7 +355,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color darken(Color, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CP", 2);
+    checkTypes(arguments, "CP");
 
     ((Color*)arguments[0])
       ->darken(((NumberValue*)arguments[1])->getValue());
@@ -357,7 +365,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color saturate(Color, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CP", 2);
+    checkTypes(arguments, "CP");
 
     ((Color*)arguments[0])
       ->saturate(((NumberValue*)arguments[1])->getValue());
@@ -367,7 +375,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color desaturate(Color, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CP", 2);
+    checkTypes(arguments, "CP");
 
     ((Color*)arguments[0])
       ->desaturate(((NumberValue*)arguments[1])->getValue());
@@ -377,7 +385,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color fadein(Color, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CP", 2);
+    checkTypes(arguments, "CP");
 
     ((Color*)arguments[0])
       ->fadein(((NumberValue*)arguments[1])->getValue());
@@ -387,7 +395,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color fadeout(Color, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CP", 2);
+    checkTypes(arguments, "CP");
 
     ((Color*)arguments[0])
       ->fadeout(((NumberValue*)arguments[1])->getValue());
@@ -397,7 +405,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color fadein(Color, NUMBER)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "CN", 2);
+    checkTypes(arguments, "CN");
 
     ((Color*)arguments[0])
       ->spin(((NumberValue*)arguments[1])->getValue());
@@ -407,7 +415,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // Color hsl(NUMBER, PERCENTAGE, PERCENTAGE)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "NPP", 3);
+    checkTypes(arguments, "NPP");
 
     color = new Color(0,0,0);
     color->setHSL(((NumberValue*)arguments[0])->getValue(),
@@ -419,7 +427,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // NUMBER hue(Color)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "C", 1);
+    checkTypes(arguments, "C");
 
     percentage.append(to_string(((Color*)arguments[0])->getHue()));
     return new NumberValue(new Token(percentage, Token::NUMBER));
@@ -428,7 +436,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // PERCENTAGE saturation(Color)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "C", 1);
+    checkTypes(arguments, "C");
 
     percentage.append(to_string(((Color*)arguments[0])->getSaturation())); 
     percentage.append("%");
@@ -438,7 +446,7 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
     // PERCENTAGE lightness(Color)
     value->shift();
     arguments = processArguments(value);
-    checkTypes(arguments, "C", 1);
+    checkTypes(arguments, "C");
 
     percentage.append(to_string(((Color*)arguments[0])->getLightness()));
     percentage.append("%");
@@ -509,13 +517,12 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
 }
 
 bool ValueProcessor::checkTypes (vector<Value*> arguments,
-                                 const char* types,
-                                 unsigned int len) {
+                                 const char* types) {
   vector<Value*>::iterator it;
   ostringstream found, expected; // error strings
   unsigned int i;
   
-  if (arguments.size() != len) {
+  if (arguments.size() != strlen(types)) {
     found << "(";
     for (it = arguments.begin(); it != arguments.end(); it++) {
       if (it != arguments.begin())
@@ -523,7 +530,7 @@ bool ValueProcessor::checkTypes (vector<Value*> arguments,
       found << (*it)->getTokens()->toString();
     }
     found << ")";
-    expected << len << " arguments";
+    expected << strlen(types) << " arguments";
     throw new ParseException(found.str(), expected.str().c_str());
   }
 
@@ -580,7 +587,7 @@ void ValueProcessor::processString(Token* token) {
 
   value = *var->toString();
 
-  // Remove quotes of strings.
+  // Remove quotes off strings.
   if (var->size() == 1 && var->front()->type == Token::STRING) 
     value = value.substr(1, value.size() - 2);
   
@@ -601,8 +608,22 @@ Token* ValueProcessor::processEscape (TokenList* value) {
     return NULL;
 
   delete value->shift();
-  second->str = second->str.substr(1, second->str.size() - 2);
+  processString(second);
+  second->str = removeQuotes(second->str);
   return value->shift();
+}
+
+string ValueProcessor::removeQuotes(string str) {
+  str = str.substr(1, str.size() - 2);
+  string::iterator i;
+  string ret;
+  
+  for (i = str.begin(); i != str.end(); i++) {
+    if (*i == '\\') 
+      i++;
+    ret.push_back(*i);
+  }
+  return ret;
 }
 
 bool ValueProcessor::needsSpace(Token* t, bool suffix) {

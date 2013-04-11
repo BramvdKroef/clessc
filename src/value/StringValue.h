@@ -28,7 +28,7 @@
 
 class StringValue: public Value {
 private:
-  const char* str;
+  string stringvalue;
   bool quotes;
 
 public:

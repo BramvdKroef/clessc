@@ -22,15 +22,10 @@
 #include "StringValue.h"
 
 
-StringValue::StringValue(Token* token): Value() {
-  this->tokens.push(token);
-  this->quotes = true;
-  type = Value::STRING;
-}
-
 StringValue::StringValue(Token* token, bool quotes) {
   this->tokens.push(token);
   this->quotes = quotes;
+  stringvalue = tokens.front()->str;
   type = Value::STRING;
 }
 
@@ -39,6 +34,21 @@ StringValue::~StringValue() {
 
 
 TokenList* StringValue::getTokens() {
+  string::iterator i;
+  string newstr;
+
+  if (quotes) {
+    // add quotes
+    newstr.push_back('"');
+    for (i = stringvalue.begin(); i != stringvalue.end(); i++) {
+      if (*i == '"' || *i == '\\') 
+        newstr.push_back('\\');
+      newstr.push_back(*i);
+    }
+    newstr.push_back('"');
+    tokens.front()->str = newstr;
+  } else
+    tokens.front()->str = stringvalue;
   return &tokens;
 }
 
@@ -51,36 +61,36 @@ bool StringValue::getQuotes() {
 
 void StringValue::add(Value* v) {
   bool v_quotes;
-  string* str;
+  string* newstr;
   
   if (v->type == Value::STRING) {
     v_quotes = ((StringValue*)v)->getQuotes();
     ((StringValue*)v)->setQuotes(false);
 
-    str = v->getTokens()->toString();
+    newstr = v->getTokens()->toString();
     ((StringValue*)v)->setQuotes(v_quotes);
   } else
-    str = v->getTokens()->toString();
+    newstr = v->getTokens()->toString();
   
-  tokens.front()->str.append(*str);
-  delete str;
+  stringvalue.append(*newstr);
+  delete newstr;
 }
 
 void StringValue::substract(Value* v) {
   throw new ValueException("Can't substract from strings.");
 }
 void StringValue::multiply(Value* v) {
-  string str;
+  string newstr;
   double i;
   
   if (v->type != Value::NUMBER) {
     throw new ValueException("Strings can only be multiplied by a number.");
   }
 
-  str = tokens.front()->str;
   for (i = 0; i < ((NumberValue*)v)->getValue(); i++) {
-    tokens.front()->str.append(str);
+    newstr.append(stringvalue);
   }
+  stringvalue = newstr;
 }
 
 void StringValue::divide(Value* v) {

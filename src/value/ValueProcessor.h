@@ -27,10 +27,12 @@
 #include "../ParseException.h"
 #include "Value.h"
 #include "Color.h"
+#include "NumberValue.h"
+#include "StringValue.h"
 #include "ValueException.h"
 #include <map>
 #include <vector>
-
+#include <cstring>
 /**
  * 
  */
@@ -46,11 +48,12 @@ private:
   Value* processFunction(Token* function,
                          TokenList* value);
   vector<Value*> processArguments (TokenList* value);
-  bool checkTypes(vector<Value*> arguments, const char* types, unsigned int len);
+  bool checkTypes(vector<Value*> arguments, const char* types);
   void processString(Token* str);
   Token* processEscape (TokenList* value);
   bool needsSpace(Token* t, bool suffix);
-  
+  string removeQuotes(string str);
+    
 public:
   ValueProcessor();
   virtual ~ValueProcessor();
