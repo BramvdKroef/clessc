@@ -19,48 +19,17 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Value_h__
-#define __Value_h__
+#include "FunctionLibrary.h"
 
-#include "../Token.h"
-#include "../TokenList.h"
-#include "ValueException.h"
-#include <sstream>
+FuncInfo* FunctionLibrary::getFunction(const char* functionName) {
+  return map[functionName];
+}
 
-using namespace std;
-
-/**
- * 
- */
-class Value {
-protected:
-  TokenList tokens;
-  
-public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT} type;
-  Value();
-  Value(Token* token);
-  virtual ~Value();
-  
-  virtual TokenList* getTokens();
-  
-  virtual Value* add(Value* v) =0;
-  virtual Value* substract(Value* v) =0;
-  virtual Value* multiply(Value* v) =0;
-  virtual Value* divide(Value* v) =0;
-
-  static const char* typeToString(Type t);
-  /**
-   * return a type for a type code.
-   * N - Number
-   * P - Percentage
-   * D - Dimension
-   * C - Color
-   * S - String
-   * U - Unit
-   */
-  static Type codeToType(const char code);
-
-};
-
-#endif
+void FunctionLibrary::push(string name, const char* parameterTypes,
+                           Value* (*func)(vector<Value*> arguments))
+{
+  FuncInfo* fi = new FuncInfo();
+  fi->parameterTypes = parameterTypes;
+  fi->func = func;
+  map[name] = fi;
+}

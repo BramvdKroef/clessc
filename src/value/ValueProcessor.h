@@ -29,7 +29,9 @@
 #include "Color.h"
 #include "NumberValue.h"
 #include "StringValue.h"
+#include "UnitValue.h"
 #include "ValueException.h"
+#include "FunctionLibrary.h"
 #include <map>
 #include <vector>
 #include <cstring>
@@ -39,6 +41,7 @@
 class ValueProcessor {
 private:
   list<map<string, TokenList*>*> scopes;
+  FunctionLibrary* functionLibrary;
   
   Value* processStatement(TokenList* value);
   Value* processOperator(TokenList* value, Value* v1,
@@ -51,6 +54,8 @@ private:
   bool checkTypes(vector<Value*> arguments, const char* types);
   void processString(Token* str);
   Token* processEscape (TokenList* value);
+  UnitValue* processUnit(Token* t);
+  
   bool needsSpace(Token* t, bool suffix);
   string removeQuotes(string str);
     

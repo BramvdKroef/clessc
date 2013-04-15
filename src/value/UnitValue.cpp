@@ -19,48 +19,37 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Value_h__
-#define __Value_h__
+#include "UnitValue.h"
 
-#include "../Token.h"
-#include "../TokenList.h"
-#include "ValueException.h"
-#include <sstream>
+UnitValue::UnitValue(Token* token) {
+  tokens.push(token);
+  type = UNIT;
+}
 
-using namespace std;
+UnitValue::~UnitValue() {
+}
 
-/**
- * 
- */
-class Value {
-protected:
-  TokenList tokens;
-  
-public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT} type;
-  Value();
-  Value(Token* token);
-  virtual ~Value();
-  
-  virtual TokenList* getTokens();
-  
-  virtual Value* add(Value* v) =0;
-  virtual Value* substract(Value* v) =0;
-  virtual Value* multiply(Value* v) =0;
-  virtual Value* divide(Value* v) =0;
+const char* UnitValue::getUnit() {
+  return tokens.front()->str.c_str();
+}
 
-  static const char* typeToString(Type t);
-  /**
-   * return a type for a type code.
-   * N - Number
-   * P - Percentage
-   * D - Dimension
-   * C - Color
-   * S - String
-   * U - Unit
-   */
-  static Type codeToType(const char code);
+Value* UnitValue::add(Value* v) {
+  (void)v;
+  throw new ValueException("Can't do math on unit types.");
+}
+Value* UnitValue::substract(Value* v) {
+  (void)v;
+  throw new ValueException("Can't do math on unit types.");
+}
+Value* UnitValue::multiply(Value* v) {
+  (void)v;
+  throw new ValueException("Can't do math on unit types.");
+}
+Value* UnitValue::divide(Value* v) {
+  (void)v;
+  throw new ValueException("Can't do math on unit types.");
+}
 
-};
 
-#endif
+
+

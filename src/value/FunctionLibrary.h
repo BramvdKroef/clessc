@@ -19,48 +19,29 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Value_h__
-#define __Value_h__
+#ifndef __FunctionLibrary_h__
+#define __FunctionLibrary_h__
 
-#include "../Token.h"
-#include "../TokenList.h"
-#include "ValueException.h"
-#include <sstream>
+#include <map>
+#include <vector>
+#include <cstring>
+#include "Value.h"
 
-using namespace std;
+typedef struct FuncInfo {
+  const char* parameterTypes;
+Value* (*func)(vector<Value*> arguments);
+} FuncInfo;
 
-/**
- * 
- */
-class Value {
-protected:
-  TokenList tokens;
-  
+class FunctionLibrary {
+private:
+  std::map<std::string, FuncInfo*> map;
+
+
 public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT} type;
-  Value();
-  Value(Token* token);
-  virtual ~Value();
-  
-  virtual TokenList* getTokens();
-  
-  virtual Value* add(Value* v) =0;
-  virtual Value* substract(Value* v) =0;
-  virtual Value* multiply(Value* v) =0;
-  virtual Value* divide(Value* v) =0;
+  FuncInfo* getFunction(const char* functionName);
 
-  static const char* typeToString(Type t);
-  /**
-   * return a type for a type code.
-   * N - Number
-   * P - Percentage
-   * D - Dimension
-   * C - Color
-   * S - String
-   * U - Unit
-   */
-  static Type codeToType(const char code);
-
+  void push(string name, const char* parameterTypes,
+            Value* (*func)(vector<Value*> arguments));
 };
 
 #endif

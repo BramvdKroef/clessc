@@ -78,6 +78,7 @@ Value* StringValue::add(Value* v) {
 }
 
 Value* StringValue::substract(Value* v) {
+  (void)v;
   throw new ValueException("Can't substract from strings.");
 }
 Value* StringValue::multiply(Value* v) {
@@ -96,25 +97,38 @@ Value* StringValue::multiply(Value* v) {
 }
 
 Value* StringValue::divide(Value* v) {
+  (void)v;
   throw new ValueException("Can't divide strings.");
 }
 
-void StringValue::escape() {
+
+void StringValue::loadFunctions(FunctionLibrary* lib) {
+  lib->push("escape", "S", &StringValue::escape);
+  lib->push("e", "S", &StringValue::e);
+  lib->push("%", "S ", &StringValue::format);
   
 }
 
-void StringValue::e() {
-  quotes = false;
+Value* StringValue::escape(vector<Value*> arguments) {
+  return arguments[0];
 }
 
-void StringValue::format(vector<Value*> args) {
-}
-  
-Value* StringValue::color() {
-  return new Color(tokens.front());
+
+Value* StringValue::e(vector<Value*> arguments) {
+  ((StringValue*)arguments[0])->setQuotes(false);
+  return arguments[0];
 }
 
-void StringValue::data_uri() {
-  
+Value* StringValue::format(vector<Value*> arguments) {
+  return arguments[0];
 }
 
+Value* StringValue::color(vector<Value*> arguments) {
+  Token* t;
+  ((StringValue*)arguments[0])->setQuotes(false);
+  t = arguments[0]->getTokens()->front();
+  return new Color(t->clone());
+}
+Value* StringValue::data_uri(vector<Value*> arguments) {
+  return arguments[0];
+}

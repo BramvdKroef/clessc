@@ -21,7 +21,16 @@
 
 #include "Color.h"
 
+#include <sstream>
 #include <iostream>
+
+template <class T>
+inline std::string to_string (const T& t)
+{
+  std::stringstream ss;
+  ss << t;
+  return ss.str();
+}
 
 double Color::maxArray(double* array, int len) {
   double ret = array[0];
@@ -297,33 +306,13 @@ void Color::setHSL(double hue, double saturation, double lightness) {
   }
   valueChanged = true;
 }
-void Color::lighten(double percent) {
-  double* hsl = getHSL();
-  setHSL(hsl[0], hsl[1] * 100, min(hsl[2] * 100 + percent, 100.00));
-}
-void Color::darken(double percent) {
-  double* hsl = getHSL();
-  setHSL(hsl[0], hsl[1] * 100, max(hsl[2] * 100 - percent, 0.0));
-}
-void Color::saturate(double percent) {
-  double* hsl = getHSL();
-  setHSL(hsl[0], min(hsl[1] * 100 + percent, 100.00), hsl[2] * 100);
-}
-void Color::desaturate(double percent) {
-  double* hsl = getHSL();
-  setHSL(hsl[0], max(hsl[1] * 100 - percent, 0.00), hsl[2] * 100);
-}
-void Color::fadein(double percent) {
-  alpha *= min(1 + percent * .01, 100.00);
+
+void Color::setAlpha(double alpha) {
+  this->alpha = alpha;
   valueChanged = true;
 }
-void Color::fadeout(double percent) {
-  alpha *= max(1 - percent * .01, 0.00);
-  valueChanged = true;
-}
-void Color::spin(double degrees) {
-  double* hsl = getHSL();
-  setHSL((int)hsl[0] + degrees, hsl[1] * 100, hsl[2] * 100);
+double Color::getAlpha() {
+  return alpha;
 }
 
 unsigned int Color::getRed() {
@@ -373,15 +362,137 @@ double* Color::getHSL() {
   return hsl;
 }
 
-int Color::getHue() {
-  double* hsl = getHSL();
-  return hsl[0];
+
+void Color::loadFunctions(FunctionLibrary* lib) {
+  lib->push("rgb", "NNN", &Color::rgb);
+  lib->push("rgba", "NNN ", &Color::rgba);
+  lib->push("lighten", "CP", &Color::lighten);
+  lib->push("darken", "CP", &Color::darken);
+  lib->push("saturate", "CP", &Color::saturate);
+  lib->push("desaturate", "CP", &Color::desaturate);
+  lib->push("fadein", "CP", &Color::fadein);
+  lib->push("fadeout", "CP", &Color::fadeout);
+  lib->push("spin", "CN", &Color::spin);
+  lib->push("hsl", "NPP", &Color::hsl);
+  lib->push("hue", "C", &Color::hue);
+  lib->push("saturation", "C", &Color::saturation);
+  lib->push("lightness", "CP", &Color::lightness);
 }
-int Color::getSaturation() {
-  double* hsl = getHSL();
-  return hsl[1] * 100;
+
+Value* Color::rgb(vector<Value*> arguments) {
+  return new Color(((NumberValue*)arguments[0])->getValue(),
+                   ((NumberValue*)arguments[1])->getValue(),
+                   ((NumberValue*)arguments[2])->getValue());
 }
-int Color::getLightness() {
-  double* hsl = getHSL();
-  return hsl[2] * 100;
+
+Value* Color::rgba(vector<Value*> arguments) {
+  if (arguments[3]->type == Value::NUMBER) {
+    return new Color(((NumberValue*)arguments[0])->getValue(),
+                     ((NumberValue*)arguments[1])->getValue(),
+                     ((NumberValue*)arguments[2])->getValue(),
+                     ((NumberValue*)arguments[3])->getValue());
+  } else if (arguments[3]->type == Value::PERCENTAGE) {
+    return new Color(((NumberValue*)arguments[0])->getValue(),
+                     ((NumberValue*)arguments[1])->getValue(),
+                     ((NumberValue*)arguments[2])->getValue(),
+                     ((NumberValue*)arguments[3])->getValue() * .01);
+  } else {
+    throw new ValueException("Argument 3 needs to be a number or percentage.");
+  }
+}
+Value* Color::lighten(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  double value = ((NumberValue*)arguments[1])->getValue();
+  
+  ((Color*)arguments[0])->setHSL(hsl[0],
+                                 hsl[1] * 100,
+                                 min(hsl[2] * 100 + value, 100.00));
+  return arguments[0];
+}
+Value* Color::darken(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  double value = ((NumberValue*)arguments[1])->getValue();
+  
+  ((Color*)arguments[0])->setHSL(hsl[0],
+                                 hsl[1] * 100,
+                                 max(hsl[2] * 100 - value, 0.00));
+  return arguments[0];
+}
+Value* Color::saturate(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  double value = ((NumberValue*)arguments[1])->getValue();
+  
+  ((Color*)arguments[0])->setHSL(hsl[0],
+                                 min(hsl[1] * 100 + value, 100.00),
+                                 hsl[2] * 100);
+  return arguments[0];
+}
+Value* Color::desaturate(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  double value = ((NumberValue*)arguments[1])->getValue();
+  
+  ((Color*)arguments[0])->setHSL(hsl[0],
+                                 max(hsl[1] * 100 - value, 0.00),
+                                 hsl[2] * 100);
+  return arguments[0];
+}
+
+Value* Color::fadein(vector<Value*> arguments) {
+  double alpha = ((Color*)arguments[0])->getAlpha();
+  double value = ((NumberValue*)arguments[1])->getValue();
+
+  ((Color*)arguments[0])->setAlpha(alpha * min(1 + value * .01, 100.00));
+  return arguments[0];
+}
+
+Value* Color::fadeout(vector<Value*> arguments) {
+  double alpha = ((Color*)arguments[0])->getAlpha();
+  double value = ((NumberValue*)arguments[1])->getValue();
+
+  ((Color*)arguments[0])->setAlpha(alpha * max(1 - value * .01, 0.00));
+  return arguments[0];
+}
+
+Value* Color::spin(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  double degrees = ((NumberValue*)arguments[1])->getValue();
+
+  ((Color*)arguments[0])->setHSL((int)hsl[0] + degrees,
+                                 hsl[1] * 100,
+                                 hsl[2] * 100);
+  return arguments[0];
+}
+
+Value* Color::hsl(vector<Value*> arguments) {
+  Color* color = new Color(0,0,0);
+  color->setHSL(((NumberValue*)arguments[0])->getValue(),
+                ((NumberValue*)arguments[1])->getValue(),
+                ((NumberValue*)arguments[2])->getValue());
+  return color;
+}
+
+Value* Color::hue(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  string degrees;
+
+  degrees.append(to_string(hsl[0]));
+  return new NumberValue(new Token(degrees, Token::NUMBER));
+}
+
+Value* Color::saturation(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  string percentage;
+
+  percentage.append(to_string(hsl[1] * 100));
+  percentage.append("%");
+  return new NumberValue(new Token(percentage, Token::PERCENTAGE));
+}
+
+Value* Color::lightness(vector<Value*> arguments) {
+  double* hsl = ((Color*)arguments[0])->getHSL();
+  string percentage;
+
+  percentage.append(to_string(hsl[2] * 100));
+  percentage.append("%");
+  return new NumberValue(new Token(percentage, Token::PERCENTAGE));
 }

@@ -19,51 +19,26 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __NumberValue_h__
-#define __NumberValue_h__
+#ifndef __UnitValue_h__
+#define __UnitValue_h__
 
 #include "Value.h"
-#include "StringValue.h"
-#include "FunctionLibrary.h"
-#include "UnitValue.h"
-#include <vector>
+#include "ValueException.h"
 
-class NumberValue: public Value {
-
+/**
+ * A dimension unit: em,ex,px,ch,in,cm,mm,pt,pc
+ */
+class UnitValue: public Value {
 public:
-  NumberValue(Token* token);
-  virtual ~NumberValue();
-  
-  Value* add(Value* v);
-  Value* substract(Value* v);
-  Value* multiply(Value* v);
-  Value* divide(Value* v);
+  UnitValue(Token* token);
+  virtual ~UnitValue();
 
-  void setType(Value* v);
+  const char* getUnit();
   
-  string getUnit();
-  void setUnit(string unit);
-  double getValue();
-  void setValue(double d);
-
-  static void loadFunctions(FunctionLibrary* lib);
-  static Value* unit(vector<Value*> args);
-  void ceil();
-  void floor();
-  void percentage();
-  void round();
-  void sqrt();
-  void abs();
-  void sin();
-  void asin();
-  void cos();
-  void acos();
-  void tan();
-  void atan();
-  void pi();
-  void pow(Value* v);
-  void mod(Value* v);
-  void convert(Value* unit);
+  virtual Value* add(Value* v);
+  virtual Value* substract(Value* v);
+  virtual Value* multiply(Value* v);
+  virtual Value* divide(Value* v);
 };
 
 #endif

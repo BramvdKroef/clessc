@@ -44,20 +44,25 @@ const char* Value::typeToString(Type t) {
     return "Color";
   case STRING:
     return "String";
+  case UNIT:
+    return "Unit";
   }
   return "Undefined";
 }
 Value::Type Value::codeToType(char code) {
   switch (code) {
   case 'N':
-    return Value::NUMBER;
+    return NUMBER;
   case 'P':
-    return Value::PERCENTAGE;
+    return PERCENTAGE;
   case 'D':
-    return Value::DIMENSION;
+    return DIMENSION;
   case 'C':
-    return Value::COLOR;
+    return COLOR;
+  case 'U':
+    return UNIT;
   default:
-    return Value::NUMBER;
+    return NUMBER;
   }
 }
+

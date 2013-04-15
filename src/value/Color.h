@@ -25,6 +25,7 @@
 #include "Value.h"
 #include "NumberValue.h"
 #include "StringValue.h"
+#include "FunctionLibrary.h"
 #include <algorithm>
 using namespace std;
 
@@ -67,14 +68,12 @@ public:
    * source. 
    */
   void setHSL(double hue, double saturation, double lightness);
-  void lighten(double percent);
-  void darken(double percent);
-  void saturate(double percent);
-  void desaturate(double percent);
-  void fadein(double percent);
-  void fadeout(double percent);
-  void spin(double degrees);
-
+  /**
+   * Converts the internal RGB value to HSL. The source of the
+   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
+   * for the saturation value, which did not work.
+   */
+  double* getHSL();
   /**
    * Returns the the amount of red in the color.
    *
@@ -93,31 +92,24 @@ public:
    * @return an int value between 0-255
    */
   unsigned int getBlue();
+
+  void setAlpha(double alpha);
+  double getAlpha();
   
-  /**
-   * Converts the internal RGB value to HSL. The source of the
-   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
-   * for the saturation value, which did not work.
-   */
-  double* getHSL();
-
-  /**
-   * Find the hue value for the color.
-   * @see getHSL();
-   */
-  int getHue();
-
-  /**
-   * Find the saturation value for the color.
-   * @see getHSL();
-   */
-  int getSaturation();
-
-  /**
-   * Find the lightness value for the color.
-   * @see getHSL();
-   */
-  int getLightness();
+  static void loadFunctions(FunctionLibrary* lib);
+  static Value* rgb(vector<Value*> arguments);
+  static Value* rgba(vector<Value*> arguments);
+  static Value* lighten(vector<Value*> arguments);
+  static Value* darken(vector<Value*> arguments);
+  static Value* saturate(vector<Value*> arguments);
+  static Value* desaturate(vector<Value*> arguments);
+  static Value* fadein(vector<Value*> arguments);
+  static Value* fadeout(vector<Value*> arguments);
+  static Value* spin(vector<Value*> arguments);
+  static Value* hsl(vector<Value*> arguments);
+  static Value* hue(vector<Value*> arguments);
+  static Value* saturation(vector<Value*> arguments);
+  static Value* lightness(vector<Value*> arguments);
 };
 
 #endif

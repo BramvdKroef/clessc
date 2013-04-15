@@ -22,6 +22,7 @@
 #ifndef __ValueException_h__
 #define __ValueException_h__
 
+using namespace std;
 /**
  * 
  */

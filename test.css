@@ -5,10 +5,10 @@
 
 #header { color: @light-blue; }
 
-@fnord: "I am fnord.";
+@fnord: ('I am f\'nord.' + " ") * 2;
 @var: 'fnord';
 .class {
-//    content: @@var;
+    content: @@var;
 }
 @var: 'defined twice';
 

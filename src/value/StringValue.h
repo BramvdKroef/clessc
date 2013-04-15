@@ -24,6 +24,7 @@
 
 #include "Value.h"
 #include "Color.h"
+#include "FunctionLibrary.h"
 #include <vector>
 
 class StringValue: public Value {
@@ -46,10 +47,11 @@ public:
   Value* multiply(Value* v);
   Value* divide(Value* v);
 
-  void escape();
-  void e();
-  void format(vector<Value*> args);
-  Value* color();
-  void data_uri();
+  static void loadFunctions(FunctionLibrary* lib);
+  static Value* escape(vector<Value*> arguments);
+  static Value* e(vector<Value*> arguments);
+  static Value* format(vector<Value*> arguments);
+  static Value* color(vector<Value*> arguments);
+  static Value* data_uri(vector<Value*> arguments);
 };
 #endif

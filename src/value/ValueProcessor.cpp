@@ -34,6 +34,9 @@ inline std::string to_string (const T& t)
 
 ValueProcessor::ValueProcessor() {
   pushScope();
+  functionLibrary = new FunctionLibrary();
+  NumberValue::loadFunctions(functionLibrary);
+  Color::loadFunctions(functionLibrary);  
 }
 ValueProcessor::~ValueProcessor() {
   popScope();
@@ -274,11 +277,13 @@ variables in the expression may not contain a proper value like 5, \
       }
       delete variable;
       return ret;
-      
-    } else if ((token = processEscape(value)) != NULL)
-      return new StringValue(token, false);
 
-    else
+    } else if ((token = processEscape(value)) != NULL) 
+      return new StringValue(token, false);
+    else if ((ret = processUnit(value->front())) != NULL) {
+      value->shift();
+      return ret;
+    } else
       return NULL;
   }
 }
@@ -316,192 +321,26 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
 
 Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
   string percentage;
-  Color* color;
   vector<Value*> arguments;
+  FuncInfo* fi;
+  Value* ret;
+  string functionName = function->str.substr(0,
+                                             function->str.size() - 1);
+
+  fi = functionLibrary->getFunction(functionName.c_str());
   
-  if(function->str == "rgb(") {
-    // Color rgb(@red: NUMBER, @green: NUMBER, @blue: NUMBER)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "NNN");
-    return new Color(((NumberValue*)arguments[0])->getValue(),
-                     ((NumberValue*)arguments[1])->getValue(),
-                     ((NumberValue*)arguments[2])->getValue());
-  } else if(function->str == "rgba(") {
-    // Color rgba(@red: NUMBER, @green: NUMBER, @blue: NUMBER,
-    //            @alpha: NUMBER)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "NNN ");
-    
-    if (arguments[3]->type == Value::NUMBER) {
-      return new Color(((NumberValue*)arguments[0])->getValue(),
-                       ((NumberValue*)arguments[1])->getValue(),
-                       ((NumberValue*)arguments[2])->getValue(),
-                       ((NumberValue*)arguments[3])->getValue());
-    } else if (arguments[3]->type == Value::PERCENTAGE) {
-      return new Color(((NumberValue*)arguments[0])->getValue(),
-                       ((NumberValue*)arguments[1])->getValue(),
-                       ((NumberValue*)arguments[2])->getValue(),
-                       ((NumberValue*)arguments[3])->getValue() * .01);
-    } else {
-      throw new ValueException("Argument 3 needs to be a number or percentage.");
-    }
-  } else if (function->str == "lighten(") {
-    // Color lighten(Color, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CP");
-
-    ((Color*)arguments[0])
-      ->lighten(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-    
-  } else if (function->str == "darken(") {
-    // Color darken(Color, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CP");
-
-    ((Color*)arguments[0])
-      ->darken(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-
-  } else if (function->str == "saturate(") {
-    // Color saturate(Color, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CP");
-
-    ((Color*)arguments[0])
-      ->saturate(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-
-  } else if (function->str == "desaturate(") {
-    // Color desaturate(Color, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CP");
-
-    ((Color*)arguments[0])
-      ->desaturate(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-
-  } else if (function->str == "fadein(") {
-    // Color fadein(Color, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CP");
-
-    ((Color*)arguments[0])
-      ->fadein(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-
-  } else if (function->str == "fadeout(") {
-    // Color fadeout(Color, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CP");
-
-    ((Color*)arguments[0])
-      ->fadeout(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-
-  } else if (function->str == "spin(") {
-    // Color fadein(Color, NUMBER)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "CN");
-
-    ((Color*)arguments[0])
-      ->spin(((NumberValue*)arguments[1])->getValue());
-    return arguments[0];
-
-  } else if (function->str == "hsl(") {
-    // Color hsl(NUMBER, PERCENTAGE, PERCENTAGE)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "NPP");
-
-    color = new Color(0,0,0);
-    color->setHSL(((NumberValue*)arguments[0])->getValue(),
-                  ((NumberValue*)arguments[1])->getValue(),
-                  ((NumberValue*)arguments[2])->getValue());
-    return color;
-    
-  } else if (function->str == "hue(") {
-    // NUMBER hue(Color)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "C");
-
-    percentage.append(to_string(((Color*)arguments[0])->getHue()));
-    return new NumberValue(new Token(percentage, Token::NUMBER));
-  
-  } else if (function->str == "saturation(") {
-    // PERCENTAGE saturation(Color)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "C");
-
-    percentage.append(to_string(((Color*)arguments[0])->getSaturation())); 
-    percentage.append("%");
-    return new NumberValue(new Token(percentage, Token::PERCENTAGE));
-
-  } else if (function->str == "lightness(") {
-    // PERCENTAGE lightness(Color)
-    value->shift();
-    arguments = processArguments(value);
-    checkTypes(arguments, "C");
-
-    percentage.append(to_string(((Color*)arguments[0])->getLightness()));
-    percentage.append("%");
-    return new NumberValue(new Token(percentage, Token::PERCENTAGE));
-
-  } else if (function->str == "unit(") {
-    // DIMENSION unit(DIMENSION, unit)
-    value->shift();
-    arguments.push_back(processConstant(value));
-    if (arguments[0]->type != Value::DIMENSION &&
-        arguments[0]->type != Value::NUMBER) {
-      throw new ParseException(*arguments[0]->getTokens()->toString(),
-                               "number or dimension");
-    }
-
-    while (value->size() > 0 &&
-           value->front()->type == Token::WHITESPACE) {
-      delete value->shift();
-    }
-
-    if (value->front()->str != ",") {
-      throw new ParseException(value->front()->str, "','");
-    }
-    delete value->shift();
-
-    while (value->size() > 0 &&
-           value->front()->type == Token::WHITESPACE) {
-      delete value->shift();
-    }
-    
-    if (value->front()->type != Token::IDENTIFIER) {
-      throw new ParseException(value->front()->str, "unit");
-    }
-    ((NumberValue*)arguments[0])->setUnit(value->front()->str);
-    delete value->shift();
-
-    while (value->size() > 0 &&
-           value->front()->type == Token::WHITESPACE) {
-      delete value->shift();
-    }
-
-    if (value->front()->type != Token::PAREN_CLOSED) 
-      throw new ParseException(value->front()->str, ")");
-    delete value->shift();
-
-    return arguments[0];
-  } else 
+  if (fi == NULL)
     return NULL;
-  return NULL;
+
+  value->shift();
+  arguments = processArguments(value);
+
+  checkTypes(arguments, fi->parameterTypes);
+  ret = fi->func(arguments);
+
+  // delete arguments
+  
+  return ret;
 }
 
 vector<Value*> ValueProcessor::processArguments (TokenList* value) {
@@ -542,7 +381,8 @@ bool ValueProcessor::checkTypes (vector<Value*> arguments,
 
   for (it = arguments.begin(), i = 0; it != arguments.end();
        it++, i++) {
-    if ((*it)->type != Value::codeToType(types[i])) {
+    if (types[i] != ' ' &&
+        (*it)->type != Value::codeToType(types[i])) {
       throw new ParseException((*it)->getTokens()->toString()->c_str(),
                                Value::typeToString(Value::codeToType(types[i])));
     }
@@ -605,6 +445,18 @@ string ValueProcessor::removeQuotes(string str) {
     ret.push_back(*i);
   }
   return ret;
+}
+
+UnitValue* ValueProcessor::processUnit(Token* t) {
+  // em,ex,px,ch,in,mm,cm,pt,pc
+  string units("emexpxchinmmcmptpc");
+  unsigned int pos;
+  if (t->str.size() == 2 &&
+      (pos = units.find(t->str)) != string::npos &&
+      pos % 2 == 0) {
+    return new UnitValue(t);
+  } else
+    return NULL;
 }
 
 bool ValueProcessor::needsSpace(Token* t, bool suffix) {
