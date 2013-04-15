@@ -365,7 +365,7 @@ double* Color::getHSL() {
 
 void Color::loadFunctions(FunctionLibrary* lib) {
   lib->push("rgb", "NNN", &Color::rgb);
-  lib->push("rgba", "NNN ", &Color::rgba);
+  lib->push("rgba", "NNN.", &Color::rgba);
   lib->push("lighten", "CP", &Color::lighten);
   lib->push("darken", "CP", &Color::darken);
   lib->push("saturate", "CP", &Color::saturate);

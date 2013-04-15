@@ -179,15 +179,18 @@ void NumberValue::setValue(double d) {
 }
 
 void NumberValue::loadFunctions(FunctionLibrary* lib) {
-  lib->push("unit", " U", &NumberValue::unit);
+  lib->push("unit", ".U?", &NumberValue::unit);
 }
 
 // DIMENSION unit(DIMENSION, UNIT)
 Value* NumberValue::unit(vector<Value*> arguments) {
   if (arguments[0]->type == Value::NUMBER ||
       arguments[0]->type == Value::DIMENSION) {
-    ((NumberValue*)arguments[0])
-      ->setUnit(((UnitValue*)arguments[1])->getUnit());
+    if (arguments.size() > 1) {
+      ((NumberValue*)arguments[0])
+        ->setUnit(((UnitValue*)arguments[1])->getUnit());
+    } else
+      ((NumberValue*)arguments[0])->setUnit("");
     return arguments[0];
   } else 
     throw new ValueException("argument 1 has to be a number or dimension");

@@ -34,9 +34,11 @@ inline std::string to_string (const T& t)
 
 ValueProcessor::ValueProcessor() {
   pushScope();
+  
   functionLibrary = new FunctionLibrary();
   NumberValue::loadFunctions(functionLibrary);
-  Color::loadFunctions(functionLibrary);  
+  Color::loadFunctions(functionLibrary);
+  StringValue::loadFunctions(functionLibrary);  
 }
 ValueProcessor::~ValueProcessor() {
   popScope();
@@ -219,7 +221,9 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return new NumberValue(value->shift());
 
   case Token::FUNCTION:
-    return processFunction(token, value);
+    return processFunction(token->
+                           str.substr(0, token->str.size() - 1),
+                           value);
     
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
@@ -319,15 +323,15 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
   return var->clone();
 }
 
-Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
+Value* ValueProcessor::processFunction(string function, TokenList* value) {
   string percentage;
   vector<Value*> arguments;
   FuncInfo* fi;
   Value* ret;
-  string functionName = function->str.substr(0,
-                                             function->str.size() - 1);
-
-  fi = functionLibrary->getFunction(functionName.c_str());
+  vector<Value*>::iterator it;
+  string arg_str;
+  
+  fi = functionLibrary->getFunction(function.c_str());
   
   if (fi == NULL)
     return NULL;
@@ -335,8 +339,23 @@ Value* ValueProcessor::processFunction(Token* function, TokenList* value) {
   value->shift();
   arguments = processArguments(value);
 
-  checkTypes(arguments, fi->parameterTypes);
-  ret = fi->func(arguments);
+  if (functionLibrary->checkArguments(fi, arguments)) {
+    ret = fi->func(arguments);
+  } else {
+    arg_str.append(function);
+    arg_str.append("(");
+    for (it = arguments.begin(); it != arguments.end(); it++) {
+      if (it != arguments.begin())
+        arg_str.append(", ");
+      arg_str.append((*it)->getTokens()->toString()->c_str());
+    }
+    arg_str.append(")");
+    
+    throw new ParseException(arg_str,
+                             functionLibrary->
+                             functionDefToString(function.c_str(),
+                                                 fi));
+  }
 
   // delete arguments
   
@@ -361,35 +380,6 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   return arguments;
 }
 
-bool ValueProcessor::checkTypes (vector<Value*> arguments,
-                                 const char* types) {
-  vector<Value*>::iterator it;
-  ostringstream found, expected; // error strings
-  unsigned int i;
-  
-  if (arguments.size() != strlen(types)) {
-    found << "(";
-    for (it = arguments.begin(); it != arguments.end(); it++) {
-      if (it != arguments.begin())
-        found << ", ";
-      found << (*it)->getTokens()->toString();
-    }
-    found << ")";
-    expected << strlen(types) << " arguments";
-    throw new ParseException(found.str(), expected.str().c_str());
-  }
-
-  for (it = arguments.begin(), i = 0; it != arguments.end();
-       it++, i++) {
-    if (types[i] != ' ' &&
-        (*it)->type != Value::codeToType(types[i])) {
-      throw new ParseException((*it)->getTokens()->toString()->c_str(),
-                               Value::typeToString(Value::codeToType(types[i])));
-    }
-  }
-
-  return true;
-}
 
 
 void ValueProcessor::processString(Token* token) {

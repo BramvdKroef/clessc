@@ -33,3 +33,76 @@ void FunctionLibrary::push(string name, const char* parameterTypes,
   fi->func = func;
   map[name] = fi;
 }
+
+bool FunctionLibrary::checkArguments(FuncInfo* fi,
+                                     vector<Value*> arguments) {
+  const char* types = fi->parameterTypes;
+  vector<Value*>::iterator it = arguments.begin();
+  unsigned int i, len = strlen(types);
+  
+  for (i = 0; i < len; i++) {
+    if (it == arguments.end()) {
+      if (i + 1 < len && 
+          (types[i + 1] == '?' ||
+           types[i + 1] == '+')) {
+        i++;
+        continue;
+      } else
+        return false;
+    } 
+      
+    if (types[i] != '.' && 
+        (*it)->type != Value::codeToType(types[i])) 
+      return false;
+
+    it++;
+    
+    if (i + 1 < len && types[i + 1] == '+') {
+      while (it != arguments.end() &&
+             (types[i] == '.' || 
+              (*it)->type == Value::codeToType(types[i]))) {
+        it++;
+      }
+      
+      i++;
+    }
+  }
+  
+  if (it != arguments.end())
+    return false;
+  return true;
+}
+
+const char* FunctionLibrary::functionDefToString
+(const char* functionName, FuncInfo* fi) {
+  
+  if (fi == NULL)
+    fi = getFunction(functionName);
+  
+  string str(functionName);
+  const char* types = fi->parameterTypes;
+  unsigned int i, len = strlen(types);
+
+  str.append("(");
+  for (i = 0; i < len; i++) {
+    if (types[i] == '.')
+      str.append("Any");
+    else
+      str.append(Value::typeToString(Value::codeToType(types[i])));
+
+    if (i + 1 < len) {
+      if (types[i + 1] == '?') {
+        str.append(" (optional)");
+        i++;
+      } else if(types[i + 1] == '+'){
+        str.append("...");
+        i++;
+      }
+    }
+
+    if (i != len - 1)
+      str.append(", ");
+  }
+  str.append(")");
+  return str.c_str();
+}

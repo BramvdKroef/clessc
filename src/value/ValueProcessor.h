@@ -48,10 +48,9 @@ private:
                          Token* lastop = NULL);
   Value* processConstant(TokenList* value);
   TokenList* processDeepVariable (TokenList* value);
-  Value* processFunction(Token* function,
+  Value* processFunction(string function,
                          TokenList* value);
   vector<Value*> processArguments (TokenList* value);
-  bool checkTypes(vector<Value*> arguments, const char* types);
   void processString(Token* str);
   Token* processEscape (TokenList* value);
   UnitValue* processUnit(Token* t);

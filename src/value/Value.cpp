@@ -61,6 +61,8 @@ Value::Type Value::codeToType(char code) {
     return COLOR;
   case 'U':
     return UNIT;
+  case 'S':
+    return STRING;
   default:
     return NUMBER;
   }

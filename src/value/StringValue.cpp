@@ -105,8 +105,9 @@ Value* StringValue::divide(Value* v) {
 void StringValue::loadFunctions(FunctionLibrary* lib) {
   lib->push("escape", "S", &StringValue::escape);
   lib->push("e", "S", &StringValue::e);
-  lib->push("%", "S ", &StringValue::format);
-  
+  lib->push("%", "S.+", &StringValue::format);
+  lib->push("color", "S", &StringValue::color);
+  lib->push("data-uri", "S", &StringValue::data_uri);
 }
 
 Value* StringValue::escape(vector<Value*> arguments) {

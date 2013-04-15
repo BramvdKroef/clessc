@@ -42,6 +42,10 @@ public:
 
   void push(string name, const char* parameterTypes,
             Value* (*func)(vector<Value*> arguments));
+  
+  bool checkArguments(FuncInfo* fi, vector<Value*> arguments);
+  const char* functionDefToString(const char* functionName,
+                                         FuncInfo* fi = NULL);
 };
 
 #endif
