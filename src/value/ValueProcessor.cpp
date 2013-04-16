@@ -165,16 +165,6 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   while ((tmp = processOperator(value, v2, op))) 
     v2 = tmp;
 
-  if (v2->type == Value::COLOR && v1->type != Value::COLOR) {
-    if (op->str == "-" || op->str == "/") 
-      throw new ValueException("Cannot substract or divide a color \
-from a number");
-
-    tmp = v1;
-    v1 = v2;
-    v2 = tmp;
-  }
-
   if (v1->type == Value::DIMENSION &&
       v2->type == Value::DIMENSION &&
       ((NumberValue*)v1)->getUnit()
@@ -221,9 +211,12 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return new NumberValue(value->shift());
 
   case Token::FUNCTION:
-    return processFunction(token->
-                           str.substr(0, token->str.size() - 1),
-                           value);
+    value->shift();
+    ret = processFunction(token->
+                          str.substr(0, token->str.size() - 1),
+                          value);
+    delete token;
+    return ret;
     
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
@@ -269,27 +262,35 @@ variables in the expression may not contain a proper value like 5, \
       throw new ParseException(value->front()->str, ")");
 
     return ret;
-
+    
   default:
-    variable = processDeepVariable(value);
-
-    if (variable != NULL) {
-      ret = processConstant(variable);
-      if (ret != NULL) {
-        delete value->shift();
-        delete value->shift();
-      }
-      delete variable;
-      return ret;
-
-    } else if ((token = processEscape(value)) != NULL) 
-      return new StringValue(token, false);
-    else if ((ret = processUnit(value->front())) != NULL) {
-      value->shift();
-      return ret;
-    } else
-      return NULL;
+    break;
   }
+
+  if ((variable = processDeepVariable(value)) != NULL) {
+    ret = processConstant(variable);
+    if (ret != NULL) {
+      delete value->shift();
+      delete value->shift();
+    }
+    delete variable;
+    return ret;
+
+  } else if(token->str.compare("%") == 0 &&
+            value->size() > 2 &&
+            value->at(1)->type == Token::PAREN_OPEN) {
+    delete value->shift();
+    delete value->shift();
+    return processFunction("%", value);
+      
+  } else if ((ret = processEscape(value)) != NULL) {
+    return ret;
+  } else if ((ret = processUnit(value->front())) != NULL) {
+    value->shift();
+    return ret;  
+  } 
+
+  return NULL;
 }
 
 TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
@@ -336,7 +337,6 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
   if (fi == NULL)
     return NULL;
 
-  value->shift();
   arguments = processArguments(value);
 
   if (functionLibrary->checkArguments(fi, arguments)) {
@@ -356,8 +356,12 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
                              functionDefToString(function.c_str(),
                                                  fi));
   }
-
+  
   // delete arguments
+  for (it = arguments.begin(); it != arguments.end(); it++) {
+    if (*it != ret)
+      delete (*it);
+  }
   
   return ret;
 }
@@ -379,8 +383,6 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
 
   return arguments;
 }
-
-
 
 void ValueProcessor::processString(Token* token) {
   size_t start, end;
@@ -406,22 +408,15 @@ void ValueProcessor::processString(Token* token) {
 }
 
 Token* ValueProcessor::processEscape (TokenList* value) {
-  Token* first, *second;
-  
-  if (value->size() < 2) 
-    return NULL;
-  
-  first = value->front();
-  second = value->at(1);
-  
-  if (first->str != "~" ||
-      second->type != Token::STRING) 
+  if (value->size() < 2 ||
+      value->front()->str != "~" ||
+      value->at(1)->type != Token::STRING) 
     return NULL;
 
   delete value->shift();
-  processString(second);
-  second->str = removeQuotes(second->str);
-  return value->shift();
+  processString(value->front());
+  value->front()->str = removeQuotes(value->front()->str);
+  return new StringValue(value->shift(), false);
 }
 
 string ValueProcessor::removeQuotes(string str) {
