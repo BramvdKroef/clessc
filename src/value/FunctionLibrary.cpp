@@ -57,14 +57,17 @@ bool FunctionLibrary::checkArguments(FuncInfo* fi,
 
     it++;
     
-    if (i + 1 < len && types[i + 1] == '+') {
-      while (it != arguments.end() &&
-             (types[i] == '.' || 
-              (*it)->type == Value::codeToType(types[i]))) {
-        it++;
+    if (i + 1 < len) {
+      if (types[i + 1] == '+') {
+        while (it != arguments.end() &&
+               (types[i] == '.' || 
+                (*it)->type == Value::codeToType(types[i]))) {
+          it++;
+        }
+        i++;
+      } else if (types[i + 1] == '?') {
+        i++;
       }
-      
-      i++;
     }
   }
   
