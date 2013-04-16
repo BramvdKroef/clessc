@@ -433,12 +433,19 @@ string ValueProcessor::removeQuotes(string str) {
 }
 
 UnitValue* ValueProcessor::processUnit(Token* t) {
-  // em,ex,px,ch,in,mm,cm,pt,pc
-  string units("emexpxchinmmcmptpc");
+  // em,ex,px,ch,in,mm,cm,pt,pc,ms
+  string units("emexpxchinmmcmptpcms");
   unsigned int pos;
   if (t->str.size() == 2 &&
       (pos = units.find(t->str)) != string::npos &&
       pos % 2 == 0) {
+    return new UnitValue(t);
+  } else if(t->str.compare("m") == 0 ||
+            t->str.compare("s") == 0 ||
+            t->str.compare("rad") == 0 ||
+            t->str.compare("deg") == 0 ||
+            t->str.compare("grad") == 0 ||
+            t->str.compare("turn") == 0) {
     return new UnitValue(t);
   } else
     return NULL;

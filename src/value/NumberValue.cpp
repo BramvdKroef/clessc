@@ -178,8 +178,30 @@ void NumberValue::setValue(double d) {
   tokens.front()->str = stm.str();
 }
 
+bool NumberValue::isNumber(Value* val) {
+  return (val->type == Value::NUMBER ||
+          val->type == Value::DIMENSION ||
+          val->type == Value::PERCENTAGE);
+}
+
 void NumberValue::loadFunctions(FunctionLibrary* lib) {
   lib->push("unit", ".U?", &NumberValue::unit);
+  lib->push("ceil", ".", &NumberValue::ceil);
+  lib->push("floor", ".", &NumberValue::floor);
+  lib->push("percentage", "N", &NumberValue::percentage);
+  lib->push("round", ".", &NumberValue::round);
+  lib->push("sqrt", ".", &NumberValue::sqrt);
+  lib->push("abs", ".", &NumberValue::abs);
+  lib->push("sin", ".", &NumberValue::sin);
+  lib->push("asin", "N", &NumberValue::asin);
+  lib->push("cos", ".", &NumberValue::cos);
+  lib->push("acos", "N", &NumberValue::acos);
+  lib->push("tan", ".", &NumberValue::tan);
+  lib->push("atan", "N", &NumberValue::atan);
+  lib->push("pi", "", &NumberValue::pi);
+  lib->push("pow", ".N", &NumberValue::pow);
+  lib->push("mod", "..", &NumberValue::mod);
+  lib->push("convert", "..", &NumberValue::convert);
 }
 
 // DIMENSION unit(DIMENSION, UNIT)
@@ -194,4 +216,223 @@ Value* NumberValue::unit(vector<Value*> arguments) {
     return arguments[0];
   } else 
     throw new ValueException("argument 1 has to be a number or dimension");
+}
+Value* NumberValue::ceil(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("ceil() only works on numeric values");
+  
+  double val = ((NumberValue*)args[0])->getValue();
+  ((NumberValue*)args[0])->setValue(std::ceil(val));
+  return args[0];
+}   
+Value* NumberValue::floor(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("floor() only works on numeric values");
+
+  double val = ((NumberValue*)args[0])->getValue();
+  ((NumberValue*)args[0])->setValue(std::floor(val));
+  return args[0];
+}  
+Value* NumberValue::percentage(vector<Value*> args) {
+  double val = ((NumberValue*)args[0])->getValue();
+  ((NumberValue*)args[0])->setValue(val * 100);
+  ((NumberValue*)args[0])->type = Value::PERCENTAGE;
+  return args[0];
+}
+Value* NumberValue::round(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("round() only works on numeric values");
+
+  double val = ((NumberValue*)args[0])->getValue();
+  double decimalplaces = 0;
+  
+  if (args.size() > 1)
+    decimalplaces = ((NumberValue*)args[0])->getValue();
+
+  val = val * std::pow(10, decimalplaces);
+  val = std::floor(val + 0.5);
+  val = val / std::pow(10, decimalplaces);
+  ((NumberValue*)args[0])->setValue(val);
+  return args[0];
+}  
+Value* NumberValue::sqrt(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("sqrt() only works on numeric values");
+
+  double val = ((NumberValue*)args[0])->getValue();
+  ((NumberValue*)args[0])->setValue(std::sqrt(val));
+  return args[0];
+}   
+Value* NumberValue::abs(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("abs() only works on numeric values");
+
+  double val = ((NumberValue*)args[0])->getValue();
+  ((NumberValue*)args[0])->setValue(fabs(val));
+  return args[0];
+}
+
+Value* NumberValue::sin(vector<Value*> args) {
+  if (args[0]->type != Value::NUMBER &&
+      args[0]->type != Value::DIMENSION) {
+    throw new ValueException("sin() only works on numbers or dimensions");
+  }
+  
+  NumberValue* arg = ((NumberValue*)args[0]);
+  double val = arg->getValue();
+
+  if (arg->type == Value::DIMENSION) {
+    if(arg->getUnit().compare("rad") != 0 &&
+       arg->getUnit().compare("deg") != 0 &&
+       arg->getUnit().compare("grad") != 0 &&
+       arg->getUnit().compare("turn") != 0) {
+      throw new ValueException("sin() requires rad, deg, grad or turn units.");
+    }
+    val = UnitValue::angleToRad(val, arg->getUnit());
+  }
+    
+  arg->setValue(std::sin(val));
+  arg->type = Value::NUMBER;
+  arg->setUnit("");
+  return arg;
+}    
+Value* NumberValue::asin(vector<Value*> args) {
+  NumberValue* arg = ((NumberValue*)args[0]);
+
+  arg->setValue(std::asin(arg->getValue()));
+  arg->setUnit("rad");
+  arg->type = Value::DIMENSION;
+  return arg;
+}   
+Value* NumberValue::cos(vector<Value*> args) {
+  if (args[0]->type != Value::NUMBER &&
+      args[0]->type != Value::DIMENSION) {
+    throw new ValueException("cos() only works on numbers or dimensions");
+  }
+  NumberValue* arg = ((NumberValue*)args[0]);
+  double val = arg->getValue();
+    
+  if (arg->type == Value::DIMENSION) {
+    if(arg->getUnit().compare("rad") != 0 &&
+       arg->getUnit().compare("deg") != 0 &&
+       arg->getUnit().compare("grad") != 0 &&
+       arg->getUnit().compare("turn") != 0) {
+      throw new ValueException("cos() requires rad, deg, grad or turn units.");
+    }
+    val = UnitValue::angleToRad(val, arg->getUnit());
+  }
+
+  arg->setValue(std::cos(val));
+  arg->type = Value::NUMBER;
+  arg->setUnit("");
+  return arg;
+}    
+Value* NumberValue::acos(vector<Value*> args) {
+  NumberValue* arg = ((NumberValue*)args[0]);
+
+  arg->setValue(std::acos(arg->getValue()));
+  arg->setUnit("rad");
+  arg->type = Value::DIMENSION;
+  return arg;
+}   
+Value* NumberValue::tan(vector<Value*> args) {
+  if (args[0]->type != Value::NUMBER &&
+      args[0]->type != Value::DIMENSION) {
+    throw new ValueException("tan() only works on numbers or dimensions");
+  }
+  NumberValue* arg = ((NumberValue*)args[0]);
+  double val = arg->getValue();
+    
+  if (arg->type == Value::DIMENSION) {
+    if(arg->getUnit().compare("rad") != 0 &&
+       arg->getUnit().compare("deg") != 0 &&
+       arg->getUnit().compare("grad") != 0 &&
+       arg->getUnit().compare("turn") != 0) {
+      throw new ValueException("tan() requires rad, deg, grad or turn units.");
+    }
+    val = UnitValue::angleToRad(val, arg->getUnit());
+  }
+
+  arg->setValue(std::tan(val));
+  arg->type = Value::NUMBER;
+  arg->setUnit("");
+  return arg;
+}    
+Value* NumberValue::atan(vector<Value*> args) {
+  NumberValue* arg = ((NumberValue*)args[0]);
+
+  arg->setValue(std::atan(arg->getValue()));
+  arg->setUnit("rad");
+  arg->type = Value::DIMENSION;
+  return arg;
+}   
+Value* NumberValue::pi(vector<Value*> args) {
+  (void)args;
+  return new NumberValue(new Token("3.141592653589793", Token::NUMBER));
+}
+Value* NumberValue::pow(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("pow() only works on numeric values");
+
+  double val = ((NumberValue*)args[0])->getValue();
+  double exp = ((NumberValue*)args[1])->getValue();
+  ((NumberValue*)args[0])->setValue(std::pow(val, exp));
+  return args[0];
+}    
+Value* NumberValue::mod(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]) ||
+      !NumberValue::isNumber(args[1]))
+    throw new ValueException("mod() only works on numeric values");
+
+  double val1 = ((NumberValue*)args[0])->getValue();
+  double val2 = ((NumberValue*)args[1])->getValue();
+  ((NumberValue*)args[0])->setValue(std::fmod(val1, val2));
+  return args[0];
+}    
+Value* NumberValue::convert(vector<Value*> args) {
+  if (!NumberValue::isNumber(args[0]))
+    throw new ValueException("convert() only works on numeric values");  
+  if (args[1]->type != Value::STRING &&
+      args[1]->type != Value::UNIT) {
+    throw new ValueException("convert() requires a unit \
+(or unit as a string)");
+  }
+  
+  NumberValue* val = (NumberValue*)args[0];
+  string unit;
+  UnitValue::UnitGroup group;
+  double value = val->getValue();
+  
+  if (args[1]->type == Value::STRING)
+    unit = ((StringValue*)args[1])->getString();
+  else
+    unit.append(((UnitValue*)args[1])->getUnit());
+
+  group = UnitValue::getUnitGroup(unit);
+  
+  if (UnitValue::getUnitGroup(val->getUnit()) == group) {
+    
+    switch(group) {
+    case UnitValue::LENGTH:
+      value = UnitValue::lengthToPx(value, val->getUnit());
+      val->setValue(UnitValue::pxToLength(value, unit));
+      val->setUnit(unit);
+      break;
+
+    case UnitValue::TIME:
+      value = UnitValue::timeToMs(value, val->getUnit());
+      val->setValue(UnitValue::msToTime(value, unit));
+      val->setUnit(unit);
+      break;
+
+    case UnitValue::ANGLE:
+      value = UnitValue::angleToRad(value, val->getUnit());
+      val->setValue(UnitValue::radToAngle(value, unit));
+      val->setUnit(unit);
+      break;
+    default:
+      break;
+    }
+  }
+  return val;
 }

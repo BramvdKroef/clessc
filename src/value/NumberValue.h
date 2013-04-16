@@ -27,9 +27,11 @@
 #include "FunctionLibrary.h"
 #include "UnitValue.h"
 #include <vector>
+#include <cmath>
 
 class NumberValue: public Value {
-
+  static bool isNumber(Value* val);
+  
 public:
   NumberValue(Token* token);
   virtual ~NumberValue();
@@ -48,22 +50,22 @@ public:
 
   static void loadFunctions(FunctionLibrary* lib);
   static Value* unit(vector<Value*> args);
-  void ceil();
-  void floor();
-  void percentage();
-  void round();
-  void sqrt();
-  void abs();
-  void sin();
-  void asin();
-  void cos();
-  void acos();
-  void tan();
-  void atan();
-  void pi();
-  void pow(Value* v);
-  void mod(Value* v);
-  void convert(Value* unit);
+  static Value* ceil(vector<Value*> args);
+  static Value* floor(vector<Value*> args);
+  static Value* percentage(vector<Value*> args);
+  static Value* round(vector<Value*> args);
+  static Value* sqrt(vector<Value*> args);
+  static Value* abs(vector<Value*> args);
+  static Value* sin(vector<Value*> args);
+  static Value* asin(vector<Value*> args);
+  static Value* cos(vector<Value*> args);
+  static Value* acos(vector<Value*> args);
+  static Value* tan(vector<Value*> args);
+  static Value* atan(vector<Value*> args);
+  static Value* pi(vector<Value*> args);
+  static Value* pow(vector<Value*> args);
+  static Value* mod(vector<Value*> args);
+  static Value* convert(vector<Value*> args);
 };
 
 #endif

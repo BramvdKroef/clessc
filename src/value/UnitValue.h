@@ -30,6 +30,8 @@
  */
 class UnitValue: public Value {
 public:
+  enum UnitGroup {NO_GROUP, LENGTH, TIME, ANGLE};
+  
   UnitValue(Token* token);
   virtual ~UnitValue();
 
@@ -39,6 +41,16 @@ public:
   virtual Value* substract(Value* v);
   virtual Value* multiply(Value* v);
   virtual Value* divide(Value* v);
+
+  static UnitGroup getUnitGroup(string unit);
+  static double lengthToPx(double length, string unit);
+  static double pxToLength(double px, string unit);
+  
+  static double timeToMs(double time, string unit);
+  static double msToTime(double ms, string unit);
+  
+  static double angleToRad(double angle, string unit);
+  static double radToAngle(double rad, string unit);
 };
 
 #endif
