@@ -26,6 +26,8 @@
 #include "Color.h"
 #include "FunctionLibrary.h"
 #include <vector>
+#include <sstream>
+#include <iomanip>
 
 class StringValue: public Value {
 private:
@@ -39,6 +41,9 @@ public:
   
   virtual TokenList* getTokens();
 
+  string getString();
+  void setString(string stringValue);
+  
   void setQuotes(bool quotes);
   bool getQuotes();
   
@@ -46,6 +51,8 @@ public:
   Value* substract(Value* v);
   Value* multiply(Value* v);
   Value* divide(Value* v);
+
+  static string escape(string rawstr, string extraUnreserved = "");
 
   static void loadFunctions(FunctionLibrary* lib);
   static Value* escape(vector<Value*> arguments);

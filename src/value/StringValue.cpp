@@ -52,6 +52,13 @@ TokenList* StringValue::getTokens() {
   return &tokens;
 }
 
+string StringValue::getString() {
+  return stringvalue;
+}
+void StringValue::setString(string stringValue) {
+  this->stringvalue = stringValue;
+}
+  
 void StringValue::setQuotes(bool quotes) {
   this->quotes = quotes;
 }
@@ -101,6 +108,22 @@ Value* StringValue::divide(Value* v) {
   throw new ValueException("Can't divide strings.");
 }
 
+string StringValue::escape(string rawstr, string extraUnreserved) {
+  string unreservedChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
+
+  std::ostringstream newstr;
+  unsigned int i;
+
+  for (i = 0; i < rawstr.size(); i++) {
+    if (unreservedChars.find(rawstr[i]) == string::npos &&
+        extraUnreserved.find(rawstr[i]) == string::npos) {
+      newstr << '%' << std::setfill('0') << std::setw(2) << std::hex
+             << (int)rawstr[i];
+    } else
+      newstr << rawstr[i];
+  }
+  return newstr.str();
+}
 
 void StringValue::loadFunctions(FunctionLibrary* lib) {
   lib->push("escape", "S", &StringValue::escape);
@@ -111,6 +134,13 @@ void StringValue::loadFunctions(FunctionLibrary* lib) {
 }
 
 Value* StringValue::escape(vector<Value*> arguments) {
+  string unreservedChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~,/?@&+'!$");
+
+  string oldstr = ((StringValue*)arguments[0])->getString();
+
+  ((StringValue*)arguments[0])
+    ->setString(StringValue::escape(oldstr, ",/?@&+'!$"));
+
   return arguments[0];
 }
 
@@ -121,6 +151,46 @@ Value* StringValue::e(vector<Value*> arguments) {
 }
 
 Value* StringValue::format(vector<Value*> arguments) {
+  string escapeChars("adsADS");
+  
+  string oldstr = ((StringValue*)arguments[0])->getString();
+  std::ostringstream newstr;
+  unsigned int i, argc = 1;
+  string argStr;
+
+  for (i = 0; i < oldstr.size(); i++) {
+    if (oldstr[i] == '%') {
+      i++;
+      
+      if (escapeChars.find(oldstr[i]) != string::npos) {
+        if (argc == arguments.size())
+          throw new ValueException("Format template expects more \
+arguments than provided.");
+
+        if ((oldstr[i] == 's' || oldstr[i] == 'S') &&
+            arguments[argc]->type == STRING) {
+          argStr = ((StringValue*)arguments[argc])->getString();
+        } else
+          argStr = *arguments[argc]->getTokens()->toString(); 
+
+        if (oldstr[i] == 'A' || oldstr[i] == 'D' ||
+            oldstr[i] == 'S') {
+          argStr = StringValue::escape(argStr);
+        }
+        newstr << argStr;
+        argc++;
+      } else
+        newstr << oldstr[i];
+    } else
+      newstr << oldstr[i];
+  }
+  
+  if (argc != arguments.size()) {
+    throw new ValueException("Format template does not supply \
+placeholders for all given arguments.");
+  }
+  
+  ((StringValue*)arguments[0])->setString(newstr.str());
   return arguments[0];
 }
 
