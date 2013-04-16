@@ -370,11 +370,11 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   vector<Value*> arguments;
   
   if (value->front()->type != Token::PAREN_CLOSED) 
-    arguments.push_back(processConstant(value));
+    arguments.push_back(processStatement(value));
     
   while (value->front()->str == ",") {
     delete value->shift();
-    arguments.push_back(processConstant(value));
+    arguments.push_back(processStatement(value));
   }
   if (value->front()->type != Token::PAREN_CLOSED) 
     throw new ParseException(value->front()->str, ")");
@@ -407,7 +407,7 @@ void ValueProcessor::processString(Token* token) {
   token->str.replace(start, (end + 1) - start, value);
 }
 
-Token* ValueProcessor::processEscape (TokenList* value) {
+Value* ValueProcessor::processEscape (TokenList* value) {
   if (value->size() < 2 ||
       value->front()->str != "~" ||
       value->at(1)->type != Token::STRING) 

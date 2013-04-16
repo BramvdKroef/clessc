@@ -52,7 +52,7 @@ private:
                          TokenList* value);
   vector<Value*> processArguments (TokenList* value);
   void processString(Token* str);
-  Token* processEscape (TokenList* value);
+  Value* processEscape (TokenList* value);
   UnitValue* processUnit(Token* t);
   
   bool needsSpace(Token* t, bool suffix);
