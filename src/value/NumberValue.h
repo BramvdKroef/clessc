@@ -31,6 +31,9 @@
 
 class NumberValue: public Value {
   static bool isNumber(Value* val);
+
+  void verifyUnits(NumberValue* v);
+  bool convert(string unit);
   
 public:
   NumberValue(Token* token);

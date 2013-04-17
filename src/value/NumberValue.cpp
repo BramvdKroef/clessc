@@ -42,6 +42,50 @@ NumberValue::NumberValue(Token* token) {
 NumberValue::~NumberValue() {
 }
 
+void NumberValue::verifyUnits(NumberValue* v) {
+  if (type == Value::DIMENSION &&
+      v->type == Value::DIMENSION &&
+      getUnit().compare(v->getUnit()) != 0) {
+    
+    if (v->convert(getUnit())) {
+      return;
+    } else
+      throw new ValueException("Can't do math on dimensions with different units.");
+  }
+}
+
+bool NumberValue::convert(string unit) {
+  UnitValue::UnitGroup group = UnitValue::getUnitGroup(unit);
+  double value = getValue();
+  
+  if (UnitValue::getUnitGroup(getUnit()) == group) {
+    
+    switch(group) {
+    case UnitValue::LENGTH:
+      value = UnitValue::lengthToPx(value, getUnit());
+      setValue(UnitValue::pxToLength(value, unit));
+      setUnit(unit);
+      return true;
+
+    case UnitValue::TIME:
+      value = UnitValue::timeToMs(value, getUnit());
+      setValue(UnitValue::msToTime(value, unit));
+      setUnit(unit);
+      return true;
+
+    case UnitValue::ANGLE:
+      value = UnitValue::angleToRad(value, getUnit());
+      setValue(UnitValue::radToAngle(value, unit));
+      setUnit(unit);
+      return true;
+      
+    default:
+      break;
+    }
+  }
+  return false;
+}
+
 Value* NumberValue::add(Value* v) {
   Token* t;
   StringValue* s;
@@ -49,6 +93,9 @@ Value* NumberValue::add(Value* v) {
   if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
+    else
+      verifyUnits((NumberValue*)v);
+    
     setValue(getValue() + ((NumberValue*)v)->getValue());
     return this;
     
@@ -69,6 +116,9 @@ Value* NumberValue::substract(Value* v) {
   if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
+    else
+      verifyUnits((NumberValue*)v);
+    
     setValue(getValue() - ((NumberValue*)v)->getValue());
     return this;
   } else
@@ -78,6 +128,8 @@ Value* NumberValue::multiply(Value* v) {
   if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
+    else
+      verifyUnits((NumberValue*)v);
     setValue(getValue() * ((NumberValue*)v)->getValue());
     return this;
   } else if (v->type == COLOR ||
@@ -92,6 +144,8 @@ Value* NumberValue::divide(Value* v) {
   if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
+    else
+      verifyUnits((NumberValue*)v);
     setValue(getValue() / ((NumberValue*)v)->getValue());
     return this;
   } else
@@ -99,6 +153,7 @@ Value* NumberValue::divide(Value* v) {
 }
 int NumberValue::compare(Value* v) {
   if (isNumber(v)) {
+    verifyUnits((NumberValue*)v);
     return getValue() - ((NumberValue*)v)->getValue();
   } else {
     throw new ValueException("You can only compare a number with a *number*.");
@@ -396,39 +451,12 @@ Value* NumberValue::convert(vector<Value*> args) {
   
   NumberValue* val = (NumberValue*)args[0];
   string unit;
-  UnitValue::UnitGroup group;
-  double value = val->getValue();
-  
+    
   if (args[1]->type == Value::STRING)
     unit = ((StringValue*)args[1])->getString();
   else
     unit.append(((UnitValue*)args[1])->getUnit());
 
-  group = UnitValue::getUnitGroup(unit);
-  
-  if (UnitValue::getUnitGroup(val->getUnit()) == group) {
-    
-    switch(group) {
-    case UnitValue::LENGTH:
-      value = UnitValue::lengthToPx(value, val->getUnit());
-      val->setValue(UnitValue::pxToLength(value, unit));
-      val->setUnit(unit);
-      break;
-
-    case UnitValue::TIME:
-      value = UnitValue::timeToMs(value, val->getUnit());
-      val->setValue(UnitValue::msToTime(value, unit));
-      val->setUnit(unit);
-      break;
-
-    case UnitValue::ANGLE:
-      value = UnitValue::angleToRad(value, val->getUnit());
-      val->setValue(UnitValue::radToAngle(value, unit));
-      val->setUnit(unit);
-      break;
-    default:
-      break;
-    }
-  }
+  val->convert(unit);
   return val;
 }

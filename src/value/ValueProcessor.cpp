@@ -158,7 +158,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
     return NULL;
   
   if (lastop != NULL &&
-      operators.find(lastop->str) >
+      operators.find(lastop->str) >=
       operators.find(value->front()->str)) {
     return NULL;
   }
@@ -173,17 +173,6 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   while ((tmp = processOperator(value, v2, op))) 
     v2 = tmp;
 
-  if (v1->type == Value::DIMENSION &&
-      v2->type == Value::DIMENSION &&
-      ((NumberValue*)v1)->getUnit()
-      .compare(((NumberValue*)v2)->getUnit()) != 0) {
-    if (UnitValue::getUnitGroup(((NumberValue*)v1)->getUnit()) ==
-        UnitValue::getUnitGroup(((NumberValue*)v2)->getUnit())) {
-      
-    }
-    throw new ValueException("Can't do math on dimensions with different units.");
-  }
-  
   if (op->str == "+") 
     tmp = v1->add(v2);
   else if (op->str == "-")
