@@ -17,8 +17,16 @@ void BooleanValue::setValue(bool value) {
 }
 
 Value* BooleanValue::add(Value* v) {
-  if (v->type == STRING)
-    return v->add(this);
+  Token* t;
+  StringValue* s;
+
+  if (v->type == STRING) {
+    t = this->tokens.front()->clone();
+    t->type = Token::STRING;
+    s = new StringValue(t, ((StringValue*)v)->getQuotes());
+    s->add(v);
+    return s;
+  }
   throw new ValueException("Can't add boolean types.");
 }
 Value* BooleanValue::substract(Value* v) {

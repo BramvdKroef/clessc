@@ -24,6 +24,7 @@
 
 #include "Value.h"
 #include "ValueException.h"
+#include "StringValue.h"
 
 /**
  * A dimension unit: em,ex,px,ch,in,cm,mm,pt,pc

@@ -24,6 +24,7 @@
 
 #include "Value.h"
 #include "ValueException.h"
+#include "StringValue.h"
 
 /**
  * True or false.
