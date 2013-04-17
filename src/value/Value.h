@@ -29,6 +29,7 @@
 
 using namespace std;
 
+
 /**
  * 
  */
@@ -37,7 +38,7 @@ protected:
   TokenList tokens;
   
 public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT} type;
+  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT, BOOLEAN} type;
   Value();
   Value(Token* token);
   virtual ~Value();
@@ -48,6 +49,13 @@ public:
   virtual Value* substract(Value* v) =0;
   virtual Value* multiply(Value* v) =0;
   virtual Value* divide(Value* v) =0;
+  virtual int compare(Value* v) =0;
+  
+  Value* equals(Value* v);
+  Value* lessThan(Value* v);
+  Value* greaterThan(Value* v);
+  Value* lessThanEquals(Value* v);
+  Value* greaterThanEquals(Value* v);
 
   static const char* typeToString(Type t);
   /**
@@ -58,9 +66,14 @@ public:
    * C - Color
    * S - String
    * U - Unit
+   * B - Boolean
    */
   static Type codeToType(const char code);
 
 };
+
+  
+#include "BooleanValue.h"
+
 
 #endif

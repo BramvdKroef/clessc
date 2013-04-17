@@ -108,6 +108,15 @@ Value* StringValue::divide(Value* v) {
   throw new ValueException("Can't divide strings.");
 }
 
+int StringValue::compare(Value* v) {
+  if (v->type == STRING) {
+    return getString().compare(((StringValue*)v)->getString());
+  } else {
+    throw new ValueException("You can only compare a string with a *string*.");
+  }
+}
+
+
 string StringValue::escape(string rawstr, string extraUnreserved) {
   string unreservedChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
 

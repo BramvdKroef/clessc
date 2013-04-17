@@ -19,47 +19,30 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __StringValue_h__
-#define __StringValue_h__
+#ifndef __BooleanValue_h__
+#define __BooleanValue_h__
 
 #include "Value.h"
-#include "Color.h"
-#include "FunctionLibrary.h"
-#include <vector>
-#include <sstream>
-#include <iomanip>
+#include "ValueException.h"
 
-class StringValue: public Value {
+/**
+ * True or false.
+ */
+class BooleanValue: public Value {
 private:
-  string stringvalue;
-  bool quotes;
-
+  bool value;
 public:
-  StringValue(Token* token);
-  StringValue(Token* token, bool quotes);
-  virtual ~StringValue();
-  
-  virtual TokenList* getTokens();
+  BooleanValue(bool value);
+  virtual ~BooleanValue();
 
-  string getString();
-  void setString(string stringValue);
-  
-  void setQuotes(bool quotes);
-  bool getQuotes();
-  
+  bool getValue();
+  void setValue(bool value);
+
   virtual Value* add(Value* v);
   virtual Value* substract(Value* v);
   virtual Value* multiply(Value* v);
   virtual Value* divide(Value* v);
   virtual int compare(Value* v);
-
-  static string escape(string rawstr, string extraUnreserved = "");
-
-  static void loadFunctions(FunctionLibrary* lib);
-  static Value* escape(vector<Value*> arguments);
-  static Value* e(vector<Value*> arguments);
-  static Value* format(vector<Value*> arguments);
-  static Value* color(vector<Value*> arguments);
-  static Value* data_uri(vector<Value*> arguments);
 };
 #endif
+  

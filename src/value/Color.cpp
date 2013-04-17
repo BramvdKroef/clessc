@@ -255,6 +255,18 @@ color or a number.");
   valueChanged = true;
   return this;
 }
+
+int Color::compare(Value* v) {
+  Color* c;
+  
+  if (v->type == COLOR) {
+    c = (Color*)v;
+    return (color[RGB_RED] + color[RGB_GREEN] + color[RGB_BLUE]) -
+      (c->getRed() + c->getGreen() + c->getBlue());
+  } else {
+    throw new ValueException("You can only compare a color with a *color*.");
+  }
+}
     
 void Color::setHSL(double hue, double saturation, double lightness) {
   double c, x, rgb[3];

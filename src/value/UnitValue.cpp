@@ -34,7 +34,8 @@ const char* UnitValue::getUnit() {
 }
 
 Value* UnitValue::add(Value* v) {
-  (void)v;
+  if (v->type == STRING)
+    return v->add(this);
   throw new ValueException("Can't do math on unit types.");
 }
 Value* UnitValue::substract(Value* v) {
@@ -49,6 +50,17 @@ Value* UnitValue::divide(Value* v) {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
+int UnitValue::compare(Value* v) {
+  string unit1, unit2;
+  if (v->type == UNIT) {
+    unit1.append(getUnit());
+    unit2.append(((UnitValue*)v)->getUnit());
+    return unit1.compare(unit2);
+  } else {
+    throw new ValueException("You can only compare a unit with a *unit*.");
+  }
+}
+
 
 UnitValue::UnitGroup UnitValue::getUnitGroup(const string unit) {
   if (unit.compare("m") == 0 ||

@@ -41,6 +41,7 @@ public:
   virtual Value* substract(Value* v);
   virtual Value* multiply(Value* v);
   virtual Value* divide(Value* v);
+  virtual int compare(Value* v);
 
   static UnitGroup getUnitGroup(string unit);
   static double lengthToPx(double length, string unit);

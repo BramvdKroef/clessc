@@ -55,10 +55,11 @@ public:
 
   virtual TokenList* getTokens();
   
-  Value* add(Value* v);
-  Value* substract(Value* v);
-  Value* multiply(Value* v);
-  Value* divide(Value* v);
+  virtual Value* add(Value* v);
+  virtual Value* substract(Value* v);
+  virtual Value* multiply(Value* v);
+  virtual Value* divide(Value* v);
+  virtual int compare(Value* v);
 
   /**
    * The HSL to RGB conversion on
@@ -110,6 +111,30 @@ public:
   static Value* hue(vector<Value*> arguments);
   static Value* saturation(vector<Value*> arguments);
   static Value* lightness(vector<Value*> arguments);
+
+  static Value* hsla(vector<Value*> arguments);
+  static Value* hsv(vector<Value*> arguments);
+  static Value* hsva(vector<Value*> arguments);
+  static Value* hsvhue(vector<Value*> arguments);
+  static Value* hsvsaturation(vector<Value*> arguments);
+  static Value* hsvvalue(vector<Value*> arguments);
+  static Value* red(vector<Value*> arguments);
+  static Value* green(vector<Value*> arguments);
+  static Value* blue(vector<Value*> arguments);
+  static Value* _alpha(vector<Value*> arguments);
+  static Value* luma(vector<Value*> arguments);
+  static Value* fade(vector<Value*> arguments);
+  static Value* mix(vector<Value*> arguments);
+  static Value* greyscale(vector<Value*> arguments);
+  static Value* contrast(vector<Value*> arguments);
+  static Value* screen(vector<Value*> arguments);
+  static Value* overlay(vector<Value*> arguments);
+  static Value* softlight(vector<Value*> arguments);
+  static Value* hardlight(vector<Value*> arguments);
+  static Value* difference(vector<Value*> arguments);
+  static Value* exclusion(vector<Value*> arguments);
+  static Value* avarage(vector<Value*> arguments);
+  static Value* negation(vector<Value*> arguments);
 };
 
 #endif

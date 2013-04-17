@@ -46,10 +46,7 @@ Value* NumberValue::add(Value* v) {
   Token* t;
   StringValue* s;
   
-  if (v->type == Value::NUMBER ||
-      v->type == Value::PERCENTAGE ||
-      v->type == Value::DIMENSION) {
-    
+  if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() + ((NumberValue*)v)->getValue());
@@ -69,9 +66,7 @@ Value* NumberValue::add(Value* v) {
   }
 }
 Value* NumberValue::substract(Value* v) {
-  if (v->type == Value::NUMBER ||
-      v->type == Value::PERCENTAGE ||
-      v->type == Value::DIMENSION) {
+  if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() - ((NumberValue*)v)->getValue());
@@ -80,9 +75,7 @@ Value* NumberValue::substract(Value* v) {
     throw new ValueException("You can only substract a *number* from a number.");
 }
 Value* NumberValue::multiply(Value* v) {
-  if (v->type == Value::NUMBER ||
-      v->type == Value::PERCENTAGE ||
-      v->type == Value::DIMENSION) {
+  if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() * ((NumberValue*)v)->getValue());
@@ -96,9 +89,7 @@ Value* NumberValue::multiply(Value* v) {
 }
 
 Value* NumberValue::divide(Value* v) {
-  if (v->type == Value::NUMBER ||
-      v->type == Value::PERCENTAGE ||
-      v->type == Value::DIMENSION) {
+  if (isNumber(v)) {
     if (type == NUMBER) 
       setType(v);
     setValue(getValue() / ((NumberValue*)v)->getValue());
@@ -106,13 +97,18 @@ Value* NumberValue::divide(Value* v) {
   } else
     throw new ValueException("You can only divide a number by a *number*.");
 }
+int NumberValue::compare(Value* v) {
+  if (isNumber(v)) {
+    return getValue() - ((NumberValue*)v)->getValue();
+  } else {
+    throw new ValueException("You can only compare a number with a *number*.");
+  }
+}
 
 void NumberValue::setType(Value* v) {
   NumberValue* n;
   
-  if (v->type == Value::NUMBER ||
-      v->type == Value::PERCENTAGE ||
-      v->type == Value::DIMENSION) {
+  if (isNumber(v)) {
 
     n = static_cast<NumberValue*>(v);
     

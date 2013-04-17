@@ -31,6 +31,21 @@ Value::~Value() {
 TokenList* Value::getTokens() {
   return &tokens;
 }
+Value* Value::equals(Value* v) {
+  return new BooleanValue(this->compare(v) == 0);
+}
+Value* Value::lessThan(Value* v) {
+  return new BooleanValue(this->compare(v) < 0);
+}
+Value* Value::greaterThan(Value* v) {
+  return new BooleanValue(this->compare(v) > 0);
+}
+Value* Value::lessThanEquals(Value* v) {
+  return new BooleanValue(this->compare(v) >= 0);
+}
+Value* Value::greaterThanEquals(Value* v) {
+  return new BooleanValue(this->compare(v) <= 0);
+}
 
 const char* Value::typeToString(Type t) {
   switch (t) {
@@ -46,6 +61,8 @@ const char* Value::typeToString(Type t) {
     return "String";
   case UNIT:
     return "Unit";
+  case BOOLEAN:
+    return "Boolean";
   }
   return "Undefined";
 }
@@ -63,6 +80,8 @@ Value::Type Value::codeToType(char code) {
     return UNIT;
   case 'S':
     return STRING;
+  case 'B':
+    return BOOLEAN;
   default:
     return NUMBER;
   }

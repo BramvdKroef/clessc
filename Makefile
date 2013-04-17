@@ -28,7 +28,7 @@ OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
 
 VAL_OBJS = $(BIN)/value/Value.o $(BIN)/value/Color.o \
 	$(BIN)/value/StringValue.o $(BIN)/value/NumberValue.o \
-	$(BIN)/value/UnitValue.o \
+	$(BIN)/value/UnitValue.o $(BIN)/value/BooleanValue.o \
 	$(BIN)/value/FunctionLibrary.o $(BIN)/value/ValueProcessor.o
 EXEC = lessc
 PREFIX = /usr/local

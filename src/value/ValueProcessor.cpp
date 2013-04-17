@@ -139,14 +139,22 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
                                        Token* lastop) {
   Value* v2, *tmp;
   Token* op;
-  string operators("+-*/");
-
+  string operators("+-*/=><>==<");
+  unsigned int pos;
+  
   while (value->size() > 0 &&
          value->front()->type == Token::WHITESPACE) {
     delete value->shift();
   }
   if (value->size() == 0 ||
-      operators.find(value->front()->str) == string::npos)
+      (pos = operators.find(value->front()->str)) == string::npos)
+    return NULL;
+  
+  if (pos < 7 && value->front()->str.size() != 1)
+    return NULL;
+  
+  if (pos >= 7 && (value->front()->str.size() != 2 ||
+                   pos % 2 != 1))
     return NULL;
   
   if (lastop != NULL &&
@@ -169,6 +177,10 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
       v2->type == Value::DIMENSION &&
       ((NumberValue*)v1)->getUnit()
       .compare(((NumberValue*)v2)->getUnit()) != 0) {
+    if (UnitValue::getUnitGroup(((NumberValue*)v1)->getUnit()) ==
+        UnitValue::getUnitGroup(((NumberValue*)v2)->getUnit())) {
+      
+    }
     throw new ValueException("Can't do math on dimensions with different units.");
   }
   
@@ -180,7 +192,17 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
     tmp = v1->multiply(v2);
   else if (op->str == "/")
     tmp = v1->divide(v2);
-
+  else if (op->str == "=")
+    tmp = v1->equals(v2);
+  else if (op->str == "<")
+    tmp = v1->lessThan(v2);
+  else if (op->str == ">")
+    tmp = v1->greaterThan(v2);
+  else if (op->str == "=<")
+    tmp = v1->lessThanEquals(v2);
+  else if (op->str == ">=")
+    tmp = v1->greaterThanEquals(v2);
+  
   if (tmp != v1)
     delete v1;
   if (tmp != v2)
@@ -288,7 +310,10 @@ variables in the expression may not contain a proper value like 5, \
   } else if ((ret = processUnit(value->front())) != NULL) {
     value->shift();
     return ret;  
-  } 
+  } else if (token->str.compare("true") == 0) {
+    delete value->shift();
+    return new BooleanValue(true);
+  }
 
   return NULL;
 }

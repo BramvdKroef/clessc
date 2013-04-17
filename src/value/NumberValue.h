@@ -36,10 +36,11 @@ public:
   NumberValue(Token* token);
   virtual ~NumberValue();
   
-  Value* add(Value* v);
-  Value* substract(Value* v);
-  Value* multiply(Value* v);
-  Value* divide(Value* v);
+  virtual Value* add(Value* v);
+  virtual Value* substract(Value* v);
+  virtual Value* multiply(Value* v);
+  virtual Value* divide(Value* v);
+  virtual int compare(Value* v);
 
   void setType(Value* v);
   
