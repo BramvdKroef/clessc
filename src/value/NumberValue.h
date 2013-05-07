@@ -24,10 +24,10 @@
 
 #include "Value.h"
 #include "StringValue.h"
-#include "FunctionLibrary.h"
 #include "UnitValue.h"
 #include <vector>
 #include <cmath>
+class FunctionLibrary;
 
 class NumberValue: public Value {
   static bool isNumber(Value* val);
