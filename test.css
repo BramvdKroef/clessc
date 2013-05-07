@@ -68,6 +68,18 @@ pre { .wrap  }
   .mixin(#008000);
 }
 
+.mixin2 (@a) {
+  color: @a;
+}
+.mixin2 (@a; @b) {
+  color: fade(@a; @b);
+}
+.test mixin2a {
+    .mixin2(#000);
+}
+.test mixin2b {
+    .mixin2(#000, #FFF);
+}
 
 /* The @arguments variable */
 

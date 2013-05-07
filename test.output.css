@@ -40,6 +40,12 @@ pre{
     color-2:#008000;
     padding-2:2;
 }
+.test mixin2a{
+    color:#000;
+}
+.test mixin2b{
+    color:fade(#000 ; #FFF);
+}
 .class{
     box-shadow:2px 5px 1px #000;
     -moz-box-shadow:2px 5px 1px #000;

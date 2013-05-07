@@ -123,8 +123,9 @@ bool ParameterRuleset::matchArguments(list<TokenList*>* arguments) {
     else if (getDefault(*pit) == NULL) 
       return false;
   }
-  return true;
+  return (ait == arguments->end());
 }
+
 bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
   (void)valueProcessor;
   return true;
