@@ -30,6 +30,10 @@
 
 
 class ParameterRuleset: public Ruleset {
+private:
+  string rest;
+  bool unlimitedArguments;
+  
 protected:
   bool processParameter(Selector* selector);
   

@@ -57,6 +57,11 @@ pre{
     -moz-box-shadow:8px 20px 1px #000;
     -webkit-box-shadow:8px 20px 1px #000;
 }
+.test mixin3{
+    border1:1px #000 solid;
+    border2:4px #000 solid;
+    border3:4px #456 dashed;
+}
 #header{
     color:black;
 }

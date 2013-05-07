@@ -105,6 +105,22 @@ pre { .wrap  }
     .box-shadow3(8px, 20px);
 }
 
+/* Rest arguments */
+
+.mixin3 (...) {
+    border1: 1px #000 solid;
+}
+.mixin3 (@a: 1px; ...) {
+    border2: @a #000 solid;
+}
+.mixin3 (@rest...) {
+    border3: @rest;
+}
+
+.test mixin3 {
+    .mixin3(4px, #456, dashed);
+}
+
 /* Nested rules */
 #header {
   color: black;

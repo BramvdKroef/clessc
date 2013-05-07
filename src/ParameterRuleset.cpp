@@ -23,6 +23,8 @@
 
 ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   Selector* newselector = new Selector();
+  rest = "";
+  unlimitedArguments = false;
   
   while (!selector->empty() &&
          selector->front()->type != Token::PAREN_OPEN) {
@@ -39,6 +41,15 @@ ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   setSelector(newselector);
   
   while (processParameter(selector)) {
+  }
+  if (selector->size() > 3  &&
+      selector->front()->str == "." &&
+      selector->at(1)->str == "." &&
+      selector->at(2)->str == ".") {
+    unlimitedArguments = true;
+    delete selector->shift();
+    delete selector->shift();
+    delete selector->shift();
   }
   if (selector->front()->type != Token::PAREN_CLOSED) {
     throw new ParseException(*selector->toString(),
@@ -101,6 +112,16 @@ bool ParameterRuleset::processParameter(Selector* selector) {
       throw new ParseException("",
                                "default value following ':'");
     }
+  } else if (selector->size() > 3 &&
+             selector->front()->str == "." &&
+             selector->at(1)->str == "." &&
+             selector->at(2)->str == ".") {
+    delete selector->shift();
+    delete selector->shift();
+    delete selector->shift();
+    rest = keyword;
+    unlimitedArguments = true;
+    return true;
   }
   if (!selector->empty() &&
       (selector->front()->str == "," ||
@@ -123,7 +144,7 @@ bool ParameterRuleset::matchArguments(list<TokenList*>* arguments) {
     else if (getDefault(*pit) == NULL) 
       return false;
   }
-  return (ait == arguments->end());
+  return (ait == arguments->end() || unlimitedArguments);
 }
 
 bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
@@ -137,7 +158,11 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
   list<TokenList*>::iterator ait  = arguments->begin();
   list<string>::iterator pit = parameters.begin();
   TokenList* argsCombined = new TokenList();
+  TokenList* restVar = NULL;
   TokenList* variable;
+
+  if (unlimitedArguments && rest != "")
+    restVar = new TokenList();
   
   // combine with parameter names and add to local scope
   for(; pit != parameters.end(); pit++) {
@@ -159,6 +184,17 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
   
   if (argsCombined->size() > 0)
     delete argsCombined->pop();
+
+  if (restVar != NULL) {
+    while (ait != arguments->end()) {
+      restVar->push(*ait);
+      restVar->push(new Token(" ", Token::WHITESPACE));
+      ait++;
+    }
+    if (restVar->size() > 0)
+      delete restVar->pop();
+    valueProcessor->putVariable(rest, restVar);
+  }
   
   valueProcessor->putVariable("@arguments", argsCombined);
   return true;
