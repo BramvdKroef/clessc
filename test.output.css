@@ -35,6 +35,11 @@ pre{
     white-space:-moz-pre-wrap;
     word-wrap:break-word;
 }
+.some .selector div{
+    color-1:#008000;
+    color-2:#008000;
+    padding-2:2;
+}
 .class{
     box-shadow:2px 5px 1px #000;
     -moz-box-shadow:2px 5px 1px #000;
@@ -112,5 +117,8 @@ pre{
 }
 .class{
     filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png');
+}
+body{
+    background-image:linear-gradient(bottom,#e83f19 0%,#ff825f 50%);
 }
 
