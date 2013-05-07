@@ -198,3 +198,7 @@ pre { .wrap  }
 .class {
   filter: ~"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')";
 }
+
+/* Multiline comment ending with * at the end of the file */
+/*
+**/
