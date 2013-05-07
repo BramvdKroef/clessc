@@ -65,7 +65,8 @@ public:
   void putVariable(string key, TokenList* value);
   TokenList* getVariable(string key);
   TokenList* processValue(TokenList* value);
-
+  bool functionExists(string function);
+    
   void pushScope();
   void popScope();
 };

@@ -222,12 +222,16 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return new NumberValue(value->shift());
 
   case Token::FUNCTION:
-    value->shift();
-    ret = processFunction(token->
-                          str.substr(0, token->str.size() - 1),
-                          value);
-    delete token;
-    return ret;
+    if (functionExists(token->
+                       str.substr(0, token->str.size() - 1))) {
+      value->shift();
+      ret = processFunction(token->
+                            str.substr(0, token->str.size() - 1),
+                            value);
+      delete token;
+      return ret;
+    } else
+      return NULL;
     
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
@@ -336,6 +340,10 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
     return NULL;
 
   return var->clone();
+}
+
+bool ValueProcessor::functionExists(string function) {
+  return (functionLibrary->getFunction(function.c_str()) != NULL);
 }
 
 Value* ValueProcessor::processFunction(string function, TokenList* value) {
