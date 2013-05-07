@@ -20,7 +20,6 @@
  */
 
 #include "ParameterRuleset.h"
-#include <iostream>
 
 ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   Selector* newselector = new Selector();
