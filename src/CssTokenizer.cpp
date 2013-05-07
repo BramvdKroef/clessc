@@ -448,6 +448,7 @@ bool CssTokenizer::readComment () {
         readChar();
         return true;
       }
+      continue;
     }
     currentToken.add(lastRead);
     readChar();
