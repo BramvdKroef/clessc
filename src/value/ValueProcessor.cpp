@@ -140,7 +140,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   Value* v2, *tmp;
   Token* op;
   string operators("+-*/=><>==<");
-  unsigned int pos;
+  size_t pos;
   
   while (value->size() > 0 &&
          value->front()->type == Token::WHITESPACE) {
@@ -449,7 +449,7 @@ string ValueProcessor::removeQuotes(string str) {
 UnitValue* ValueProcessor::processUnit(Token* t) {
   // em,ex,px,ch,in,mm,cm,pt,pc,ms
   string units("emexpxchinmmcmptpcms");
-  unsigned int pos;
+  size_t pos;
   if (t->str.size() == 2 &&
       (pos = units.find(t->str)) != string::npos &&
       pos % 2 == 0) {
