@@ -178,7 +178,7 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     return false;
   }
 
-  // a selector followed by a ruleset is a nested rule
+    // a selector followed by a ruleset is a nested rule
   if (parseNestedRule(selector, ruleset, stylesheet)) {
     parseRulesetStatement(stylesheet, ruleset);
     return true;
@@ -192,34 +192,34 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
       parseRulesetStatement(stylesheet, ruleset);
     }
     return true;
-  } 
-  
-  // if we can parse a property and the next token is a COLON then the
-  // statement is a declaration.
-  if (selector->size() > 1 &&
-      selector->front()->type == Token::IDENTIFIER &&
-      selector->at(1)->type == Token::COLON) {
     
-    declaration = new Declaration(new string(selector->front()->str));
-    delete selector->shift();
-    delete selector->shift();
-    // parse any leftover value parts.
-    value = CssParser::parseValue();
-    if (value != NULL) {
-      selector->push(value);
-      delete value;
-    }
-    valueProcessor->processValue(selector);
-    declaration->setValue(selector);
+    // if we can parse a property and the next token is a COLON then the
+    // statement is a declaration.
+  } else if (selector->size() > 1 &&
+        selector->front()->type == Token::IDENTIFIER &&
+        selector->at(1)->type == Token::COLON) {
     
-    ruleset->addDeclaration(declaration);
-    if (tokenizer->getTokenType() == Token::DELIMITER) {
-      tokenizer->readNextToken();
-      skipWhitespace();
-      parseRulesetStatement(stylesheet, ruleset);
-    }
+      declaration = new Declaration(new string(selector->front()->str));
+      delete selector->shift();
+      delete selector->shift();
+      // parse any leftover value parts.
+      value = CssParser::parseValue();
+      if (value != NULL) {
+        selector->push(value);
+        delete value;
+      }
+      valueProcessor->processValue(selector);
+      declaration->setValue(selector);
     
-    return true;
+      ruleset->addDeclaration(declaration);
+      if (tokenizer->getTokenType() == Token::DELIMITER) {
+        tokenizer->readNextToken();
+        skipWhitespace();
+        parseRulesetStatement(stylesheet, ruleset);
+      }
+    
+      return true;
+
   } else {
     throw new ParseException(*selector->toString(),
                              "a mixin that has been defined");
@@ -272,10 +272,11 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
   Ruleset* mixin;
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator it;
+  bool ret;
 
-  if (processParameterMixin(selector, ruleset)) {
-    return true;
-  } else if((mixin = stylesheet->getRuleset(selector)) != NULL) {
+  ret = processParameterMixin(selector, ruleset);
+
+  if ((mixin = stylesheet->getRuleset(selector)) != NULL) {
     declarations = mixin->getDeclarations();  
     for (it = declarations->begin(); it < declarations->end(); it++) {
       ruleset->addDeclaration((*it)->clone());
@@ -283,98 +284,22 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
     
     return true;
   } 
-  return false;
-}
-
-bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
-  ParameterRuleset* mixin = getParameterRuleset(selector);
-  list<TokenList*>* arguments;
-  list<TokenList*>::iterator ait;
-  list<string> parameters;
-  list<string>::iterator pit;
-  vector<Declaration*>* declarations;
-  vector<Declaration*>::iterator it;
-  Declaration* declaration;
-  TokenList* variable;
-  TokenList* argsCombined;
-  
-  if (mixin == NULL)
-    return false;
-  
-  // new scope
-  valueProcessor->pushScope();
-
-  // pull values 
-  arguments = processArguments(selector);
-  parameters = mixin->getKeywords();
-  argsCombined = new TokenList();
-
-  // combine with parameter names and add to local scope
-  ait = arguments->begin();
-  for(pit = parameters.begin(); pit != parameters.end(); pit++) {
-    if (ait != arguments->end()) {
-      valueProcessor->putVariable(*pit, *ait);
-      argsCombined->push((*ait)->clone());
-      ait++;
-    } else {
-      variable = mixin->getDefault(*pit);
-      if (variable == NULL) {
-        throw new ParseException(*selector->toString(),
-                                 "at least one more argument");
-      }
-      valueProcessor->putVariable(*pit, variable->clone());
-      argsCombined->push(variable->clone());
-    }
-    argsCombined->push(new Token(" ", Token::WHITESPACE));
-  }
-  
-  if (argsCombined->size() > 0)
-    delete argsCombined->pop();
-  
-  valueProcessor->putVariable("@arguments", argsCombined);
-  
-  declarations = mixin->getDeclarations();  
-  for (it = declarations->begin(); it < declarations->end(); it++) {
-    declaration = (*it)->clone();
-    valueProcessor->processValue(declaration->getValue());
-    parent->addDeclaration(declaration);
-  }
-    
-  valueProcessor->popScope();
-  return true;
-}
-
-list<TokenList*>* LessParser::processArguments(TokenList* arguments) {
-  TokenList* value;
-  TokenListIterator* it = arguments->iterator();
-  Token* current;
-  list<TokenList*>* ret = new list<TokenList*>();
-  
-  while (it->hasNext() && 
-         it->next()->type != Token::PAREN_OPEN) {
-  }
-  
-  while (it->hasNext()) {
-    value = new TokenList();
-    
-    while (it->hasNext()) {
-      current = it->next();
-      if (current->str == "," || current->type == Token::PAREN_CLOSED)
-        break;
-      value->push(current->clone());
-    }
-    valueProcessor->processValue(value);
-
-    ret->push_back(value);
-  }
   return ret;
 }
 
-ParameterRuleset* LessParser::getParameterRuleset(Selector* selector) {
-  vector<ParameterRuleset*>::iterator it;
+bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
   TokenList key;
+  list<TokenList*>* arguments = new list<TokenList*>();
+
+  TokenList* argument;  
   TokenListIterator* tli = selector->iterator();
+
+  vector<ParameterRuleset*>::iterator pri;
   Token* current;
+
+  ParameterRuleset* mixin;
+
+  bool ret = false;
 
   while (tli->hasNext()) {
     current = tli->next();
@@ -382,18 +307,48 @@ ParameterRuleset* LessParser::getParameterRuleset(Selector* selector) {
       break;
     key.push(current->clone());
   }
-  delete tli;
-  
+
   // delete trailing whitespace
   while (key.back()->type == Token::WHITESPACE) {
     delete key.pop();
   }
 
-  for (it = parameterRulesets.begin(); it < parameterRulesets.end(); it++) {
-    if ((*it)->getSelector()->equals(&key)) 
-      return *it;
+  while (tli->hasNext()) {
+    argument = new TokenList();
+
+    while (tli->hasNext()) {
+      current = tli->next();
+      if (current->str == "," ||
+          current->str == ";" ||
+          current->type == Token::PAREN_CLOSED)
+        break;
+      argument->push(current->clone());
+    }
+    valueProcessor->processValue(argument);
+    arguments->push_back(argument);
   }
-  return NULL;
+  
+  delete tli;
+
+  for (pri = parameterRulesets.begin(); pri < parameterRulesets.end();
+       pri++) {
+    mixin = *pri;
+    
+    if (mixin->getSelector()->equals(&key) &&
+        mixin->matchArguments(arguments)) {
+      // new scope
+      valueProcessor->pushScope();
+      
+      if (mixin->putArguments(valueProcessor, arguments) &&
+          mixin->matchConditions(valueProcessor)) {
+        mixin->addDeclarations(valueProcessor, parent);
+        ret = true;
+      }
+      
+      valueProcessor->popScope();
+    }
+  }
+  return ret;
 }
 
 

@@ -25,6 +25,7 @@
 #include "Stylesheet.h"
 #include "Selector.h"
 #include "ParseException.h"
+#include "value/ValueProcessor.h"
 #include <map>
 
 
@@ -43,6 +44,16 @@ public:
   TokenList* getDefault(string keyword);
 
   list<string> getKeywords();
+
+  bool matchArguments(list<TokenList*>* arguments);
+  bool matchConditions(ValueProcessor* valueProcessor);
+  
+  bool putArguments(ValueProcessor* valueProcessor,
+                    list<TokenList*>* arguments);
+  void addDeclarations(ValueProcessor* valueProcessor,
+                       Ruleset* ruleset);
+
+
 };
 
 #endif

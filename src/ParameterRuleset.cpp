@@ -20,6 +20,7 @@
  */
 
 #include "ParameterRuleset.h"
+#include <iostream>
 
 ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   Selector* newselector = new Selector();
@@ -110,4 +111,68 @@ bool ParameterRuleset::processParameter(Selector* selector) {
   
   addParameter(keyword, value);
   return true;
+}
+
+bool ParameterRuleset::matchArguments(list<TokenList*>* arguments) {
+  list<string> parameters = getKeywords();
+  list<TokenList*>::iterator ait  = arguments->begin();
+  list<string>::iterator pit = parameters.begin();
+
+  for(; pit != parameters.end(); pit++) {
+    if (ait != arguments->end()) 
+      ait++;
+    else if (getDefault(*pit) == NULL) 
+      return false;
+  }
+  return true;
+}
+bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
+  (void)valueProcessor;
+  return true;
+}
+  
+bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
+                                    list<TokenList*>* arguments) {
+  list<string> parameters = getKeywords();
+  list<TokenList*>::iterator ait  = arguments->begin();
+  list<string>::iterator pit = parameters.begin();
+  TokenList* argsCombined = new TokenList();
+  TokenList* variable;
+  
+  // combine with parameter names and add to local scope
+  for(; pit != parameters.end(); pit++) {
+    if (ait != arguments->end()) {
+      valueProcessor->putVariable(*pit, *ait);
+      argsCombined->push((*ait)->clone());
+      ait++;
+    } else {
+      variable = getDefault(*pit);
+      if (variable == NULL) {
+        delete argsCombined;
+        return false;
+      }
+      valueProcessor->putVariable(*pit, variable->clone());
+      argsCombined->push(variable->clone());
+    }
+    argsCombined->push(new Token(" ", Token::WHITESPACE));
+  }
+  
+  if (argsCombined->size() > 0)
+    delete argsCombined->pop();
+  
+  valueProcessor->putVariable("@arguments", argsCombined);
+  return true;
+}
+void ParameterRuleset::addDeclarations(ValueProcessor* valueProcessor,
+                                       Ruleset* ruleset) {
+  vector<Declaration*>* declarations;
+  vector<Declaration*>::iterator di;
+  Declaration* declaration;
+
+  declarations = getDeclarations();  
+  for (di = declarations->begin(); di < declarations->end(); di++) {
+    declaration = (*di)->clone();
+    valueProcessor->processValue(declaration->getValue());
+    ruleset->addDeclaration(declaration);
+  }
 }

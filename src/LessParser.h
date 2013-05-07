@@ -100,8 +100,6 @@ protected:
   bool parseMixin(Selector* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
   bool processParameterMixin(Selector* selector, Ruleset* parent);
-  
-  ParameterRuleset* getParameterRuleset(Selector* selector);
 
   TokenList* parseValue ();
 
