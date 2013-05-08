@@ -59,7 +59,9 @@ TEST(CssTokenizerTest, ReckognizesTokens) {
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::COMMENT, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
-  EXPECT_EQ(Token::FUNCTION, t.readNextToken());
+  //EXPECT_EQ(Token::FUNCTION, t.readNextToken());
+  EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
+  EXPECT_EQ(Token::PAREN_OPEN, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::INCLUDES, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
