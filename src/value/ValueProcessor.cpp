@@ -247,16 +247,15 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return new StringValue(value->shift(), true);
     
   case Token::PAREN_OPEN:
-    delete value->shift();
+    value->shift();
     
     ret = processStatement(value);
 
-    if (ret == NULL)
-      throw new ValueException("Expecting a valid expression in \
-parentheses. Something like '(5 + @x)'. Alternatively, one of the \
-variables in the expression may not contain a proper value like 5, \
-5%, 5em or #555555."); 
-
+    if (ret == NULL) {
+      value->unshift(token);
+      return NULL;
+    }
+    
     if (value->size() == 0)
       throw new ParseException("end of line", ")");
     else if (value->front()->type == Token::PAREN_CLOSED)
