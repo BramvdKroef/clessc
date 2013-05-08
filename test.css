@@ -30,7 +30,7 @@
 
 /* Parametric Mixins */
 @radius: 5px;
-.border-radius (@radius) {
+.border-radius(@radius) {
   border-radius: @radius;
   -moz-border-radius: @radius;
   -webkit-border-radius: @radius;
@@ -72,13 +72,13 @@ pre { .wrap  }
   color: @a;
 }
 .mixin2 (@a; @b) {
-  color: fade(@a; @b);
+  color: fadeout(@a; @b);
 }
 .test mixin2a {
     .mixin2(#000);
 }
 .test mixin2b {
-    .mixin2(#000, #FFF);
+    .mixin2(#000, 50%);
 }
 
 /* The @arguments variable */
@@ -173,6 +173,7 @@ pre { .wrap  }
 }
 
 /* Color Functions */
+
 @color: #d41212;
 .class {
     color: lighten(@color, 10%);
@@ -188,7 +189,6 @@ pre { .wrap  }
     color: hsl(hue(@color), 45%, 90%);
     clip: rect(1px, 1px, 1px, 1px);
 }
-
 
 
 /* Namespaces */
@@ -210,6 +210,7 @@ pre { .wrap  }
 }
 
 /* Scope */
+
 @scopevar: red;
 
 #page {
@@ -243,9 +244,14 @@ pre { .wrap  }
 .class {
   filter: ~"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')";
 }
+
 body {
-    background-image: linear-gradient(bottom, rgb(232,63,25) 0%, rgb(255,130,95) 50%);
+    background-image: linear-gradient(bottom, rgb(232,63,25) 0%,
+                                      rgb(255,130,95) 50%);
+    width: 10-1;
+    filter:progid:DXImageTransform.Microsoft.gradient(enabled='false',startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);         
 }
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

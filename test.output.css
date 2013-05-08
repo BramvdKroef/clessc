@@ -44,7 +44,7 @@ pre{
     color:#000;
 }
 .test mixin2b{
-    color:fade(#000 ; #FFF);
+    color:rgba(0,0,0,0.5);
 }
 .class{
     box-shadow:2px 5px 1px #000;
@@ -131,5 +131,7 @@ pre{
 }
 body{
     background-image:linear-gradient(bottom,#e83f19 0%,#ff825f 50%);
+    width:10 -1;
+    filter:progid:DXImageTransform.Microsoft.gradient(enabled="false",startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);
 }
 
