@@ -49,10 +49,11 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   Value* v;
   TokenList* var;
   TokenList* variable;
-  
+
   while (value->size() > 0) {
     v = processStatement(value);
 
+    // add spaces between values
     if (v != NULL || value->size() > 0) {
       if (newvalue.size() == 0 ||
           !needsSpace(newvalue.back(), true) ||
@@ -83,7 +84,7 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
         delete value->shift();
         delete value->shift();
           
-      } else
+      } else 
         newvalue.push(value->shift());
     }
   }
@@ -128,8 +129,9 @@ Value* ValueProcessor::processStatement(TokenList* value) {
   Value* op, *v = processConstant(value);
   
   if (v != NULL) {
-    while ((op = processOperator(value, v))) 
+    while ((op = processOperator(value, v)) != NULL)
       v = op;
+    
     return v;
   } else
     return NULL;
@@ -246,26 +248,8 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     value->front()->str = removeQuotes(value->front()->str);
     return new StringValue(value->shift(), true);
     
-  case Token::PAREN_OPEN:
-    value->shift();
-    
-    ret = processStatement(value);
-
-    if (ret == NULL) {
-      value->unshift(token);
-      return NULL;
-    }
-    
-    if (value->size() == 0)
-      throw new ParseException("end of line", ")");
-    else if (value->front()->type == Token::PAREN_CLOSED)
-      delete value->shift();
-    else
-      throw new ParseException(value->front()->str, ")");
-
-    return ret;
-    
   case Token::IDENTIFIER:
+
     if (value->size() > 2 &&
         value->at(1)->type == Token::PAREN_OPEN &&
         functionExists(token->str)) {
@@ -284,6 +268,31 @@ Value* ValueProcessor::processConstant(TokenList* value) {
       return new BooleanValue(true);
     } else
       return NULL;
+    
+  case Token::PAREN_OPEN:
+    value->shift();
+    ret = processStatement(value);
+
+    while (value->size() > 0 &&
+           value->front()->type == Token::WHITESPACE) {
+      delete value->shift();
+    }
+
+    if (value->size() == 0)
+      throw new ParseException("end of line", ")");
+
+    if (ret != NULL) {
+      if (value->front()->type == Token::PAREN_CLOSED) {
+        delete value->shift();
+        delete token;
+        return ret;
+      } else {
+        value->unshift(ret->getTokens());
+        delete ret;
+      }
+    }
+    value->unshift(token);
+    return NULL;
     
   default:
     break;
@@ -390,15 +399,23 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
 
 vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   vector<Value*> arguments;
+
+  if (value->size() == 0) 
+    throw new ParseException("end of value", ")");
   
   if (value->front()->type != Token::PAREN_CLOSED) 
     arguments.push_back(processStatement(value));
-    
-  while (value->front()->str == "," ||
-         value->front()->str == ";") {
+   
+  while (value->size() > 0 &&
+         (value->front()->str == "," ||
+          value->front()->str == ";")) {
     delete value->shift();
     arguments.push_back(processStatement(value));
   }
+
+  if (value->size() == 0) 
+    throw new ParseException("end of value", ")");
+  
   if (value->front()->type != Token::PAREN_CLOSED) 
     throw new ParseException(value->front()->str, ")");
     
@@ -476,9 +493,12 @@ UnitValue* ValueProcessor::processUnit(Token* t) {
 
 bool ValueProcessor::needsSpace(Token* t, bool suffix) {
   if (t->type == Token::OTHER &&
-      t->str.compare(",") == 0) {
+      t->str.size() == 1 &&
+      string(",:=.").find(t->str.at(0)) != string::npos) {
     return false;
   }
+  if (t->type == Token::COLON)
+    return false;
   if (suffix && t->type == Token::FUNCTION) 
     return false;
   return !(t->type == Token::FUNCTION ||
