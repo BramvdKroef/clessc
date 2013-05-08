@@ -499,9 +499,6 @@ bool ValueProcessor::needsSpace(Token* t, bool suffix) {
   }
   if (t->type == Token::COLON)
     return false;
-  if (suffix && t->type == Token::FUNCTION) 
-    return false;
-  return !(t->type == Token::FUNCTION ||
-           t->type == Token::PAREN_OPEN ||
+  return !(t->type == Token::PAREN_OPEN ||
            t->type == Token::PAREN_CLOSED);
 }

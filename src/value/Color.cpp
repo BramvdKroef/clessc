@@ -103,7 +103,8 @@ TokenList* Color::getTokens() {
   
   // If the color is not opaque the rgba() function needs to be used.
   if (alpha < 1) {
-    tokens.push(new Token("rgba(", Token::FUNCTION));
+    tokens.push(new Token("rgba", Token::IDENTIFIER));
+    tokens.push(new Token("(", Token::PAREN_OPEN));
 
     for (i = 0; i < 3; i++) {
       stm.str("");

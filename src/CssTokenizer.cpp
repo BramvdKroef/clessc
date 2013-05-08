@@ -88,11 +88,6 @@ Token::Type CssTokenizer::readNextToken(){
       readNumSuffix();
     } else if (readIdent()) {
       currentToken.type = Token::IDENTIFIER;
-      /*if (lastRead == '(') {
-        currentToken.add(lastRead);
-        readChar();
-        currentToken.type = Token::FUNCTION;
-        }*/
     } else
       currentToken.type = Token::OTHER;
     break;
@@ -195,10 +190,6 @@ Token::Type CssTokenizer::readNextToken(){
         readChar();
         currentToken.type = Token::UNICODE_RANGE;
         readUnicodeRange();
-        /*} else if (lastReadEq('(')) {
-        currentToken.add(lastRead);
-        readChar();
-        currentToken.type = Token::FUNCTION; */
       }
     } else if (readWhitespace()) {
       currentToken.type = Token::WHITESPACE;

@@ -284,21 +284,6 @@ bool CssParser::parseAny (TokenList* tokens) {
     tokenizer->readNextToken();
     break;
     
-    /*  case Token::FUNCTION:
-    tokens->push(tokenizer->getToken()->clone());
-    tokenizer->readNextToken();
-
-    skipWhitespace();
-    while (parseAny(tokens) || parseUnused(tokens)) {}
-    
-    if (tokenizer->getTokenType() != Token::PAREN_CLOSED) {
-      throw new ParseException(tokenizer->getToken()->str,
-                               "closing parenthesis (')')");
-    }
-    tokens->push(tokenizer->getToken()->clone());
-    tokenizer->readNextToken();
-    break;*/
-    
   case Token::BRACE_OPEN:
     tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
