@@ -221,18 +221,6 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   case Token::DIMENSION:
     return new NumberValue(value->shift());
 
-  case Token::FUNCTION:
-    if (functionExists(token->
-                       str.substr(0, token->str.size() - 1))) {
-      value->shift();
-      ret = processFunction(token->
-                            str.substr(0, token->str.size() - 1),
-                            value);
-      delete token;
-      return ret;
-    } else
-      return NULL;
-    
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
       variable = variable->clone();
@@ -278,6 +266,26 @@ variables in the expression may not contain a proper value like 5, \
 
     return ret;
     
+  case Token::IDENTIFIER:
+    if (value->size() > 2 &&
+        value->at(1)->type == Token::PAREN_OPEN &&
+        functionExists(token->str)) {
+      value->shift();
+      delete value->shift();
+      
+      ret = processFunction(token->str, value);
+      delete token;
+      return ret;
+      
+    } else if ((ret = processUnit(token)) != NULL) {
+      value->shift();
+      return ret;  
+    } else if (token->str.compare("true") == 0) {
+      delete value->shift();
+      return new BooleanValue(true);
+    } else
+      return NULL;
+    
   default:
     break;
   }
@@ -300,14 +308,7 @@ variables in the expression may not contain a proper value like 5, \
       
   } else if ((ret = processEscape(value)) != NULL) {
     return ret;
-  } else if ((ret = processUnit(value->front())) != NULL) {
-    value->shift();
-    return ret;  
-  } else if (token->str.compare("true") == 0) {
-    delete value->shift();
-    return new BooleanValue(true);
   }
-
   return NULL;
 }
 
@@ -394,7 +395,8 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   if (value->front()->type != Token::PAREN_CLOSED) 
     arguments.push_back(processStatement(value));
     
-  while (value->front()->str == ",") {
+  while (value->front()->str == "," ||
+         value->front()->str == ";") {
     delete value->shift();
     arguments.push_back(processStatement(value));
   }

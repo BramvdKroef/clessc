@@ -135,7 +135,8 @@ protected:
   bool readEscape();
   bool readUnicode();
   bool readNMChar();
-  bool readNum();
+  bool readNum(bool readDecimals);
+  bool readNumSuffix();
   bool readString();
   bool readNewline();
   bool readWhitespace();

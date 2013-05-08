@@ -83,21 +83,16 @@ Token::Type CssTokenizer::readNextToken(){
   case '-':
     currentToken.add(lastRead);
     readChar();
-    if (readNum()) {
+    if (readNum(true)) {
       currentToken.type = Token::NUMBER;
-      if (lastReadEq('%')) {
-        currentToken.type = Token::PERCENTAGE;
-        currentToken.add(lastRead);
-        readChar();
-      } else if (readIdent()) 
-        currentToken.type = Token::DIMENSION;
+      readNumSuffix();
     } else if (readIdent()) {
       currentToken.type = Token::IDENTIFIER;
-      if (lastRead == '(') {
+      /*if (lastRead == '(') {
         currentToken.add(lastRead);
         readChar();
         currentToken.type = Token::FUNCTION;
-      }
+        }*/
     } else
       currentToken.type = Token::OTHER;
     break;
@@ -173,19 +168,23 @@ Token::Type CssTokenizer::readNextToken(){
     currentToken.add(lastRead);
     readChar();
     break;
+    
+  case '.':
+    currentToken.add(lastRead);
+    readChar();
+    if (readNum(false)) {
+      currentToken.type = Token::NUMBER;
+      readNumSuffix();
+    } 
+    break;
 
   default:
     if (readString()) 
       currentToken.type = Token::STRING;
-    else if (readNum()) {
+    else if (readNum(true)) {
       currentToken.type = Token::NUMBER;
-      if (lastRead == '%') {
-        currentToken.type = Token::PERCENTAGE;
-        currentToken.add(lastRead);
-        readChar();
-      } else if (readIdent()) 
-        currentToken.type = Token::DIMENSION;
-    
+      readNumSuffix();
+
     } else if (readIdent()) {
       currentToken.type = Token::IDENTIFIER;
 
@@ -196,10 +195,10 @@ Token::Type CssTokenizer::readNextToken(){
         readChar();
         currentToken.type = Token::UNICODE_RANGE;
         readUnicodeRange();
-      } else if (lastReadEq('(')) {
+        /*} else if (lastReadEq('(')) {
         currentToken.add(lastRead);
         readChar();
-        currentToken.type = Token::FUNCTION;
+        currentToken.type = Token::FUNCTION; */
       }
     } else if (readWhitespace()) {
       currentToken.type = Token::WHITESPACE;
@@ -216,10 +215,6 @@ Token::Type CssTokenizer::readNextToken(){
 
 
 bool CssTokenizer::readIdent () {
-  if (lastReadEq('-')) {
-    currentToken.add(lastRead);
-    readChar();
-  }
   if (!readNMStart())
     return false;
   else
@@ -248,17 +243,14 @@ bool CssTokenizer::readNMStart () {
     return (readNonAscii() || readEscape());
 }
 bool CssTokenizer::readNonAscii () {
-  if (in == NULL)
+  if (in == NULL || lastRead >= 0)
     return false;
   
-  if (lastRead >= 0) {
-    return false;
-  } else {
-    currentToken.add(lastRead);
-    readChar();
-    return true;
-  } 
+  currentToken.add(lastRead);
+  readChar();
+  return true;
 }
+
 bool CssTokenizer::readEscape () {
   if (!lastReadEq('\\'))
     return false;
@@ -276,6 +268,7 @@ bool CssTokenizer::readEscape () {
   } else
     return false;
 }
+
 bool CssTokenizer::readUnicode () {
   if (!lastReadIsHex())
     return false;
@@ -306,14 +299,15 @@ bool CssTokenizer::readNMChar () {
     return (readNonAscii() || readEscape());
 }
 
-bool CssTokenizer::readNum () {
-  if (!lastReadIsDigit() && !lastReadEq('.'))
+bool CssTokenizer::readNum (bool readDecimals) {
+  if (!lastReadIsDigit())
     return false;
   while (lastReadIsDigit()) {
     currentToken.add(lastRead);
     readChar();
   }
-  if (lastReadEq('.')) {
+  
+  if (readDecimals && lastReadEq('.')) {
     currentToken.add(lastRead);
     readChar();
 
@@ -323,6 +317,20 @@ bool CssTokenizer::readNum () {
     }
   }
   return true;
+}
+
+bool CssTokenizer::readNumSuffix() {
+  if (lastRead == '%') {
+    currentToken.type = Token::PERCENTAGE;
+    currentToken.add(lastRead);
+    readChar();
+    return true;
+  } else if (readIdent())  {
+    currentToken.type = Token::DIMENSION;
+    return true;
+  }
+  // TODO: Support identifiers starting with '-'
+  return false;
 }
 
 bool CssTokenizer::readString() {

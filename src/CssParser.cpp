@@ -284,7 +284,7 @@ bool CssParser::parseAny (TokenList* tokens) {
     tokenizer->readNextToken();
     break;
     
-  case Token::FUNCTION:
+    /*  case Token::FUNCTION:
     tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
 
@@ -297,7 +297,7 @@ bool CssParser::parseAny (TokenList* tokens) {
     }
     tokens->push(tokenizer->getToken()->clone());
     tokenizer->readNextToken();
-    break;
+    break;*/
     
   case Token::BRACE_OPEN:
     tokens->push(tokenizer->getToken()->clone());
