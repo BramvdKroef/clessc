@@ -88,8 +88,10 @@ protected:
                      Selector* selector = NULL);
 
   bool parseRulesetStatement (Stylesheet* stylesheet,
-                              Ruleset* ruleset);
-
+                              Ruleset* ruleset,
+                              bool processValues);
+  void processRuleset(vector<Declaration*>* declarations);
+  
   Declaration* parseDeclaration(string* property);
 
   bool parseVariable(string keyword);

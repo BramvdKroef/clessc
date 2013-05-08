@@ -111,7 +111,7 @@ variable declaration.");
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
                                Selector* selector) {
   Ruleset* ruleset = NULL;
-  ParameterRuleset* pruleset;
+  ParameterRuleset* pruleset = NULL;
   list<string> parameters;
   list<string>::iterator pit;
   
@@ -127,32 +127,25 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     }
   }
   tokenizer->readNextToken();
+  skipWhitespace();
 
-  // add new scope for the ruleset
-  valueProcessor->pushScope();
-  
+  // Create the ruleset and parse ruleset statements.
+  // In case of a parameter ruleset the declaration values are not
+  // processed until later.
   if (selector->back()->type != Token::PAREN_CLOSED) {
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
+
+    // add new scope for the ruleset
+    valueProcessor->pushScope();
+    parseRulesetStatement(stylesheet, ruleset, true);
+    valueProcessor->popScope();
+
   } else {
     ruleset = pruleset = new ParameterRuleset(selector);
     parameterRulesets.push_back(pruleset);
-
-    // Add a NULL value to the local scope for each parameter so they
-    // don't get replaced in the ruleset. For example this statement:
-    // @x: 5; .class (@x: 0) {left: @x }
-    // 'left: @x' would be replaced with 'left: 5' if we didn't do this
-    parameters = pruleset->getKeywords();
-    for(pit = parameters.begin(); pit != parameters.end(); pit++) {
-      valueProcessor->putVariable(*pit, NULL);
-    }
+    parseRulesetStatement(stylesheet, ruleset, false);
   }    
-
-  skipWhitespace();
-  parseRulesetStatement(stylesheet, ruleset);
-
-  // remove scope
-  valueProcessor->popScope();
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken()->str,
@@ -165,14 +158,17 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 }
 
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
-                                        Ruleset* ruleset) {
+                                        Ruleset* ruleset,
+                                        bool processValues) {
   Declaration* declaration;
   Selector* selector = parseSelector();
   TokenList* value;
 
   if (selector == NULL) {
+    // No selector found. Parse a variable and, if successfull,
+    // try again.
     if (parseVariable()) {
-      parseRulesetStatement(stylesheet, ruleset);
+      parseRulesetStatement(stylesheet, ruleset, processValues);
       return true;
     }
     return false;
@@ -180,49 +176,58 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
 
     // a selector followed by a ruleset is a nested rule
   if (parseNestedRule(selector, ruleset, stylesheet)) {
-    parseRulesetStatement(stylesheet, ruleset);
+    parseRulesetStatement(stylesheet, ruleset, processValues);
     return true;
-      
+
+  } else if (selector->size() > 1 &&
+             selector->front()->type == Token::IDENTIFIER &&
+             selector->at(1)->type == Token::COLON) {
+    
+    declaration = new Declaration(new string(selector->front()->str));
+    delete selector->shift();
+    delete selector->shift();
+    // parse any leftover value parts.
+    value = CssParser::parseValue();
+    if (value != NULL) {
+      selector->push(value);
+      delete value;
+    }
+    if (processValues)
+      valueProcessor->processValue(selector);
+    declaration->setValue(selector);
+    
+    ruleset->addDeclaration(declaration);
+    if (tokenizer->getTokenType() == Token::DELIMITER) {
+      tokenizer->readNextToken();
+      skipWhitespace();
+      parseRulesetStatement(stylesheet, ruleset, processValues);
+    }
+    
+    return true;
+
     // a selector by itself might be a mixin.
   } else if (parseMixin(selector, ruleset, stylesheet)) {
     delete selector;
     if (tokenizer->getTokenType() == Token::DELIMITER) {
       tokenizer->readNextToken();
       skipWhitespace();
-      parseRulesetStatement(stylesheet, ruleset);
+      parseRulesetStatement(stylesheet, ruleset, processValues);
     }
     return true;
     
     // if we can parse a property and the next token is a COLON then the
     // statement is a declaration.
-  } else if (selector->size() > 1 &&
-        selector->front()->type == Token::IDENTIFIER &&
-        selector->at(1)->type == Token::COLON) {
-    
-      declaration = new Declaration(new string(selector->front()->str));
-      delete selector->shift();
-      delete selector->shift();
-      // parse any leftover value parts.
-      value = CssParser::parseValue();
-      if (value != NULL) {
-        selector->push(value);
-        delete value;
-      }
-      valueProcessor->processValue(selector);
-      declaration->setValue(selector);
-    
-      ruleset->addDeclaration(declaration);
-      if (tokenizer->getTokenType() == Token::DELIMITER) {
-        tokenizer->readNextToken();
-        skipWhitespace();
-        parseRulesetStatement(stylesheet, ruleset);
-      }
-    
-      return true;
 
   } else {
     throw new ParseException(*selector->toString(),
                              "a mixin that has been defined");
+  }
+}
+
+void LessParser::processRuleset(vector<Declaration*>* declarations) {
+  vector<Declaration*>::iterator it;
+  for(it = declarations->begin(); it != declarations->end(); ++it) {
+    valueProcessor->processValue((*it)->getValue());
   }
 }
 
@@ -271,17 +276,14 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
                             Stylesheet* stylesheet) {
   Ruleset* mixin;
   vector<Declaration*>* declarations;
-  vector<Declaration*>::iterator it;
   bool ret;
 
   ret = processParameterMixin(selector, ruleset);
 
   if ((mixin = stylesheet->getRuleset(selector)) != NULL) {
-    declarations = mixin->getDeclarations();  
-    for (it = declarations->begin(); it < declarations->end(); it++) {
-      ruleset->addDeclaration((*it)->clone());
-    }
-    
+    declarations = mixin->cloneDeclarations();
+    ruleset->addDeclarations(declarations);
+    delete declarations;
     return true;
   } 
   return ret;
@@ -298,7 +300,8 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
   Token* current;
 
   ParameterRuleset* mixin;
-
+  vector<Declaration*>* declarations;
+  
   bool ret = false;
 
   while (tli->hasNext()) {
@@ -341,7 +344,12 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
       
       if (mixin->putArguments(valueProcessor, arguments) &&
           mixin->matchConditions(valueProcessor)) {
-        mixin->addDeclarations(valueProcessor, parent);
+
+        declarations = mixin->cloneDeclarations();
+        processRuleset(declarations);
+        parent->addDeclarations(declarations);
+        delete declarations;
+
         ret = true;
       }
       

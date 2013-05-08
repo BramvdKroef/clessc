@@ -54,8 +54,6 @@ public:
   
   bool putArguments(ValueProcessor* valueProcessor,
                     list<TokenList*>* arguments);
-  void addDeclarations(ValueProcessor* valueProcessor,
-                       Ruleset* ruleset);
 
 
 };

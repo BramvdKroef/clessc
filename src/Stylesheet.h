@@ -57,9 +57,11 @@ public:
   virtual ~Ruleset();
   void setSelector (Selector* selector);
   void addDeclaration (Declaration* declaration);
-
+  void addDeclarations (vector<Declaration*>* declarations);
+    
   Selector* getSelector();
   vector<Declaration*>* getDeclarations();
+  vector<Declaration*>* cloneDeclarations();
 };
 
 class AtRule {

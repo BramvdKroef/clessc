@@ -199,16 +199,4 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
   valueProcessor->putVariable("@arguments", argsCombined);
   return true;
 }
-void ParameterRuleset::addDeclarations(ValueProcessor* valueProcessor,
-                                       Ruleset* ruleset) {
-  vector<Declaration*>* declarations;
-  vector<Declaration*>::iterator di;
-  Declaration* declaration;
 
-  declarations = getDeclarations();  
-  for (di = declarations->begin(); di < declarations->end(); di++) {
-    declaration = (*di)->clone();
-    valueProcessor->processValue(declaration->getValue());
-    ruleset->addDeclaration(declaration);
-  }
-}

@@ -80,12 +80,31 @@ void Ruleset::setSelector (Selector* selector) {
 void Ruleset::addDeclaration (Declaration* declaration) {
   declarations.push_back(declaration);
 }
+void Ruleset::addDeclarations (vector<Declaration*>* declarations) {
+  vector<Declaration*>::iterator di;
+  for (di = declarations->begin(); di < declarations->end(); di++) {
+    addDeclaration(*di);
+  }
+}
+
 Selector* Ruleset::getSelector() {
   return selector;
 }
 vector<Declaration*>* Ruleset::getDeclarations() {
   return &declarations;
 }
+vector<Declaration*>* Ruleset::cloneDeclarations() {
+  vector<Declaration*>* declarations;
+  vector<Declaration*>::iterator di;
+  vector<Declaration*>* clone = new vector<Declaration*>();
+  
+  declarations = getDeclarations();  
+  for (di = declarations->begin(); di < declarations->end(); di++) {
+    clone->push_back((*di)->clone());
+  }
+  return clone;
+}
+
 
 AtRule::AtRule (string* keyword) {
   this->keyword = keyword;
