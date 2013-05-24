@@ -56,9 +56,9 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
     // add spaces between values
     if (v != NULL || value->size() > 0) {
       if (newvalue.size() == 0 ||
-          !needsSpace(newvalue.back(), true) ||
+          !needsSpace(newvalue.back()) ||
           (v == NULL &&
-           !needsSpace(value->front(), false))) {
+           !needsSpace(value->front()))) {
         
       } else {
         newvalue.push(new Token(" ", Token::WHITESPACE));
@@ -491,7 +491,7 @@ UnitValue* ValueProcessor::processUnit(Token* t) {
     return NULL;
 }
 
-bool ValueProcessor::needsSpace(Token* t, bool suffix) {
+bool ValueProcessor::needsSpace(Token* t) {
   if (t->type == Token::OTHER &&
       t->str.size() == 1 &&
       string(",:=.").find(t->str.at(0)) != string::npos) {

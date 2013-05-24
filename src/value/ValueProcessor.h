@@ -55,7 +55,7 @@ private:
   Value* processEscape (TokenList* value);
   UnitValue* processUnit(Token* t);
   
-  bool needsSpace(Token* t, bool suffix);
+  bool needsSpace(Token* t);
   string removeQuotes(string str);
     
 public:
