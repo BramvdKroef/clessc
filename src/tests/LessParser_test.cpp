@@ -24,9 +24,12 @@
 
 TEST(LessParserTest, Variable) {
   istringstream in("@x: 10; selector {key: @x}");
-    
+
+  ValueProcessor vp;
+  vector<ParameterRuleset*> pr;
+
   LessTokenizer t(&in);
-  LessParser p(&t);
+  LessParser p(&t, &pr, &vp);
   Stylesheet s;
   Declaration* d;
   
@@ -43,9 +46,12 @@ TEST(LessParserTest, Variable) {
 // mixin
 TEST(LessParserTest, Mixin) {
   istringstream in("mixin {key: 10} selector {mixin}");
-    
+
+  ValueProcessor vp;
+  vector<ParameterRuleset*> pr;
+
   LessTokenizer t(&in);
-  LessParser p(&t);
+  LessParser p(&t, &pr, &vp);
   Stylesheet s;
 
   Ruleset* set;
@@ -67,9 +73,12 @@ TEST(LessParserTest, Mixin) {
 // nested rule
 TEST(LessParserTest, NestedRule) {
   istringstream in("selector { nested {key: value} }");
-    
+
+  ValueProcessor vp;
+  vector<ParameterRuleset*> pr;
+
   LessTokenizer t(&in);
-  LessParser p(&t);
+  LessParser p(&t, &pr, &vp);
   Stylesheet s;
 
   Ruleset* set;
@@ -98,9 +107,12 @@ TEST(LessParserTest, NestedRule) {
 // parameter mixin
 TEST(LessParserTest, ParameterMixin) {
   istringstream in(".mixin(@x) {key: @x} selector {.mixin(10);}");
-    
+
+  ValueProcessor vp;
+  vector<ParameterRuleset*> pr;
+
   LessTokenizer t(&in);
-  LessParser p(&t);
+  LessParser p(&t, &pr, &vp);
   Stylesheet s;
 
   Ruleset* set;

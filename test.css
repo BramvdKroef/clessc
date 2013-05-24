@@ -234,6 +234,10 @@ pre { .wrap  }
 @import "lib.less";
 @import "lib.css";
 
+.lib-test {
+    .lib-mixin(#123);
+}
+
 /* String interpolation */
 
 @base-url: "http://assets.fnord.com";

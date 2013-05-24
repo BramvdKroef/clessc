@@ -143,7 +143,7 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 
   } else {
     ruleset = pruleset = new ParameterRuleset(selector);
-    parameterRulesets.push_back(pruleset);
+    parameterRulesets->push_back(pruleset);
     parseRulesetStatement(stylesheet, ruleset, false);
   }    
   
@@ -333,7 +333,7 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
   
   delete tli;
 
-  for (pri = parameterRulesets.begin(); pri < parameterRulesets.end();
+  for (pri = parameterRulesets->begin(); pri < parameterRulesets->end();
        pri++) {
     mixin = *pri;
     
@@ -366,7 +366,9 @@ void LessParser::importFile(string filename, Stylesheet* stylesheet) {
     throw new ParseException(filename, "existing file");
   
   LessTokenizer* tokenizer = new LessTokenizer(in);
-  LessParser* parser = new LessParser(tokenizer);
+  LessParser* parser = new LessParser(tokenizer,
+                                      this->parameterRulesets,
+                                      this->valueProcessor);
   parser->parseStylesheet(stylesheet);
   in->close();
   delete parser;

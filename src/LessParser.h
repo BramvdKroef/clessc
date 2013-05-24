@@ -60,15 +60,17 @@
  */
 class LessParser: public CssParser {
 public:
-  LessParser(CssTokenizer* tokenizer): CssParser(tokenizer) {
-    valueProcessor = new ValueProcessor();
+  LessParser(CssTokenizer* tokenizer,
+             vector<ParameterRuleset*>* parameterRulesets,
+             ValueProcessor* valueProcessor): CssParser(tokenizer) {
+    this->parameterRulesets = parameterRulesets;
+    this->valueProcessor = valueProcessor;
   }
   virtual ~LessParser () {
-    delete valueProcessor;
   }
   
 protected:
-  vector<ParameterRuleset*> parameterRulesets;
+  vector<ParameterRuleset*>* parameterRulesets;
   ValueProcessor* valueProcessor;
   
   /**

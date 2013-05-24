@@ -51,9 +51,11 @@ void usage () {
 
 
 Stylesheet* processInput(istream* in){
-  LessTokenizer* tokenizer = new LessTokenizer(in);
-  LessParser* parser = new LessParser(tokenizer);
+  ValueProcessor vp;
+  vector<ParameterRuleset*> pr;
   Stylesheet* s;
+  LessTokenizer* tokenizer = new LessTokenizer(in);
+  LessParser* parser = new LessParser(tokenizer, &pr, &vp);
   
   try{
     s = new Stylesheet();

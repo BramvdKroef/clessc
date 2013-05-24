@@ -123,6 +123,9 @@ pre{
 #footer{
     color:red;
 }
+.lib-test{
+    color:#123;
+}
 .class{
     background-image:url("http://assets.fnord.com/images/bg.png");
 }
