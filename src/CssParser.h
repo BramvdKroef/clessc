@@ -170,7 +170,8 @@ public:
    * Initializes the CssParser with the given CssTokenizer argument.
    */
   CssParser(CssTokenizer* tokenizer);
-  
+
+  virtual ~CssParser() {};
   /**
    * Parses a stylesheet from the tokenizer. After parsing the
    * stylesheet all of the input should be parsed so this function
