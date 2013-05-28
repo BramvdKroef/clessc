@@ -83,7 +83,7 @@ bool TokenList::empty () {
   return tokens.empty();
 }
 
-int TokenList::size() {
+size_t TokenList::size() {
   return tokens.size();
 }
 
