@@ -56,7 +56,7 @@ public:
   Token* shift ();
 
   bool empty ();
-  int size();
+  size_t size();
 
   bool equals(TokenList* list);
 
