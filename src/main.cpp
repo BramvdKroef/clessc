@@ -53,29 +53,23 @@ void usage () {
 Stylesheet* processInput(istream* in){
   ValueProcessor vp;
   vector<ParameterRuleset*> pr;
-  Stylesheet* s;
-  LessTokenizer* tokenizer = new LessTokenizer(in);
-  LessParser* parser = new LessParser(tokenizer, &pr, &vp);
+  LessTokenizer tokenizer(in);
+  LessParser parser(&tokenizer, &pr, &vp);
+  Stylesheet* s = new Stylesheet();
   
   try{
-    s = new Stylesheet();
-    parser->parseStylesheet(s);
+    parser.parseStylesheet(s);
   } catch(exception* e) {
-    cerr << "Line " << tokenizer->getLineNumber() << ", Column " << 
-      tokenizer->getColumn() << " Parse Error: " << e->what() << endl;
+    cerr << "Line " << tokenizer.getLineNumber() << ", Column " << 
+      tokenizer.getColumn() << " Parse Error: " << e->what() << endl;
     return NULL;
   }
   
-  delete tokenizer;
-  delete parser;
   return s;
 }
 void writeOutput (ostream* out, Stylesheet* stylesheet, bool format) {
   CssWriter *w;
-  if (format)
-    w = new CssPrettyWriter(out);
-  else
-    w = new CssWriter(out);
+  w = format ? new CssPrettyWriter(out) : new CssWriter(out);
   
   w->writeStylesheet(stylesheet);
   *out << endl;
