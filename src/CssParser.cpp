@@ -136,12 +136,17 @@ bool CssParser::parseBlock (TokenList* tokens) {
 Ruleset* CssParser::parseRuleset () {
   Ruleset* ruleset = NULL;
   Declaration* declaration = NULL;
-  Selector* selector = parseSelector();
-  
-  if (selector == NULL) {
-    if (tokenizer->getTokenType() != Token::BRACKET_OPEN) 
+  Selector* selector = new Selector();
+
+  if (!parseSelector(selector)) {
+    delete selector;
+    selector = NULL;
+    
+    if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
       return NULL;
+    } 
   } else if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
+    delete selector;
     throw new ParseException(tokenizer->getToken()->str,
                              "a declaration block ('{...}')");
   }
@@ -172,32 +177,29 @@ Ruleset* CssParser::parseRuleset () {
   return ruleset;
 }
 
-Selector* CssParser::parseSelector() {
-  Selector* selector = new Selector();
-  if (!parseAny(selector)) {
-    delete selector;
-    return NULL;
-  }
-  
+bool CssParser::parseSelector(Selector* selector) {
+  if (!parseAny(selector)) 
+    return false;
+    
   while (parseAny(selector)) {};
 
   // delete trailing whitespace
   while (selector->back()->type == Token::WHITESPACE) {
     delete selector->pop();
   }
-  return selector;
+  return true;
 }
 
 Declaration* CssParser::parseDeclaration () {
   Declaration* declaration = NULL;
-  string* property = parseProperty();
-  
-  if (property == NULL) 
+  TokenList property;
+
+  if (!parseProperty(&property))
     return NULL;
   
   skipWhitespace();
 
-  declaration = new Declaration(property);
+  declaration = new Declaration(property.toString());
   
   if (tokenizer->getTokenType() != Token::COLON) {
     throw new ParseException(tokenizer->getToken()->str,
@@ -215,12 +217,12 @@ Declaration* CssParser::parseDeclaration () {
   return declaration;
 }
 
-string* CssParser::parseProperty () {
+bool CssParser::parseProperty (TokenList* tokens) {
   if (tokenizer->getTokenType() != Token::IDENTIFIER)
-    return NULL;
-  string* property = new string(tokenizer->getToken()->str);
+    return false;
+  tokens->push(tokenizer->getToken()->clone());
   tokenizer->readNextToken();
-  return property;
+  return true;
 }
 
 TokenList* CssParser::parseValue () {

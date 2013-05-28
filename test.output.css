@@ -107,6 +107,7 @@ pre{
     color:#d41232;
     color:#f1dada;
     clip:rect(1px,1px,1px,1px);
+    color:#1a1a1a;
 }
 #bundle .button:hover{
     background-color:white;

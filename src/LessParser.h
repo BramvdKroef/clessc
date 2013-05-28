@@ -94,7 +94,7 @@ protected:
                               bool processValues);
   void processRuleset(vector<Declaration*>* declarations);
   
-  Declaration* parseDeclaration(string* property);
+  Declaration* parseDeclaration(TokenList* property, TokenList* value);
 
   bool parseVariable(string keyword);
 

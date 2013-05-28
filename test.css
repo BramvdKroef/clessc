@@ -188,6 +188,7 @@ pre { .wrap  }
     color: spin(@color, -10);
     color: hsl(hue(@color), 45%, 90%);
     clip: rect(1px, 1px, 1px, 1px);
+    .mixin2(lighten(#000, 10%));
 }
 
 

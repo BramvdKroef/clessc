@@ -107,7 +107,7 @@ protected:
    * @return a list of tokens or NULL if no
    *    selector was found.
    */
-  Selector* parseSelector();
+  bool parseSelector(Selector* selector);
 
   /**
    * Parses a 'property: value' pair.
@@ -119,9 +119,12 @@ protected:
   /**
    * Parses an identifier token that represents a property name.
    *
-   * @return the string of the token or NULL if none was found.
+   * @return true if a property name was found. The tokens
+   *   representing it will be pushed into the property argument.
+   *   If no property was found the return value is false and the
+   *   argument will be untouched.
    */
-  string* parseProperty ();
+  bool parseProperty (TokenList* property);
 
   /**
    * Parses a list of tokens that represent a value.

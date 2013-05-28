@@ -115,13 +115,16 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   list<string> parameters;
   list<string>::iterator pit;
   
-  if (selector == NULL)
-    selector = parseSelector();
+  if (selector == NULL) {
+    selector = new Selector();
+    parseSelector(selector);
+  }
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
-    if (selector == NULL) 
+    if (selector->empty()) {
+      delete selector;
       return false;
-    else {
+    } else {
       throw new ParseException(tokenizer->getToken()->str,
                                "a declaration block ('{...}')");
     }
@@ -135,14 +138,16 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   if (ParameterRuleset::isValid(selector)) {
     ruleset = pruleset = new ParameterRuleset(selector);
     parameterRulesets->push_back(pruleset);
-    parseRulesetStatement(stylesheet, ruleset, false);
+    while (parseRulesetStatement(stylesheet, ruleset, false)) {
+    }
   } else {
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
 
     // add new scope for the ruleset
     valueProcessor->pushScope();
-    parseRulesetStatement(stylesheet, ruleset, true);
+    while (parseRulesetStatement(stylesheet, ruleset, true)) {
+    }
     valueProcessor->popScope();
   }    
   
@@ -160,67 +165,55 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
                                         Ruleset* ruleset,
                                         bool processValues) {
   Declaration* declaration;
-  Selector* selector = parseSelector();
-  TokenList* value;
+  TokenList property;
+  Selector* selector = new Selector();
 
-  if (selector == NULL) {
-    // No selector found. Parse a variable and, if successfull,
-    // try again.
-    if (parseVariable()) {
-      parseRulesetStatement(stylesheet, ruleset, processValues);
-      return true;
-    }
-    return false;
+  parseProperty(&property);
+  parseWhitespace(selector);
+  parseSelector(selector);
+
+  if (!property.empty()) {
+    selector->unshift(&property);
+  }
+  while (!selector->empty() &&
+         selector->back()->type == Token::WHITESPACE) {
+    delete selector->pop();
+  }
+  
+  // No selector found. Try to parse a variable and return.
+  if (selector->empty())  {
+    delete selector;
+    return parseVariable();
   }
 
-    // a selector followed by a ruleset is a nested rule
+  // a selector followed by a ruleset is a nested rule
   if (parseNestedRule(selector, ruleset, stylesheet)) {
-    parseRulesetStatement(stylesheet, ruleset, processValues);
-    return true;
-
-  } else if (selector->size() > 1 &&
-             selector->front()->type == Token::IDENTIFIER &&
-             selector->at(1)->type == Token::COLON) {
     
-    declaration = new Declaration(new string(selector->front()->str));
-    delete selector->shift();
-    delete selector->shift();
-    // parse any leftover value parts.
-    value = CssParser::parseValue();
-    if (value != NULL) {
-      selector->push(value);
-      delete value;
-    }
-    if (processValues)
-      valueProcessor->processValue(selector);
-    declaration->setValue(selector);
-    
-    ruleset->addDeclaration(declaration);
-    if (tokenizer->getTokenType() == Token::DELIMITER) {
-      tokenizer->readNextToken();
-      skipWhitespace();
-      parseRulesetStatement(stylesheet, ruleset, processValues);
-    }
-    
-    return true;
-
     // a selector by itself might be a mixin.
   } else if (parseMixin(selector, ruleset, stylesheet)) {
     delete selector;
-    if (tokenizer->getTokenType() == Token::DELIMITER) {
-      tokenizer->readNextToken();
-      skipWhitespace();
-      parseRulesetStatement(stylesheet, ruleset, processValues);
-    }
-    return true;
-    
-    // if we can parse a property and the next token is a COLON then the
-    // statement is a declaration.
 
   } else {
-    throw new ParseException(*selector->toString(),
-                             "a mixin that has been defined");
+    for(size_t i=0; i < property.size(); i++)
+      delete selector->shift();
+    
+    if ((declaration = parseDeclaration(&property, selector)) != NULL) {
+      if (processValues)
+        valueProcessor->processValue(declaration->getValue());
+
+      ruleset->addDeclaration(declaration);
+    
+    } else {
+      throw new ParseException(*selector->toString(),
+                               "a mixin, nested ruleset, or property");
+    }
   }
+  if (tokenizer->getTokenType() == Token::DELIMITER) {
+    tokenizer->readNextToken();
+    skipWhitespace();
+  }
+    
+  return true;
 }
 
 void LessParser::processRuleset(vector<Declaration*>* declarations) {
@@ -241,24 +234,27 @@ bool LessParser::parseNestedRule(Selector* selector, Ruleset*
   return true;
 }
 
-Declaration* LessParser::parseDeclaration (string* property) {
+Declaration* LessParser::parseDeclaration (TokenList* property,
+                                           TokenList* value) {
   Declaration* declaration;
+  TokenList* value2;
   
-  skipWhitespace();
-  if (tokenizer->getTokenType() != Token::COLON) 
+  if (value->empty() ||
+      value->front()->type != Token::COLON)
     return NULL;
-  tokenizer->readNextToken();
-  skipWhitespace();
-      
-  declaration = new Declaration(property);
-      
-  TokenList* value = parseValue();
-  if (value == NULL) {
-    throw new ParseException(tokenizer->getToken()->str,
-                             "value for property");
-  }
+    
+  delete value->shift();
   
+  declaration = new Declaration(property->toString());
+  
+  // parse any leftover value parts.
+  value2 = CssParser::parseValue();
+  if (value2 != NULL) {
+    value->push(value2);
+    delete value2;
+  }
   declaration->setValue(value);
+  
   return declaration;
 }
 
@@ -302,6 +298,7 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
   vector<Declaration*>* declarations;
   
   bool ret = false;
+  size_t nestedParenthesis = 0;
 
   while (tli->hasNext()) {
     current = tli->next();
@@ -320,12 +317,22 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
 
     while (tli->hasNext()) {
       current = tli->next();
-      if (current->str == "," ||
-          current->str == ";" ||
-          current->type == Token::PAREN_CLOSED)
-        break;
+      if (nestedParenthesis == 0) {
+        if (current->str == "," ||
+            current->str == ";" ||
+            current->type == Token::PAREN_CLOSED)
+          break;
+      }
+      
+      if (current->type == Token::PAREN_OPEN) 
+        nestedParenthesis++;
+      
+      if (current->type == Token::PAREN_CLOSED) 
+        nestedParenthesis--;
+      
       argument->push(current->clone());
     }
+    
     valueProcessor->processValue(argument);
     arguments->push_back(argument);
   }
