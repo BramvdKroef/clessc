@@ -363,11 +363,20 @@ void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   ifstream* in = new ifstream(filename.c_str());
   if (in->fail() || in->bad())
     throw new ParseException(filename, "existing file");
+
+  CssTokenizer* tokenizer;
+  CssParser* parser;
   
-  LessTokenizer* tokenizer = new LessTokenizer(in);
-  LessParser* parser = new LessParser(tokenizer,
-                                      this->parameterRulesets,
-                                      this->valueProcessor);
+  if (filename.size() > 5 && 
+      filename.substr(filename.size() - 5, 4) == ".css") {
+    tokenizer = new CssTokenizer(in);
+    parser = new CssParser(tokenizer);
+  } else {
+    tokenizer = new LessTokenizer(in);
+    parser = new LessParser(tokenizer,
+                              this->parameterRulesets,
+                              this->valueProcessor);
+  }
   parser->parseStylesheet(stylesheet);
   in->close();
   delete parser;
