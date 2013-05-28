@@ -21,6 +21,68 @@
 
 #include "ParameterRuleset.h"
 
+bool ParameterRuleset::isValid(Selector* selector) {
+  TokenListIterator* it = selector->iterator();
+  while (it->hasNext() &&
+         it->next()->type != Token::PAREN_OPEN) {
+  }
+  
+  if (!it->hasNext()) {
+    delete it;
+    return false;
+  }
+
+  while(it->hasNext() && it->next()->type == Token::WHITESPACE) {
+  }
+
+  while (it->current()->type == Token::ATKEYWORD) {
+    if (!it->hasNext())
+      break;
+
+    if (it->next()->type == Token::COLON) {
+      while (it->hasNext() &&
+             it->next()->type != Token::PAREN_CLOSED &&
+             it->current()->str != "," &&
+             it->current()->str != ";") {
+      }
+      
+    } else if (it->current()->str == ".") {
+      if (!it->hasNext() || it->next()->str != "." ||
+          !it->hasNext() || it->next()->str != ".") {
+        delete it;
+        return false;
+      }
+      while(it->hasNext() && it->next()->type == Token::WHITESPACE) {
+      }
+    }
+    
+    if (it->current()->str != "," &&
+        it->current()->str != ";") {
+      break;
+    }
+
+    while(it->hasNext() && it->next()->type == Token::WHITESPACE) {
+    }
+  }
+  
+  if (it->current()->str == ".") {
+    if (!it->hasNext() || it->next()->str != "." ||
+        !it->hasNext() || it->next()->str != ".") {
+      delete it;
+      return false;
+    }
+    if (it->hasNext())
+      it->next();
+  }
+  if (it->current()->type == Token::PAREN_CLOSED) {
+    delete it;
+    return true;
+  } else {
+    delete it;
+    return false;
+  }
+}
+
 ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   Selector* newselector = new Selector();
   rest = "";

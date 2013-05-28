@@ -137,4 +137,7 @@ body{
     width:10 -1;
     filter:progid:DXImageTransform.Microsoft.gradient(enabled="false",startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);
 }
+audio:not([controls]){
+    display:none;
+}
 

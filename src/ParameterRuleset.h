@@ -41,8 +41,10 @@ public:
   list<string> parameters;
   list<TokenList*> defaults;
 
+  static bool isValid(Selector* selector);
+  
   ParameterRuleset(Selector* selector);
-
+  
   void addParameter(string keyword, TokenList* value);
 
   TokenList* getDefault(string keyword);

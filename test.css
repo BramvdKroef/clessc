@@ -256,6 +256,10 @@ body {
     filter:progid:DXImageTransform.Microsoft.gradient(enabled='false',startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);         
 }
 
+// not a parameter ruleset
+audio:not([controls]) {
+    display: none;
+}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

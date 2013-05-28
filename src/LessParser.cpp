@@ -132,7 +132,11 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   // Create the ruleset and parse ruleset statements.
   // In case of a parameter ruleset the declaration values are not
   // processed until later.
-  if (selector->back()->type != Token::PAREN_CLOSED) {
+  if (ParameterRuleset::isValid(selector)) {
+    ruleset = pruleset = new ParameterRuleset(selector);
+    parameterRulesets->push_back(pruleset);
+    parseRulesetStatement(stylesheet, ruleset, false);
+  } else {
     ruleset = new Ruleset(selector);
     stylesheet->addRuleset(ruleset);
 
@@ -140,11 +144,6 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     valueProcessor->pushScope();
     parseRulesetStatement(stylesheet, ruleset, true);
     valueProcessor->popScope();
-
-  } else {
-    ruleset = pruleset = new ParameterRuleset(selector);
-    parameterRulesets->push_back(pruleset);
-    parseRulesetStatement(stylesheet, ruleset, false);
   }    
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
