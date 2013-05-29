@@ -218,8 +218,19 @@ Declaration* CssParser::parseDeclaration () {
 }
 
 bool CssParser::parseProperty (TokenList* tokens) {
-  if (tokenizer->getTokenType() != Token::IDENTIFIER)
+  if (tokenizer->getToken()->str == "*") {
+    // suppor for a IE Hack
+    tokens->push(tokenizer->getToken()->clone());
+    tokenizer->readNextToken();
+    if (tokenizer->getTokenType() == Token::IDENTIFIER) {
+      tokens->push(tokenizer->getToken()->clone());
+      tokenizer->readNextToken();
+    }
+    return true;
+    
+  } else if (tokenizer->getTokenType() != Token::IDENTIFIER) 
     return false;
+  
   tokens->push(tokenizer->getToken()->clone());
   tokenizer->readNextToken();
   return true;

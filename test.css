@@ -257,6 +257,10 @@ body {
     filter:progid:DXImageTransform.Microsoft.gradient(enabled='false',startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);         
 }
 
+video {
+    *zoom: 1;
+}
+
 // not a parameter ruleset
 audio:not([controls]) {
     display: none;
