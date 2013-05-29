@@ -105,6 +105,21 @@ vector<Declaration*>* Ruleset::cloneDeclarations() {
   return clone;
 }
 
+Ruleset* Ruleset::clone() {
+  Ruleset* ruleset = new Ruleset(NULL);
+  vector<Declaration*>* declarations;
+  vector<Declaration*>::iterator di;
+  
+  if (getSelector() != NULL)
+    ruleset->setSelector(getSelector());
+
+  declarations = getDeclarations();  
+  for (di = declarations->begin(); di < declarations->end(); di++) {
+    ruleset->addDeclaration((*di)->clone());
+  }
+  return ruleset;
+}
+
 
 AtRule::AtRule (string* keyword) {
   this->keyword = keyword;

@@ -62,6 +62,7 @@ public:
   Selector* getSelector();
   vector<Declaration*>* getDeclarations();
   vector<Declaration*>* cloneDeclarations();
+  Ruleset* clone();
 };
 
 class AtRule {

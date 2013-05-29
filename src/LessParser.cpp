@@ -137,6 +137,9 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   // In case of a parameter ruleset the declaration values are not
   // processed until later.
   if (ParameterRuleset::isValid(selector)) {
+    if (parent != NULL)
+      cerr << "Warning: Parametric ruleset defined inside another \
+parametric ruleset." << endl;
     ruleset = pruleset = new ParameterRuleset(selector);
     parameterRulesets->push_back(pruleset);
     while (parseRulesetStatement(stylesheet, ruleset, pruleset)) {
@@ -280,7 +283,7 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
   vector<Declaration*>* declarations;
   bool ret;
 
-  ret = processParameterMixin(selector, ruleset);
+  ret = processParameterMixin(selector, ruleset, stylesheet);
 
   if ((mixin = stylesheet->getRuleset(selector)) != NULL) {
     declarations = mixin->cloneDeclarations();
@@ -291,7 +294,9 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
   return ret;
 }
 
-bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
+bool LessParser::processParameterMixin(Selector* selector,
+                                       Ruleset* parent,
+                                       Stylesheet* stylesheet) {
   TokenList key;
   list<TokenList*>* arguments = new list<TokenList*>();
 
@@ -302,7 +307,6 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
   Token* current;
 
   ParameterRuleset* mixin;
-  vector<Declaration*>* declarations;
   
   bool ret = false;
   size_t nestedParenthesis = 0;
@@ -352,26 +356,49 @@ bool LessParser::processParameterMixin(Selector* selector, Ruleset* parent) {
     
     if (mixin->getSelector()->equals(&key) &&
         mixin->matchArguments(arguments)) {
-      // new scope
-      valueProcessor->pushScope();
-      
-      if (mixin->putArguments(valueProcessor, arguments) &&
-          mixin->matchConditions(valueProcessor)) {
-
-        declarations = mixin->cloneDeclarations();
-        processRuleset(declarations);
-        parent->addDeclarations(declarations);
-        delete declarations;
-
-        ret = true;
-      }
-      
-      valueProcessor->popScope();
+      ret = insertParameterMixin(mixin, arguments,
+                                 parent, stylesheet) || ret;
     }
   }
   return ret;
 }
 
+bool LessParser::insertParameterMixin(ParameterRuleset* mixin,
+                                      list<TokenList*>* arguments,
+                                      Ruleset* parent,
+                                      Stylesheet* stylesheet) {
+  vector<Declaration*>* declarations;
+  list<Ruleset*>* nestedRules;
+  list<Ruleset*>::iterator it;
+  Ruleset* nestedRule;
+  
+  bool ret = false;
+  
+  // new scope
+  valueProcessor->pushScope();
+      
+  if (mixin->putArguments(valueProcessor, arguments) &&
+      mixin->matchConditions(valueProcessor)) {
+
+    declarations = mixin->cloneDeclarations();
+    processRuleset(declarations);
+    parent->addDeclarations(declarations);
+    delete declarations;
+
+    nestedRules = mixin->getNestedRules();
+    for (it = nestedRules->begin(); it != nestedRules->end(); it++) {
+      nestedRule = (*it)->clone();
+      nestedRule->getSelector()->addPrefix(parent->getSelector());
+      stylesheet->addRuleset(nestedRule);
+    }
+
+    ret = true;
+  }
+      
+  valueProcessor->popScope();
+
+  return ret;
+}
 
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   ifstream* in = new ifstream(filename.c_str());

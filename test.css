@@ -10,6 +10,8 @@
 .class {
     content: @@var;
 }
+
+// Causes a warning
 @var: 'defined twice';
 
 /* Mixins */
@@ -200,6 +202,17 @@ pre { .wrap  }
         border: 1px solid black;
         background-color: grey;
         &:hover { background-color: white }
+
+        // This will cause a warning.
+        .nestedPar () {
+            color: #F00;
+        }
+        
+        span {
+            a {
+                display: none;
+            }
+        }
     }
     .tab { }
     .citation { } 
@@ -207,7 +220,7 @@ pre { .wrap  }
 
 #header a {
     color: orange;
-    #bundle .button; 
+    #bundle .button;
 }
 
 /* Scope */

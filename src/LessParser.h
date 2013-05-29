@@ -106,7 +106,13 @@ protected:
   
   bool parseMixin(Selector* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);
-  bool processParameterMixin(Selector* selector, Ruleset* parent);
+  bool processParameterMixin(Selector* selector,
+                             Ruleset* parent,
+                             Stylesheet* stylesheet);
+  bool insertParameterMixin(ParameterRuleset* mixin,
+                            list<TokenList*>* arguments,
+                            Ruleset* parent,
+                            Stylesheet* stylesheet);
 
   TokenList* parseValue ();
 
