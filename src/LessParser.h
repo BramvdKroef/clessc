@@ -87,19 +87,22 @@ protected:
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
   bool parseRuleset (Stylesheet* stylesheet,
-                     Selector* selector = NULL);
+                     Selector* selector = NULL,
+                     ParameterRuleset* parent = NULL);
 
   bool parseRulesetStatement (Stylesheet* stylesheet,
                               Ruleset* ruleset,
-                              bool processValues);
+                              ParameterRuleset* parent = NULL);
   void processRuleset(vector<Declaration*>* declarations);
   
   Declaration* parseDeclaration(TokenList* property, TokenList* value);
 
   bool parseVariable(string keyword);
 
-  bool parseNestedRule(Selector* selector, Ruleset*
-                       ruleset, Stylesheet* stylesheet);
+  bool parseNestedRule(Selector* selector,
+                       Ruleset* ruleset,
+                       Stylesheet* stylesheet,
+                       ParameterRuleset* parent = NULL);
   
   bool parseMixin(Selector* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet);

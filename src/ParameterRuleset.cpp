@@ -120,6 +120,17 @@ ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   delete selector;
 }
 
+ParameterRuleset::~ParameterRuleset() {
+  while (!defaults.empty()) {
+    delete defaults.back();
+    defaults.pop_back();
+  }
+  while (!nestedRules.empty()) {
+    delete nestedRules.back();
+    nestedRules.pop_back();
+  }
+}
+
 void ParameterRuleset::addParameter(string keyword, TokenList* value) {
   parameters.push_back(keyword);
   defaults.push_back(value);
@@ -262,3 +273,9 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
   return true;
 }
 
+void ParameterRuleset::addNestedRule(Ruleset* nestedRule) {
+  nestedRules.push_back(nestedRule);
+}
+list<Ruleset*>* ParameterRuleset::getNestedRules() {
+  return &nestedRules;
+}

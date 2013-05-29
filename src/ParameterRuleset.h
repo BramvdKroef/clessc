@@ -36,14 +36,16 @@ private:
   
 protected:
   bool processParameter(Selector* selector);
-  
+    
 public:
   list<string> parameters;
   list<TokenList*> defaults;
-
+  list<Ruleset*> nestedRules;
+  
   static bool isValid(Selector* selector);
   
   ParameterRuleset(Selector* selector);
+  ~ParameterRuleset();
   
   void addParameter(string keyword, TokenList* value);
 
@@ -57,6 +59,8 @@ public:
   bool putArguments(ValueProcessor* valueProcessor,
                     list<TokenList*>* arguments);
 
+  void addNestedRule(Ruleset* nestedRule);
+  list<Ruleset*>* getNestedRules();
 
 };
 

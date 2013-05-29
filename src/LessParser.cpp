@@ -109,7 +109,8 @@ variable declaration.");
 }
 
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
-                               Selector* selector) {
+                               Selector* selector,
+                               ParameterRuleset* parent) {
   Ruleset* ruleset = NULL;
   ParameterRuleset* pruleset = NULL;
   list<string> parameters;
@@ -138,15 +139,18 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   if (ParameterRuleset::isValid(selector)) {
     ruleset = pruleset = new ParameterRuleset(selector);
     parameterRulesets->push_back(pruleset);
-    while (parseRulesetStatement(stylesheet, ruleset, false)) {
+    while (parseRulesetStatement(stylesheet, ruleset, pruleset)) {
     }
   } else {
     ruleset = new Ruleset(selector);
-    stylesheet->addRuleset(ruleset);
+    if (parent == NULL)
+      stylesheet->addRuleset(ruleset);
+    else
+      parent->addNestedRule(ruleset);
 
     // add new scope for the ruleset
     valueProcessor->pushScope();
-    while (parseRulesetStatement(stylesheet, ruleset, true)) {
+    while (parseRulesetStatement(stylesheet, ruleset, parent)) {
     }
     valueProcessor->popScope();
   }    
@@ -163,7 +167,7 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 
 bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
                                         Ruleset* ruleset,
-                                        bool processValues) {
+                                        ParameterRuleset* parent) {
   Declaration* declaration;
   TokenList property;
   Selector* selector = new Selector();
@@ -187,7 +191,7 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
   }
 
   // a selector followed by a ruleset is a nested rule
-  if (parseNestedRule(selector, ruleset, stylesheet)) {
+  if (parseNestedRule(selector, ruleset, stylesheet, parent)) {
     
     // a selector by itself might be a mixin.
   } else if (parseMixin(selector, ruleset, stylesheet)) {
@@ -198,7 +202,7 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
       delete selector->shift();
     
     if ((declaration = parseDeclaration(&property, selector)) != NULL) {
-      if (processValues)
+      if (parent == NULL)
         valueProcessor->processValue(declaration->getValue());
 
       ruleset->addDeclaration(declaration);
@@ -223,14 +227,17 @@ void LessParser::processRuleset(vector<Declaration*>* declarations) {
   }
 }
 
-bool LessParser::parseNestedRule(Selector* selector, Ruleset*
-                                 ruleset, Stylesheet* stylesheet) {
+bool LessParser::parseNestedRule(Selector* selector,
+                                 Ruleset* ruleset,
+                                 Stylesheet* stylesheet,
+                                 ParameterRuleset* parent) {
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
     return false;
 
-  selector->addPrefix(ruleset->getSelector());
-  parseRuleset(stylesheet, selector);
+  if (ruleset != parent)
+    selector->addPrefix(ruleset->getSelector());
+  parseRuleset(stylesheet, selector, parent);
   return true;
 }
 
