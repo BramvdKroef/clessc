@@ -125,6 +125,16 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     if (selector->empty()) {
       delete selector;
       return false;
+      
+    } else if (processParameterMixin(selector, NULL, stylesheet)) {
+      // Parameter mixin in the root. Inserts nested rules but no
+      // declarations. 
+      delete selector;
+      if (tokenizer->getTokenType() == Token::DELIMITER) {
+        tokenizer->readNextToken();
+        skipWhitespace();
+      }
+      return true;
     } else {
       throw new ParseException(tokenizer->getToken()->str,
                                "a declaration block ('{...}')");
@@ -376,19 +386,22 @@ bool LessParser::insertParameterMixin(ParameterRuleset* mixin,
   
   // new scope
   valueProcessor->pushScope();
-      
+
   if (mixin->putArguments(valueProcessor, arguments) &&
       mixin->matchConditions(valueProcessor)) {
 
-    declarations = mixin->cloneDeclarations();
-    processRuleset(declarations);
-    parent->addDeclarations(declarations);
-    delete declarations;
+    if (parent != NULL) {
+      declarations = mixin->cloneDeclarations();
+      processRuleset(declarations);
+      parent->addDeclarations(declarations);
+      delete declarations;
+    }
 
     nestedRules = mixin->getNestedRules();
     for (it = nestedRules->begin(); it != nestedRules->end(); it++) {
       nestedRule = (*it)->clone();
-      nestedRule->getSelector()->addPrefix(parent->getSelector());
+      if (parent != NULL)
+        nestedRule->getSelector()->addPrefix(parent->getSelector());
       stylesheet->addRuleset(nestedRule);
     }
 

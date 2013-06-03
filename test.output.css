@@ -155,4 +155,7 @@ audio:not([controls]){
     background-color:white;
     color:#555;
 }
+h1{
+    color:white;
+}
 
