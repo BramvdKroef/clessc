@@ -389,7 +389,7 @@ void Color::loadFunctions(FunctionLibrary* lib) {
   lib->push("hsl", "NPP", &Color::hsl);
   lib->push("hue", "C", &Color::hue);
   lib->push("saturation", "C", &Color::saturation);
-  lib->push("lightness", "CP", &Color::lightness);
+  lib->push("lightness", "C", &Color::lightness);
 }
 
 Value* Color::rgb(vector<Value*> arguments) {
