@@ -20,6 +20,7 @@
  */
 
 #include "ParameterRuleset.h"
+#include <iostream>
 
 bool ParameterRuleset::isValid(Selector* selector) {
   TokenListIterator* it = selector->iterator();
@@ -54,6 +55,7 @@ bool ParameterRuleset::isValid(Selector* selector) {
       }
       while(it->hasNext() && it->next()->type == Token::WHITESPACE) {
       }
+      break;
     }
     
     if (it->current()->str != "," &&
@@ -74,13 +76,21 @@ bool ParameterRuleset::isValid(Selector* selector) {
     if (it->hasNext())
       it->next();
   }
-  if (it->current()->type == Token::PAREN_CLOSED) {
-    delete it;
-    return true;
-  } else {
+  if (it->current()->type != Token::PAREN_CLOSED) {
     delete it;
     return false;
   }
+
+  while(it->hasNext() && it->next()->type == Token::WHITESPACE) {
+  }
+  if (it->current()->str == "when") {
+    while (it->hasNext()) {
+      it->next();
+    }
+  }
+  
+  delete it;
+  return true;
 }
 
 ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
@@ -113,9 +123,25 @@ ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
     delete selector->shift();
     delete selector->shift();
   }
+
   if (selector->front()->type != Token::PAREN_CLOSED) {
     throw new ParseException(*selector->toString(),
                              "matching parentheses.");
+  }
+  delete selector->shift();
+  
+  while (!selector->empty() &&
+         selector->front()->type == Token::WHITESPACE)
+    delete selector->shift();
+  
+  if (!selector->empty() &&
+      selector->front()->str == "when") {
+    delete selector->shift();
+    
+    while (!selector->empty() &&
+           selector->front()->type == Token::WHITESPACE)
+      delete selector->shift();
+    processConditions(selector);
   }
   delete selector;
 }
@@ -148,6 +174,10 @@ TokenList* ParameterRuleset::getDefault(string keyword) {
 
 list<string> ParameterRuleset::getKeywords() {
   return parameters;
+}
+
+void ParameterRuleset::addCondition(TokenList* condition) {
+  conditions.push_back(condition);
 }
 
 bool ParameterRuleset::processParameter(Selector* selector) {
@@ -206,6 +236,21 @@ bool ParameterRuleset::processParameter(Selector* selector) {
   return true;
 }
 
+void ParameterRuleset::processConditions(Selector* selector) {
+  TokenList* condition;
+  while (!selector->empty()) {
+    condition = new TokenList();
+    
+    while(!selector->empty() && selector->front()->str != ",") {
+      condition->push(selector->shift());
+    }
+    if (!selector->empty() && selector->front()->str == ",")
+      delete selector->shift();
+    
+    addCondition(condition);
+  }
+}
+
 bool ParameterRuleset::matchArguments(list<TokenList*>* arguments) {
   list<string> parameters = getKeywords();
   list<TokenList*>::iterator ait  = arguments->begin();
@@ -221,8 +266,21 @@ bool ParameterRuleset::matchArguments(list<TokenList*>* arguments) {
 }
 
 bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
-  (void)valueProcessor;
-  return true;
+  list<TokenList*>::iterator cit = conditions.begin();
+  TokenList* condition;
+  if (conditions.size() == 0)
+    return true;
+  
+  for(; cit != conditions.end(); cit++) {
+    condition = (*cit)->clone();
+    
+    if (valueProcessor->validateValue(condition)) {
+      delete condition;
+      return true;
+    } else
+      delete condition;
+  }
+  return false;
 }
   
 bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,

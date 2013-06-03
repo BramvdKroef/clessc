@@ -91,6 +91,21 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   value->push(&newvalue);
   return value;
 }
+bool ValueProcessor::validateValue(TokenList* value) {
+  Value* v = processStatement(value);
+  Value* trueVal = new BooleanValue(true);
+  Value* v2;
+  bool ret;
+  v2 = v->equals(trueVal);
+  ret = ((BooleanValue*)v2)->getValue();
+  
+  delete trueVal;
+  delete v;
+  delete v2;
+  
+  return ret;
+}
+
 void ValueProcessor::putVariable(string key, TokenList* value) {
   map<string, TokenList*>* scope = scopes.back();
   map<string, TokenList*>::iterator mit;
@@ -141,7 +156,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
                                        Token* lastop) {
   Value* v2, *tmp;
   Token* op;
-  string operators("+-*/=><>==<");
+  string operators("+-*/=><");
   size_t pos;
   
   while (value->size() > 0 &&
@@ -152,19 +167,20 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
       (pos = operators.find(value->front()->str)) == string::npos)
     return NULL;
   
-  if (pos < 7 && value->front()->str.size() != 1)
-    return NULL;
-  
-  if (pos >= 7 && (value->front()->str.size() != 2 ||
-                   pos % 2 != 1))
-    return NULL;
   
   if (lastop != NULL &&
-      operators.find(lastop->str) >=
-      operators.find(value->front()->str)) {
+      operators.find(lastop->str) >= pos) {
     return NULL;
   }
   op = value->shift();
+
+  // Check for 2 char operators ('>=' and '=<')
+  if (value->size() > 0 &&
+      (pos = operators.find(value->front()->str)) != string::npos) {
+    op->str.append(value->front()->str);
+    delete value->shift();
+  }
+  
   v2 = processConstant(value);
   if (v2 == NULL) {
     if (value->size() > 0) 
@@ -174,7 +190,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   }
   while ((tmp = processOperator(value, v2, op))) 
     v2 = tmp;
-
+  
   if (op->str == "+") 
     tmp = v1->add(v2);
   else if (op->str == "-")
@@ -191,7 +207,7 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
     tmp = v1->greaterThan(v2);
   else if (op->str == "=<")
     tmp = v1->lessThanEquals(v2);
-  else if (op->str == ">=")
+  else if (op->str == ">=") 
     tmp = v1->greaterThanEquals(v2);
   
   if (tmp != v1)

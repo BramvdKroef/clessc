@@ -36,11 +36,13 @@ private:
   
 protected:
   bool processParameter(Selector* selector);
-    
+  void processConditions(Selector* selector);
+  
 public:
   list<string> parameters;
   list<TokenList*> defaults;
   list<Ruleset*> nestedRules;
+  list<TokenList*> conditions;
   
   static bool isValid(Selector* selector);
   
@@ -48,11 +50,11 @@ public:
   ~ParameterRuleset();
   
   void addParameter(string keyword, TokenList* value);
-
   TokenList* getDefault(string keyword);
-
   list<string> getKeywords();
 
+  void addCondition(TokenList* condition);
+  
   bool matchArguments(list<TokenList*>* arguments);
   bool matchConditions(ValueProcessor* valueProcessor);
   

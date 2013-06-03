@@ -278,6 +278,21 @@ video {
 audio:not([controls]) {
     display: none;
 }
+
+.mixin5 (@a) when (lightness(@a) >= 50%) {
+  background-color: black;
+}
+.mixin5 (@a) when (lightness(@a) < 50%) {
+  background-color: white;
+}
+.mixin5 (@a) {
+  color: @a;
+}
+
+.class1 { .mixin5(#ddd) }
+.class2 { .mixin5(#555) }
+
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

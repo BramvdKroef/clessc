@@ -147,4 +147,12 @@ video{
 audio:not([controls]){
     display:none;
 }
+.class1{
+    background-color:black;
+    color:#ddd;
+}
+.class2{
+    background-color:white;
+    color:#555;
+}
 
