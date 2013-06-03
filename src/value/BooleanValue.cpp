@@ -3,6 +3,7 @@
 BooleanValue::BooleanValue(bool value) {
   tokens.push(new Token("true", Token::IDENTIFIER));
   setValue(value);
+  type = Value::BOOLEAN;
 }
 
 BooleanValue::~BooleanValue() {
@@ -46,6 +47,6 @@ int BooleanValue::compare(Value* v) {
     return (getValue() ? 1 : 0) -
       (((BooleanValue*)v)->getValue() ? 1 : 0);
   } else {
-    throw new ValueException("You can only compare a boolean with a *boolean*.");
+    return (getValue() ? 1 : 0);
   }
 }
