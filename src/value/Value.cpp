@@ -41,10 +41,10 @@ Value* Value::greaterThan(Value* v) {
   return new BooleanValue(this->compare(v) > 0);
 }
 Value* Value::lessThanEquals(Value* v) {
-  return new BooleanValue(this->compare(v) >= 0);
+  return new BooleanValue(this->compare(v) <= 0);
 }
 Value* Value::greaterThanEquals(Value* v) {
-  return new BooleanValue(this->compare(v) <= 0);
+  return new BooleanValue(this->compare(v) >= 0);
 }
 
 const char* Value::typeToString(Type t) {
