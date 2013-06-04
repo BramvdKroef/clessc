@@ -293,10 +293,13 @@ audio:not([controls]) {
 .class2 { .mixin5(#555) }
 
 
-.test () {
-    h1{ color:white;} 
+.test (@h) {
+    h1{
+        color:white;
+        height: @h;
+      } 
 }
-.test;
+.test(20px);
 
 /* Multiline comment ending with * at the end of the file */
 /*

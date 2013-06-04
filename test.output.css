@@ -116,10 +116,10 @@ pre{
     background-color:grey;
 }
 #header a:hover{
-    background-color: white;
+    background-color:white;
 }
 #header a span a{
-    display: none;
+    display:none;
 }
 #page #header{
     color:white;
@@ -157,5 +157,6 @@ audio:not([controls]){
 }
 h1{
     color:white;
+    height:20px;
 }
 

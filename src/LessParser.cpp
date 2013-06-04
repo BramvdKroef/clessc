@@ -400,6 +400,7 @@ bool LessParser::insertParameterMixin(ParameterRuleset* mixin,
     nestedRules = mixin->getNestedRules();
     for (it = nestedRules->begin(); it != nestedRules->end(); it++) {
       nestedRule = (*it)->clone();
+      processRuleset(nestedRule->getDeclarations());
       if (parent != NULL)
         nestedRule->getSelector()->addPrefix(parent->getSelector());
       stylesheet->addRuleset(nestedRule);
