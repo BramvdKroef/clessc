@@ -301,6 +301,29 @@ audio:not([controls]) {
 }
 .test(20px);
 
+.test1 (@FooterHeight) {
+    test1: 1px;
+    
+    footer,
+    .push {
+        height: @FooterHeight;
+    }
+}
+
+.test2 (@H_H, @F_H)  {
+    test2: 1px;
+    .test1(@F_H);
+    
+    header {
+        height: @H_H;
+    }
+}
+
+body {
+    .test2(90px, 60px);
+}
+
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

@@ -33,7 +33,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <typeinfo>
 /**
  * Extends the css spec with these parts:
  * * Variables
@@ -105,14 +105,20 @@ protected:
                        ParameterRuleset* parent = NULL);
   
   bool parseMixin(Selector* selector, Ruleset* ruleset,
-                  Stylesheet* stylesheet);
-  bool processParameterMixin(Selector* selector,
-                             Ruleset* parent,
+                  Stylesheet* stylesheet,
+                  ParameterRuleset* parent);
+  bool parseParameterMixin(Selector* selector,
+                           Ruleset* target,
+                           Stylesheet* stylesheet,
+                           ParameterRuleset* parent);
+  bool parameterRulesetExists(ParameterMixin* mixin);
+  bool processParameterMixin(ParameterMixin* mixin,
+                             Ruleset* ruleset,
                              Stylesheet* stylesheet);
-  bool insertParameterMixin(ParameterRuleset* mixin,
-                            list<TokenList*>* arguments,
-                            Ruleset* parent,
-                            Stylesheet* stylesheet);
+  bool insertParameterRuleset(ParameterRuleset* pruleset,
+                              ParameterMixin* mixin,
+                              Ruleset* target,
+                              Stylesheet* stylesheet);
 
   TokenList* parseValue ();
 

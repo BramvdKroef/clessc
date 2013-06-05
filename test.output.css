@@ -159,4 +159,14 @@ h1{
     color:white;
     height:20px;
 }
+body{
+    test2:1px;
+    test1:1px;
+}
+body footer,body .push{
+    height:60px;
+}
+body header{
+    height:90px;
+}
 
