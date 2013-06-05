@@ -75,7 +75,7 @@ public:
    */
   void clear();
 
-  TokenList* clone();
+  virtual TokenList* clone();
   
   string* toString();
 };

@@ -36,6 +36,11 @@ public:
   void addPrefix(Selector* prefix);
 
   /**
+   * Trim whitespace from the front and back of the selector.
+   */
+  void trim();
+  
+  /**
    * If the selector contains commas then it is split up into multiple
    * selectors.
    * 
@@ -43,7 +48,7 @@ public:
    * <code>p .class</code> and <code>a:hover</code>.
    */
   list<TokenList*>* split();
-  
+  virtual Selector* clone();
 };
 
 #endif

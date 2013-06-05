@@ -37,13 +37,16 @@ void Selector::addPrefix(Selector* prefix) {
   for (sepIt = sepParts->begin(); sepIt !=
          sepParts->end(); sepIt++) {
 
-    while ((*sepIt)->front()->type == Token::WHITESPACE)
+    while (!(*sepIt)->empty() &&
+           (*sepIt)->front()->type == Token::WHITESPACE)
       delete (*sepIt)->shift();
 
-    if ((*sepIt)->front()->str == "&") 
-      delete (*sepIt)->shift();
-    else 
-      (*sepIt)->unshift(new Token(" ", Token::WHITESPACE));
+    if (!(*sepIt)->empty()) {
+      if ((*sepIt)->front()->str == "&") 
+        delete (*sepIt)->shift();
+      else 
+        (*sepIt)->unshift(new Token(" ", Token::WHITESPACE));
+    }
   }
 
   for (prefixIt = prefixParts->begin(); prefixIt !=
@@ -88,4 +91,24 @@ list<TokenList*>* Selector::split() {
   }
   
   return l;
+}
+Selector* Selector::clone() {
+  Selector* newtokens = new Selector();
+  TokenListIterator* it = iterator();
+    
+  while (it->hasNext())
+    newtokens->push(it->next()->clone());
+  
+  return newtokens;
+}
+
+void Selector::trim() {
+  while (!empty() &&
+         back()->type == Token::WHITESPACE) {
+    delete pop();
+  }
+  while (!empty() &&
+         front()->type == Token::WHITESPACE) {
+    delete shift();
+  }
 }
