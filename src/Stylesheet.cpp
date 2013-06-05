@@ -111,7 +111,7 @@ Ruleset* Ruleset::clone() {
   vector<Declaration*>::iterator di;
   
   if (getSelector() != NULL)
-    ruleset->setSelector(getSelector());
+    ruleset->setSelector(getSelector()->clone());
 
   declarations = getDeclarations();  
   for (di = declarations->begin(); di < declarations->end(); di++) {
