@@ -151,9 +151,17 @@ ParameterRuleset::~ParameterRuleset() {
     delete defaults.back();
     defaults.pop_back();
   }
+  while (!conditions.empty()) {
+    delete conditions.back();
+    conditions.pop_back();
+  }
   while (!nestedRules.empty()) {
     delete nestedRules.back();
     nestedRules.pop_back();
+  }
+  while (!mixins.empty()) {
+    delete mixins.back();
+    mixins.pop_back();
   }
 }
 
@@ -331,9 +339,16 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
   return true;
 }
 
+
 void ParameterRuleset::addNestedRule(Ruleset* nestedRule) {
   nestedRules.push_back(nestedRule);
 }
 list<Ruleset*>* ParameterRuleset::getNestedRules() {
   return &nestedRules;
+}
+void ParameterRuleset::addMixin(ParameterMixin* mixin) {
+  mixins.push_back(mixin);
+}
+list<ParameterMixin*>* ParameterRuleset::getMixins() {
+  return &mixins;
 }
