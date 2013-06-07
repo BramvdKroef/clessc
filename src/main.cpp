@@ -27,6 +27,8 @@
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
+#include "value/ValueProcessor.h"
+#include "ParameterRulesetLibrary.h"
 #include "CssWriter.h"
 #include "CssPrettyWriter.h"
 #include "Stylesheet.h"
@@ -52,7 +54,7 @@ void usage () {
 
 Stylesheet* processInput(istream* in){
   ValueProcessor vp;
-  vector<ParameterRuleset*> pr;
+  ParameterRulesetLibrary pr(&vp);
   LessTokenizer tokenizer(in);
   LessParser parser(&tokenizer, &pr, &vp);
   Stylesheet* s = new Stylesheet();

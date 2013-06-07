@@ -24,7 +24,8 @@ BIN = build
 OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
 	$(BIN)/CssParser.o $(BIN)/Stylesheet.o  $(BIN)/CssWriter.o \
 	$(BIN)/LessTokenizer.o $(BIN)/LessParser.o $(BIN)/Selector.o \
-	$(BIN)/ParameterRuleset.o $(BIN)/CssPrettyWriter.o
+	$(BIN)/ParameterRuleset.o $(BIN)/CssPrettyWriter.o \
+	$(BIN)/ParameterRulesetLibrary.o
 
 VAL_OBJS = $(BIN)/value/Value.o $(BIN)/value/Color.o \
 	$(BIN)/value/StringValue.o $(BIN)/value/NumberValue.o \

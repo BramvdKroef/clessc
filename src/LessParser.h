@@ -29,11 +29,12 @@
 #include "ParameterRuleset.h"
 #include "value/ValueProcessor.h"
 #include "LessTokenizer.h"
+#include "ParameterRulesetLibrary.h"
 
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <typeinfo>
+
 /**
  * Extends the css spec with these parts:
  * * Variables
@@ -61,17 +62,17 @@
 class LessParser: public CssParser {
 public:
   LessParser(CssTokenizer* tokenizer,
-             vector<ParameterRuleset*>* parameterRulesets,
+             ParameterRulesetLibrary* pRulesets,
              ValueProcessor* valueProcessor): CssParser(tokenizer) {
-    this->parameterRulesets = parameterRulesets;
+    this->pRulesets = pRulesets;
     this->valueProcessor = valueProcessor;
   }
   virtual ~LessParser () {
   }
   
 protected:
-  vector<ParameterRuleset*>* parameterRulesets;
   ValueProcessor* valueProcessor;
+  ParameterRulesetLibrary* pRulesets;
   
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to
@@ -93,7 +94,7 @@ protected:
   bool parseRulesetStatement (Stylesheet* stylesheet,
                               Ruleset* ruleset,
                               ParameterRuleset* parent = NULL);
-  void processRuleset(vector<Declaration*>* declarations);
+
   
   Declaration* parseDeclaration(TokenList* property, TokenList* value);
 
@@ -111,14 +112,6 @@ protected:
                            Ruleset* target,
                            Stylesheet* stylesheet,
                            ParameterRuleset* parent);
-  bool parameterRulesetExists(ParameterMixin* mixin);
-  bool processParameterMixin(ParameterMixin* mixin,
-                             Ruleset* ruleset,
-                             Stylesheet* stylesheet);
-  bool insertParameterRuleset(ParameterRuleset* pruleset,
-                              ParameterMixin* mixin,
-                              Ruleset* target,
-                              Stylesheet* stylesheet);
 
   TokenList* parseValue ();
 
