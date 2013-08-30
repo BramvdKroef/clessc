@@ -18,7 +18,8 @@
 # Author: Bram van der Kroef <bram@vanderkroef.net>
 
 CXX = g++
-CXXFLAGS = -Wall -g -Wextra
+CXXFLAGS = -Wall -g -Wextra -I/usr/include/libpng16 -lpng16
+LDFLAGS= -L/usr/lib
 SRC = src
 BIN = build
 OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
@@ -30,6 +31,7 @@ OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \
 VAL_OBJS = $(BIN)/value/Value.o $(BIN)/value/Color.o \
 	$(BIN)/value/StringValue.o $(BIN)/value/NumberValue.o \
 	$(BIN)/value/UnitValue.o $(BIN)/value/BooleanValue.o \
+	$(BIN)/value/UrlValue.o \
 	$(BIN)/value/FunctionLibrary.o $(BIN)/value/ValueProcessor.o
 EXEC = lessc
 PREFIX = /usr/local
@@ -52,7 +54,7 @@ $(BIN)/%.o : $(SRC)/%.cpp $(SRC)/%.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(EXEC) : $(BIN) $(OBJS) $(VAL_OBJS) $(BIN)/main.o
-	$(CXX) $(CXXFLAGS) $(OBJS) $(VAL_OBJS) $(BIN)/main.o -o $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) $(VAL_OBJS) $(BIN)/main.o -o $@
 
 $(BIN)/main.o : $(SRC)/main.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

@@ -169,4 +169,9 @@ body footer,body .push{
 body header{
     height:90px;
 }
+.test5{
+    background:url(test.png) no-repeat;
+    width:265px;
+    height:314px;
+}
 

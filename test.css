@@ -323,6 +323,12 @@ body {
     .test2(90px, 60px);
 }
 
+.test5 {
+    @image: url('test.png');
+    background: url(test.png) no-repeat;
+    width: imgwidth(@image);
+    height: imgheight(@image);
+}
 
 /* Multiline comment ending with * at the end of the file */
 /*
