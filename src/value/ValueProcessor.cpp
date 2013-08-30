@@ -242,7 +242,7 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   case Token::ATKEYWORD:
     if ((variable = getVariable(token->str)) != NULL) {
       variable = variable->clone();
-      ret = processConstant(variable);
+      ret = processStatement(variable);
       
       while(!variable->empty() &&
             variable->front()->type == Token::WHITESPACE)
@@ -315,7 +315,7 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   }
 
   if ((variable = processDeepVariable(value)) != NULL) {
-    ret = processConstant(variable);
+    ret = processStatement(variable);
     if (ret != NULL) {
       delete value->shift();
       delete value->shift();

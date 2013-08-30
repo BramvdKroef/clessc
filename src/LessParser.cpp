@@ -261,7 +261,7 @@ Declaration* LessParser::parseDeclaration (TokenList* property,
   declaration = new Declaration(property->toString());
   
   // parse any leftover value parts.
-  value2 = CssParser::parseValue();
+  value2 = parseValue();
   if (value2 != NULL) {
     value->push(value2);
     delete value2;
@@ -270,15 +270,6 @@ Declaration* LessParser::parseDeclaration (TokenList* property,
   
   return declaration;
 }
-
-TokenList* LessParser::parseValue () {
-  TokenList* value = CssParser::parseValue();
-  if (value != NULL) 
-    valueProcessor->processValue(value);
-
-  return value;
-}
-
 
 bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
                             Stylesheet* stylesheet,
