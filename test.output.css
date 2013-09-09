@@ -173,5 +173,7 @@ body header{
     background:url(test.png) no-repeat;
     width:265px;
     height:314px;
+    width-jpg:265px;
+    height-jpg:314px;
 }
 

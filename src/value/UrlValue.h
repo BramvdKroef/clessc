@@ -26,17 +26,23 @@
 
 #include <png.h>
 
+#include <jpeglib.h>
+#include <setjmp.h>
+
 using namespace std;
 
 class UrlValue: public Value {
 private:
 
   string path;
-  png_structp png_ptr;
-  png_infop info_ptr;
+  
   bool loaded;
+  int width;
+  int height;
   
   bool loadImg();
+  bool loadPng();
+  bool loadJpeg();
 
 public:
   UrlValue(Token* token, string path);

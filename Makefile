@@ -18,8 +18,8 @@
 # Author: Bram van der Kroef <bram@vanderkroef.net>
 
 CXX = g++
-CXXFLAGS = -Wall -g -Wextra -I/usr/include/libpng16 -lpng16
-LDFLAGS= -L/usr/lib
+CXXFLAGS = -Wall -g -Wextra -I/usr/include/libpng16 -lpng16 -ljpeg
+LDFLAGS= -L/usr/lib 
 SRC = src
 BIN = build
 OBJS = $(BIN)/Token.o $(BIN)/TokenList.o $(BIN)/CssTokenizer.o \

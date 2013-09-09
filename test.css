@@ -328,6 +328,10 @@ body {
     background: url(test.png) no-repeat;
     width: imgwidth(@image);
     height: imgheight(@image);
+
+    @image2: url('test.jpg');
+    width-jpg: imgwidth(@image2);
+    height-jpg: imgheight(@image2);
 }
 
 /* Multiline comment ending with * at the end of the file */
