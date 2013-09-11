@@ -19,7 +19,7 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#include "../CssTokenizer.h"
+#include "CssTokenizer.h"
 #include "gtest/gtest.h"
 
 /**

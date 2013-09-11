@@ -19,7 +19,7 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#include "../CssParser.h"
+#include "CssParser.h"
 #include "gtest/gtest.h"
 
 // At rules

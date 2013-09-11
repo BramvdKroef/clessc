@@ -19,7 +19,7 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#include "../LessParser.h"
+#include "LessParser.h"
 #include "gtest/gtest.h"
 
 TEST(LessParserTest, Variable) {

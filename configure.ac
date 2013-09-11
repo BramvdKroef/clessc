@@ -1,7 +1,10 @@
 AC_INIT([clessc], [1.0], [bram@vanderkroef.net])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_HEADERS([config.h])
+
 AC_PROG_CXX
+AC_PROG_RANLIB
+AM_PROG_AR
 
 # libpng support
 AC_ARG_WITH([libpng],
@@ -36,6 +39,6 @@ AS_IF([test "x$with_libjpeg" != "xno"], [
 AC_CONFIG_FILES([
  Makefile
  src/Makefile
- src/tests/Makefile
+ tests/Makefile
 ])
 AC_OUTPUT
