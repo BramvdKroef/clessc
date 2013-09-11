@@ -21,6 +21,40 @@
 
 #include "UrlValue.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBPNG
+#include <png.h>
+#endif
+
+#ifdef WITH_LIBJPEG
+#include <jpeglib.h>
+#include <setjmp.h>
+
+struct urlvalue_jpeg_error_mgr {
+  struct jpeg_error_mgr pub;	/* "public" fields */
+
+  jmp_buf setjmp_buffer;	/* for return to caller */
+};
+
+typedef struct urlvalue_jpeg_error_mgr * urlvalue_jpeg_error_ptr;
+
+METHODDEF(void)
+urlvalue_jpeg_error_exit (j_common_ptr cinfo)
+{
+  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
+  urlvalue_jpeg_error_ptr myerr = (urlvalue_jpeg_error_ptr) cinfo->err;
+
+  /* Always display the message. */
+  /* We could postpone this until after returning, if we chose. */
+  (*cinfo->err->output_message) (cinfo);
+
+  /* Return control to the setjmp point */
+  longjmp(myerr->setjmp_buffer, 1);
+}
+
+#endif
+
 UrlValue::UrlValue(Token* token, string path): Value() {
   tokens.push(token);
   this->path = path;
@@ -58,7 +92,6 @@ int UrlValue::compare(Value* v) {
 
 bool UrlValue::loadImg() {
   loaded = loadPng() || loadJpeg();
-
    
   return loaded;
 }
@@ -66,7 +99,8 @@ bool UrlValue::loadImg() {
 bool UrlValue::loadPng() {
   if (loaded != false)
     return true;
-  
+
+#ifdef WITH_LIBPNG
   unsigned char header[8];    // 8 is the maximum size that can be checked
   /* open file and test for it being a png */
   
@@ -103,36 +137,22 @@ bool UrlValue::loadPng() {
   height = png_get_image_height(png_ptr, info_ptr);
 
   fclose(fp);
-  
   return true;
-}
-
-struct my_error_mgr {
-  struct jpeg_error_mgr pub;	/* "public" fields */
-
-  jmp_buf setjmp_buffer;	/* for return to caller */
-};
-
-typedef struct my_error_mgr * my_error_ptr;
-METHODDEF(void)
-my_error_exit (j_common_ptr cinfo)
-{
-  /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  my_error_ptr myerr = (my_error_ptr) cinfo->err;
-
-  /* Always display the message. */
-  /* We could postpone this until after returning, if we chose. */
-  (*cinfo->err->output_message) (cinfo);
-
-  /* Return control to the setjmp point */
-  longjmp(myerr->setjmp_buffer, 1);
+  
+#else
+  return false;
+#endif  
 }
 
 
 bool UrlValue::loadJpeg() {
+  if (loaded != false)
+    return true;
+  
+#ifdef WITH_LIBJPEG
   struct jpeg_decompress_struct cinfo;
   
-  struct my_error_mgr jerr;
+  struct urlvalue_jpeg_error_mgr jerr;
   /* More stuff */
   FILE * infile;
   JSAMPARRAY buffer;	/* Output row buffer */
@@ -146,8 +166,8 @@ bool UrlValue::loadJpeg() {
 
   /* We set up the normal JPEG error routines, then override error_exit. */
   cinfo.err = jpeg_std_error(&jerr.pub);
-  jerr.pub.error_exit = my_error_exit;
-  /* Establish the setjmp return context for my_error_exit to use. */
+  jerr.pub.error_exit = urlvalue_jpeg_error_exit;
+  /* Establish the setjmp return context for urlvalue_jpeg_error_exit to use. */
   if (setjmp(jerr.setjmp_buffer)) {
     /* If we get here, the JPEG code has signaled an error.
      * We need to clean up the JPEG object, close the input file, and return.
@@ -235,15 +255,16 @@ bool UrlValue::loadJpeg() {
    */
   fclose(infile);
   return true;
+#else
+  return false;
+#endif
 }
 
 unsigned int UrlValue::getImageWidth() {
-  loadImg();
-  return width;
+  return (loadImg() ? width : 0);
 }
 unsigned int UrlValue::getImageHeight() {
-  loadImg();
-  return height;
+  return (loadImg() ? height : 0);
 }
 
 void UrlValue::loadFunctions(FunctionLibrary* lib) {

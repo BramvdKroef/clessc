@@ -24,11 +24,6 @@
 
 #include "Value.h"
 
-#include <png.h>
-
-#include <jpeglib.h>
-#include <setjmp.h>
-
 using namespace std;
 
 class UrlValue: public Value {
