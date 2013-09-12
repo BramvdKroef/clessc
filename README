@@ -23,16 +23,26 @@ The spin() function produces slightly different results.
 
 * Installation
 
-To compile just run 'make'. g++ or another c++ compiler is required. If
-you are using a compiler other than g++ you'll need to change the
-Makefile.
+If compiling from the source checked out with git you first have to
+run ./autogen.sh to generate the 'configure' script. This requires
+autotools. The tarball distribution will already have the 'configure'
+script.
+
+To build the compiler just run
+
+./configure
+make
+
+This requires a c++ compiler and the libpng and libjpeg libraries. To
+build without the libraries run configure with these arguments:
+
+./configure --without-libpng --without-libjpeg
+make
 
 After compiling you will have the binary lessc. You can run 'make
-install' as root to install the binary to /usr/local/bin/.
+install' as root to install the binary.
 
-Note that the original compiler is also named lessc. If you already
-have another LESS CSS compiler installed you should rename the lessc
-binary you just created before copying.
+Note that the original compiler is also named lessc. 
 
 * Usage
 
