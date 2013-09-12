@@ -38,7 +38,8 @@ protected:
   TokenList tokens;
   
 public:
-  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT, BOOLEAN} type;
+  enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT,
+             BOOLEAN, URL} type;
   Value();
   Value(Token* token);
   virtual ~Value();
@@ -67,6 +68,7 @@ public:
    * S - String
    * U - Unit
    * B - Boolean
+   * R - URL
    */
   static Type codeToType(const char code);
 

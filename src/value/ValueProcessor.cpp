@@ -38,7 +38,8 @@ ValueProcessor::ValueProcessor() {
   functionLibrary = new FunctionLibrary();
   NumberValue::loadFunctions(functionLibrary);
   Color::loadFunctions(functionLibrary);
-  StringValue::loadFunctions(functionLibrary);  
+  StringValue::loadFunctions(functionLibrary);
+  UrlValue::loadFunctions(functionLibrary);  
 }
 ValueProcessor::~ValueProcessor() {
   popScope();
@@ -73,10 +74,6 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
           (variable = getVariable(value->front()->str)) != NULL) {
         newvalue.push(variable);
         delete value->shift();
-        
-      } else if (value->front()->type == Token::URL) {
-        processString(value->front());
-        newvalue.push(value->shift());
         
       } else if ((var = processDeepVariable(value)) != NULL) {
         newvalue.push(var);
@@ -260,10 +257,15 @@ Value* ValueProcessor::processConstant(TokenList* value) {
       return NULL;
 
   case Token::STRING:
-    processString(value->front());
-    value->front()->str = removeQuotes(value->front()->str);
+    processString(token);
+    token->str = removeQuotes(token->str);
     return new StringValue(value->shift(), true);
-    
+
+  case Token::URL:
+    processString(token);
+    return new UrlValue(token,
+                        removeQuotes(getUrlString(value->shift()->str)));
+        
   case Token::IDENTIFIER:
 
     if (value->size() > 2 &&
@@ -415,18 +417,31 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
 
 vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   vector<Value*> arguments;
+  Value* argument;
 
   if (value->size() == 0) 
     throw new ParseException("end of value", ")");
   
-  if (value->front()->type != Token::PAREN_CLOSED) 
-    arguments.push_back(processStatement(value));
-   
+  if (value->front()->type != Token::PAREN_CLOSED)  {
+    argument = processStatement(value);
+    if (argument != NULL)
+      arguments.push_back(argument);
+    else
+      arguments.push_back(new StringValue(value->shift(), false));
+  }
+  
   while (value->size() > 0 &&
          (value->front()->str == "," ||
           value->front()->str == ";")) {
     delete value->shift();
-    arguments.push_back(processStatement(value));
+    
+    argument = processStatement(value);
+
+    if (argument != NULL) {
+      arguments.push_back(argument);
+    } else if (value->front()->type != Token::PAREN_CLOSED) {
+      arguments.push_back(new StringValue(value->shift(), false));      
+    }
   }
 
   if (value->size() == 0) 
@@ -486,6 +501,10 @@ string ValueProcessor::removeQuotes(string str) {
     ret.push_back(*i);
   }
   return ret;
+}
+
+string ValueProcessor::getUrlString(string url) {
+  return url.substr(4, url.length() - 5);
 }
 
 UnitValue* ValueProcessor::processUnit(Token* t) {

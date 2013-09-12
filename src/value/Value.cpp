@@ -63,6 +63,8 @@ const char* Value::typeToString(Type t) {
     return "Unit";
   case BOOLEAN:
     return "Boolean";
+  case URL:
+    return "URL";
   }
   return "Undefined";
 }
@@ -82,6 +84,8 @@ Value::Type Value::codeToType(char code) {
     return STRING;
   case 'B':
     return BOOLEAN;
+  case 'R':
+    return URL;
   default:
     return NUMBER;
   }

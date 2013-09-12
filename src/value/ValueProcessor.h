@@ -30,6 +30,7 @@
 #include "NumberValue.h"
 #include "StringValue.h"
 #include "UnitValue.h"
+#include "UrlValue.h"
 #include "ValueException.h"
 #include "FunctionLibrary.h"
 #include <map>
@@ -57,6 +58,7 @@ private:
   
   bool needsSpace(Token* t);
   string removeQuotes(string str);
+  string getUrlString(string url);
     
 public:
   ValueProcessor();
