@@ -165,7 +165,7 @@ void NumberValue::setType(Value* v) {
   
   if (isNumber(v)) {
 
-    n = static_cast<NumberValue*>(v);
+    n = (NumberValue*)v;
     
     type = n->type;
     if (n->type == DIMENSION)
@@ -174,7 +174,6 @@ void NumberValue::setType(Value* v) {
       tokens.front()->type = Token::PERCENTAGE;
     else if (n->type == NUMBER) {
       setUnit("");
-      tokens.front()->type = Token::NUMBER;
     }
   }
 }
@@ -214,9 +213,15 @@ void NumberValue::setUnit(string unit) {
   ostringstream stm;
   stm << getValue();
   stm << unit;
-  type = DIMENSION;
-  tokens.front()->type = Token::DIMENSION;
   tokens.front()->str = stm.str();
+  
+  if (unit.length() == 0) {
+    type = NUMBER;
+    tokens.front()->type = Token::NUMBER;
+  } else {
+    type = DIMENSION;
+    tokens.front()->type = Token::DIMENSION;
+  }
 }
 
 void NumberValue::setValue(double d) {
