@@ -19,5 +19,5 @@ value/UrlValue.h value/Value.h value/ValueException.h			\
 value/ValueProcessor.h
 
 bin_PROGRAMS = lessc
-lessc_SOURCES = main.cpp 
+lessc_SOURCES = lessc.cpp 
 lessc_LDADD = liblessc.a $(LIBPNG_LIBS) $(LIBJPEG_LIBS)
