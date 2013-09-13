@@ -1,7 +1,8 @@
 check_PROGRAMS = test_lessc
 
 test_lessc_SOURCES = CssTokenizer_test.cpp CssParser_test.cpp	\
-	LessParser_test.cpp $(top_builddir)/src/CssTokenizer.h	\
+	LessParser_test.cpp ValueProcessor_test.cpp		\
+	$(top_builddir)/src/CssTokenizer.h			\
 	$(top_builddir)/src/CssParser.h				\
 	$(top_builddir)/src/LessParser.h
 
