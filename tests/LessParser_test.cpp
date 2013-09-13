@@ -43,6 +43,28 @@ TEST(LessParserTest, Variable) {
   EXPECT_STREQ("10", d->getValue()->toString()->c_str());
 }
 
+
+TEST(LessParserTest, DeepVariable) {
+  istringstream in("@x: 10; @y: 'x'; selector {key: @@y}");
+
+  ValueProcessor vp;
+  ParameterRulesetLibrary pr(&vp);
+
+  LessTokenizer t(&in);
+  LessParser p(&t, &pr, &vp);
+  Stylesheet s;
+  Declaration* d;
+  
+  p.parseStylesheet(&s);
+
+  ASSERT_EQ((uint)1, s.getRulesets()->size());
+  ASSERT_EQ((uint)1, s.getRulesets()->at(0)->getDeclarations()->size());
+
+  d = s.getRulesets()->at(0)->getDeclarations()->at(0);
+  EXPECT_STREQ("key", d->getProperty()->c_str());
+  EXPECT_STREQ("10", d->getValue()->toString()->c_str());
+}
+
 // mixin
 TEST(LessParserTest, Mixin) {
   istringstream in("mixin {key: 10} selector {mixin}");
