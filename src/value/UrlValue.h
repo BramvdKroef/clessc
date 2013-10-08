@@ -23,6 +23,7 @@
 #define __UrlValue_h__
 
 #include "Value.h"
+#include "Color.h"
 
 using namespace std;
 
@@ -30,10 +31,12 @@ class UrlValue: public Value {
 private:
 
   string path;
-  
+
+  // image resources
   bool loaded;
   int width;
   int height;
+  Color* background;
   
   bool loadImg();
   bool loadPng();
@@ -52,11 +55,13 @@ public:
 
   unsigned int getImageWidth();
   unsigned int getImageHeight();
+  Color* getImageBackground();
 
   static void loadFunctions(FunctionLibrary* lib);
 
   static Value* imgheight(vector<Value*> arguments);
   static Value* imgwidth(vector<Value*> arguments);
+  static Value* imgbackground(vector<Value*> arguments);
 };
   
 #endif
