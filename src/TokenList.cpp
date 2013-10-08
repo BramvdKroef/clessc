@@ -55,6 +55,10 @@ bool TokenListIterator::hasNext () {
 bool TokenListIterator::hasPrevious () {
   return (it != begin);
 }
+void TokenListIterator::toBegin () {
+  it = begin;
+  it--;
+}
 
 TokenList::~TokenList() {
   clear();

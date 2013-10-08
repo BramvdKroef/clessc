@@ -34,6 +34,7 @@ public:
   TokenListIterator(list<Token*>::iterator begin,
                     list<Token*>::iterator end);
   void toEnd ();
+  void toBegin ();
   Token* previous ();
   Token* next ();
   Token* peek ();
