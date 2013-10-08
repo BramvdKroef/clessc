@@ -296,7 +296,7 @@ bool LessParser::parseParameterMixin(Selector* selector,
   ParameterMixin* mixin = new ParameterMixin(new Selector(),
                                              new list<TokenList*>(),
                                              new Selector());
-  TokenList* argument;  
+  TokenList* arguments = new TokenList();  
   TokenListIterator* tli = selector->iterator();
   Token* current;
   size_t nestedParenthesis = 0;
@@ -313,32 +313,28 @@ bool LessParser::parseParameterMixin(Selector* selector,
   mixin->name->trim();
 
   while (tli->hasNext()) {
-    argument = new TokenList();
+    current = tli->next();
+    if (nestedParenthesis == 0 &&
+        current->type == Token::PAREN_CLOSED)
+      break;
 
-    while (tli->hasNext()) {
-      current = tli->next();
-      if (nestedParenthesis == 0) {
-        if (current->str == "," ||
-            current->str == ";" ||
-            current->type == Token::PAREN_CLOSED)
-          break;
-      }
+    if (current->type == Token::PAREN_OPEN) 
+      nestedParenthesis++;
+    
+    if (current->type == Token::PAREN_CLOSED) 
+      nestedParenthesis--;
       
-      if (current->type == Token::PAREN_OPEN) 
-        nestedParenthesis++;
-      
-      if (current->type == Token::PAREN_CLOSED) 
-        nestedParenthesis--;
-      
-      argument->push(current->clone());
-    }
-
-    if (parent == NULL)
-      valueProcessor->processValue(argument);
-    mixin->arguments->push_back(argument);
+    arguments->push(current->clone());
   }
   
+  if (parent == NULL)
+    valueProcessor->processValue(arguments);
+
+  parseList(mixin->arguments, arguments);
+
+  delete arguments;
   delete tli;
+  
   if (!pRulesets->parameterRulesetExists(mixin)) {
     delete mixin;
     return false;
@@ -357,6 +353,47 @@ bool LessParser::parseParameterMixin(Selector* selector,
   }
 }
 
+void LessParser::parseList(list<TokenList*>* list, TokenList* tokens) {
+  string delimiter = ",";
+  TokenListIterator* tli = tokens->iterator();
+
+  TokenList* argument;
+  Token* current;
+  size_t nestedParenthesis = 0;
+
+  // if a ';' token occurs then that is the delimiter instead of the ','.
+  while (tli->hasNext()) {
+    if (tli->next()->str == ";") {
+      delimiter = ";";
+      break;
+    }
+  }
+
+  tli->toBegin();
+
+  while (tli->hasNext()) {
+    argument = new TokenList();
+
+    while (tli->hasNext()) {
+      current = tli->next();
+      if (nestedParenthesis == 0 &&
+          current->str == delimiter)
+          break;
+      
+      if (current->type == Token::PAREN_OPEN) 
+        nestedParenthesis++;
+      
+      if (current->type == Token::PAREN_CLOSED) 
+        nestedParenthesis--;
+      
+      argument->push(current->clone());
+    }
+
+    list->push_back(argument);
+  }
+  
+  delete tli;
+}
 
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   ifstream* in = new ifstream(filename.c_str());

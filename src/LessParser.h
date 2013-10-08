@@ -113,6 +113,8 @@ protected:
                            Stylesheet* stylesheet,
                            ParameterRuleset* parent);
 
+  void parseList(list<TokenList*>* list, TokenList* tokens);
+  
   void importFile(string file, Stylesheet* stylesheet);
 private:
     
