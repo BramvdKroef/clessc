@@ -55,15 +55,20 @@ urlvalue_jpeg_error_exit (j_common_ptr cinfo)
 
 #endif
 
+using namespace std;
+
 UrlValue::UrlValue(Token* token, string path): Value() {
   tokens.push(token);
   this->path = path;
   type = Value::URL;
   loaded = false;
+  background = NULL;
 }
 
 
 UrlValue::~UrlValue() {
+  if (background != NULL)
+    delete background;
 }
 
 Value* UrlValue::add(Value* v) {
@@ -106,7 +111,10 @@ bool UrlValue::loadPng() {
   
   png_structp png_ptr;
   png_infop info_ptr;
-
+  png_bytep* row_pointers;
+  png_uint_32 rowbytes;
+  int y;
+    
   FILE *fp = fopen(path.c_str(), "rb");
   if (!fp)
     return false; //"Image file could not be opened"
@@ -135,7 +143,53 @@ bool UrlValue::loadPng() {
 
   width = png_get_image_width(png_ptr, info_ptr);
   height = png_get_image_height(png_ptr, info_ptr);
+  int channels = png_get_channels(png_ptr, info_ptr);
+  
+  if(png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
+    png_set_palette_to_rgb(png_ptr);
+    channels = 3;
+  }
+  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+    png_set_tRNS_to_alpha(png_ptr);
+    channels += 1;
+  }
 
+  /* read file */
+  if (setjmp(png_jmpbuf(png_ptr)))
+    throw new ValueException("Error during read_image");
+
+  rowbytes = png_get_rowbytes(png_ptr,info_ptr);
+  
+  row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+
+  for (y = 0; y < height; y++)
+    row_pointers[y] = (png_byte*)malloc(rowbytes);
+
+  png_read_image(png_ptr, row_pointers);
+
+  if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB ||
+      png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGBA ||
+      png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
+
+    if (background != NULL) {
+      delete background;
+      background = NULL;
+    }
+    png_byte* color1 = row_pointers[0];
+    png_byte* color2 = row_pointers[0] + (width - 1) * channels;
+    png_byte* color3 = row_pointers[height - 1];
+    png_byte* color4 = row_pointers[height - 1] + (width - 1) * channels;
+
+    if (memcmp(color1, color2, channels) == 0 &&
+        memcmp(color1, color3, channels) == 0 &&
+        memcmp(color1, color4, channels) == 0) {
+        
+      background = new Color(color1[0], color1[1], color1[2]);
+      if (channels == 4)
+        background->setAlpha(color1[3]);
+    }
+  }
+    
   fclose(fp);
   return true;
   
@@ -234,6 +288,28 @@ bool UrlValue::loadJpeg() {
     (void) jpeg_read_scanlines(&cinfo, buffer, 1);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
     //put_scanline_someplace(buffer[0], row_stride);
+    if (cinfo.out_color_space == JCS_RGB && 
+        (cinfo.output_scanline == 1 ||
+         cinfo.output_scanline == cinfo.output_height)) {
+
+      if (cinfo.output_scanline == 1) {
+        if (background != NULL)
+          delete background;
+        background = new Color(buffer[0][0], buffer[0][1], buffer[0][2]);
+      }
+      if (background != NULL) {
+        if (background->getRed() != buffer[0][0] ||
+            background->getGreen() != buffer[0][1] ||
+            background->getBlue() != buffer[0][2] ||
+
+            background->getRed() != buffer[0][row_stride - cinfo.output_components] ||
+            background->getGreen() != buffer[0][row_stride - cinfo.output_components + 1] ||
+            background->getBlue() != buffer[0][row_stride - cinfo.output_components + 2]) {
+          delete background;
+          background = NULL;
+        }
+      }
+    }
   }
 
   /* Step 7: Finish decompression */
@@ -267,9 +343,16 @@ unsigned int UrlValue::getImageHeight() {
   return (loadImg() ? height : 0);
 }
 
+Color* UrlValue::getImageBackground() {
+  loadImg();
+  return background;
+}
+
+
 void UrlValue::loadFunctions(FunctionLibrary* lib) {
   lib->push("imgheight", "R", &UrlValue::imgheight);
   lib->push("imgwidth", "R", &UrlValue::imgwidth);
+  lib->push("imgbackground", "R", &UrlValue::imgbackground);
 }
 
 
@@ -285,4 +368,12 @@ Value* UrlValue::imgwidth(vector<Value*> arguments) {
   val->setUnit("px");
   val->setValue((double)((UrlValue*)arguments[0])->getImageWidth());
   return val;
+}
+ 
+Value* UrlValue::imgbackground(vector<Value*> arguments) {
+  Color* color = ((UrlValue*)arguments[0])->getImageBackground();
+  if (color == NULL)
+    return new Color(0,0,0);
+  else
+    return new Color(color->getRed(), color->getGreen(), color->getBlue());
 }
