@@ -328,10 +328,32 @@ body {
     background: url(test.png) no-repeat;
     width: imgwidth(@image);
     height: imgheight(@image);
+    background-color: imgbackground(@image);
 
     @image2: url('test.jpg');
     width-jpg: imgwidth(@image2);
     height-jpg: imgheight(@image2);
+    background-color-jpg: imgbackground(@image2);
+}
+
+@media (width: 400px) {
+    .test6 {
+        width: 400px;
+    }
+}
+
+@name: "blocked";
+
+.@{name}{
+    color: #000;
+}
+.mixin6(@name2, @color) {
+    .@{name2} {
+        color: @color;
+    }
+}
+.class {
+    .mixin6('blocked', #FFF);
 }
 
 /* Multiline comment ending with * at the end of the file */

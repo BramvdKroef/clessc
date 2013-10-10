@@ -1,4 +1,5 @@
 @import "lib.css";
+@media (width: 400px) {.test6 {width: 400px;}};
 #header{
     color:#6c94be;
 }
@@ -173,7 +174,15 @@ body header{
     background:url(test.png) no-repeat;
     width:265px;
     height:314px;
+    background-color:#fff;
     width-jpg:265px;
     height-jpg:314px;
+    background-color-jpg:#fff;
+}
+.blocked{
+    color:#000;
+}
+.class .blocked{
+    color:#FFF;
 }
 
