@@ -116,6 +116,7 @@ bool ParameterRulesetLibrary::insertParameterRuleset(ParameterRuleset* pruleset,
       if (!mixin->prefix->empty())
         nestedRule->getSelector()->addPrefix(mixin->prefix);
 
+      valueProcessor->interpolateTokenList(nestedRule->getSelector());
       stylesheet->addRuleset(nestedRule);
     }
 

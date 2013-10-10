@@ -108,6 +108,45 @@ variable declaration.");
   return true;
 }
 
+bool LessParser::parseSelector(Selector* selector) {
+  string back;
+  
+  if (!parseAny(selector)) 
+    return false;
+    
+  while (parseAny(selector)) {};
+  
+  if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
+    back = selector->back()->str;
+    
+    if (back.at(back.length() - 1) == '@') {
+      back.append(tokenizer->getToken()->str);
+      
+      if (tokenizer->readNextToken() != Token::IDENTIFIER) 
+        throw new ParseException(tokenizer->getToken()->str,
+                               "Variable inside selector (e.g.: @{identifier})");
+      back.append(tokenizer->getToken()->str);
+      
+      if (tokenizer->readNextToken() != Token::BRACKET_CLOSED)
+        throw new ParseException(tokenizer->getToken()->str,
+                                 "Closing bracket after variable.");
+
+      back.append(tokenizer->getToken()->str);
+      tokenizer->readNextToken();
+      selector->back()->str = back;
+      
+      parseWhitespace(selector);
+      while (parseAny(selector)) {};
+    }
+  }
+
+  // delete trailing whitespace
+  while (selector->back()->type == Token::WHITESPACE) {
+    delete selector->pop();
+  }
+  return true;
+}
+
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
                                Selector* selector,
                                ParameterRuleset* parent) {
@@ -156,9 +195,10 @@ parametric ruleset." << endl;
     }
   } else {
     ruleset = new Ruleset(selector);
-    if (parent == NULL)
+    if (parent == NULL) {
+      valueProcessor->interpolateTokenList(ruleset->getSelector());
       stylesheet->addRuleset(ruleset);
-    else
+    } else
       parent->addNestedRule(ruleset);
 
     // add new scope for the ruleset
@@ -410,3 +450,4 @@ void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   delete tokenizer;
   delete in;
 }
+

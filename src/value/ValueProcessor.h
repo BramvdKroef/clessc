@@ -52,7 +52,6 @@ private:
   Value* processFunction(string function,
                          TokenList* value);
   vector<Value*> processArguments (TokenList* value);
-  void processString(Token* str);
   Value* processEscape (TokenList* value);
   UnitValue* processUnit(Token* t);
   
@@ -70,6 +69,9 @@ public:
   bool validateValue(TokenList* value);
   
   bool functionExists(string function);
+
+  void interpolateString(Token* str);
+  void interpolateTokenList(TokenList* tokens);
     
   void pushScope();
   void popScope();

@@ -257,12 +257,12 @@ Value* ValueProcessor::processConstant(TokenList* value) {
       return NULL;
 
   case Token::STRING:
-    processString(token);
+    interpolateString(token);
     token->str = removeQuotes(token->str);
     return new StringValue(value->shift(), true);
 
   case Token::URL:
-    processString(token);
+    interpolateString(token);
     return new UrlValue(token,
                         removeQuotes(getUrlString(value->shift()->str)));
         
@@ -455,7 +455,7 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   return arguments;
 }
 
-void ValueProcessor::processString(Token* token) {
+void ValueProcessor::interpolateString(Token* token) {
   size_t start, end;
   string key = "@", value;
   TokenList* var;
@@ -478,6 +478,17 @@ void ValueProcessor::processString(Token* token) {
   token->str.replace(start, (end + 1) - start, value);
 }
 
+void ValueProcessor::interpolateTokenList(TokenList* tokens) {
+  TokenListIterator* tli = tokens->iterator();
+  
+  while (tli->hasNext()) {
+    interpolateString(tli->next());
+  }
+
+  delete tli;
+}
+
+
 Value* ValueProcessor::processEscape (TokenList* value) {
   if (value->size() < 2 ||
       value->front()->str != "~" ||
@@ -485,7 +496,7 @@ Value* ValueProcessor::processEscape (TokenList* value) {
     return NULL;
 
   delete value->shift();
-  processString(value->front());
+  interpolateString(value->front());
   value->front()->str = removeQuotes(value->front()->str);
   return new StringValue(value->shift(), false);
 }

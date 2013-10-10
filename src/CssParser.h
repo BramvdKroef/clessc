@@ -107,7 +107,7 @@ protected:
    * @return a list of tokens or NULL if no
    *    selector was found.
    */
-  bool parseSelector(Selector* selector);
+  virtual bool parseSelector(Selector* selector);
 
   /**
    * Parses a 'property: value' pair.
