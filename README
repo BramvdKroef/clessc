@@ -22,6 +22,16 @@ border: @width * 2 solid black;
 
 The spin() function produces slightly different results.
 
+There is an imgwidth() and a imgheight() function which can be used
+with image variables to access their dimensions. e.g.
+
+    img.thumbup {
+       content: url(browser/path/to/thumbup.png);
+       @image: url('compile/time/path/to/thumbup.png');
+       width: imgwidth(@image);
+       height: imgheight(@image);
+    }
+
 * Installation
 
 If compiling from the source checked out with git you first have to
