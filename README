@@ -7,9 +7,10 @@ CSS. Read more on http://lesscss.org/
 
 * Differences from the original compiler
 
-This compiler does not apply formatting to the code. The CSS in the
-output contains no whitespace except where necessary. If you need it
-to be user-readable you can use a CSS formatter. Try CSSTidy:
+By default, this compiler does not apply formatting to the code. The
+CSS in the output contains no whitespace except where necessary. You
+can use the -f option to indent the output. If you need it to be more
+user-readable you can use a CSS formatter. Try CSSTidy:
 http://csstidy.sourceforge.net/
 
 CSS comments are not included in the output. The purpose of this
