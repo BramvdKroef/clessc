@@ -32,6 +32,19 @@ Parentheses are not required in compound values:
 border: @width * 2 solid black;
 .P
 The spin() function produces slightly different results.
+.P
+There is an imgwidth() and a imgheight() function which can be used
+with image variables to access their dimensions. e.g.
+.br
+.br
+.nf
+    img.thumbup {
+       content: url(browser/path/to/thumbup.png);
+       @image: url('compile/time/path/to/thumbup.png');
+       width: imgwidth(@image);
+       height: imgheight(@image);
+    }
+.fi
 .SH AUTHOR
 Bram van der Kroef, https://github.com/BramvdKroef
 .SH LICENSE

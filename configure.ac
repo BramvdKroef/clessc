@@ -12,7 +12,7 @@ AC_ARG_WITH([libpng],
     [Compile without libpng])])
 
 AS_IF([test "x$with_libpng" != "xno"], [
-  PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.6],
+  PKG_CHECK_MODULES([LIBPNG], [libpng >= 1.2],
     [AC_DEFINE(WITH_LIBPNG, 1, [Compile with libpng])],
     [AC_MSG_FAILURE(
         [libpng not found, use configure with --without-libpng to disable
