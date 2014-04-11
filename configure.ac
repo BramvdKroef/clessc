@@ -4,7 +4,7 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_PROG_CXX
 AC_PROG_RANLIB
-AM_PROG_AR
+m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
 # libpng support
 AC_ARG_WITH([libpng],
