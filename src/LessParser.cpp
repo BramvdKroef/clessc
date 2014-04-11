@@ -270,7 +270,7 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
     
     // a selector by itself might be a mixin.
   } else if ((tokenizer->getTokenType() == Token::DELIMITER ||
-             tokenizer->getTokenType() == Token::BRACKET_CLOSED) &&
+              tokenizer->getTokenType() == Token::BRACKET_CLOSED) &&
              parseMixin(selector, ruleset, stylesheet, parent)) {
     delete selector;
 
@@ -415,10 +415,6 @@ bool LessParser::parseParameterMixin(Selector* selector,
   delete arguments;
   delete tli;
   
-  if (!pRulesets->parameterRulesetExists(mixin)) {
-    delete mixin;
-    return false;
-  }
   
   if (target != NULL && target != parent)
     mixin->prefix->push(target->getSelector());
@@ -427,6 +423,11 @@ bool LessParser::parseParameterMixin(Selector* selector,
     parent->addMixin(mixin);
     return true;
   } else {
+    if (!pRulesets->parameterRulesetExists(mixin)) {
+      delete mixin;
+      return false;
+    }
+
     ret = pRulesets->processParameterMixin(mixin, target, stylesheet);
     delete mixin;
     return ret;

@@ -356,6 +356,17 @@ body {
     .mixin6('blocked', #FFF);
 }
 
+/* Reference a mixin before it is declared. */
+.mixin7(@x){
+    .mixin8(@x);
+}
+.mixin8(@y) {
+    -x-mixin8: @y;
+}
+.mixin-test7 {
+    .mixin7(15);
+}
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
