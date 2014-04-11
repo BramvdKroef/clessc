@@ -1,0 +1,51 @@
+.TH LESSC 1 LOCAL
+.SH NAME
+lessc - compile stylesheets in the LESS format to CSS
+.SH SYNOPSIS
+.B lessc [options] < 
+.I input 
+.B > 
+.I output
+.br
+.B lessc [options] 
+.I inputfile
+.B -o
+.I output file
+.SH DESCRIPTION
+A LESS CSS compiler compiles stylesheets in the LESS format to
+CSS. Read more on http://lesscss.org/
+.SH OPTIONS
+.TP 5
+-h
+display help and exit
+.TP
+-f
+format the output for humans. The default is to omit whitespace.
+.TP
+-o filename
+Send the output to a named file instead of stdout.
+.SH DIFFERENCES FROM THE ORIGINIAL COMPILER
+CSS comments are not included in the output.
+.P
+Parentheses are not required in compound values:
+.br
+border: @width * 2 solid black;
+.P
+The spin() function produces slightly different results.
+.P
+There is an imgwidth() and a imgheight() function which can be used
+with image variables to access their dimensions. e.g.
+.br
+.br
+.nf
+    img.thumbup {
+       content: url(browser/path/to/thumbup.png);
+       @image: url('compile/time/path/to/thumbup.png');
+       width: imgwidth(@image);
+       height: imgheight(@image);
+    }
+.fi
+.SH AUTHOR
+Bram van der Kroef, https://github.com/BramvdKroef
+.SH LICENSE
+GPL Version 3

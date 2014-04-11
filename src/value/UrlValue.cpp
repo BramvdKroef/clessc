@@ -30,6 +30,7 @@
 #ifdef WITH_LIBJPEG
 #include <jpeglib.h>
 #include <setjmp.h>
+#include <stdio.h>
 
 struct urlvalue_jpeg_error_mgr {
   struct jpeg_error_mgr pub;	/* "public" fields */
