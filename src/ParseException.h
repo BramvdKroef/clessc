@@ -30,41 +30,30 @@ using namespace std;
 class ParseException: public exception{
 public:
   string err;
-	
-  ParseException(string found, string& expected){
-    err.append("Found \"");
-    err.append(translate(found));
-    err.append("\" when expecting ");
-    err.append(expected);
-  }
-  ParseException(string found, const char* expected){
-    err.append("Found \"");
-    err.append(translate(found));
-    err.append("\" when expecting ");
-    err.append(expected);
-  }
-  ParseException(const char* found, const char* expected){
-    err.append("Found \"");
-    if (found[0] == -1)
-      err.append("end of file");
-    else
-      err.append(translate(string(found)));
-    err.append("\" when expecting ");
-    err.append(expected);
-  }
+
+  string source;
+  unsigned int line, column;
+  
+  ParseException(string found, string& expected);
+  ParseException(string found, const char* expected);
+  ParseException(const char* found, const char* expected);
 
   ~ParseException() throw () {};
-  
-  virtual const char* what() const throw(){
-    return err.c_str();
-  }
+
+  void setLocation(unsigned int line, unsigned int column);
+  unsigned int getLineNumber();
+  unsigned int getColumn();
+
+  /**
+   * URL or file name where the Less code is located.
+   */
+  void setSource(string source);
+
+  string getSource(); 
+  virtual const char* what() const throw(); 
 
 protected:
-  string translate(string found) {
-    if (found == "\n")
-      return "newline";
-    return found;
-  }
+  string translate(string found); 
 
 };
 
