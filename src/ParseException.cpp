@@ -22,20 +22,27 @@
 #include "ParseException.h"
 
 
-ParseException::ParseException(string found, string& expected){
+ParseException::ParseException(string found, string& expected,
+                               unsigned int line, unsigned int column){
   err.append("Found \"");
   err.append(translate(found));
   err.append("\" when expecting ");
   err.append(expected);
+  setLocation(line, column);
+  source = "";
 }
 
-ParseException::ParseException(string found, const char* expected){
+ParseException::ParseException(string found, const char* expected,
+                               unsigned int line, unsigned int column){
   err.append("Found \"");
   err.append(translate(found));
   err.append("\" when expecting ");
   err.append(expected);
+  setLocation(line, column);
+  source = "";
 }
-ParseException::ParseException(const char* found, const char* expected){
+ParseException::ParseException(const char* found, const char* expected,
+                               unsigned int line, unsigned int column){
   err.append("Found \"");
   if (found[0] == -1)
     err.append("end of file");
@@ -43,6 +50,8 @@ ParseException::ParseException(const char* found, const char* expected){
     err.append(translate(string(found)));
   err.append("\" when expecting ");
   err.append(expected);
+  setLocation(line, column);
+  source = "";
 }
 
 void ParseException::setLocation(unsigned int line, unsigned int column) {
@@ -68,7 +77,7 @@ string ParseException::getSource() {
   return source;
 }
   
-virtual const char* ParseException::what() const throw(){
+const char* ParseException::what() const throw(){
   return err.c_str();
 }
 

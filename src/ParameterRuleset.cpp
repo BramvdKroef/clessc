@@ -104,7 +104,8 @@ ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
   }
   if (selector->empty()) {
     throw new ParseException(*selector->toString(),
-                             "matching parentheses.");
+                             "matching parentheses.",
+                             0, 0);
   }
   
   delete selector->shift();
@@ -126,7 +127,7 @@ ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
 
   if (selector->front()->type != Token::PAREN_CLOSED) {
     throw new ParseException(*selector->toString(),
-                             "matching parentheses.");
+                             "matching parentheses.", 0, 0);
   }
   delete selector->shift();
   
@@ -221,7 +222,8 @@ bool ParameterRuleset::processParameter(Selector* selector) {
     }
     if (value->empty()) {
       throw new ParseException("",
-                               "default value following ':'");
+                               "default value following ':'",
+                               0, 0);
     }
   } else if (selector->size() > 3 &&
              selector->front()->str == "." &&

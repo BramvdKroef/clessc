@@ -76,7 +76,8 @@ Token::Type CssTokenizer::readNextToken(){
     readChar();
     if (!readName()) {
       throw new ParseException(&lastRead,
-                               "name following '#'");
+                               "name following '#'",
+                               getLineNumber(), getColumn());
     }
     break;
     
@@ -340,7 +341,9 @@ bool CssTokenizer::readString() {
                lastReadEq('\r') ||
                lastReadEq('\f')) {
       throw new ParseException("end of line",
-                               "end of string");
+                               "end of string",
+                               getLineNumber(),
+                               getColumn());
     } else if (lastReadEq('\\'))
       // note that even though readEscape() returns false it still
       // eats the '\'.
@@ -351,7 +354,9 @@ bool CssTokenizer::readString() {
     }
   }
   throw new ParseException("end of input",
-                           "end of string");
+                           "end of string",
+                           getLineNumber(),
+                           getColumn());
   return false;
 }
 
@@ -402,7 +407,9 @@ bool CssTokenizer::readUrl() {
       return true;
     } else {
       throw new ParseException(&lastRead,
-                               "end of url (')')");
+                               "end of url (')')",
+                               getLineNumber(),
+                               getColumn());
     }
   }
 
@@ -415,7 +422,9 @@ bool CssTokenizer::readUrl() {
         return true;
       } else {
         throw new ParseException(&lastRead,
-                                 "end of url (')')");
+                                 "end of url (')')",
+                                 getLineNumber(),
+                                 getColumn());
       }
     } else if (in != NULL && urlchars.find(lastRead)) {
       currentToken.add(lastRead);
@@ -423,11 +432,15 @@ bool CssTokenizer::readUrl() {
     } else if (!readNonAscii() &&
                !readEscape()) {
       throw new ParseException(&lastRead,
-                               "end of url (')')");
+                               "end of url (')')",
+                               getLineNumber(),
+                               getColumn());
     }
   }
   throw new ParseException(&lastRead,
-                           "end of url (')')");
+                           "end of url (')')",
+                           getLineNumber(),
+                           getColumn());
   return false;
 }
 
@@ -453,7 +466,9 @@ bool CssTokenizer::readComment () {
     readChar();
   }
   throw new ParseException(&lastRead,
-                           "end of comment (*/)");
+                           "end of comment (*/)",
+                           getLineNumber(),
+                           getColumn());
   return false;
 }
 

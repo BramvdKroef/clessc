@@ -34,9 +34,12 @@ public:
   string source;
   unsigned int line, column;
   
-  ParseException(string found, string& expected);
-  ParseException(string found, const char* expected);
-  ParseException(const char* found, const char* expected);
+  ParseException(string found, string& expected,
+                 unsigned int line, unsigned int column);
+  ParseException(string found, const char* expected,
+                 unsigned int line, unsigned int column);
+  ParseException(const char* found, const char* expected,
+                 unsigned int line, unsigned int column);
 
   ~ParseException() throw () {};
 

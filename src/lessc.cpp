@@ -61,10 +61,16 @@ Stylesheet* processInput(istream* in){
   
   try{
     parser.parseStylesheet(s);
-  } catch(exception* e) {
-    cerr << "Line " << tokenizer.getLineNumber() << ", Column " << 
-      tokenizer.getColumn() << " Parse Error: " << e->what() << endl;
+  } catch(ParseException* e) {
+    if (e->getSource() != "")
+      cerr << e->getSource() << ": ";
+    
+    cerr << "Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what() << endl;
     return NULL;
+  } catch(exception* e) {
+    cerr << "Line " << tokenizer.getLineNumber() << ", Column " <<
+      tokenizer.getColumn() << " Error: " << e->what() << endl;
   }
   
   return s;

@@ -44,7 +44,9 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
     if (!parseBlock(rule)) {
       if (tokenizer->getTokenType() != Token::DELIMITER) {
         throw new ParseException(tokenizer->getToken()->str,
-                                 "delimiter (';') at end of @-rule");
+                                 "delimiter (';') at end of @-rule",
+                                 tokenizer->getLineNumber(),
+                                 tokenizer->getColumn());
       }
       tokenizer->readNextToken();
       skipWhitespace();
@@ -54,7 +56,9 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
       if (rule->size() != 1 ||
           rule->front()->type != Token::STRING)
         throw new ParseException(*rule->toString(), "A string with the \
-file path");
+file path",
+                                 tokenizer->getLineNumber(),
+                                 tokenizer->getColumn());
       import = rule->front()->str;
       if (import.size() < 5 ||
           import.substr(import.size() - 5, 4) != ".css") {
@@ -85,7 +89,9 @@ bool LessParser::parseVariable (string keyword = "") {
     if (tokenizer->getTokenType() != Token::COLON)
       throw new ParseException(tokenizer->getToken()->str,
                                "colon (':') following @keyword in \
-variable declaration.");
+variable declaration.",
+                               tokenizer->getLineNumber(),
+                               tokenizer->getColumn());
   } else if (tokenizer->getTokenType() != Token::COLON)
     return false;
   
@@ -96,11 +102,15 @@ variable declaration.");
 
   if (rule == NULL || rule->size() == 0) {
     throw new ParseException(tokenizer->getToken()->str,
-                             "value for variable");
+                             "value for variable",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
   }
   if (tokenizer->getTokenType() != Token::DELIMITER) {
     throw new ParseException(tokenizer->getToken()->str,
-                             "delimiter (';') at end of @-rule");
+                             "delimiter (';') at end of @-rule",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
   }
   valueProcessor->putVariable(keyword, rule);
   tokenizer->readNextToken();
@@ -124,12 +134,17 @@ bool LessParser::parseSelector(Selector* selector) {
       
       if (tokenizer->readNextToken() != Token::IDENTIFIER) 
         throw new ParseException(tokenizer->getToken()->str,
-                               "Variable inside selector (e.g.: @{identifier})");
+                                 "Variable inside selector (e.g.: \
+@{identifier})",
+                                 tokenizer->getLineNumber(),
+                                 tokenizer->getColumn());
       back.append(tokenizer->getToken()->str);
       
       if (tokenizer->readNextToken() != Token::BRACKET_CLOSED)
         throw new ParseException(tokenizer->getToken()->str,
-                                 "Closing bracket after variable.");
+                                 "Closing bracket after variable.",
+                                 tokenizer->getLineNumber(),
+                                 tokenizer->getColumn());
 
       back.append(tokenizer->getToken()->str);
       tokenizer->readNextToken();
@@ -176,7 +191,9 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
       return true;
     } else {
       throw new ParseException(tokenizer->getToken()->str,
-                               "a declaration block ('{...}')");
+                               "a declaration block ('{...}')",
+                               tokenizer->getLineNumber(),
+                               tokenizer->getColumn());
     }
   }
   tokenizer->readNextToken();
@@ -189,7 +206,13 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     if (parent != NULL)
       cerr << "Warning: Parametric ruleset defined inside another \
 parametric ruleset." << endl;
-    ruleset = pruleset = new ParameterRuleset(selector);
+    try {
+      ruleset = pruleset = new ParameterRuleset(selector);
+    } catch (ParseException* e) {
+      e->setLocation(tokenizer->getLineNumber(),
+                     tokenizer->getColumn());
+      throw e;
+    }
     pRulesets->addRule(pruleset);
     while (parseRulesetStatement(stylesheet, ruleset, pruleset)) {
     }
@@ -210,7 +233,9 @@ parametric ruleset." << endl;
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken()->str,
-                             "end of declaration block ('}')");
+                             "end of declaration block ('}')",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
   } 
   tokenizer->readNextToken();
   skipWhitespace();
@@ -254,14 +279,22 @@ bool LessParser::parseRulesetStatement (Stylesheet* stylesheet,
       delete selector->shift();
     
     if ((declaration = parseDeclaration(&property, selector)) != NULL) {
-      if (parent == NULL)
-        valueProcessor->processValue(declaration->getValue());
-
+      if (parent == NULL) {
+        try {
+          valueProcessor->processValue(declaration->getValue());
+        } catch(ParseException* e) {
+          e->setLocation(tokenizer->getLineNumber(),
+                         tokenizer->getColumn());
+          throw e;
+        }
+      }
       ruleset->addDeclaration(declaration);
     
     } else {
       throw new ParseException(*selector->toString(),
-                               "a mixin, nested ruleset, or property");
+                               "a mixin, nested ruleset, or property",
+                               tokenizer->getLineNumber(),
+                               tokenizer->getColumn());
     }
   }
   if (tokenizer->getTokenType() == Token::DELIMITER) {
@@ -367,9 +400,16 @@ bool LessParser::parseParameterMixin(Selector* selector,
     arguments->push(current->clone());
   }
   
-  if (parent == NULL)
-    valueProcessor->processValue(arguments);
-
+  if (parent == NULL) {
+    try {
+      valueProcessor->processValue(arguments);
+    } catch (ParseException* e) {
+      e->setLocation(tokenizer->getLineNumber(),
+                     tokenizer->getColumn());
+      throw e;
+    }
+  }
+  
   parseList(mixin->arguments, arguments);
 
   delete arguments;
@@ -438,13 +478,21 @@ void LessParser::parseList(list<TokenList*>* list, TokenList* tokens) {
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   ifstream* in = new ifstream(filename.c_str());
   if (in->fail() || in->bad())
-    throw new ParseException(filename, "existing file");
+    throw new ParseException(filename, "existing file",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
 
   LessTokenizer* tokenizer = new LessTokenizer(in);
   LessParser* parser = new LessParser(tokenizer,
                               this->pRulesets,
                               this->valueProcessor);
-  parser->parseStylesheet(stylesheet);
+  try {
+    parser->parseStylesheet(stylesheet);
+  } catch(ParseException* e) {
+    if (e->getSource() == "")
+      e->setSource(filename);
+    throw e;
+  }
   in->close();
   delete parser;
   delete tokenizer;

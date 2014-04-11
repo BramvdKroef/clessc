@@ -181,9 +181,11 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   v2 = processConstant(value);
   if (v2 == NULL) {
     if (value->size() > 0) 
-      throw new ParseException(value->front()->str, "Constant or @-variable");
+      throw new ParseException(value->front()->str,
+                               "Constant or @-variable", 0, 0);
     else
-      throw new ParseException("end of line", "Constant or @-variable");
+      throw new ParseException("end of line",
+                               "Constant or @-variable", 0, 0);
   }
   while ((tmp = processOperator(value, v2, op))) 
     v2 = tmp;
@@ -297,7 +299,7 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     }
 
     if (value->size() == 0)
-      throw new ParseException("end of line", ")");
+      throw new ParseException("end of line", ")", 0, 0);
 
     if (ret != NULL) {
       if (value->front()->type == Token::PAREN_CLOSED) {
@@ -402,8 +404,8 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
     
     throw new ParseException(arg_str,
                              functionLibrary->
-                             functionDefToString(function.c_str(),
-                                                 fi));
+                             functionDefToString(function.c_str(),fi),
+                             0,0);
   }
   
   // delete arguments
@@ -420,7 +422,7 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   Value* argument;
 
   if (value->size() == 0) 
-    throw new ParseException("end of value", ")");
+    throw new ParseException("end of value", ")", 0, 0);
   
   if (value->front()->type != Token::PAREN_CLOSED)  {
     argument = processStatement(value);
@@ -445,10 +447,10 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   }
 
   if (value->size() == 0) 
-    throw new ParseException("end of value", ")");
+    throw new ParseException("end of value", ")", 0, 0);
   
   if (value->front()->type != Token::PAREN_CLOSED) 
-    throw new ParseException(value->front()->str, ")");
+    throw new ParseException(value->front()->str, ")", 0, 0);
     
   delete value->shift();
 
