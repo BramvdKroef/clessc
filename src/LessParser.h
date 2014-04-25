@@ -88,6 +88,7 @@ protected:
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
   bool parseSelector(Selector* selector);
+  bool parseSelectorVariable(Selector* selector);
   
   bool parseRuleset (Stylesheet* stylesheet,
                      Selector* selector = NULL,

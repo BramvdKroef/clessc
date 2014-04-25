@@ -119,12 +119,21 @@ variable declaration.",
 }
 
 bool LessParser::parseSelector(Selector* selector) {
-  string back;
-  
+ 
   if (!parseAny(selector)) 
     return false;
     
-  while (parseAny(selector)) {};
+  while (parseAny(selector) || parseSelectorVariable(selector)) {};
+  
+  // delete trailing whitespace
+  while (selector->back()->type == Token::WHITESPACE) {
+    delete selector->pop();
+  }
+  return true;
+}
+
+bool LessParser::parseSelectorVariable(Selector* selector) {
+  string back;
   
   if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
     back = selector->back()->str;
@@ -149,17 +158,13 @@ bool LessParser::parseSelector(Selector* selector) {
       back.append(tokenizer->getToken()->str);
       tokenizer->readNextToken();
       selector->back()->str = back;
-      
+        
       parseWhitespace(selector);
-      while (parseAny(selector)) {};
+
+      return true;
     }
   }
-
-  // delete trailing whitespace
-  while (selector->back()->type == Token::WHITESPACE) {
-    delete selector->pop();
-  }
-  return true;
+  return false;
 }
 
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
