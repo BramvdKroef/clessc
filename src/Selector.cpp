@@ -78,16 +78,24 @@ list<TokenList*>* Selector::split() {
   TokenListIterator* it = iterator();
   TokenList* current = new TokenList();
   Token* t;
+  unsigned int parentheses = 0;
   
   l->push_back(current);
 
   while (it->hasNext()) {
     t = it->next();
-    if (t->type == Token::OTHER && t->str == ",") {
+    
+    if (parentheses == 0 &&
+        t->type == Token::OTHER && t->str == ",") {
       current = new TokenList();
       l->push_back(current);
-    } else
+    } else {
+      if (t->str == "(")
+        parentheses++;
+      else if (t->str == ")")
+        parentheses--;
       current->push(t->clone());
+    }
   }
   
   return l;
@@ -136,5 +144,6 @@ bool Selector::equals(TokenList* list) {
         it2->next();
     }
   }
+
   return !(it1->hasNext() || it2->hasNext());
 }
