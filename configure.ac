@@ -28,7 +28,10 @@ AC_ARG_WITH([libjpeg],
 LIBJPEG_LIBS=
 AS_IF([test "x$with_libjpeg" != "xno"], [
   AC_CHECK_LIB([jpeg], [jpeg_mem_src],
-    [AC_SUBST([LIBJPEG_LIBS], ["-ljpeg"])
+    [AC_CHECK_HEADER([jpeglib.h],
+        [],
+        [AC_MSG_FAILURE([libjpeg headers were not found in the compiler's include path.])])
+     AC_SUBST([LIBJPEG_LIBS], ["-ljpeg"])
      AC_DEFINE(WITH_LIBJPEG, 1, [Compile with libjpeg])],
     [AC_MSG_FAILURE(
         [libjpeg not found, use configure with --without-libjpeg to disable
