@@ -59,7 +59,7 @@ public:
   bool empty ();
   size_t size();
 
-  bool equals(TokenList* list);
+  virtual bool equals(TokenList* list);
 
   Token* back();
   Token* front();

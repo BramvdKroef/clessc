@@ -49,6 +49,7 @@ public:
    */
   list<TokenList*>* split();
   virtual Selector* clone();
+  virtual bool equals(TokenList* list);
 };
 
 #endif

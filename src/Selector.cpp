@@ -112,3 +112,29 @@ void Selector::trim() {
     delete shift();
   }
 }
+
+bool Selector::equals(TokenList* list) {
+  TokenListIterator* it1, * it2;
+    
+  it1 = iterator();
+  it2 = list->iterator();
+
+  while (it1->hasNext() && it2->hasNext()) {
+    if (!it1->next()->equals(it2->next())) {
+      delete it1;
+      delete it2;
+      return false;
+    }
+    if (it1->hasNext() && it1->peek()->str == ">") {
+      it1->next();
+      if (it1->hasNext() && it1->peek()->type == Token::WHITESPACE) 
+        it1->next();
+    }
+    if (it2->hasNext() && it2->peek()->str == ">") {
+      it2->next();
+      if (it2->hasNext() && it2->peek()->type == Token::WHITESPACE) 
+        it2->next();
+    }
+  }
+  return !(it1->hasNext() || it2->hasNext());
+}
