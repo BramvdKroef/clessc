@@ -29,16 +29,14 @@ CssWriter::~CssWriter() {
 }
 
 void CssWriter::writeStylesheet(Stylesheet* s) {
-  vector<AtRule*>* atrules = s->getAtRules();
-  vector<AtRule*>::iterator aIt;
-  vector<Ruleset*>* rulesets = s->getRulesets();
-  vector<Ruleset*>::iterator rIt;
+  vector<StylesheetStatement*>* statements = s->getStatements();
+  vector<StylesheetStatement*>::iterator it;
 
-  for (aIt = atrules->begin(); aIt < atrules->end(); aIt++) {
-    writeAtRule(*aIt);
-  }
-  for (rIt = rulesets->begin(); rIt < rulesets->end(); rIt++) {
-    writeRuleset(*rIt);
+  for (it = statements->begin(); it < statements->end(); it++) {
+    if ((*it)->getType() == StylesheetStatement::ATRULE)
+      writeAtRule((AtRule*)*it);
+    else if ((*it)->getType() == StylesheetStatement::RULESET)
+      writeRuleset((Ruleset*)*it);
   }
 }
 

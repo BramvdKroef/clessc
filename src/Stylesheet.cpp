@@ -160,10 +160,12 @@ Stylesheet::~Stylesheet() {
 
 void Stylesheet::addRuleset(Ruleset* ruleset) {
   rulesets.push_back(ruleset);
+  statements.push_back(ruleset);
 }
 
 void Stylesheet::addAtRule(AtRule* atrule) {
   atrules.push_back(atrule);
+  statements.push_back(atrule);
 }
 vector<AtRule*>* Stylesheet::getAtRules() {
   return &atrules;
@@ -171,6 +173,10 @@ vector<AtRule*>* Stylesheet::getAtRules() {
 vector<Ruleset*>* Stylesheet::getRulesets() {
   return &rulesets;
 }
+vector<StylesheetStatement*>* Stylesheet::getStatements() {
+  return &statements;
+}
+
 Ruleset* Stylesheet::getRuleset(Selector* selector) {
   vector<Ruleset*>::iterator it;
   for (it = rulesets.begin(); it < rulesets.end(); it++) {

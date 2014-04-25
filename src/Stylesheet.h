@@ -45,8 +45,17 @@ public:
   TokenList* getValue();
   Declaration* clone();
 };
+
+class StylesheetStatement {
+public:
+  enum Type{RULESET, ATRULE} type;
+
+  virtual ~StylesheetStatement() {};
   
-class Ruleset {
+  virtual Type getType() = 0;
+};
+
+class Ruleset: public StylesheetStatement {
 private:
   Selector* selector;
   vector<Declaration*> declarations;
@@ -63,9 +72,13 @@ public:
   vector<Declaration*>* getDeclarations();
   vector<Declaration*>* cloneDeclarations();
   Ruleset* clone();
+
+  virtual Type getType() {
+    return RULESET;
+  }
 };
 
-class AtRule {
+class AtRule: public StylesheetStatement {
 private:
   string* keyword;
   TokenList* rule;
@@ -78,13 +91,17 @@ public:
 
   string* getKeyword();
   TokenList* getRule();
+
+  virtual Type getType() {
+    return ATRULE;
+  }
 };
 
 class Stylesheet {
 private:
   vector<AtRule*> atrules;
   vector<Ruleset*> rulesets;
-  
+  vector<StylesheetStatement*> statements;
 public:
   Stylesheet() {}
   virtual ~Stylesheet();
@@ -94,7 +111,8 @@ public:
 
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();
-
+  vector<StylesheetStatement*>* getStatements();
+  
   Ruleset* getRuleset(Selector* selector);
 };
 
