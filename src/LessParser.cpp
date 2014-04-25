@@ -218,6 +218,7 @@ parametric ruleset." << endl;
                      tokenizer->getColumn());
       throw e;
     }
+    
     pRulesets->addRule(pruleset);
     while (parseRulesetStatement(stylesheet, ruleset, pruleset)) {
     }
@@ -357,7 +358,7 @@ bool LessParser::parseMixin(Selector* selector, Ruleset* ruleset,
   bool ret;
 
   ret = parseParameterMixin(selector, ruleset, stylesheet, parent);
-
+  
   if ((mixin = stylesheet->getRuleset(selector)) != NULL) {
     declarations = mixin->cloneDeclarations();
     ruleset->addDeclarations(declarations);
@@ -389,7 +390,7 @@ bool LessParser::parseParameterMixin(Selector* selector,
 
   // delete trailing whitespace
   mixin->name->trim();
-
+  
   while (tli->hasNext()) {
     current = tli->next();
     if (nestedParenthesis == 0 &&
@@ -424,14 +425,15 @@ bool LessParser::parseParameterMixin(Selector* selector,
   if (target != NULL && target != parent)
     mixin->prefix->push(target->getSelector());
 
+  if (!pRulesets->parameterRulesetExists(mixin)) {
+    delete mixin;
+    return false;
+  }
+
   if (parent != NULL) {
     parent->addMixin(mixin);
     return true;
   } else {
-    if (!pRulesets->parameterRulesetExists(mixin)) {
-      delete mixin;
-      return false;
-    }
 
     ret = pRulesets->processParameterMixin(mixin, target, stylesheet);
     delete mixin;
