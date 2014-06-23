@@ -28,11 +28,11 @@
 #include "LessTokenizer.h"
 #include "LessParser.h"
 #include "value/ValueProcessor.h"
-#include "ParameterRulesetLibrary.h"
 #include "CssWriter.h"
 #include "CssPrettyWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
+#include "LessStylesheet.h"
 
 using namespace std;
 
@@ -53,14 +53,13 @@ void usage () {
 
 
 Stylesheet* processInput(istream* in){
-  ValueProcessor vp;
-  ParameterRulesetLibrary pr(&vp);
   LessTokenizer tokenizer(in);
-  LessParser parser(&tokenizer, &pr, &vp);
-  Stylesheet* s = new Stylesheet();
+  LessParser parser(&tokenizer);
+  LessStylesheet* s = new LessStylesheet();
   
   try{
     parser.parseStylesheet(s);
+    s->process();
   } catch(ParseException* e) {
     if (e->getSource() != "")
       cerr << e->getSource() << ": ";

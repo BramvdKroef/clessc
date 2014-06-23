@@ -30,12 +30,22 @@
 
 using namespace std;
 
-class Declaration {
+class RulesetStatement {
+public:
+  static const int DECLARATION = 1;
+  
+  virtual ~RulesetStatement() {};
+  virtual int getType() = 0;
+  virtual RulesetStatement* clone() =0;
+};
+
+class Declaration: public RulesetStatement {
 private:
   string* property;
   TokenList* value;
   
 public:
+  Declaration();
   Declaration(string* property);
   virtual ~Declaration();
   void setProperty(string* property);
@@ -43,21 +53,25 @@ public:
   
   string* getProperty();
   TokenList* getValue();
-  Declaration* clone();
+  virtual RulesetStatement* clone();
+  virtual int getType() {
+    return DECLARATION;
+  }
 };
 
 class StylesheetStatement {
 public:
-  enum Type{RULESET, ATRULE} type;
-
+  static const int RULESET = 1, ATRULE = 2;
+  
   virtual ~StylesheetStatement() {};
   
-  virtual Type getType() = 0;
+  virtual int getType() = 0;
 };
 
 class Ruleset: public StylesheetStatement {
 private:
   Selector* selector;
+  vector<RulesetStatement*> statements;
   vector<Declaration*> declarations;
   
 public:
@@ -65,15 +79,16 @@ public:
   Ruleset(Selector* selector);
   virtual ~Ruleset();
   void setSelector (Selector* selector);
-  void addDeclaration (Declaration* declaration);
-  void addDeclarations (vector<Declaration*>* declarations);
+  void addStatement (RulesetStatement* statement);
+  void addStatements (vector<RulesetStatement*>* statements);
     
   Selector* getSelector();
+  vector<RulesetStatement*>* getStatements();
   vector<Declaration*>* getDeclarations();
   vector<Declaration*>* cloneDeclarations();
   Ruleset* clone();
 
-  virtual Type getType() {
+  virtual int getType() {
     return RULESET;
   }
 };
@@ -92,7 +107,7 @@ public:
   string* getKeyword();
   TokenList* getRule();
 
-  virtual Type getType() {
+  virtual int getType() {
     return ATRULE;
   }
 };
@@ -106,8 +121,7 @@ public:
   Stylesheet() {}
   virtual ~Stylesheet();
   
-  void addAtRule(AtRule* atrule);
-  void addRuleset(Ruleset* ruleset);
+  void addStatement(StylesheetStatement* statement);
 
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();

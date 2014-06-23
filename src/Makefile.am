@@ -6,10 +6,13 @@ noinst_LIBRARIES = liblessc.a
 liblessc_a_SOURCES = Token.cpp TokenList.cpp CssTokenizer.cpp		\
 CssParser.cpp Stylesheet.cpp CssWriter.cpp LessTokenizer.cpp		\
 LessParser.cpp Selector.cpp ParameterRuleset.cpp CssPrettyWriter.cpp	\
-ParameterRulesetLibrary.cpp CssParser.h CssPrettyWriter.h		\
-CssTokenizer.h CssWriter.h IOException.h LessParser.h LessTokenizer.h	\
-ParameterRuleset.h ParameterRulesetLibrary.h ParseException.cpp		\
-ParseException.h Selector.h Stylesheet.h Token.h TokenList.h		\
+CssParser.h CssPrettyWriter.h CssTokenizer.h CssWriter.h		\
+IOException.h LessParser.h LessTokenizer.h ParameterRuleset.h		\
+ParseException.cpp ParseException.h Selector.h Stylesheet.h Token.h	\
+TokenList.h ParameterMixin.cpp ParameterMixin.h				\
+UnprocessedStatement.cpp UnprocessedStatement.h LessStylesheet.cpp	\
+LessStylesheet.h							\
+									\
 value/Value.cpp value/Color.cpp value/StringValue.cpp			\
 value/NumberValue.cpp value/UnitValue.cpp value/BooleanValue.cpp	\
 value/UrlValue.cpp value/FunctionLibrary.cpp value/ValueProcessor.cpp	\

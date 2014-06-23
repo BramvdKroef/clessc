@@ -20,6 +20,10 @@
  */
 
 #include "Stylesheet.h"
+Declaration::Declaration() {
+  property;
+  value = NULL;
+}
 
 Declaration::Declaration(string* property) {
   this->property = property;
@@ -49,7 +53,7 @@ string* Declaration::getProperty() {
 TokenList* Declaration::getValue() {
   return value;
 }
-Declaration* Declaration::clone() {
+RulesetStatement* Declaration::clone() {
   Declaration* clone =
     new Declaration(new string(*this->getProperty()));
   
@@ -68,54 +72,60 @@ Ruleset::~Ruleset() {
     delete selector;
   }
   
-  while (!declarations.empty()) {
-    delete declarations.back();
-    declarations.pop_back();
+  while (!statements.empty()) {
+    delete statements.back();
+    statements.pop_back();
   }
 }
 
 void Ruleset::setSelector (Selector* selector) {
   this->selector = selector;
 }
-void Ruleset::addDeclaration (Declaration* declaration) {
-  declarations.push_back(declaration);
+void Ruleset::addStatement (RulesetStatement* statement) {
+  statements.push_back(statement);
+  if (statement->getType() == RulesetStatement::DECLARATION)
+    declarations.push_back((Declaration*)statement);
 }
-void Ruleset::addDeclarations (vector<Declaration*>* declarations) {
-  vector<Declaration*>::iterator di;
-  for (di = declarations->begin(); di < declarations->end(); di++) {
-    addDeclaration(*di);
+void Ruleset::addStatements (vector<RulesetStatement*>* statements) {
+  vector<RulesetStatement*>::iterator i;
+  for (i = statements->begin(); i < statements->end(); i++) {
+    addStatement(*i);
   }
 }
 
 Selector* Ruleset::getSelector() {
   return selector;
 }
+vector<RulesetStatement*>* Ruleset::getStatements() {
+  return &statements;
+}
+
 vector<Declaration*>* Ruleset::getDeclarations() {
   return &declarations;
 }
 vector<Declaration*>* Ruleset::cloneDeclarations() {
   vector<Declaration*>* declarations;
-  vector<Declaration*>::iterator di;
+  vector<Declaration*>::iterator i;
   vector<Declaration*>* clone = new vector<Declaration*>();
   
   declarations = getDeclarations();  
-  for (di = declarations->begin(); di < declarations->end(); di++) {
-    clone->push_back((*di)->clone());
+  for (i = declarations->begin(); i < declarations->end(); i++) {
+    clone->push_back((Declaration*)(*i)->clone());
   }
   return clone;
 }
 
 Ruleset* Ruleset::clone() {
   Ruleset* ruleset = new Ruleset(NULL);
-  vector<Declaration*>* declarations;
-  vector<Declaration*>::iterator di;
+  vector<RulesetStatement*>* statements;
+  vector<RulesetStatement*>::iterator i;
   
   if (getSelector() != NULL)
     ruleset->setSelector(getSelector()->clone());
 
-  declarations = getDeclarations();  
-  for (di = declarations->begin(); di < declarations->end(); di++) {
-    ruleset->addDeclaration((*di)->clone());
+  statements = getStatements();  
+  for (i = statements->begin(); i < statements->end(); i++) {
+    ruleset->addStatement((*i)->clone());
   }
   return ruleset;
 }
@@ -158,15 +168,19 @@ Stylesheet::~Stylesheet() {
   }
 }
 
-void Stylesheet::addRuleset(Ruleset* ruleset) {
-  rulesets.push_back(ruleset);
-  statements.push_back(ruleset);
+void Stylesheet::addStatement(StylesheetStatement* statement) {
+  switch (statement->getType()) {
+  case StylesheetStatement::RULESET:
+    rulesets.push_back((Ruleset*)statement);
+    break;
+
+  case StylesheetStatement::ATRULE:
+    atrules.push_back((AtRule*)statement);
+    break;
+  }
+  statements.push_back(statement);
 }
 
-void Stylesheet::addAtRule(AtRule* atrule) {
-  atrules.push_back(atrule);
-  statements.push_back(atrule);
-}
 vector<AtRule*>* Stylesheet::getAtRules() {
   return &atrules;
 }

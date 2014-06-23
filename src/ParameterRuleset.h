@@ -29,31 +29,6 @@
 #include <map>
 
 
-class ParameterMixin {
-public:
-  Selector* name;
-  list<TokenList*>* arguments;
-  Selector* prefix;
-
-  ParameterMixin(Selector* name, list<TokenList*>* arguments,
-                 Selector* prefix) {
-    this->name = name;
-    this->arguments = arguments;
-    this->prefix = prefix;
-  }
-  ~ParameterMixin() {
-    delete name;
-    
-    while(!arguments->empty()) {
-      delete arguments->back();
-      arguments->pop_back();
-    }
-    delete arguments;
-
-    delete prefix;
-  }
-};
-
 class ParameterRuleset: public Ruleset {
 private:
   string rest;
@@ -69,7 +44,6 @@ public:
   list<TokenList*> conditions;
   
   list<Ruleset*> nestedRules;
-  list<ParameterMixin*> mixins;
   
   static bool isValid(Selector* selector);
   
@@ -90,9 +64,7 @@ public:
 
   void addNestedRule(Ruleset* nestedRule);
   list<Ruleset*>* getNestedRules();
-
-  void addMixin(ParameterMixin* mixin);
-  list<ParameterMixin*>* getMixins();
+  
 };
 
 #endif

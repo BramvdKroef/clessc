@@ -33,7 +33,7 @@ inline std::string to_string (const T& t)
 }
 
 ValueProcessor::ValueProcessor() {
-  pushScope();
+  pushScope(new map<string, TokenList*>());
   
   functionLibrary = new FunctionLibrary();
   NumberValue::loadFunctions(functionLibrary);
@@ -42,7 +42,7 @@ ValueProcessor::ValueProcessor() {
   UrlValue::loadFunctions(functionLibrary);  
 }
 ValueProcessor::~ValueProcessor() {
-  popScope();
+  delete popScope();
 }
 
 TokenList* ValueProcessor::processValue(TokenList* value) {
@@ -127,13 +127,13 @@ TokenList* ValueProcessor::getVariable(string key) {
   return NULL;
 }
 
-void ValueProcessor::pushScope() {
-  scopes.push_back(new map<string, TokenList*>());
+void ValueProcessor::pushScope(map<string, TokenList*>* scope) {
+  scopes.push_back(scope);
 }
-void ValueProcessor::popScope() {
-  // delete tokenlists in scope
-  delete scopes.back();
+map<string, TokenList*>* ValueProcessor::popScope() {
+  map<string, TokenList*>* m = scopes.back();
   scopes.pop_back();
+  return m;
 }
 
 

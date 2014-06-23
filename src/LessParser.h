@@ -27,14 +27,14 @@
 #include "Token.h"
 #include "TokenList.h"
 #include "ParameterRuleset.h"
-#include "value/ValueProcessor.h"
 #include "LessTokenizer.h"
-#include "ParameterRulesetLibrary.h"
+#include "LessStylesheet.h"
 
 #include <iostream>
 #include <fstream>
 #include <string>
 
+  
 /**
  * Extends the css spec with these parts:
  * * Variables
@@ -61,19 +61,14 @@
  */
 class LessParser: public CssParser {
 public:
-  LessParser(CssTokenizer* tokenizer,
-             ParameterRulesetLibrary* pRulesets,
-             ValueProcessor* valueProcessor): CssParser(tokenizer) {
-    this->pRulesets = pRulesets;
-    this->valueProcessor = valueProcessor;
+  LessParser(CssTokenizer* tokenizer): CssParser(tokenizer) {
   }
   virtual ~LessParser () {
   }
+
+  virtual void parseStylesheet(LessStylesheet* stylesheet);
   
 protected:
-  ValueProcessor* valueProcessor;
-  ParameterRulesetLibrary* pRulesets;
-  
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to
    * variables and don't add it to the Stylesheet.
@@ -87,6 +82,7 @@ protected:
    */
   bool parseAtRuleOrVariable (Stylesheet* stylesheet);
 
+  bool parseVariable (TokenList* value);
   bool parseSelector(Selector* selector);
   bool parseSelectorVariable(Selector* selector);
   
@@ -94,14 +90,12 @@ protected:
                      Selector* selector = NULL,
                      ParameterRuleset* parent = NULL);
 
-  bool parseRulesetStatement (Stylesheet* stylesheet,
-                              Ruleset* ruleset,
-                              ParameterRuleset* parent = NULL);
+  bool parseRulesetStatement (UnprocessedStatement* statement);
 
   
   Declaration* parseDeclaration(TokenList* property, TokenList* value);
 
-  bool parseVariable(string keyword);
+  bool parseVariable(string keyword, TokenList* value);
 
   bool parseNestedRule(Selector* selector,
                        Ruleset* ruleset,

@@ -73,8 +73,8 @@ public:
   void interpolateString(Token* str);
   void interpolateTokenList(TokenList* tokens);
     
-  void pushScope();
-  void popScope();
+  void pushScope(map<string, TokenList*>* scope);
+  map<string, TokenList*>* popScope();
 };
 
 #endif

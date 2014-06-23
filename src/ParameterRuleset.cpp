@@ -160,10 +160,6 @@ ParameterRuleset::~ParameterRuleset() {
     delete nestedRules.back();
     nestedRules.pop_back();
   }
-  while (!mixins.empty()) {
-    delete mixins.back();
-    mixins.pop_back();
-  }
 }
 
 void ParameterRuleset::addParameter(string keyword, TokenList* value) {
@@ -347,10 +343,4 @@ void ParameterRuleset::addNestedRule(Ruleset* nestedRule) {
 }
 list<Ruleset*>* ParameterRuleset::getNestedRules() {
   return &nestedRules;
-}
-void ParameterRuleset::addMixin(ParameterMixin* mixin) {
-  mixins.push_back(mixin);
-}
-list<ParameterMixin*>* ParameterRuleset::getMixins() {
-  return &mixins;
 }

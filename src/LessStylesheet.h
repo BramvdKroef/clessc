@@ -19,37 +19,39 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ParameterRulesetLibrary_h__
-#define __ParameterRulesetLibrary_h__
+#ifndef __LessStylesheet_h__
+#define __LessStylesheet_h__
 
-#include "value/ValueProcessor.h"
 #include "Stylesheet.h"
+#include "TokenList.h"
 #include "ParameterRuleset.h"
-#include <vector>
-#include <list>
+#include "ParameterMixin.h"
+#include "UnprocessedStatement.h"
 
-class ParameterRulesetLibrary {
+class LessStylesheet: public Stylesheet {
 private:
+  ValueProcessor valueProcessor;
   vector<ParameterRuleset*> parameterRulesets;
-  ValueProcessor* valueProcessor;
-  void processRuleset(vector<Declaration*>* declarations);
-  
+
 public:
-  ParameterRulesetLibrary(ValueProcessor* valueProcessor);
-  virtual ~ParameterRulesetLibrary();
+  LessStylesheet();
+  virtual ~ LessStylesheet();
 
-  void addRule(ParameterRuleset* rule);
-  
-  bool parameterRulesetExists(ParameterMixin* mixin);
+  void process();
+
+  void putVariable(string key, TokenList* value);
+  void addParameterRuleset(ParameterRuleset* rule);  
+  bool hasParameterRuleset(ParameterMixin* mixin);
+
+protected:
+  void processRuleset(Ruleset* ruleset, Ruleset* target);
+  void processStatement(UnprocessedStatement* statement,
+                        Ruleset* target);
   bool processParameterMixin(ParameterMixin* mixin,
-                             Ruleset* target,
-                             Stylesheet* stylesheet);
+                             Ruleset* target);
   bool insertParameterRuleset(ParameterRuleset* pruleset,
-                              ParameterMixin* mixin,
-                              Ruleset* target,
-                              Stylesheet* stylesheet);
-
+                              list<TokenList*>* arguments,
+                              Ruleset* target);
 };
 
 #endif
-

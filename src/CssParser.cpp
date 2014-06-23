@@ -65,13 +65,13 @@ bool CssParser::parseWhitespace(TokenList* tokens) {
 bool CssParser::parseStatement(Stylesheet* stylesheet) {
   Ruleset* ruleset = parseRuleset();
   if (ruleset != NULL) {
-    stylesheet->addRuleset(ruleset);
+    stylesheet->addStatement(ruleset);
     return true;
   }
   
   AtRule* atrule = parseAtRule();
   if (atrule != NULL) {
-    stylesheet->addAtRule(atrule);
+    stylesheet->addStatement(atrule);
     return true;
   }
   return false;
@@ -165,14 +165,14 @@ Ruleset* CssParser::parseRuleset () {
   skipWhitespace();
   declaration = parseDeclaration();
   if (declaration != NULL)
-    ruleset->addDeclaration(declaration);
+    ruleset->addStatement(declaration);
   
   while (tokenizer->getTokenType() == Token::DELIMITER) {
     tokenizer->readNextToken();
     skipWhitespace();
     declaration = parseDeclaration();
     if (declaration != NULL)
-      ruleset->addDeclaration(declaration);
+      ruleset->addStatement(declaration);
   }
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
@@ -220,8 +220,10 @@ Declaration* CssParser::parseDeclaration () {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  TokenList* value = parseValue();
-  if (value == NULL) {
+  TokenList* value = new TokenList();
+  
+  if (parseValue(value)) {
+    delete value;
     throw new ParseException(tokenizer->getToken()->str,
                              "value for property",
                              tokenizer->getLineNumber(),
@@ -250,8 +252,7 @@ bool CssParser::parseProperty (TokenList* tokens) {
   return true;
 }
 
-TokenList* CssParser::parseValue () {
-  TokenList* value = new TokenList();
+bool CssParser::parseValue (TokenList* value) {
   
   if (parseAny(value) || parseBlock(value)) {
   } else if (tokenizer->getTokenType() == Token::ATKEYWORD) {
@@ -259,8 +260,7 @@ TokenList* CssParser::parseValue () {
     tokenizer->readNextToken();
     parseWhitespace(value);
   } else {
-    delete value;
-    return NULL;
+    return false;
   }
 
   while (true) {
@@ -270,7 +270,7 @@ TokenList* CssParser::parseValue () {
       tokenizer->readNextToken();
       parseWhitespace(value);
     } else 
-      return value;
+      return true;
   }
 }
 

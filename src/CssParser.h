@@ -129,10 +129,10 @@ protected:
   /**
    * Parses a list of tokens that represent a value.
    *
-   * @return a list of tokens or NULL if none
-   *         could be found.
+   * @return true if tokens were parsed or NULL if no
+   *         valid tokens could be found.
    */
-  virtual TokenList* parseValue ();
+  virtual bool parseValue (TokenList* value);
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
@@ -183,7 +183,7 @@ public:
    * @throws ParseException if the parser comes across a mistake in
    *   the input, such as unterminated strings or parentheses.
    */
-  void parseStylesheet(Stylesheet* stylesheet);
+  virtual void parseStylesheet(Stylesheet* stylesheet);
   
   
 };
