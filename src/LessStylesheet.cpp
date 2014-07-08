@@ -1,5 +1,11 @@
 #include "LessStylesheet.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 LessStylesheet::LessStylesheet() {
 }
 
@@ -15,6 +21,8 @@ void LessStylesheet::process() {
   vector<StylesheetStatement*>::iterator it;
   Ruleset* ruleset;
 
+  DLOG(INFO) << "Processing start";
+    
   for (it = statements->begin(); it < statements->end(); it++) {
     switch ((*it)->getType()) {
     case StylesheetStatement::RULESET:
@@ -28,6 +36,7 @@ void LessStylesheet::process() {
       break;
     }
   }
+  DLOG(INFO) << "Processing end";
 }
 
 void LessStylesheet::processRuleset(Ruleset* ruleset,
@@ -78,6 +87,9 @@ void LessStylesheet::processStatement(UnprocessedStatement* statement,
 }
 
 void LessStylesheet::addParameterRuleset(ParameterRuleset* rule) {
+  DLOG(INFO) << "Adding parameter ruleset: " <<
+    *rule->getSelector()->toString();
+
   parameterRulesets.push_back(rule);
 }
 
@@ -175,5 +187,6 @@ bool LessStylesheet::insertParameterRuleset(ParameterRuleset* pruleset,
 }
 
 void LessStylesheet::putVariable(string key, TokenList* value) {
+  DLOG(INFO) << "Variable: " << key << ": " << *value->toString();
   valueProcessor.putVariable(key, value);
 }

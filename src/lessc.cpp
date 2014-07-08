@@ -34,6 +34,8 @@
 #include "IOException.h"
 #include "LessStylesheet.h"
 
+#include <glog/logging.h>
+
 using namespace std;
 
 /**
@@ -56,6 +58,7 @@ Stylesheet* processInput(istream* in){
   LessTokenizer tokenizer(in);
   LessParser parser(&tokenizer);
   LessStylesheet* s = new LessStylesheet();
+  LOG(INFO) << "Process input";
   
   try{
     parser.parseStylesheet(s);
@@ -64,12 +67,12 @@ Stylesheet* processInput(istream* in){
     if (e->getSource() != "")
       cerr << e->getSource() << ": ";
     
-    cerr << "Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Parse Error: " << e->what() << endl;
+    LOG(ERROR) << "Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what();
     return NULL;
   } catch(exception* e) {
-    cerr << "Line " << tokenizer.getLineNumber() << ", Column " <<
-      tokenizer.getColumn() << " Error: " << e->what() << endl;
+    LOG(ERROR) << "Line " << tokenizer.getLineNumber() << ", Column " <<
+      tokenizer.getColumn() << " Error: " << e->what();
   }
   
   return s;
@@ -89,8 +92,14 @@ int main(int argc, char * argv[]){
   ostream* out = &cout;
   bool formatoutput = false;
   
+  FLAGS_logtostderr = 1;
+  google::InitGoogleLogging(argv[0]);
+  DLOG(INFO) << "Start.";
+  
   try {
     int c;
+    DLOG(INFO) << "argc: " << argc;
+
     while((c = getopt(argc, argv, ":o:hf")) != EOF) {
       switch (c) {
       case 'h':
@@ -104,13 +113,14 @@ int main(int argc, char * argv[]){
         break;
       }
     }
-
+    
     if(argc - optind >= 1){
+      DLOG(INFO) << argv[optind];
       in = new ifstream(argv[optind]);
       if (in->fail() || in->bad())
         throw new IOException("Error opening file");
     }
-
+    
     s = processInput(in);
     if (s != NULL) {
       writeOutput(out, s, formatoutput);
@@ -119,7 +129,7 @@ int main(int argc, char * argv[]){
       return 1;
 
   } catch (IOException* e) {
-    cerr << " Error: " << e->what() << endl;
+    LOG(ERROR) << " Error: " << e->what();
     return 1;
   }
 		

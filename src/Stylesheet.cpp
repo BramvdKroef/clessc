@@ -20,6 +20,13 @@
  */
 
 #include "Stylesheet.h"
+
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 Declaration::Declaration() {
   property;
   value = NULL;
@@ -171,10 +178,17 @@ Stylesheet::~Stylesheet() {
 void Stylesheet::addStatement(StylesheetStatement* statement) {
   switch (statement->getType()) {
   case StylesheetStatement::RULESET:
+    DLOG(INFO) << "Adding ruleset: " <<
+      *((Ruleset*)statement)->getSelector()->toString();
+    
     rulesets.push_back((Ruleset*)statement);
     break;
 
   case StylesheetStatement::ATRULE:
+    DLOG(INFO) << "Adding @rule: " << 
+      *((AtRule*)statement)->getKeyword() << ": " <<
+      *((AtRule*)statement)->getRule()->toString();
+    
     atrules.push_back((AtRule*)statement);
     break;
   }

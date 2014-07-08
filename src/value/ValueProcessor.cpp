@@ -21,9 +21,14 @@
 
 #include "ValueProcessor.h"
 
+#include <config.h>
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
+/*
 #include <sstream>
 #include <iostream>
-
 template <class T>
 inline std::string to_string (const T& t)
 {
@@ -31,6 +36,7 @@ inline std::string to_string (const T& t)
   ss << t;
   return ss.str();
 }
+*/
 
 ValueProcessor::ValueProcessor() {
   pushScope(new map<string, TokenList*>());
@@ -110,7 +116,7 @@ void ValueProcessor::putVariable(string key, TokenList* value) {
   // check if variable is alread declared
   mit = scope->find(key);
   if (mit != scope->end()) {
-    cerr << "Warning: Variable " << key << " defined twice in same scope." << endl;
+    LOG(WARNING) << "Variable " << key << " defined twice in same scope.";
   }
   scope->insert(pair<string, TokenList*>(key, value));
 }

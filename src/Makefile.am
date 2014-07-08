@@ -23,4 +23,4 @@ value/ValueProcessor.h
 
 bin_PROGRAMS = lessc
 lessc_SOURCES = lessc.cpp 
-lessc_LDADD = liblessc.a $(LIBPNG_LIBS) $(LIBJPEG_LIBS)
+lessc_LDADD = liblessc.a $(LIBPNG_LIBS) $(LIBJPEG_LIBS) $(LIBGLOG_LIBS)

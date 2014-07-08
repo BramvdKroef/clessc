@@ -39,6 +39,20 @@ AS_IF([test "x$with_libjpeg" != "xno"], [
   )
 ])
 
+# google glog support
+AC_ARG_WITH([libglog],
+  [AS_HELP_STRING([--without-libglog],
+    [Compile without libglog])])
+
+AS_IF([test "x$with_libglog" != "xno"], [
+  PKG_CHECK_MODULES([LIBGLOG], [libglog >= 0.3],
+    [AC_DEFINE(WITH_LIBGLOG, 1, [Compile with libglog])],
+    [AC_MSG_FAILURE(
+        [libglog not found, use configure with --without-libglog to disable
+        glog support])]
+  )
+])
+
 AC_CONFIG_FILES([
  Makefile
  src/Makefile

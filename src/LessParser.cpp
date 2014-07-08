@@ -20,12 +20,19 @@
  */
 
 #include "LessParser.h"
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
 
 /**
  * Only allows LessStylesheets
  */
 void LessParser::parseStylesheet(LessStylesheet* stylesheet) {
+  DLOG(INFO) << "Parser Start";
   CssParser::parseStylesheet(stylesheet);
+  DLOG(INFO) << "Parser End";
 }
 
 bool LessParser::parseStatement(Stylesheet* stylesheet) {
@@ -33,7 +40,8 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
   ParameterMixin* mixin;
   
   if (parseSelector(selector) && !selector->empty()) {
-
+    DLOG(INFO) << "Parse: Selector: " << *selector->toString();
+    
     if (parseRuleset(stylesheet, selector))
       return true;
 
@@ -64,7 +72,7 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
 
 bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
   string keyword, import;
-  TokenList* value, *rule;
+  TokenList value, *rule;
   AtRule* atrule = NULL;
   
   if (tokenizer->getTokenType() != Token::ATKEYWORD) 
@@ -74,8 +82,11 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  if (parseVariable(value)) {
-    ((LessStylesheet*)stylesheet)->putVariable(keyword, value);
+  DLOG(INFO) << "Parse: keyword: " << keyword;
+    
+  if (parseVariable(&value)) {
+    DLOG(INFO) << "Parse: variable";
+    ((LessStylesheet*)stylesheet)->putVariable(keyword, value.clone());
     
   } else {
     rule = new TokenList();
@@ -100,6 +111,7 @@ file path",
                                  tokenizer->getLineNumber(),
                                  tokenizer->getColumn());
       import = rule->front()->str;
+      DLOG(INFO) << "Import filename: " << import;
       if (import.size() < 5 ||
           import.substr(import.size() - 5, 4) != ".css") {
         if (import.size() < 6 || import.substr(import.size() - 6, 5) != ".less")
@@ -208,6 +220,7 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   // In case of a parameter ruleset the declaration values are not
   // processed until later.
   if (ParameterRuleset::isValid(selector)) {
+    DLOG(INFO) << "Parse: ParamaterRuleset";
     try {
       ruleset = parent = new ParameterRuleset(selector);
     } catch (ParseException* e) {
@@ -218,6 +231,7 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
     
     ((LessStylesheet*)stylesheet)->addParameterRuleset(parent);
   } else {
+    DLOG(INFO) << "Parse: Ruleset";
     ruleset = new Ruleset(selector);
     if (parent == NULL) 
       stylesheet->addStatement(ruleset);
@@ -309,26 +323,24 @@ bool LessParser::parseNestedRule(Selector* selector,
 
 
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {
-  ifstream* in = new ifstream(filename.c_str());
-  if (in->fail() || in->bad())
+  ifstream in(filename.c_str());
+  if (in.fail() || in.bad())
     throw new ParseException(filename, "existing file",
                              tokenizer->getLineNumber(),
                              tokenizer->getColumn());
+  DLOG(INFO) << "Opening: " << filename;
+  LessTokenizer tokenizer(&in);
+  LessParser parser(&tokenizer);
 
-  LessTokenizer* tokenizer = new LessTokenizer(in);
-  LessParser* parser = new LessParser(tokenizer);
-  
   try {
-    parser->parseStylesheet((LessStylesheet*)stylesheet);
+    DLOG(INFO) << "Parsing";
+    parser.parseStylesheet((LessStylesheet*)stylesheet);
   } catch(ParseException* e) {
     if (e->getSource() == "")
       e->setSource(filename);
     throw e;
   }
-  in->close();
-  delete parser;
-  delete tokenizer;
-  delete in;
+  in.close();
 }
 
 
