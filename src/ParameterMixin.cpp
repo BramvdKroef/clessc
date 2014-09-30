@@ -12,14 +12,13 @@ ParameterMixin::ParameterMixin(Selector* name, list<TokenList*>* arguments) {
 
 
 ParameterMixin::~ParameterMixin() {
-  delete name;
-    
+  delete this->name;
+
   while(!arguments->empty()) {
     delete arguments->back();
     arguments->pop_back();
   }
   delete arguments;
-
 }
 
 bool ParameterMixin::parse(Selector* selector) {

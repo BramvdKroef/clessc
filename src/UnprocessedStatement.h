@@ -40,6 +40,7 @@ public:
   unsigned int line, column;
     
   UnprocessedStatement();
+  ~UnprocessedStatement() {}
 
   Selector* getTokens();
 

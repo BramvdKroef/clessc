@@ -85,9 +85,13 @@ public:
   Selector* getSelector();
   vector<RulesetStatement*>* getStatements();
   vector<Declaration*>* getDeclarations();
+
+  void clearStatements();
+  
   vector<Declaration*>* cloneDeclarations();
   Ruleset* clone();
-
+  void swap(Ruleset* ruleset);
+  
   virtual int getType() {
     return RULESET;
   }

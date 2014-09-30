@@ -78,11 +78,7 @@ Ruleset::~Ruleset() {
   if (selector != NULL) {
     delete selector;
   }
-  
-  while (!statements.empty()) {
-    delete statements.back();
-    statements.pop_back();
-  }
+  clearStatements();
 }
 
 void Ruleset::setSelector (Selector* selector) {
@@ -110,6 +106,15 @@ vector<RulesetStatement*>* Ruleset::getStatements() {
 vector<Declaration*>* Ruleset::getDeclarations() {
   return &declarations;
 }
+
+void Ruleset::clearStatements() {
+  while (!statements.empty()) {
+    delete statements.back();
+    statements.pop_back();
+  }
+  declarations.clear();
+}
+
 vector<Declaration*>* Ruleset::cloneDeclarations() {
   vector<Declaration*>* declarations;
   vector<Declaration*>::iterator i;
@@ -135,6 +140,14 @@ Ruleset* Ruleset::clone() {
     ruleset->addStatement((*i)->clone());
   }
   return ruleset;
+}
+
+void Ruleset::swap(Ruleset* ruleset) {
+  Selector* selector = this->selector;
+  this->selector = ruleset->getSelector();
+  ruleset->setSelector(selector);
+  this->statements.swap(*ruleset->getStatements());
+  this->declarations.swap(*ruleset->getDeclarations());
 }
 
 

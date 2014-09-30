@@ -11,13 +11,13 @@ Selector* UnprocessedStatement::getTokens(){
 
 void UnprocessedStatement::getProperty(TokenList* tokens) {
   for(size_t i=0; i < property_i; i++) {
-    tokens->push(this->tokens.at(i));
+    tokens->push(this->tokens.at(i)->clone());
   }
 }
 
 void UnprocessedStatement::getValue(TokenList* tokens) {
   for(size_t i=property_i; i < this->tokens.size(); i++) {
-    tokens->push(this->tokens.at(i));
+    tokens->push(this->tokens.at(i)->clone());
   }
 }
 
