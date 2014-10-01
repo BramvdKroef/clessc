@@ -31,22 +31,31 @@
 class LessStylesheet: public Stylesheet {
 private:
   ValueProcessor valueProcessor;
+  vector<LessRuleset*> lessrulesets;
   vector<ParameterRuleset*> parameterRulesets;
-
+  
 public:
   LessStylesheet();
   virtual ~ LessStylesheet();
-
+  
   void process();
+
+  void addStatement(LessRuleset* ruleset);
 
   void putVariable(string key, TokenList* value);
   void addParameterRuleset(ParameterRuleset* rule);  
   bool hasParameterRuleset(ParameterMixin* mixin);
 
 protected:
-  void processRuleset(Ruleset* ruleset, Ruleset* target);
+  void processRuleset(LessRuleset* ruleset);
+  void processVariables(map<string, TokenList*>* variables) ;
+  void processStatements(vector<RulesetStatement*>*
+                         statements, Ruleset* target);
   void processStatement(UnprocessedStatement* statement,
                         Ruleset* target);
+
+  void insertNestedRules(LessRuleset* parent, Selector* prefix);
+    
   bool processParameterMixin(ParameterMixin* mixin,
                              Ruleset* target);
   bool insertParameterRuleset(ParameterRuleset* pruleset,

@@ -47,7 +47,6 @@ public:
   void getProperty(TokenList* tokens);
   void getValue(TokenList* tokens);
 
-  bool processVariable(ValueProcessor* valueProcessor);
   bool processDeclaration (Declaration* declaration);
   
   virtual int getType();

@@ -204,8 +204,9 @@ bool LessParser::parseSelectorVariable(Selector* selector) {
 
 bool LessParser::parseRuleset (Stylesheet* stylesheet,
                                Selector* selector,
-                               ParameterRuleset* parent) {
-  Ruleset* ruleset = NULL;
+                               LessRuleset* parent) {
+  LessRuleset* ruleset = NULL;
+  ParameterRuleset* pruleset = NULL;
   list<string> parameters;
   list<string>::iterator pit;
   UnprocessedStatement* statement = new UnprocessedStatement();  
@@ -222,17 +223,17 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   if (ParameterRuleset::isValid(selector)) {
     DLOG(INFO) << "Parse: ParamaterRuleset";
     try {
-      ruleset = parent = new ParameterRuleset(selector);
+      ruleset = pruleset = new ParameterRuleset(selector);
     } catch (ParseException* e) {
       e->setLocation(tokenizer->getLineNumber(),
                      tokenizer->getColumn());
       throw e;
     }
     
-    ((LessStylesheet*)stylesheet)->addParameterRuleset(parent);
+    ((LessStylesheet*)stylesheet)->addParameterRuleset(pruleset);
   } else {
     DLOG(INFO) << "Parse: Ruleset";
-    ruleset = new Ruleset(selector);
+    ruleset = new LessRuleset(selector);
     if (parent == NULL) 
       stylesheet->addStatement(ruleset);
     else
@@ -241,9 +242,14 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
 
   while (parseRulesetStatement(statement)) {
     // a selector followed by a ruleset is a nested rule
-    if (parseNestedRule(statement->getTokens(), ruleset, stylesheet, parent)) 
+    if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
+      if (pruleset != NULL)
+        statement->getTokens()->addPrefix(ruleset->getSelector());
+
+      parseRuleset(stylesheet, statement->getTokens(), ruleset);
       delete statement;
-    else
+      
+    } else if (parseRulesetVariable(ruleset) == false)
       ruleset->addStatement(statement);
     
     statement = new UnprocessedStatement();
@@ -263,9 +269,29 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   return true;
 }
 
-bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
-  TokenList* value;
+bool LessParser::parseRulesetVariable (LessRuleset* ruleset) {
+  string keyword;
+  TokenList value;
 
+  if (tokenizer->getTokenType() != Token::ATKEYWORD)
+    return false;
+  
+  keyword = tokenizer->getToken()->str;
+  tokenizer->readNextToken();
+  skipWhitespace();
+      
+  if (parseVariable(&value) == false) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "Variable declaration after keyword.",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
+
+  }
+  ruleset->putVariable(keyword, value.clone());
+  return true;
+}
+
+bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
   statement->line = tokenizer->getLineNumber();
   statement->column = tokenizer->getColumn();
   
@@ -275,23 +301,6 @@ bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
   parseWhitespace(statement->getTokens());
   parseSelector(statement->getTokens());
   statement->getTokens()->trim();
-
-  // parse a variable
-  if (statement->getTokens()->empty() && 
-      tokenizer->getTokenType() == Token::ATKEYWORD) {
-    statement->getTokens()->push(tokenizer->getToken()->clone());
-    tokenizer->readNextToken();
-    skipWhitespace();
-
-    if (parseVariable(statement->getTokens())) {
-      return true;
-    } else {
-      throw new ParseException(tokenizer->getToken()->str,
-                               "Variable declaration after keyword.",
-                               tokenizer->getLineNumber(),
-                               tokenizer->getColumn());
-    }
-  } 
 
   parseValue(statement->getTokens());
   
@@ -304,22 +313,6 @@ bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
     
   return true;
 }
-
-
-bool LessParser::parseNestedRule(Selector* selector,
-                                 Ruleset* ruleset,
-                                 Stylesheet* stylesheet,
-                                 ParameterRuleset* parent) {
-  
-  if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
-    return false;
-
-  if (ruleset != parent)
-    selector->addPrefix(ruleset->getSelector());
-  parseRuleset(stylesheet, selector, parent);
-  return true;
-}
-
 
 
 void LessParser::importFile(string filename, Stylesheet* stylesheet) {

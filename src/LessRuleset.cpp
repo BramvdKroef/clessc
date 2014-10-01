@@ -19,29 +19,41 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ParameterMixin_h__
-#define __ParameterMixin_h__
+#include "LessRuleset.h"
 
-#include "Selector.h"
-#include "Stylesheet.h"
-
-class ParameterMixin: public StylesheetStatement {
-public:
-  static const int MIXIN = 3;
-  Selector* name;
-  list<TokenList*>* arguments;
-
-  ParameterMixin();
-  ParameterMixin(Selector* name, list<TokenList*>* arguments);
-  virtual ~ParameterMixin() ;
-
-  bool parse(Selector* selector);
-
-  virtual int getType() {
-    return MIXIN;
+LessRuleset::LessRuleset() : Ruleset() {
+  processed = false;
+}
+LessRuleset::LessRuleset(Selector* selector) : Ruleset(selector) {
+  processed = false;
+}
+LessRuleset::~LessRuleset() {
+  while (!nestedRules.empty()) {
+    delete nestedRules.back();
+    nestedRules.pop_back();
   }
-private:
-  void parseArguments(TokenListIterator* tli);
-};
+}
+  
 
-#endif
+void LessRuleset::addNestedRule(Ruleset* nestedRule) {
+  nestedRules.push_back(nestedRule);
+}
+
+list<Ruleset*>* LessRuleset::getNestedRules() {
+  return &nestedRules;
+}
+
+void LessRuleset::putVariable(string key, TokenList* value) {
+  variables.insert(pair<string, TokenList*>(key, value));  
+}
+
+map<string, TokenList*>* LessRuleset::getVariables() {
+  return &variables;
+}
+
+bool LessRuleset::isProcessed() {
+  return processed;
+}
+void LessRuleset::setProcessed(bool b) {
+  processed = b;
+}

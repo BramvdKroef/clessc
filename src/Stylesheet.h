@@ -69,7 +69,7 @@ public:
 };
 
 class Ruleset: public StylesheetStatement {
-private:
+protected:
   Selector* selector;
   vector<RulesetStatement*> statements;
   vector<Declaration*> declarations;
@@ -81,6 +81,7 @@ public:
   void setSelector (Selector* selector);
   void addStatement (RulesetStatement* statement);
   void addStatements (vector<RulesetStatement*>* statements);
+  void addDeclarations (vector<Declaration*>* declarations);
     
   Selector* getSelector();
   vector<RulesetStatement*>* getStatements();
@@ -126,7 +127,9 @@ public:
   virtual ~Stylesheet();
   
   void addStatement(StylesheetStatement* statement);
-
+  void addStatement(Ruleset* ruleset);
+  void addStatement(AtRule* rule);
+  
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();
   vector<StylesheetStatement*>* getStatements();

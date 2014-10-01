@@ -25,8 +25,6 @@ bool ParameterMixin::parse(Selector* selector) {
   
   TokenListIterator* itl = selector->iterator();
   
-  size_t nestedParenthesis = 0;
-
   while (itl->hasNext() &&
          itl->next()->type != Token::PAREN_OPEN) {
     this->name->push(itl->current()->clone());
@@ -60,7 +58,8 @@ void ParameterMixin::parseArguments(TokenListIterator* tli) {
     while (tli->hasNext()) {
       current = tli->next();
       if (nestedParenthesis == 0 &&
-          current->str == delimiter)
+          (current->str == delimiter ||
+           current->type == Token::PAREN_CLOSED))
         break;
       
       if (current->type == Token::PAREN_OPEN) 

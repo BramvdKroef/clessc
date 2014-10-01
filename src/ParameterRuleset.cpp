@@ -93,7 +93,7 @@ bool ParameterRuleset::isValid(Selector* selector) {
   return true;
 }
 
-ParameterRuleset::ParameterRuleset(Selector* selector): Ruleset(selector) {
+ParameterRuleset::ParameterRuleset(Selector* selector): LessRuleset(selector) {
   Selector* newselector = new Selector();
   rest = "";
   unlimitedArguments = false;
@@ -155,10 +155,6 @@ ParameterRuleset::~ParameterRuleset() {
   while (!conditions.empty()) {
     delete conditions.back();
     conditions.pop_back();
-  }
-  while (!nestedRules.empty()) {
-    delete nestedRules.back();
-    nestedRules.pop_back();
   }
 }
 
@@ -338,9 +334,3 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
 }
 
 
-void ParameterRuleset::addNestedRule(Ruleset* nestedRule) {
-  nestedRules.push_back(nestedRule);
-}
-list<Ruleset*>* ParameterRuleset::getNestedRules() {
-  return &nestedRules;
-}

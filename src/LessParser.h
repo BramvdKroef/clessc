@@ -24,6 +24,7 @@
 
 #include "CssParser.h"
 #include "Stylesheet.h"
+#include "LessRuleset.h"
 #include "Token.h"
 #include "TokenList.h"
 #include "ParameterRuleset.h"
@@ -88,8 +89,9 @@ protected:
   
   bool parseRuleset (Stylesheet* stylesheet,
                      Selector* selector = NULL,
-                     ParameterRuleset* parent = NULL);
+                     LessRuleset* parent = NULL);
 
+  bool parseRulesetVariable (LessRuleset* ruleset);
   bool parseRulesetStatement (UnprocessedStatement* statement);
 
   
@@ -97,10 +99,6 @@ protected:
 
   bool parseVariable(string keyword, TokenList* value);
 
-  bool parseNestedRule(Selector* selector,
-                       Ruleset* ruleset,
-                       Stylesheet* stylesheet,
-                       ParameterRuleset* parent = NULL);
   
   bool parseMixin(Selector* selector, Ruleset* ruleset,
                   Stylesheet* stylesheet,

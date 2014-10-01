@@ -1,5 +1,11 @@
 #include "UnprocessedStatement.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 UnprocessedStatement::UnprocessedStatement() {
   property_i = 0;
   type = UNPROCESSED;
@@ -26,24 +32,12 @@ int UnprocessedStatement::getType() {
 }
 
 
-bool UnprocessedStatement::processVariable(ValueProcessor* valueProcessor) {
-  string keyword;
-  
-  if (getTokens()->front()->type == Token::ATKEYWORD &&
-      getTokens()->at(1)->type == Token::COLON) {
-    keyword = getTokens()->front()->str;
-    delete getTokens()->shift();
-    
-    valueProcessor->putVariable(keyword, getTokens());
-    return true;
-  } else
-    return false;
-}
-
 bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   TokenList property;
   TokenList* value = new TokenList();
 
+  DLOG(INFO) << "Declaration";
+  
   getValue(value);
   
   if (value->empty() ||

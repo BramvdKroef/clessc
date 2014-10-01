@@ -19,29 +19,37 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ParameterMixin_h__
-#define __ParameterMixin_h__
+#ifndef __LessRuleset_h__
+#define __LessRuleset_h__
 
-#include "Selector.h"
 #include "Stylesheet.h"
+#include "Selector.h"
+#include "ParseException.h"
+#include "value/ValueProcessor.h"
+#include <map>
+#include <list>
 
-class ParameterMixin: public StylesheetStatement {
-public:
-  static const int MIXIN = 3;
-  Selector* name;
-  list<TokenList*>* arguments;
 
-  ParameterMixin();
-  ParameterMixin(Selector* name, list<TokenList*>* arguments);
-  virtual ~ParameterMixin() ;
-
-  bool parse(Selector* selector);
-
-  virtual int getType() {
-    return MIXIN;
-  }
+class LessRuleset: public Ruleset {
 private:
-  void parseArguments(TokenListIterator* tli);
+  bool processed;
+protected:
+  map<string, TokenList*> variables;  
+  list<Ruleset*> nestedRules;
+  
+public:
+  LessRuleset();
+  LessRuleset(Selector* selector);
+  virtual ~LessRuleset();
+  
+  void addNestedRule(Ruleset* nestedRule);
+  list<Ruleset*>* getNestedRules();
+
+  void putVariable(string key, TokenList* value);
+  map<string, TokenList*>* getVariables();
+  
+  bool isProcessed();
+  void setProcessed(bool b);
 };
 
 #endif

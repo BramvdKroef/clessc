@@ -23,13 +23,14 @@
 #define __ParameterRuleset_h__
 
 #include "Stylesheet.h"
+#include "LessRuleset.h"
 #include "Selector.h"
 #include "ParseException.h"
 #include "value/ValueProcessor.h"
 #include <map>
 
 
-class ParameterRuleset: public Ruleset {
+class ParameterRuleset: public LessRuleset {
 private:
   string rest;
   bool unlimitedArguments;
@@ -42,8 +43,6 @@ public:
   list<string> parameters;
   list<TokenList*> defaults;
   list<TokenList*> conditions;
-  
-  list<Ruleset*> nestedRules;
   
   static bool isValid(Selector* selector);
   
@@ -62,8 +61,6 @@ public:
   bool putArguments(ValueProcessor* valueProcessor,
                     list<TokenList*>* arguments);
 
-  void addNestedRule(Ruleset* nestedRule);
-  list<Ruleset*>* getNestedRules();
   
 };
 

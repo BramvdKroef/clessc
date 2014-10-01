@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS = $(LIBPNG_CFLAGS)
+AM_CPPFLAGS = -Wall $(LIBPNG_CFLAGS)
 
 noinst_LIBRARIES = liblessc.a
 
@@ -11,7 +11,7 @@ IOException.h LessParser.h LessTokenizer.h ParameterRuleset.h		\
 ParseException.cpp ParseException.h Selector.h Stylesheet.h Token.h	\
 TokenList.h ParameterMixin.cpp ParameterMixin.h				\
 UnprocessedStatement.cpp UnprocessedStatement.h LessStylesheet.cpp	\
-LessStylesheet.h							\
+LessStylesheet.h LessRuleset.cpp LessRuleset.h				\
 									\
 value/Value.cpp value/Color.cpp value/StringValue.cpp			\
 value/NumberValue.cpp value/UnitValue.cpp value/BooleanValue.cpp	\

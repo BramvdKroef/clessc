@@ -16,27 +16,26 @@ LessStylesheet::~LessStylesheet() {
   }
 }
 
+void LessStylesheet::addStatement(LessRuleset* ruleset) {
+  lessrulesets.push_back(ruleset);
+}
+
+
 void LessStylesheet::process() {
   vector<StylesheetStatement*>* statements = getStatements();
   vector<StylesheetStatement*>::iterator it;
-  Ruleset* ruleset, target;
+  LessRuleset* ruleset;
   
   DLOG(INFO) << "Processing start";
     
   for (it = statements->begin(); it != statements->end(); it++) {
     switch ((*it)->getType()) {
-    case StylesheetStatement::RULESET:
-      ruleset = (Ruleset*)*it;
+    case LessRuleset::RULESET:
+      ruleset = (LessRuleset*)*it;
 
       valueProcessor.interpolateTokenList(ruleset->getSelector());
       
-      target.setSelector(ruleset->getSelector());
-      processRuleset(ruleset, &target);
-
-      ruleset->swap(&target);
-      target.clearStatements();
-      target.setSelector(NULL);
-      
+      processRuleset(ruleset);  
       break;
       
     case ParameterMixin::MIXIN:
@@ -47,26 +46,65 @@ void LessStylesheet::process() {
   DLOG(INFO) << "Processing end";
 }
 
-void LessStylesheet::processRuleset(Ruleset* ruleset,
-                                    Ruleset* target) {
-  
-  vector<RulesetStatement*>* statements = ruleset->getStatements();
-  vector<RulesetStatement*>::iterator i;
+void LessStylesheet::processRuleset(LessRuleset* ruleset) {
+  Ruleset target;
   map<string, TokenList*> scope;
-  UnprocessedStatement* statement;
+
+  if (ruleset->isProcessed())
+    return;
+  
+  ruleset->setProcessed(true);
+  target.setSelector(ruleset->getSelector());
   
   valueProcessor.pushScope(&scope);
+
   DLOG(INFO) << "Ruleset: " << *ruleset->getSelector()->toString();
-    
+
+  // variables first
+  processVariables(ruleset->getVariables());
+
+  // then statements
+  processStatements(ruleset->getStatements(), &target);
+
+  // then nested rules
+  insertNestedRules(ruleset, ruleset->getSelector());
+  
+  valueProcessor.popScope();
+
+  ruleset->swap(&target);
+  target.clearStatements();
+  target.setSelector(NULL);
+
+  DLOG(INFO) << "Ruleset done";
+}
+
+void LessStylesheet::processVariables(map<string, TokenList*>* variables) {
+  map<string, TokenList*>::iterator it;
+  for (it = variables->begin(); it != variables->end(); ++it) {
+    valueProcessor.putVariable(it->first, it->second);
+  }
+}
+
+/**
+ * process declarations and mixins
+ */
+void LessStylesheet::processStatements(vector<RulesetStatement*>*
+                                       statements, Ruleset* target) {
+  vector<RulesetStatement*>::iterator i;
+  UnprocessedStatement* statement;
+  
   for (i = statements->begin(); i != statements->end(); ++i) {
+    statement = (UnprocessedStatement*)*i;
     if ((*i)->getType() == UnprocessedStatement::UNPROCESSED) {
 
-      statement = (UnprocessedStatement*)*i;
       processStatement(statement, target);
+      DLOG(INFO) << "Statement processed";
+    } else {
+      DLOG(INFO) << "Copy statement";
+      target->addStatement(statement->clone());
     }
   }
-  valueProcessor.popScope();
-  DLOG(INFO) << "Ruleset done";
+
 }
 
 void LessStylesheet::processStatement(UnprocessedStatement* statement,
@@ -79,12 +117,12 @@ void LessStylesheet::processStatement(UnprocessedStatement* statement,
   DLOG(INFO) << "Statement: " << *statement->getTokens()->toString();
   
   // process mixin
-  if (statement->processVariable(&valueProcessor)) {
-    
-  } else if (mixin.parse(statement->getTokens()) &&
+  if (mixin.parse(statement->getTokens()) &&
              processParameterMixin(&mixin, target)) {
 
   } else if (statement->processDeclaration(&declaration)) {
+    DLOG(INFO) << "Declaration: " <<
+      *declaration.getProperty() << ": " << *declaration.getValue()->toString();
     valueProcessor.processValue(declaration.getValue());
     target->addStatement(declaration.clone());
 
@@ -96,8 +134,8 @@ void LessStylesheet::processStatement(UnprocessedStatement* statement,
                              "variable, mixin or declaration.",
                              statement->line, statement->column);
   }
-  DLOG(INFO) << "Statement done";
   statement->type = UnprocessedStatement::UNPROCESSED;
+  DLOG(INFO) << "Statement done";
 }
 
 void LessStylesheet::addParameterRuleset(ParameterRuleset* rule) {
@@ -128,19 +166,27 @@ bool LessStylesheet::processParameterMixin(ParameterMixin* mixin,
   vector<ParameterRuleset*>::iterator pri;
   ParameterRuleset* pruleset;
 
-  Ruleset* mixinRuleset;
+  LessRuleset* mixinRuleset;
 
   bool ret = false;
 
-    
+  DLOG(INFO) << "Mixin: " << *mixin->name->toString();
+
   for (arg_i = mixin->arguments->begin();
        arg_i != mixin->arguments->end(); arg_i++) {
     valueProcessor.processValue(*arg_i);
+    DLOG(INFO) << "Mixin Arg: " << *(*arg_i)->toString();
   }
 
-  if (target != NULL && (mixinRuleset = getRuleset(mixin->name)) != NULL) {
-    DLOG(INFO) << "Mixin: " << *mixin->name->toString();
-    processRuleset(mixinRuleset, target);
+  if (target != NULL &&
+      (mixinRuleset = dynamic_cast<LessRuleset*>(getRuleset(mixin->name))) != NULL) {
+
+    DLOG(INFO) << "Mixin Ruleset: " << *mixinRuleset->getSelector()->toString();
+    
+    // make sure it's processed
+    processRuleset(mixinRuleset);
+
+    target->addDeclarations(mixinRuleset->cloneDeclarations());
     ret = true;
   }
   
@@ -164,13 +210,9 @@ bool LessStylesheet::processParameterMixin(ParameterMixin* mixin,
 bool LessStylesheet::insertParameterRuleset(ParameterRuleset* pruleset,
                                             list<TokenList*>* arguments,
                                             Ruleset* target) {
-  list<Ruleset*>* nestedRules;
-  list<Ruleset*>::iterator r_it;
-  Ruleset* nestedRule;
-  
   map<string, TokenList*> scope;
-  
   bool ret = false;
+  Selector* prefix = NULL;
   
   // new scope to accept arguments
   valueProcessor.pushScope(&scope);
@@ -178,30 +220,44 @@ bool LessStylesheet::insertParameterRuleset(ParameterRuleset* pruleset,
   if (pruleset->putArguments(&valueProcessor, arguments) &&
       pruleset->matchConditions(&valueProcessor)) {
 
-    // process the statements
+    // variables first
+    processVariables(pruleset->getVariables());
+
+    // if this ruleset was called inside a ruleset:
     if (target != NULL) {
-      processRuleset(pruleset, target);
+      // process the statements
+      processStatements(pruleset->getStatements(), target);
+      
+      // add prefix to nested rules
+      prefix = target->getSelector();
     }
     
     // nested rules
-    nestedRules = pruleset->getNestedRules();
-    for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
-      nestedRule = (*r_it)->clone();
-      processRuleset(nestedRule, nestedRule);
-
-      if (target != NULL)
-        nestedRule->getSelector()->addPrefix(target->getSelector());
-
-      valueProcessor.interpolateTokenList(nestedRule->getSelector());
-      addStatement(nestedRule);
-    }
-
+    insertNestedRules(pruleset, prefix);
     ret = true;
   }
       
   valueProcessor.popScope();
 
   return ret;
+}
+
+void LessStylesheet::insertNestedRules(LessRuleset* parent, Selector* prefix) {
+  list<Ruleset*>* nestedRules = parent->getNestedRules();
+  list<Ruleset*>::iterator r_it;
+  Ruleset* nestedRule;
+
+  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+    nestedRule = (*r_it)->clone();
+
+    if (prefix != NULL)
+      nestedRule->getSelector()->addPrefix(prefix);
+
+    valueProcessor.interpolateTokenList(nestedRule->getSelector());
+
+    processRuleset((LessRuleset*)nestedRule);
+    addStatement(nestedRule);
+  }
 }
 
 void LessStylesheet::putVariable(string key, TokenList* value) {

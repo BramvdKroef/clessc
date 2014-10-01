@@ -28,7 +28,7 @@
 #endif
 
 Declaration::Declaration() {
-  property;
+  property = NULL;
   value = NULL;
 }
 
@@ -92,6 +92,12 @@ void Ruleset::addStatement (RulesetStatement* statement) {
 void Ruleset::addStatements (vector<RulesetStatement*>* statements) {
   vector<RulesetStatement*>::iterator i;
   for (i = statements->begin(); i < statements->end(); i++) {
+    addStatement(*i);
+  }
+}
+void Ruleset::addDeclarations (vector<Declaration*>* declarations) {
+  vector<Declaration*>::iterator i;
+  for (i = declarations->begin(); i < declarations->end(); i++) {
     addStatement(*i);
   }
 }
@@ -189,23 +195,24 @@ Stylesheet::~Stylesheet() {
 }
 
 void Stylesheet::addStatement(StylesheetStatement* statement) {
-  switch (statement->getType()) {
-  case StylesheetStatement::RULESET:
-    DLOG(INFO) << "Adding ruleset: " <<
-      *((Ruleset*)statement)->getSelector()->toString();
-    
-    rulesets.push_back((Ruleset*)statement);
-    break;
-
-  case StylesheetStatement::ATRULE:
-    DLOG(INFO) << "Adding @rule: " << 
-      *((AtRule*)statement)->getKeyword() << ": " <<
-      *((AtRule*)statement)->getRule()->toString();
-    
-    atrules.push_back((AtRule*)statement);
-    break;
-  }
   statements.push_back(statement);
+}
+
+void Stylesheet::addStatement(Ruleset* ruleset) {
+  DLOG(INFO) << "Adding ruleset: " <<
+    *ruleset->getSelector()->toString();
+    
+  rulesets.push_back(ruleset);
+  statements.push_back(ruleset);
+}
+
+void Stylesheet::addStatement(AtRule* atrule) {
+  DLOG(INFO) << "Adding @rule: " << 
+    *atrule->getKeyword() << ": " <<
+    *atrule->getRule()->toString();
+    
+  atrules.push_back(atrule);
+  statements.push_back(atrule);
 }
 
 vector<AtRule*>* Stylesheet::getAtRules() {
@@ -220,7 +227,9 @@ vector<StylesheetStatement*>* Stylesheet::getStatements() {
 
 Ruleset* Stylesheet::getRuleset(Selector* selector) {
   vector<Ruleset*>::iterator it;
-  for (it = rulesets.begin(); it < rulesets.end(); it++) {
+
+  for (it = rulesets.begin(); it != rulesets.end(); it++) {
+    //DLOG(INFO) << *(*it)->getSelector()->toString();
     if ((*it)->getSelector()->equals(selector)) 
       return *it;
   }
