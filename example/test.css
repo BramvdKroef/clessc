@@ -357,16 +357,27 @@ body {
 }
 
 /* Reference a mixin before it is declared. */
-/*  This doesn't work yet. 
-  .mixin7(@x){
+.mixin-test7 {
+    .mixin7(15);
+}
+
+.mixin7(@x){
     .mixin8(@x);
 }
 .mixin8(@y) {
     -x-mixin8: @y;
 }
-.mixin-test7 {
-    .mixin7(15);
-}*/
+
+.recursive-mixin(@n) when (@n > 1) {
+    .recursive-mixin(@n - 1);
+}
+.recursive-mixin(@n) {
+    .test-@{n} {
+        n: @n;
+    }
+}
+
+.recursive-mixin(3);
 
 /* Multiline comment ending with * at the end of the file */
 /*
