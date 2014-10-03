@@ -50,16 +50,20 @@ public:
   ~ParameterRuleset();
   
   void addParameter(string keyword, TokenList* value);
+
+  bool insert(list<TokenList*>* arguments,
+              Ruleset* target,
+              Stylesheet* s);
+  
   TokenList* getDefault(string keyword);
   list<string> getKeywords();
 
   void addCondition(TokenList* condition);
   
   bool matchArguments(list<TokenList*>* arguments);
-  bool matchConditions(ValueProcessor* valueProcessor);
+  bool matchConditions();
   
-  bool putArguments(ValueProcessor* valueProcessor,
-                    list<TokenList*>* arguments);
+  bool putArguments(list<TokenList*>* arguments);
 
   
 };

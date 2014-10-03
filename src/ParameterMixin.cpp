@@ -1,4 +1,12 @@
 #include "ParameterMixin.h"
+#include "LessStylesheet.h"
+#include "ParameterRuleset.h"
+
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
 
 ParameterMixin::ParameterMixin() {
   this->name = new Selector();
@@ -29,11 +37,74 @@ bool ParameterMixin::parse(Selector* selector) {
          itl->next()->type != Token::PAREN_OPEN) {
     this->name->push(itl->current()->clone());
   }
+
+  while(this->name->back()->type == Token::WHITESPACE)
+    delete this->name->pop();
   
   parseArguments(itl);
   
   delete itl;
   return true;
+}
+
+bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset) {
+  Ruleset* mixinRuleset;
+  LessRuleset* lessMixinRuleset;
+
+  list<TokenList*>::iterator arg_i;
+  list<ParameterRuleset*>::iterator pri;
+  list<ParameterRuleset*> prulesetList;
+  ParameterRuleset* pruleset;
+
+  bool ret = false;
+
+  DLOG(INFO) << "Mixin: \"" << *name->toString() << "\"";
+
+  if (ruleset != NULL) {
+    if ((mixinRuleset = getStylesheet()->getRuleset(name)) != NULL) {
+      DLOG(INFO) << "Mixin Ruleset: " << *mixinRuleset->getSelector()->toString();
+      mixinRuleset->insert(ruleset);
+      ret = true;
+    }
+
+    // the mixin is not in a ruleset then only insert nested rules
+  } else if ((lessMixinRuleset = getLessStylesheet()->getLessRuleset(name)) != NULL) {
+    DLOG(INFO) << "Mixin Ruleset: " << *lessMixinRuleset->getSelector()->toString();
+    lessMixinRuleset->insert(s);
+    ret = true;
+  }
+
+  for (arg_i = arguments->begin(); arg_i != arguments->end(); arg_i++) {
+    DLOG(INFO) << "Mixin Arg: " << *(*arg_i)->toString();
+    getLessStylesheet()->getValueProcessor()->processValue(*arg_i);
+  }
+  
+  prulesetList = getLessStylesheet()->getParameterRulesets(this);
+  
+  for (pri = prulesetList.begin(); pri != prulesetList.end();
+       pri++) {
+    pruleset = *pri;
+    
+    DLOG(INFO) << "Mixin: " << *pruleset->getSelector()->toString();
+
+    ret = pruleset->insert(arguments, ruleset, s) || ret;
+  }
+
+  return ret;
+}
+
+void ParameterMixin::setStylesheet(LessStylesheet* s) {
+  lessStylesheet = s;
+  stylesheet = s;
+}
+
+LessStylesheet* ParameterMixin::getLessStylesheet() {
+  return lessStylesheet;
+}
+
+
+void ParameterMixin::process(Stylesheet* s) {
+  insert(s, NULL);
 }
 
 void ParameterMixin::parseArguments(TokenListIterator* tli) {

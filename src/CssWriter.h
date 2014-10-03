@@ -22,24 +22,24 @@
 #ifndef __CssWriter_h__
 #define __CssWriter_h__
 
-#include "Stylesheet.h"
+#include "TokenList.h"
 #include <string>
-#include <vector>
 #include <iostream>
+
 using namespace std;
 
 class CssWriter {
-public:
-  CssWriter(ostream* out);
-  virtual ~CssWriter();
-  void writeStylesheet(Stylesheet* s);
-
 protected:
   ostream* out;
-  virtual void writeAtRule(AtRule* rule);
-  virtual void writeRuleset(Ruleset* ruleset);
-  void writeDeclaration(Declaration* declaration);
   
+public:
+CssWriter(ostream* out);
+  virtual ~CssWriter();
+  virtual void writeAtRule(string keyword, TokenList* rule);
+  virtual void writeRulesetStart(TokenList* selector);
+  virtual void writeRulesetEnd();
+  virtual void writeDeclaration(string property, TokenList* value);
+  virtual void writeDeclarationDeliminator();
 };
   
 #endif

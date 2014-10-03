@@ -26,16 +26,18 @@
 #include "TokenList.h"
 #include "value/ValueProcessor.h"
 
+class LessRuleset;
 
 class UnprocessedStatement: public RulesetStatement {
 private:
   Selector tokens;
-    
+  LessRuleset* lessRuleset;
+
+protected:
+  bool processDeclaration (Declaration* declaration);
+  
 public:
   size_t property_i;
-  static const int UNPROCESSED = 2;
-  static const int PROCESSED = 3;
-  int type;
 
   unsigned int line, column;
     
@@ -47,10 +49,12 @@ public:
   void getProperty(TokenList* tokens);
   void getValue(TokenList* tokens);
 
-  bool processDeclaration (Declaration* declaration);
+  virtual void setRuleset(LessRuleset* r);
+  LessRuleset* getLessRuleset();
   
-  virtual int getType();
-  virtual RulesetStatement* clone();
+  virtual UnprocessedStatement* clone();
+  virtual void process(Ruleset* r) ;
+  virtual void write(CssWriter* css) {};
 };
 
 #endif

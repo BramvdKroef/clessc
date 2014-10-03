@@ -30,8 +30,12 @@ public:
   };
 
 protected:
-  void writeAtRule(AtRule* rule);
-  void writeRuleset(Ruleset* ruleset);
+  virtual void writeAtRule(string keyword, TokenList* rule);
+  virtual void writeRulesetStart(TokenList* selector);
+  virtual void writeRulesetEnd();
+  virtual void writeDeclaration(string property, TokenList* value);
+  virtual void writeDeclarationDeliminator();
+
 };
 
 #endif

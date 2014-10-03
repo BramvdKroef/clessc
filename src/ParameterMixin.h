@@ -24,10 +24,15 @@
 
 #include "Selector.h"
 #include "Stylesheet.h"
+#include "LessRuleset.h"
 
-class ParameterMixin: public StylesheetStatement {
+
+class ParameterMixin: public StylesheetStatement{
+private:
+  LessStylesheet* lessStylesheet;
+  void parseArguments(TokenListIterator* tli);
+
 public:
-  static const int MIXIN = 3;
   Selector* name;
   list<TokenList*>* arguments;
 
@@ -35,13 +40,14 @@ public:
   ParameterMixin(Selector* name, list<TokenList*>* arguments);
   virtual ~ParameterMixin() ;
 
+  bool insert(Stylesheet* s, Ruleset* ruleset);
   bool parse(Selector* selector);
 
-  virtual int getType() {
-    return MIXIN;
-  }
-private:
-  void parseArguments(TokenListIterator* tli);
+  virtual void setStylesheet(LessStylesheet* stylesheet);
+  LessStylesheet* getLessStylesheet();
+
+  virtual void process(Stylesheet* s);
+  virtual void write(CssWriter* writer) {};
 };
 
 #endif

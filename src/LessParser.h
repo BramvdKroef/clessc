@@ -87,7 +87,7 @@ protected:
   bool parseSelector(Selector* selector);
   bool parseSelectorVariable(Selector* selector);
   
-  bool parseRuleset (Stylesheet* stylesheet,
+  bool parseRuleset (LessStylesheet* stylesheet,
                      Selector* selector = NULL,
                      LessRuleset* parent = NULL);
 

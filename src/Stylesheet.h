@@ -25,18 +25,31 @@
 #include "Token.h"
 #include "TokenList.h"
 #include "Selector.h"
+#include "CssWriter.h"
 #include <string>
 #include <vector>
 
+
 using namespace std;
 
-class RulesetStatement {
+class CssWritable {
 public:
-  static const int DECLARATION = 1;
+  virtual void write(CssWriter* css) = 0; 
+};
   
+class Ruleset; 
+
+class RulesetStatement :  public CssWritable {
+protected:
+  Ruleset* ruleset;
+public:
   virtual ~RulesetStatement() {};
-  virtual int getType() = 0;
-  virtual RulesetStatement* clone() =0;
+
+  virtual void setRuleset(Ruleset* r);
+  Ruleset* getRuleset();
+
+  virtual RulesetStatement* clone() = 0;
+  virtual void process(Ruleset* r) = 0;
 };
 
 class Declaration: public RulesetStatement {
@@ -53,19 +66,24 @@ public:
   
   string* getProperty();
   TokenList* getValue();
-  virtual RulesetStatement* clone();
-  virtual int getType() {
-    return DECLARATION;
-  }
+  virtual Declaration* clone();
+
+  virtual void process(Ruleset* r);
+  virtual void write(CssWriter* writer);
 };
 
-class StylesheetStatement {
+class Stylesheet;
+
+class StylesheetStatement : public CssWritable  {
+protected:
+  Stylesheet* stylesheet;
+  
 public:
-  static const int RULESET = 1, ATRULE = 2;
-  
   virtual ~StylesheetStatement() {};
-  
-  virtual int getType() = 0;
+  virtual void setStylesheet(Stylesheet* s);
+  Stylesheet* getStylesheet();
+
+  virtual void process(Stylesheet* s) = 0;
 };
 
 class Ruleset: public StylesheetStatement {
@@ -79,7 +97,10 @@ public:
   Ruleset(Selector* selector);
   virtual ~Ruleset();
   void setSelector (Selector* selector);
-  void addStatement (RulesetStatement* statement);
+
+  virtual void addStatement (RulesetStatement* statement);
+  virtual void addStatement(Declaration* declaration);
+    
   void addStatements (vector<RulesetStatement*>* statements);
   void addDeclarations (vector<Declaration*>* declarations);
     
@@ -92,10 +113,10 @@ public:
   vector<Declaration*>* cloneDeclarations();
   Ruleset* clone();
   void swap(Ruleset* ruleset);
-  
-  virtual int getType() {
-    return RULESET;
-  }
+
+  virtual void insert(Ruleset* target);
+  virtual void process(Stylesheet* s);
+  virtual void write(CssWriter* writer);
 };
 
 class AtRule: public StylesheetStatement {
@@ -112,12 +133,11 @@ public:
   string* getKeyword();
   TokenList* getRule();
 
-  virtual int getType() {
-    return ATRULE;
-  }
+  virtual void process(Stylesheet* s);
+  virtual void write(CssWriter* writer);
 };
 
-class Stylesheet {
+class Stylesheet: public CssWritable {
 private:
   vector<AtRule*> atrules;
   vector<Ruleset*> rulesets;
@@ -126,15 +146,18 @@ public:
   Stylesheet() {}
   virtual ~Stylesheet();
   
-  void addStatement(StylesheetStatement* statement);
-  void addStatement(Ruleset* ruleset);
-  void addStatement(AtRule* rule);
-  
+  virtual void addStatement(StylesheetStatement* statement);
+  virtual void addStatement(Ruleset* ruleset);
+  virtual void addStatement(AtRule* rule);
+
   vector<AtRule*>* getAtRules();
   vector<Ruleset*>* getRulesets();
   vector<StylesheetStatement*>* getStatements();
   
   Ruleset* getRuleset(Selector* selector);
+
+  virtual void process(Stylesheet* s);
+  virtual void write(CssWriter* writer);
 };
 
 #endif

@@ -27,6 +27,13 @@
 #include <glog/logging.h>
 #endif
 
+void RulesetStatement::setRuleset(Ruleset* r) {
+  ruleset = r;
+}
+Ruleset* RulesetStatement::getRuleset() {
+  return ruleset;
+}
+
 Declaration::Declaration() {
   property = NULL;
   value = NULL;
@@ -60,17 +67,33 @@ string* Declaration::getProperty() {
 TokenList* Declaration::getValue() {
   return value;
 }
-RulesetStatement* Declaration::clone() {
+Declaration* Declaration::clone() {
   Declaration* clone =
     new Declaration(new string(*this->getProperty()));
   
   clone->setValue(value->clone());
   return clone;
 }
+void Declaration::process(Ruleset* r) {
+  DLOG(INFO) << "Processing declaration " << *property << ": " <<
+    *value->toString();
+  r->addStatement(this->clone());
+}
+void Declaration::write(CssWriter* writer) {
+  writer->writeDeclaration(*property, value);
+}
+
+void StylesheetStatement::setStylesheet(Stylesheet* s) {
+  stylesheet = s;
+}
+Stylesheet* StylesheetStatement::getStylesheet() {
+  return stylesheet;
+}
+
 
 Ruleset::Ruleset() {
 }
-Ruleset::Ruleset(Selector* selector) {
+Ruleset::Ruleset(Selector* selector){
   this->selector = selector;
 }
 
@@ -86,9 +109,14 @@ void Ruleset::setSelector (Selector* selector) {
 }
 void Ruleset::addStatement (RulesetStatement* statement) {
   statements.push_back(statement);
-  if (statement->getType() == RulesetStatement::DECLARATION)
-    declarations.push_back((Declaration*)statement);
+  statement->setRuleset(this);
 }
+void Ruleset::addStatement(Declaration* declaration) {
+  declarations.push_back(declaration);
+  statements.push_back(declaration);
+  declaration->setRuleset(this);
+}
+
 void Ruleset::addStatements (vector<RulesetStatement*>* statements) {
   vector<RulesetStatement*>::iterator i;
   for (i = statements->begin(); i < statements->end(); i++) {
@@ -127,8 +155,8 @@ vector<Declaration*>* Ruleset::cloneDeclarations() {
   vector<Declaration*>* clone = new vector<Declaration*>();
   
   declarations = getDeclarations();  
-  for (i = declarations->begin(); i < declarations->end(); i++) {
-    clone->push_back((Declaration*)(*i)->clone());
+  for (i = declarations->begin(); i != declarations->end(); i++) {
+    clone->push_back((*i)->clone());
   }
   return clone;
 }
@@ -142,7 +170,7 @@ Ruleset* Ruleset::clone() {
     ruleset->setSelector(getSelector()->clone());
 
   statements = getStatements();  
-  for (i = statements->begin(); i < statements->end(); i++) {
+  for (i = statements->begin(); i != statements->end(); i++) {
     ruleset->addStatement((*i)->clone());
   }
   return ruleset;
@@ -156,6 +184,39 @@ void Ruleset::swap(Ruleset* ruleset) {
   this->declarations.swap(*ruleset->getDeclarations());
 }
 
+void Ruleset::insert(Ruleset* target) {
+  vector<RulesetStatement*>* statements = getStatements();
+  vector<RulesetStatement*>::iterator i;
+  for (i = statements->begin(); i != statements->end(); i++) {
+    (*i)->process(target);
+  }
+}
+
+void Ruleset::process(Stylesheet* s) {
+  Ruleset* target = new Ruleset();
+  DLOG(INFO) << "Processing Ruleset: " << *getSelector()->toString();
+  target->setSelector(getSelector()->clone());
+  s->addStatement(target);
+  insert(target);
+}
+
+void Ruleset::write(CssWriter* writer) {
+  vector<RulesetStatement*>* statements;
+  vector<RulesetStatement*>::iterator i;
+
+  if (getStatements()->empty())
+    return;
+  
+  writer->writeRulesetStart(selector);
+    
+  statements = getStatements();  
+  for (i = statements->begin(); i != statements->end(); i++) {
+    (*i)->write(writer);
+    if (i + 1 != statements->end())
+      writer->writeDeclarationDeliminator();
+  }
+  writer->writeRulesetEnd();
+}
 
 AtRule::AtRule (string* keyword) {
   this->keyword = keyword;
@@ -182,7 +243,20 @@ string* AtRule::getKeyword() {
 TokenList* AtRule::getRule() {
   return rule;
 }
+void AtRule::process(Stylesheet* s) {
+  AtRule* target = new AtRule(new string(*keyword));
+  target->setRule(rule->clone());
 
+  DLOG(INFO) << "Processing @rule " << *this->getKeyword() << ": " <<
+    *this->getRule()->toString();
+
+  s->addStatement(target);
+}
+
+void AtRule::write(CssWriter* writer) {
+  writer->writeAtRule(*keyword, rule);
+}
+  
 Stylesheet::~Stylesheet() {
   while (!atrules.empty()) {
     delete atrules.back();
@@ -196,24 +270,27 @@ Stylesheet::~Stylesheet() {
 
 void Stylesheet::addStatement(StylesheetStatement* statement) {
   statements.push_back(statement);
+  statement->setStylesheet(this);
+  DLOG(INFO) << "Adding statement";
 }
 
 void Stylesheet::addStatement(Ruleset* ruleset) {
   DLOG(INFO) << "Adding ruleset: " <<
     *ruleset->getSelector()->toString();
-    
+
+  addStatement((StylesheetStatement*)ruleset);
   rulesets.push_back(ruleset);
-  statements.push_back(ruleset);
 }
 
 void Stylesheet::addStatement(AtRule* atrule) {
   DLOG(INFO) << "Adding @rule: " << 
     *atrule->getKeyword() << ": " <<
     *atrule->getRule()->toString();
-    
+
+  addStatement((StylesheetStatement*)atrule);
   atrules.push_back(atrule);
-  statements.push_back(atrule);
 }
+
 
 vector<AtRule*>* Stylesheet::getAtRules() {
   return &atrules;
@@ -234,4 +311,25 @@ Ruleset* Stylesheet::getRuleset(Selector* selector) {
       return *it;
   }
   return NULL;
+}
+
+void Stylesheet::process(Stylesheet* s) {
+  vector<StylesheetStatement*>* statements;
+  vector<StylesheetStatement*>::iterator i;
+  DLOG(INFO) << "Processing stylesheet";
+  
+  statements = getStatements();  
+  for (i = statements->begin(); i != statements->end(); i++) {
+    (*i)->process(s);
+  }
+}
+
+void Stylesheet::write(CssWriter* writer) {
+  vector<StylesheetStatement*>* statements;
+  vector<StylesheetStatement*>::iterator i;
+  
+  statements = getStatements();  
+  for (i = statements->begin(); i != statements->end(); i++) {
+    (*i)->write(writer);
+  }
 }

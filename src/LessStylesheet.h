@@ -24,6 +24,7 @@
 
 #include "Stylesheet.h"
 #include "TokenList.h"
+#include "LessRuleset.h"
 #include "ParameterRuleset.h"
 #include "ParameterMixin.h"
 #include "UnprocessedStatement.h"
@@ -36,31 +37,17 @@ private:
   
 public:
   LessStylesheet();
-  virtual ~ LessStylesheet();
+  virtual ~LessStylesheet();
+
+  virtual void addStatement(LessRuleset* ruleset);
+  virtual void addStatement(ParameterMixin* mixin);
+  void addParameterRuleset(ParameterRuleset* rule);
   
-  void process();
-
-  void addStatement(LessRuleset* ruleset);
-
+  ValueProcessor* getValueProcessor();
   void putVariable(string key, TokenList* value);
-  void addParameterRuleset(ParameterRuleset* rule);  
-  bool hasParameterRuleset(ParameterMixin* mixin);
 
-protected:
-  void processRuleset(LessRuleset* ruleset);
-  void processVariables(map<string, TokenList*>* variables) ;
-  void processStatements(vector<RulesetStatement*>*
-                         statements, Ruleset* target);
-  void processStatement(UnprocessedStatement* statement,
-                        Ruleset* target);
-
-  void insertNestedRules(LessRuleset* parent, Selector* prefix);
-    
-  bool processParameterMixin(ParameterMixin* mixin,
-                             Ruleset* target);
-  bool insertParameterRuleset(ParameterRuleset* pruleset,
-                              list<TokenList*>* arguments,
-                              Ruleset* target);
+  LessRuleset* getLessRuleset(Selector* selector);
+  list<ParameterRuleset*> getParameterRulesets(ParameterMixin* mixin);
 };
 
 #endif

@@ -57,12 +57,13 @@ void usage () {
 Stylesheet* processInput(istream* in){
   LessTokenizer tokenizer(in);
   LessParser parser(&tokenizer);
-  LessStylesheet* s = new LessStylesheet();
+  LessStylesheet s;
+  Stylesheet* css = new Stylesheet();
   LOG(INFO) << "Process input";
   
   try{
-    parser.parseStylesheet(s);
-    s->process();
+    parser.parseStylesheet(&s);
+    s.process(css);
   } catch(ParseException* e) {
     if (e->getSource() != "")
       cerr << e->getSource() << ": ";
@@ -73,15 +74,16 @@ Stylesheet* processInput(istream* in){
   } catch(exception* e) {
     LOG(ERROR) << "Line " << tokenizer.getLineNumber() << ", Column " <<
       tokenizer.getColumn() << " Error: " << e->what();
+    return NULL;
   }
   
-  return s;
+  return css;
 }
 void writeOutput (ostream* out, Stylesheet* stylesheet, bool format) {
   CssWriter *w;
   w = format ? new CssPrettyWriter(out) : new CssWriter(out);
   
-  w->writeStylesheet(stylesheet);
+  stylesheet->write(w);
   *out << endl;
   delete w;
 }

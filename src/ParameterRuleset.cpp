@@ -20,6 +20,8 @@
  */
 
 #include "ParameterRuleset.h"
+#include "LessStylesheet.h"
+
 #include <iostream>
 
 bool ParameterRuleset::isValid(Selector* selector) {
@@ -163,6 +165,35 @@ void ParameterRuleset::addParameter(string keyword, TokenList* value) {
   defaults.push_back(value);
 }
 
+bool ParameterRuleset::insert(list<TokenList*>* arguments,
+                              Ruleset* target, Stylesheet* s) {
+  map<string, TokenList*> scope;
+  bool ret = false;
+  
+  // new scope to accept arguments
+  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+
+  if (putArguments(arguments) &&
+      matchConditions()) {
+
+    if (target != NULL) {
+      // insert statements and nested rules
+      LessRuleset::insert(target);
+      
+    } else {
+      // only insert nested rules
+      LessRuleset::insert(s);
+    }
+    ret = true;
+  }
+      
+  getLessStylesheet()->getValueProcessor()->popScope();
+
+  return ret;
+}
+
+
+
 TokenList* ParameterRuleset::getDefault(string keyword) {
   list<string>::iterator pit = parameters.begin();
   list<TokenList*>::iterator dit = defaults.begin();
@@ -267,7 +298,7 @@ bool ParameterRuleset::matchArguments(list<TokenList*>* arguments) {
   return (ait == arguments->end() || unlimitedArguments);
 }
 
-bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
+bool ParameterRuleset::matchConditions(){
   list<TokenList*>::iterator cit = conditions.begin();
   TokenList* condition;
   if (conditions.size() == 0)
@@ -276,7 +307,7 @@ bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
   for(; cit != conditions.end(); cit++) {
     condition = (*cit)->clone();
     
-    if (valueProcessor->validateValue(condition)) {
+    if (getLessStylesheet()->getValueProcessor()->validateValue(condition)) {
       delete condition;
       return true;
     } else
@@ -285,8 +316,7 @@ bool ParameterRuleset::matchConditions(ValueProcessor* valueProcessor){
   return false;
 }
   
-bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
-                                    list<TokenList*>* arguments) {
+bool ParameterRuleset::putArguments(list<TokenList*>* arguments) {
   list<string> parameters = getKeywords();
   list<TokenList*>::iterator ait  = arguments->begin();
   list<string>::iterator pit = parameters.begin();
@@ -300,7 +330,7 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
   // combine with parameter names and add to local scope
   for(; pit != parameters.end(); pit++) {
     if (ait != arguments->end()) {
-      valueProcessor->putVariable(*pit, *ait);
+      getLessStylesheet()->putVariable(*pit, *ait);
       argsCombined->push((*ait)->clone());
       ait++;
     } else {
@@ -309,7 +339,7 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
         delete argsCombined;
         return false;
       }
-      valueProcessor->putVariable(*pit, variable->clone());
+      getLessStylesheet()->putVariable(*pit, variable->clone());
       argsCombined->push(variable->clone());
     }
     argsCombined->push(new Token(" ", Token::WHITESPACE));
@@ -326,10 +356,10 @@ bool ParameterRuleset::putArguments(ValueProcessor* valueProcessor,
     }
     if (restVar->size() > 0)
       delete restVar->pop();
-    valueProcessor->putVariable(rest, restVar);
+    getLessStylesheet()->putVariable(rest, restVar);
   }
   
-  valueProcessor->putVariable("@arguments", argsCombined);
+  getLessStylesheet()->putVariable("@arguments", argsCombined);
   return true;
 }
 

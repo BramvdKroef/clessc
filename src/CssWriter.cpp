@@ -28,24 +28,12 @@ CssWriter::CssWriter(ostream* out) {
 CssWriter::~CssWriter() {
 }
 
-void CssWriter::writeStylesheet(Stylesheet* s) {
-  vector<StylesheetStatement*>* statements = s->getStatements();
-  vector<StylesheetStatement*>::iterator it;
 
-  for (it = statements->begin(); it < statements->end(); it++) {
-    if ((*it)->getType() == StylesheetStatement::ATRULE)
-      writeAtRule((AtRule*)*it);
-    else if ((*it)->getType() == StylesheetStatement::RULESET)
-      writeRuleset((Ruleset*)*it);
-  }
-}
-
-void CssWriter::writeAtRule(AtRule* atrule) {
-  TokenList* rule = atrule->getRule();
+void CssWriter::writeAtRule(string keyword, TokenList* rule) {
   TokenListIterator* it = rule->iterator();
   
-  out->write(atrule->getKeyword()->c_str(),
-             atrule->getKeyword()->size());
+  out->write(keyword.c_str(),
+             keyword.size());
   out->write(" ", 1);
   
   while (it->hasNext()) {
@@ -55,15 +43,8 @@ void CssWriter::writeAtRule(AtRule* atrule) {
   out->write(";", 1);
 }
 
-void CssWriter::writeRuleset(Ruleset* ruleset) {
-  TokenList* selector = ruleset->getSelector();
+void CssWriter::writeRulesetStart(TokenList* selector) {
   TokenListIterator* it;
-  
-  vector<Declaration*>* declarations = ruleset->getDeclarations();
-  vector<Declaration*>::iterator dIt;
-
-  if (declarations->size() == 0)
-    return;
   
   if (selector != NULL) {
     for (it = selector->iterator(); it->hasNext();) {
@@ -72,20 +53,16 @@ void CssWriter::writeRuleset(Ruleset* ruleset) {
     }
   }
   out->write("{", 1);
-  for (dIt = declarations->begin(); dIt < declarations->end(); dIt++) {
-    writeDeclaration(*dIt);
-    if (dIt + 1 < declarations->end())
-      out->write(";", 1);
-  }
+}
+
+void CssWriter::writeRulesetEnd() {
   out->write("}", 1);
 }
 
-void CssWriter::writeDeclaration(Declaration* declaration) {
-  TokenList* value = declaration->getValue();
+void CssWriter::writeDeclaration(string property, TokenList* value) {
   TokenListIterator* it = value->iterator();
     
-  out->write(declaration->getProperty()->c_str(),
-             declaration->getProperty()->size());
+  out->write(property.c_str(), property.size());
   out->write(":", 1);
   
   while (it->hasNext()) {
@@ -94,3 +71,6 @@ void CssWriter::writeDeclaration(Declaration* declaration) {
   }
 }
 
+void CssWriter::writeDeclarationDeliminator() {
+  out->write(";", 1);
+}

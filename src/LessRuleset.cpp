@@ -20,12 +20,21 @@
  */
 
 #include "LessRuleset.h"
+#include "LessStylesheet.h"
+
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
 
 LessRuleset::LessRuleset() : Ruleset() {
-  processed = false;
+  parent = NULL;
+  lessStylesheet = NULL;
 }
 LessRuleset::LessRuleset(Selector* selector) : Ruleset(selector) {
-  processed = false;
+  parent = NULL;
+  lessStylesheet = NULL;
 }
 LessRuleset::~LessRuleset() {
   while (!nestedRules.empty()) {
@@ -34,12 +43,19 @@ LessRuleset::~LessRuleset() {
   }
 }
   
-
-void LessRuleset::addNestedRule(Ruleset* nestedRule) {
-  nestedRules.push_back(nestedRule);
+void LessRuleset::addStatement(UnprocessedStatement* statement) {
+  Ruleset::addStatement(statement);
+  statement->setRuleset(this);
 }
 
-list<Ruleset*>* LessRuleset::getNestedRules() {
+void LessRuleset::addNestedRule(LessRuleset* nestedRule) {
+  DLOG(INFO) << "Adding nested rule: " << *nestedRule->getSelector()->toString();
+  nestedRules.push_back(nestedRule);
+  nestedRule->setParent(this);
+  nestedRule->setStylesheet(getLessStylesheet());
+}
+
+list<LessRuleset*>* LessRuleset::getNestedRules() {
   return &nestedRules;
 }
 
@@ -51,9 +67,95 @@ map<string, TokenList*>* LessRuleset::getVariables() {
   return &variables;
 }
 
-bool LessRuleset::isProcessed() {
-  return processed;
+void LessRuleset::setParent(LessRuleset* r) {
+  parent = r;
 }
-void LessRuleset::setProcessed(bool b) {
-  processed = b;
+LessRuleset* LessRuleset::getParent() {
+  return parent;
 }
+
+void LessRuleset::setStylesheet(LessStylesheet* s) {
+  DLOG(INFO) << "set LessStylesheet";
+  lessStylesheet = s;
+  Ruleset::setStylesheet(s);
+}
+
+LessStylesheet* LessRuleset::getLessStylesheet() {
+  return lessStylesheet;
+}
+
+void LessRuleset::insert(Ruleset* target) {
+  map<string, TokenList*> scope;
+
+  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+
+  DLOG(INFO) << "Inserting variables";
+  // set local variables
+  processVariables();
+
+  DLOG(INFO) << "Inserting statements";
+  // process statements
+  Ruleset::insert(target);
+
+  DLOG(INFO) << "Inserting nested rules";
+  // insert nested rules
+  insertNestedRules(target->getStylesheet(), target->getSelector());
+  
+  getLessStylesheet()->getValueProcessor()->popScope();
+}
+
+void LessRuleset::insert(Stylesheet* s) {
+  map<string, TokenList*> scope;  
+  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+  // set local variables
+  processVariables();
+  // insert nested rules
+  insertNestedRules(s, NULL);
+  
+  getLessStylesheet()->getValueProcessor()->popScope();
+}
+
+void LessRuleset::process(Stylesheet* s) {
+  Ruleset* target = new Ruleset();
+  DLOG(INFO) << "Processing Less Ruleset: " << *getSelector()->toString();
+  target->setSelector(getSelector()->clone());
+
+  DLOG(INFO) << "Interpolating selector " << *target->getSelector()->toString();
+  getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
+
+  s->addStatement(target);
+  insert(target);
+}
+
+
+void LessRuleset::processVariables() {
+  map<string, TokenList*>::iterator it;
+
+  for (it = variables.begin(); it != variables.end(); ++it) {
+    getLessStylesheet()->putVariable(it->first, it->second);
+  }
+}
+
+void LessRuleset::insertNestedRules(Stylesheet* s, Selector* prefix) {
+  list<LessRuleset*>* nestedRules = getNestedRules();
+  list<LessRuleset*>::iterator r_it;
+  LessRuleset* nestedRule;
+  Selector* oldSelector;
+
+  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+    nestedRule = *r_it;
+
+    if (prefix != NULL) {
+      oldSelector = nestedRule->getSelector()->clone();
+      nestedRule->getSelector()->addPrefix(prefix);
+    }
+
+    nestedRule->process(s);
+    DLOG(INFO) << "Processed nested rule";
+    if (prefix != NULL) {
+      delete nestedRule->getSelector();
+      nestedRule->setSelector(oldSelector);
+    }
+  }
+}
+

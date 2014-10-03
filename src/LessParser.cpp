@@ -42,7 +42,7 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
   if (parseSelector(selector) && !selector->empty()) {
     DLOG(INFO) << "Parse: Selector: " << *selector->toString();
     
-    if (parseRuleset(stylesheet, selector))
+    if (parseRuleset((LessStylesheet*)stylesheet, selector))
       return true;
 
     // Parameter mixin in the root. Inserts nested rules but no
@@ -50,7 +50,7 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
     mixin = new ParameterMixin();
     
     if (mixin->parse(selector)) {
-      stylesheet->addStatement(mixin);
+      ((LessStylesheet*)stylesheet)->addStatement(mixin);
       delete selector;
       if (tokenizer->getTokenType() == Token::DELIMITER) {
         tokenizer->readNextToken();
@@ -202,7 +202,7 @@ bool LessParser::parseSelectorVariable(Selector* selector) {
   return false;
 }
 
-bool LessParser::parseRuleset (Stylesheet* stylesheet,
+bool LessParser::parseRuleset (LessStylesheet* stylesheet,
                                Selector* selector,
                                LessRuleset* parent) {
   LessRuleset* ruleset = NULL;
@@ -221,7 +221,11 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
   // In case of a parameter ruleset the declaration values are not
   // processed until later.
   if (ParameterRuleset::isValid(selector)) {
-    DLOG(INFO) << "Parse: ParamaterRuleset";
+    if (parent != NULL)
+      selector->addPrefix(parent->getSelector());
+
+    DLOG(INFO) << "Parse: ParamaterRuleset: " << *selector->toString();    
+
     try {
       ruleset = pruleset = new ParameterRuleset(selector);
     } catch (ParseException* e) {
@@ -230,7 +234,7 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
       throw e;
     }
     
-    ((LessStylesheet*)stylesheet)->addParameterRuleset(pruleset);
+    stylesheet->addParameterRuleset(pruleset);
   } else {
     DLOG(INFO) << "Parse: Ruleset";
     ruleset = new LessRuleset(selector);
@@ -240,19 +244,20 @@ bool LessParser::parseRuleset (Stylesheet* stylesheet,
       parent->addNestedRule(ruleset);
   }    
 
-  while (parseRulesetStatement(statement)) {
-    // a selector followed by a ruleset is a nested rule
-    if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
-      if (pruleset != NULL)
-        statement->getTokens()->addPrefix(ruleset->getSelector());
+  while (parseRulesetVariable(ruleset) ||
+         parseRulesetStatement(statement)) {
 
-      parseRuleset(stylesheet, statement->getTokens(), ruleset);
-      delete statement;
-      
-    } else if (parseRulesetVariable(ruleset) == false)
-      ruleset->addStatement(statement);
+    if (!statement->getTokens()->empty()) {
+      // a selector followed by a ruleset is a nested rule
+      if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
+        parseRuleset(stylesheet, statement->getTokens()->clone(), ruleset);
+        delete statement;
+        
+      } else
+        ruleset->addStatement(statement);
     
-    statement = new UnprocessedStatement();
+      statement = new UnprocessedStatement();
+    }
   }
   delete statement;
 
@@ -302,15 +307,18 @@ bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
   parseSelector(statement->getTokens());
   statement->getTokens()->trim();
 
+  if (statement->getTokens()->empty())
+    return false;
+
+  if (tokenizer->getTokenType() == Token::BRACKET_OPEN) 
+    return true;
+  
   parseValue(statement->getTokens());
   
   if (tokenizer->getTokenType() == Token::DELIMITER) {
     tokenizer->readNextToken();
     skipWhitespace();
-    
-  } else if (statement->getTokens()->empty())
-    return false;
-    
+  } 
   return true;
 }
 

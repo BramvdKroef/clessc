@@ -26,30 +26,46 @@
 #include "Selector.h"
 #include "ParseException.h"
 #include "value/ValueProcessor.h"
+#include "UnprocessedStatement.h"
 #include <map>
 #include <list>
 
+class LessStylesheet;
 
 class LessRuleset: public Ruleset {
-private:
-  bool processed;
+  
 protected:
   map<string, TokenList*> variables;  
-  list<Ruleset*> nestedRules;
+  list<LessRuleset*> nestedRules;
+  LessRuleset* parent;
+  LessStylesheet* lessStylesheet;
   
 public:
   LessRuleset();
   LessRuleset(Selector* selector);
   virtual ~LessRuleset();
-  
-  void addNestedRule(Ruleset* nestedRule);
-  list<Ruleset*>* getNestedRules();
+
+  virtual void addStatement (UnprocessedStatement* statement);
+
+  void addNestedRule(LessRuleset* nestedRule);
+  list<LessRuleset*>* getNestedRules();
 
   void putVariable(string key, TokenList* value);
   map<string, TokenList*>* getVariables();
   
-  bool isProcessed();
-  void setProcessed(bool b);
+  void setParent(LessRuleset* r);
+  LessRuleset* getParent();
+
+  void setStylesheet(LessStylesheet* stylesheet);
+  LessStylesheet* getLessStylesheet();
+
+  virtual void insert(Ruleset* target);
+  virtual void insert(Stylesheet* s);
+
+  virtual void process(Stylesheet* s);
+  
+  void processVariables();
+  void insertNestedRules(Stylesheet* s, Selector* prefix);
 };
 
 #endif
