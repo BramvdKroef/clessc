@@ -51,7 +51,9 @@ public:
 
   virtual void setRuleset(LessRuleset* r);
   LessRuleset* getLessRuleset();
-  
+
+  void insert(Stylesheet* s);
+    
   virtual UnprocessedStatement* clone();
   virtual void process(Ruleset* r) ;
   virtual void write(CssWriter* css) {};

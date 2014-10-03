@@ -46,6 +46,10 @@ LessRuleset::~LessRuleset() {
 void LessRuleset::addStatement(UnprocessedStatement* statement) {
   Ruleset::addStatement(statement);
   statement->setRuleset(this);
+  unprocessedStatements.push_back(statement);
+}
+list<UnprocessedStatement*>* LessRuleset::getUnprocessedStatements() {
+  return &unprocessedStatements;
 }
 
 void LessRuleset::addNestedRule(LessRuleset* nestedRule) {
@@ -105,10 +109,20 @@ void LessRuleset::insert(Ruleset* target) {
 }
 
 void LessRuleset::insert(Stylesheet* s) {
-  map<string, TokenList*> scope;  
+  map<string, TokenList*> scope;
+  list<UnprocessedStatement*>* unprocessedStatements = getUnprocessedStatements();
+  list<UnprocessedStatement*>::iterator up_it;
+
   getLessStylesheet()->getValueProcessor()->pushScope(&scope);
   // set local variables
   processVariables();
+
+  // insert mixins
+  for (up_it = unprocessedStatements->begin();
+       up_it != unprocessedStatements->end();
+       up_it++) {
+    (*up_it)->insert(s);
+  }
   // insert nested rules
   insertNestedRules(s, NULL);
   

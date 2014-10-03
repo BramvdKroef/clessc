@@ -37,6 +37,7 @@ class LessRuleset: public Ruleset {
 protected:
   map<string, TokenList*> variables;  
   list<LessRuleset*> nestedRules;
+  list<UnprocessedStatement*> unprocessedStatements;
   LessRuleset* parent;
   LessStylesheet* lessStylesheet;
   
@@ -46,7 +47,8 @@ public:
   virtual ~LessRuleset();
 
   virtual void addStatement (UnprocessedStatement* statement);
-
+  list<UnprocessedStatement*>* getUnprocessedStatements();
+  
   void addNestedRule(LessRuleset* nestedRule);
   list<LessRuleset*>* getNestedRules();
 

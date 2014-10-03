@@ -60,6 +60,14 @@ LessRuleset* UnprocessedStatement::getLessRuleset() {
   return lessRuleset;
 }
 
+void UnprocessedStatement::insert(Stylesheet* s) {
+  ParameterMixin mixin;
+  mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
+  
+  // process mixin
+  if (mixin.parse(getTokens()))
+    mixin.insert(s, NULL);
+}
 
 void UnprocessedStatement::process(Ruleset* r) {
   ParameterMixin mixin;
