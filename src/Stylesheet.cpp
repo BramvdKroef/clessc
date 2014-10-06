@@ -340,3 +340,10 @@ Selector* MediaQuery::getSelector() {
 void MediaQuery::setSelector(Selector* s) {
   selector = s;
 }
+
+void MediaQuery::write(CssWriter* writer) {
+  writer->writeRulesetStart(selector);
+  Stylesheet::write(writer);
+  
+  writer->writeRulesetEnd();
+}
