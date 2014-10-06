@@ -168,6 +168,7 @@ private:
 public:
   Selector* getSelector();
   void setSelector(Selector* s);
+  virtual void process(Stylesheet* s);
   virtual void write(CssWriter* writer);
 }
 

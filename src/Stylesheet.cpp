@@ -341,6 +341,15 @@ void MediaQuery::setSelector(Selector* s) {
   selector = s;
 }
 
+void MediaQuery::process(Stylesheet* s) {
+  MediaQuery* query = new MediaQuery();
+  DLOG(INFO) << "Processing media query " << *getSelector()->toString();
+  query->setSelector(getSelector()->clone());
+  s->addStatement(query);
+  
+  Stylesheet::process(query);
+}
+
 void MediaQuery::write(CssWriter* writer) {
   writer->writeRulesetStart(selector);
   Stylesheet::write(writer);
