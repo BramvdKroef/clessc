@@ -333,3 +333,10 @@ void Stylesheet::write(CssWriter* writer) {
     (*i)->write(writer);
   }
 }
+
+Selector* MediaQuery::getSelector() {
+  return selector;
+}
+void MediaQuery::setSelector(Selector* s) {
+  selector = s;
+}

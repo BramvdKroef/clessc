@@ -68,6 +68,12 @@ bool CssParser::parseStatement(Stylesheet* stylesheet) {
     stylesheet->addStatement(ruleset);
     return true;
   }
+
+  MediaQuery* query = parseMediaQuery();
+  if (query != NULL) {
+    stylesheet->addStatement(query);
+    return true;
+  }
   
   AtRule* atrule = parseAtRule();
   if (atrule != NULL) {
@@ -75,6 +81,48 @@ bool CssParser::parseStatement(Stylesheet* stylesheet) {
     return true;
   }
   return false;
+}
+
+MediaQuery* CssParser::parseMediaQuery() {
+  MediaQuery* query;
+  Selector* selector;
+  
+  if (tokenizer->getTokenType() != Token::ATKEYWORD ||
+      tokenizer->getToken()->str != "@media") 
+    return NULL;
+
+  query = new MediaQuery();
+  selector = new Selector();
+
+  selector->push(tokenizer->getToken()->clone());
+  tokenizer->readNextToken();
+  skipWhitespace();
+  
+  parseSelector(selector);
+  query->setSelector(selector);
+  
+  if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "{",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
+  }
+  tokenizer->readNextToken();
+  
+  skipWhitespace();
+  while (parseStatement(query)) {
+    skipWhitespace();
+  }
+  
+  if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "end of media query block ('}')",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
+  }
+  tokenizer->readNextToken();
+  skipWhitespace();
+  return query;
 }
 
 AtRule* CssParser::parseAtRule () {

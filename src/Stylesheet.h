@@ -137,6 +137,7 @@ public:
   virtual void write(CssWriter* writer);
 };
 
+
 class Stylesheet: public CssWritable {
 private:
   vector<AtRule*> atrules;
@@ -159,5 +160,14 @@ public:
   virtual void process(Stylesheet* s);
   virtual void write(CssWriter* writer);
 };
+
+class MediaQuery: public Stylesheet, public StylesheetStatement {
+private:
+  Selector* selector;
+
+public:
+  Selector* getSelector();
+  void setSelector(Selector* s);
+}
 
 #endif

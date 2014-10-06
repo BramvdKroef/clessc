@@ -79,6 +79,13 @@ protected:
   virtual bool parseStatement(Stylesheet* stylesheet);
 
   /**
+   * Parse a media query, starting with the @media keyword.
+   *
+   * @return a MediaQuery object or NULL if the current token is not '@media'. 
+   */
+  MediaQuery* parseMediaQuery();
+  
+  /**
    * Parses an keyword that begins with '@' and the rule following the keyword.
    *
    * @return an AtRule object or NULL if none was found.
