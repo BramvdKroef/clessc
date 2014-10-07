@@ -30,6 +30,7 @@
 #include "ParameterRuleset.h"
 #include "LessTokenizer.h"
 #include "LessStylesheet.h"
+#include "LessMediaQuery.h"
 
 #include <iostream>
 #include <fstream>
@@ -81,7 +82,7 @@ protected:
    * If the first token for the rule is a COLON, parse a
    * value. Otherwise parse the usual at-rule.
    */
-  bool parseAtRuleOrVariable (Stylesheet* stylesheet);
+  bool parseAtRuleOrVariable (LessStylesheet* stylesheet);
 
   bool parseVariable (TokenList* value);
   bool parseSelector(Selector* selector);
@@ -110,7 +111,8 @@ protected:
 
   void parseList(list<TokenList*>* list, TokenList* tokens);
   
-  void importFile(string file, Stylesheet* stylesheet);
+  void importFile(string file, LessStylesheet* stylesheet);
+  void parseLessMediaQuery(LessStylesheet* stylesheet);
 private:
     
   TokenList* processValue(TokenList* value);

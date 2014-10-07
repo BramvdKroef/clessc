@@ -1,4 +1,5 @@
 #include "LessStylesheet.h"
+#include "LessMediaQuery.h"
 
 #include <config.h>
 
@@ -16,6 +17,11 @@ LessStylesheet::~LessStylesheet() {
   }
 }
 
+void LessStylesheet::addStatement(AtRule* atrule) {
+  Stylesheet::addStatement(atrule);
+  atrule->setStylesheet(this);
+}
+
 void LessStylesheet::addStatement(LessRuleset* ruleset) {
   DLOG(INFO) << "Adding LessRuleset";
   Stylesheet::addStatement(ruleset);
@@ -28,7 +34,12 @@ void LessStylesheet::addStatement(ParameterMixin* mixin) {
   mixin->setStylesheet(this);
 }
 
-
+void LessStylesheet::addStatement(LessMediaQuery* query) {
+  DLOG(INFO) << "Adding Media Query";
+  Stylesheet::addStatement(query);
+  query->setStylesheet(this);
+}
+  
 void LessStylesheet::addParameterRuleset(ParameterRuleset* rule) {
   DLOG(INFO) << "Adding parameter ruleset: " <<
     *rule->getSelector()->toString();
@@ -70,5 +81,5 @@ ValueProcessor* LessStylesheet::getValueProcessor() {
 
 void LessStylesheet::putVariable(string key, TokenList* value) {
   DLOG(INFO) << "Variable: " << key << ": " << *value->toString();
-  valueProcessor.putVariable(key, value);
+  getValueProcessor()->putVariable(key, value);
 }

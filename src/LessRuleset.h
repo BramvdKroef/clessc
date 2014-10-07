@@ -58,7 +58,7 @@ public:
   void setParent(LessRuleset* r);
   LessRuleset* getParent();
 
-  void setStylesheet(LessStylesheet* stylesheet);
+  virtual void setStylesheet(LessStylesheet* stylesheet);
   LessStylesheet* getLessStylesheet();
 
   virtual void insert(Ruleset* target);

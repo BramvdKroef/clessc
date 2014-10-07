@@ -40,6 +40,8 @@ CssWriter(ostream* out);
   virtual void writeRulesetEnd();
   virtual void writeDeclaration(string property, TokenList* value);
   virtual void writeDeclarationDeliminator();
+  virtual void writeMediaQueryStart(TokenList* selector);
+  virtual void writeMediaQueryEnd();
 };
   
 #endif

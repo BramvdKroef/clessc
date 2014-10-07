@@ -66,11 +66,11 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
     
   } else {
     delete selector;
-    return  parseAtRuleOrVariable(stylesheet);
+    return  parseAtRuleOrVariable((LessStylesheet*)stylesheet);
   }
 }
 
-bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
+bool LessParser::parseAtRuleOrVariable (LessStylesheet* stylesheet) {
   string keyword, import;
   TokenList value, *rule;
   AtRule* atrule = NULL;
@@ -86,9 +86,13 @@ bool LessParser::parseAtRuleOrVariable (Stylesheet* stylesheet) {
     
   if (parseVariable(&value)) {
     DLOG(INFO) << "Parse: variable";
-    ((LessStylesheet*)stylesheet)->putVariable(keyword, value.clone());
+    stylesheet->putVariable(keyword, value.clone());
     
   } else {
+    if (keyword == "@media") {
+      parseLessMediaQuery(stylesheet);
+      return true;
+    }
     rule = new TokenList();
     while(parseAny(rule)) {};
   
@@ -120,7 +124,8 @@ file path",
         importFile(import.substr(1, import.size() - 2), stylesheet);
         return true;
       }
-    } 
+    }
+    
     atrule = new AtRule(new string(keyword));
     atrule->setRule(rule);
     stylesheet->addStatement(atrule);
@@ -154,7 +159,6 @@ bool LessParser::parseVariable (TokenList* value) {
 }
 
 bool LessParser::parseSelector(Selector* selector) {
- 
   if (!parseAny(selector)) 
     return false;
     
@@ -323,7 +327,7 @@ bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
 }
 
 
-void LessParser::importFile(string filename, Stylesheet* stylesheet) {
+void LessParser::importFile(string filename, LessStylesheet* stylesheet) {
   ifstream in(filename.c_str());
   if (in.fail() || in.bad())
     throw new ParseException(filename, "existing file",
@@ -335,7 +339,7 @@ void LessParser::importFile(string filename, Stylesheet* stylesheet) {
 
   try {
     DLOG(INFO) << "Parsing";
-    parser.parseStylesheet((LessStylesheet*)stylesheet);
+    parser.parseStylesheet(stylesheet);
   } catch(ParseException* e) {
     if (e->getSource() == "")
       e->setSource(filename);
@@ -344,4 +348,40 @@ void LessParser::importFile(string filename, Stylesheet* stylesheet) {
   in.close();
 }
 
+void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) {
+  LessMediaQuery* query = new LessMediaQuery();
+  Selector* s = new Selector();
+  
+  s->push(new Token("@media", Token::ATKEYWORD));
+  s->push(new Token(" ", Token::WHITESPACE));
 
+  skipWhitespace();
+  parseSelector(s);
+  query->setSelector(s);
+
+  DLOG(INFO) << *s->toString();
+
+  stylesheet->addStatement(query);
+
+  if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "{",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
+  }
+  tokenizer->readNextToken();
+  
+  skipWhitespace();
+  while (parseStatement(query)) {
+    skipWhitespace();
+  }
+  
+  if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "end of media query block ('}')",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
+  }
+  tokenizer->readNextToken();
+  skipWhitespace();
+}

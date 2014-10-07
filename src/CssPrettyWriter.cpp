@@ -44,3 +44,11 @@ void CssPrettyWriter::writeDeclarationDeliminator() {
   out->write(";\n", 2);  
 }
 
+void CssPrettyWriter::writeMediaQueryStart(TokenList* selector) {
+  CssWriter::writeMediaQueryStart(selector);
+  out->write("\n", 1);
+}
+
+void CssPrettyWriter::writeMediaQueryEnd() {
+  out->write("}\n", 2);
+}

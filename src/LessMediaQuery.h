@@ -19,40 +19,29 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __LessStylesheet_h__
-#define __LessStylesheet_h__
+#ifndef __LessMediaQuery_h__
+#define __LessMediaQuery_h__
 
-#include "Stylesheet.h"
-#include "TokenList.h"
-#include "LessRuleset.h"
-#include "ParameterRuleset.h"
-#include "ParameterMixin.h"
-#include "UnprocessedStatement.h"
+#include "LessStylesheet.h"
 
-class LessMediaQuery;
-
-class LessStylesheet: public Stylesheet {
+class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
 private:
-  ValueProcessor valueProcessor;
-  vector<LessRuleset*> lessrulesets;
-  vector<ParameterRuleset*> parameterRulesets;
+  Selector* selector;
+  LessStylesheet* parent;
   
 public:
-  LessStylesheet();
-  virtual ~LessStylesheet();
+  LessMediaQuery();
+  virtual ~LessMediaQuery();
+  
+  Selector* getSelector();
+  void setSelector(Selector* s);
 
-  virtual void addStatement(AtRule* atrule);
-  virtual void addStatement(LessRuleset* ruleset);
-  virtual void addStatement(ParameterMixin* mixin);
-  virtual void addStatement(LessMediaQuery* query);
-
-  void addParameterRuleset(ParameterRuleset* rule);
+  virtual void setStylesheet(LessStylesheet* parent);
+  LessStylesheet* getLessStylesheet();
   
   virtual ValueProcessor* getValueProcessor();
-  void putVariable(string key, TokenList* value);
-
-  LessRuleset* getLessRuleset(Selector* selector);
-  list<ParameterRuleset*> getParameterRulesets(ParameterMixin* mixin);
+  virtual void process(Stylesheet* s);
+  virtual void write(CssWriter* writer);
 };
 
 #endif

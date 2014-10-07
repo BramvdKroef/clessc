@@ -34,7 +34,11 @@
 #include "IOException.h"
 #include "LessStylesheet.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
 #include <glog/logging.h>
+#endif
 
 using namespace std;
 
@@ -59,7 +63,7 @@ Stylesheet* processInput(istream* in){
   LessParser parser(&tokenizer);
   LessStylesheet s;
   Stylesheet* css = new Stylesheet();
-  LOG(INFO) << "Process input";
+  DLOG(INFO) << "Process input";
   
   try{
     parser.parseStylesheet(&s);

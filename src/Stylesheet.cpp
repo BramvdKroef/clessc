@@ -351,8 +351,8 @@ void MediaQuery::process(Stylesheet* s) {
 }
 
 void MediaQuery::write(CssWriter* writer) {
-  writer->writeRulesetStart(selector);
+  writer->writeMediaQueryStart(selector);
   Stylesheet::write(writer);
   
-  writer->writeRulesetEnd();
+  writer->writeMediaQueryEnd();
 }

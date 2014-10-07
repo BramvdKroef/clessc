@@ -74,3 +74,19 @@ void CssWriter::writeDeclaration(string property, TokenList* value) {
 void CssWriter::writeDeclarationDeliminator() {
   out->write(";", 1);
 }
+
+void CssWriter::writeMediaQueryStart(TokenList* selector) {
+  TokenListIterator* it;
+  
+  if (selector != NULL) {
+    for (it = selector->iterator(); it->hasNext();) {
+      Token* next = it->next();
+      out->write(next->str.c_str(), next->str.size());
+    }
+  }
+  out->write("{", 1);
+}
+
+void CssWriter::writeMediaQueryEnd() {
+  out->write("}", 1);
+}
