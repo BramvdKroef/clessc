@@ -22,7 +22,30 @@ void LessMediaQuery::setStylesheet(LessStylesheet* parent) {
 LessStylesheet* LessMediaQuery::getLessStylesheet() {
   return parent;
 }
-  
+
+Ruleset* LessMediaQuery::getRuleset(Selector* selector) {
+  Ruleset* r = Stylesheet::getRuleset(selector);
+  if (r == NULL)
+    r = getLessStylesheet()->getRuleset(selector);
+  return r;
+}
+
+LessRuleset* LessMediaQuery::getLessRuleset(Selector* selector) {
+  LessRuleset* r = LessStylesheet::getLessRuleset(selector);
+  if (r == NULL)
+    r = getLessStylesheet()->getLessRuleset(selector);
+  return r;
+}
+
+list<ParameterRuleset*> LessMediaQuery::getParameterRulesets(ParameterMixin* mixin) {
+  list<ParameterRuleset*> prulesetList1, prulesetList2;
+  prulesetList1 = LessStylesheet::getParameterRulesets(mixin);
+  prulesetList2 = getLessStylesheet()->getParameterRulesets(mixin);
+  prulesetList1.insert(prulesetList1.end(),
+                       prulesetList2.begin(),prulesetList2.end());
+  return prulesetList1;
+}
+
 ValueProcessor* LessMediaQuery::getValueProcessor() {
   return getLessStylesheet()->getValueProcessor();
 }

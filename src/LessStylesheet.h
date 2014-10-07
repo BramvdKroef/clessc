@@ -51,8 +51,8 @@ public:
   virtual ValueProcessor* getValueProcessor();
   void putVariable(string key, TokenList* value);
 
-  LessRuleset* getLessRuleset(Selector* selector);
-  list<ParameterRuleset*> getParameterRulesets(ParameterMixin* mixin);
+  virtual LessRuleset* getLessRuleset(Selector* selector);
+  virtual list<ParameterRuleset*> getParameterRulesets(ParameterMixin* mixin);
 };
 
 #endif

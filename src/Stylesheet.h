@@ -155,7 +155,7 @@ public:
   vector<Ruleset*>* getRulesets();
   vector<StylesheetStatement*>* getStatements();
   
-  Ruleset* getRuleset(Selector* selector);
+  virtual Ruleset* getRuleset(Selector* selector);
 
   virtual void process(Stylesheet* s);
   virtual void write(CssWriter* writer);

@@ -339,7 +339,12 @@ body {
 @media (width: 400px) {
     .test6 {
         width: 400px;
+        color: @nice-blue;
+        .bordered;
+        .border-radius (10px);
+        .test(1px);
     }
+    .test(10px);
 }
 
 @name: "blocked";
@@ -378,6 +383,7 @@ body {
 }
 
 .recursive-mixin(3);
+
 
 /* Multiline comment ending with * at the end of the file */
 /*
