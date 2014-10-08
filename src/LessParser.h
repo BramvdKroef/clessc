@@ -31,6 +31,7 @@
 #include "LessTokenizer.h"
 #include "LessStylesheet.h"
 #include "LessMediaQuery.h"
+#include "MediaQueryRuleset.h"
 
 #include <iostream>
 #include <fstream>
@@ -92,7 +93,11 @@ protected:
                      Selector* selector = NULL,
                      LessRuleset* parent = NULL);
 
-  bool parseRulesetVariable (LessRuleset* ruleset);
+  void parseRulesetStatements (LessStylesheet* stylesheet,
+                               LessRuleset* ruleset);
+
+  void parseMediaQueryRuleset(LessStylesheet* stylesheet,
+                              LessRuleset* parent);
   bool parseRulesetStatement (UnprocessedStatement* statement);
 
   

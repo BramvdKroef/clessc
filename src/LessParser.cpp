@@ -213,7 +213,6 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
   ParameterRuleset* pruleset = NULL;
   list<string> parameters;
   list<string>::iterator pit;
-  UnprocessedStatement* statement = new UnprocessedStatement();  
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
     return false;
@@ -248,23 +247,7 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
       parent->addNestedRule(ruleset);
   }    
 
-  while (parseRulesetVariable(ruleset) ||
-         parseRulesetStatement(statement)) {
-
-    if (!statement->getTokens()->empty()) {
-      // a selector followed by a ruleset is a nested rule
-      if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
-        parseRuleset(stylesheet, statement->getTokens()->clone(), ruleset);
-        delete statement;
-        
-      } else
-        ruleset->addStatement(statement);
-    
-      statement = new UnprocessedStatement();
-    }
-  }
-  delete statement;
-
+  parseRulesetStatements(stylesheet, ruleset);
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken()->str,
@@ -278,26 +261,81 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
   return true;
 }
 
-bool LessParser::parseRulesetVariable (LessRuleset* ruleset) {
+void LessParser::parseRulesetStatements (LessStylesheet* stylesheet,
+                                         LessRuleset* ruleset) {
   string keyword;
   TokenList value;
-
-  if (tokenizer->getTokenType() != Token::ATKEYWORD)
-    return false;
+  UnprocessedStatement* statement = new UnprocessedStatement();
   
-  keyword = tokenizer->getToken()->str;
-  tokenizer->readNextToken();
-  skipWhitespace();
+  while (true) {
+    if (tokenizer->getTokenType() == Token::ATKEYWORD) {
+      keyword = tokenizer->getToken()->str;
+      tokenizer->readNextToken();
+      skipWhitespace();
       
-  if (parseVariable(&value) == false) {
+      if (parseVariable(&value)) {
+        ruleset->putVariable(keyword, value.clone());
+        value.clear();
+        
+      } else if (keyword == "@media") {
+        parseMediaQueryRuleset(stylesheet, ruleset);
+          
+      } else {
+        throw new ParseException(tokenizer->getToken()->str,
+                                 "Variable declaration after keyword.",
+                                 tokenizer->getLineNumber(),
+                                 tokenizer->getColumn());
+      }
+
+      
+    } else if (parseRulesetStatement(statement)) {
+      // a selector followed by a ruleset is a nested rule
+      if (tokenizer->getTokenType() == Token::BRACKET_OPEN) {
+        parseRuleset(stylesheet, statement->getTokens()->clone(), ruleset);
+        delete statement;
+        
+      } else
+        ruleset->addStatement(statement);
+    
+      statement = new UnprocessedStatement();
+    } else 
+      break;
+  }
+  delete statement;
+}
+
+void LessParser::parseMediaQueryRuleset(LessStylesheet* stylesheet,
+                                        LessRuleset* parent) {
+
+  MediaQueryRuleset* query = new MediaQueryRuleset();
+  Selector* selector = new Selector();
+  selector->push(new Token("@media", Token::ATKEYWORD));
+  selector->push(new Token(" ", Token::WHITESPACE));
+
+  parseSelector(selector);
+  query->setSelector(selector);
+  skipWhitespace();
+  parent->addNestedRule(query);
+  
+  if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken()->str,
-                             "Variable declaration after keyword.",
+                             "{",
                              tokenizer->getLineNumber(),
                              tokenizer->getColumn());
-
   }
-  ruleset->putVariable(keyword, value.clone());
-  return true;
+  tokenizer->readNextToken();
+  skipWhitespace();
+
+  parseRulesetStatements(stylesheet, query);
+
+  if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
+    throw new ParseException(tokenizer->getToken()->str,
+                             "end of media query block ('}')",
+                             tokenizer->getLineNumber(),
+                             tokenizer->getColumn());
+  }
+  tokenizer->readNextToken();
+  skipWhitespace();
 }
 
 bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {

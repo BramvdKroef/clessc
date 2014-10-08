@@ -70,7 +70,7 @@ void LessRuleset::putVariable(string key, TokenList* value) {
 map<string, TokenList*>* LessRuleset::getVariables() {
   return &variables;
 }
-
+ 
 void LessRuleset::setParent(LessRuleset* r) {
   parent = r;
 }
@@ -130,11 +130,16 @@ void LessRuleset::insert(Stylesheet* s) {
 }
 
 void LessRuleset::process(Stylesheet* s) {
+  process(s, NULL);
+}
+void LessRuleset::process(Stylesheet* s, Selector* prefix) {
   Ruleset* target = new Ruleset();
-  DLOG(INFO) << "Processing Less Ruleset: " << *getSelector()->toString();
   target->setSelector(getSelector()->clone());
+  if (prefix != NULL)
+    target->getSelector()->addPrefix(prefix);
 
-  DLOG(INFO) << "Interpolating selector " << *target->getSelector()->toString();
+  DLOG(INFO) << "Processing Less Ruleset: " << *getSelector()->toString();
+
   getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
 
   s->addStatement(target);
@@ -153,23 +158,9 @@ void LessRuleset::processVariables() {
 void LessRuleset::insertNestedRules(Stylesheet* s, Selector* prefix) {
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
-  LessRuleset* nestedRule;
-  Selector* oldSelector;
 
   for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
-    nestedRule = *r_it;
-
-    if (prefix != NULL) {
-      oldSelector = nestedRule->getSelector()->clone();
-      nestedRule->getSelector()->addPrefix(prefix);
-    }
-
-    nestedRule->process(s);
-    DLOG(INFO) << "Processed nested rule";
-    if (prefix != NULL) {
-      delete nestedRule->getSelector();
-      nestedRule->setSelector(oldSelector);
-    }
+    (*r_it)->process(s, prefix);
   }
 }
 

@@ -343,6 +343,10 @@ body {
         .bordered;
         .border-radius (10px);
         .test(1px);
+
+        .test7 {
+            width: 100px;
+        }
     }
     .test(10px);
 }
@@ -384,6 +388,15 @@ body {
 
 .recursive-mixin(3);
 
+.test8 {
+    @media screen {
+        width: 300px;
+
+        @media print {
+            color: #000;
+        }
+    }
+}
 
 /* Multiline comment ending with * at the end of the file */
 /*

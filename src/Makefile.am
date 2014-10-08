@@ -12,7 +12,7 @@ ParseException.cpp ParseException.h Selector.h Stylesheet.h Token.h	\
 TokenList.h ParameterMixin.cpp ParameterMixin.h				\
 UnprocessedStatement.cpp UnprocessedStatement.h LessStylesheet.cpp	\
 LessStylesheet.h LessRuleset.cpp LessRuleset.h LessMediaQuery.h		\
-LessMediaQuery.cpp							\
+LessMediaQuery.cpp MediaQueryRuleset.h MediaQueryRuleset.cpp		\
 									\
 value/Value.cpp value/Color.cpp value/StringValue.cpp			\
 value/NumberValue.cpp value/UnitValue.cpp value/BooleanValue.cpp	\

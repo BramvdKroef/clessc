@@ -54,7 +54,7 @@ public:
 
   void putVariable(string key, TokenList* value);
   map<string, TokenList*>* getVariables();
-  
+
   void setParent(LessRuleset* r);
   LessRuleset* getParent();
 
@@ -65,6 +65,7 @@ public:
   virtual void insert(Stylesheet* s);
 
   virtual void process(Stylesheet* s);
+  virtual void process(Stylesheet* s, Selector* prefix);
   
   void processVariables();
   void insertNestedRules(Stylesheet* s, Selector* prefix);
