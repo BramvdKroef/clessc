@@ -23,26 +23,29 @@
 
 
 ParseException::ParseException(string found, string& expected,
-                               unsigned int line, unsigned int column){
+                               unsigned int line, unsigned int column,
+                               string source){
   err.append("Found \"");
   err.append(translate(found));
   err.append("\" when expecting ");
   err.append(expected);
   setLocation(line, column);
-  source = "";
+  this->source = source;
 }
 
 ParseException::ParseException(string found, const char* expected,
-                               unsigned int line, unsigned int column){
+                               unsigned int line, unsigned int column,
+                               string source){
   err.append("Found \"");
   err.append(translate(found));
   err.append("\" when expecting ");
   err.append(expected);
   setLocation(line, column);
-  source = "";
+  this->source = source;
 }
 ParseException::ParseException(const char* found, const char* expected,
-                               unsigned int line, unsigned int column){
+                               unsigned int line, unsigned int column,
+                               string source){
   err.append("Found \"");
   if (found[0] == -1)
     err.append("end of file");
@@ -51,7 +54,7 @@ ParseException::ParseException(const char* found, const char* expected,
   err.append("\" when expecting ");
   err.append(expected);
   setLocation(line, column);
-  source = "";
+  this->source = source;
 }
 
 void ParseException::setLocation(unsigned int line, unsigned int column) {

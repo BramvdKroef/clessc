@@ -66,7 +66,7 @@ void UnprocessedStatement::insert(Stylesheet* s) {
   
   // process mixin
   if (mixin.parse(getTokens()))
-    mixin.insert(s, NULL);
+    mixin.insert(s, NULL, getLessRuleset());
 }
 
 void UnprocessedStatement::process(Ruleset* r) {
@@ -79,7 +79,7 @@ void UnprocessedStatement::process(Ruleset* r) {
   
   // process mixin
   if (mixin.parse(getTokens()) &&
-      mixin.insert(r->getStylesheet(), r)) {
+      mixin.insert(r->getStylesheet(), r, getLessRuleset())) {
 
   } else if (processDeclaration(&declaration)) {
     DLOG(INFO) << "Declaration: " <<
@@ -95,7 +95,7 @@ void UnprocessedStatement::process(Ruleset* r) {
   } else {
     throw new ParseException(*getTokens()->toString(),
                              "variable, mixin or declaration.",
-                             line, column);
+                             line, column, source);
   }
 
   DLOG(INFO) << "Statement done";

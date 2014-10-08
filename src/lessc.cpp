@@ -58,8 +58,8 @@ void usage () {
 }
 
 
-Stylesheet* processInput(istream* in){
-  LessTokenizer tokenizer(in);
+Stylesheet* processInput(istream* in, string source){
+  LessTokenizer tokenizer(in, source);
   LessParser parser(&tokenizer);
   LessStylesheet s;
   Stylesheet* css = new Stylesheet();
@@ -95,6 +95,7 @@ int main(int argc, char * argv[]){
   istream* in = &cin;
   ostream* out = &cout;
   bool formatoutput = false;
+  string source = "-";
   
   FLAGS_logtostderr = 1;
   google::InitGoogleLogging(argv[0]);
@@ -121,11 +122,12 @@ int main(int argc, char * argv[]){
     if(argc - optind >= 1){
       DLOG(INFO) << argv[optind];
       in = new ifstream(argv[optind]);
+      source = argv[optind];
       if (in->fail() || in->bad())
         throw new IOException("Error opening file");
     }
     
-    s = processInput(in);
+    s = processInput(in, source);
     if (s != NULL) {
       writeOutput(out, s, formatoutput);
       delete s;

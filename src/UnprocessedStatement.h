@@ -39,6 +39,7 @@ protected:
 public:
   size_t property_i;
 
+  string source;
   unsigned int line, column;
     
   UnprocessedStatement();

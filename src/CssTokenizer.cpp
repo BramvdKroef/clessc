@@ -21,10 +21,11 @@
 
 #include "CssTokenizer.h"
 
-CssTokenizer::CssTokenizer(istream* in){
+CssTokenizer::CssTokenizer(istream* in, string source){
   this->in = in;
   line = 1;
   column = 0;
+  this->source = source;
   readChar();
 }
 
@@ -77,7 +78,8 @@ Token::Type CssTokenizer::readNextToken(){
     if (!readName()) {
       throw new ParseException(&lastRead,
                                "name following '#'",
-                               getLineNumber(), getColumn());
+                               getLineNumber(), getColumn(),
+                               getSource());
     }
     break;
     
@@ -343,7 +345,8 @@ bool CssTokenizer::readString() {
       throw new ParseException("end of line",
                                "end of string",
                                getLineNumber(),
-                               getColumn());
+                               getColumn(),
+                               getSource());
     } else if (lastReadEq('\\'))
       // note that even though readEscape() returns false it still
       // eats the '\'.
@@ -356,7 +359,8 @@ bool CssTokenizer::readString() {
   throw new ParseException("end of input",
                            "end of string",
                            getLineNumber(),
-                           getColumn());
+                           getColumn(),
+                           getSource());
   return false;
 }
 
@@ -409,7 +413,8 @@ bool CssTokenizer::readUrl() {
       throw new ParseException(&lastRead,
                                "end of url (')')",
                                getLineNumber(),
-                               getColumn());
+                               getColumn(),
+                               getSource());
     }
   }
 
@@ -424,7 +429,8 @@ bool CssTokenizer::readUrl() {
         throw new ParseException(&lastRead,
                                  "end of url (')')",
                                  getLineNumber(),
-                                 getColumn());
+                                 getColumn(),
+                                 getSource());
       }
     } else if (in != NULL && urlchars.find(lastRead)) {
       currentToken.add(lastRead);
@@ -434,13 +440,15 @@ bool CssTokenizer::readUrl() {
       throw new ParseException(&lastRead,
                                "end of url (')')",
                                getLineNumber(),
-                               getColumn());
+                               getColumn(),
+                               getSource());
     }
   }
   throw new ParseException(&lastRead,
                            "end of url (')')",
                            getLineNumber(),
-                           getColumn());
+                           getColumn(),
+                           getSource());
   return false;
 }
 
@@ -468,7 +476,8 @@ bool CssTokenizer::readComment () {
   throw new ParseException(&lastRead,
                            "end of comment (*/)",
                            getLineNumber(),
-                           getColumn());
+                           getColumn(),
+                           getSource());
   return false;
 }
 
@@ -505,6 +514,9 @@ unsigned int CssTokenizer::getLineNumber(){
 }
 unsigned int CssTokenizer::getColumn(){
   return column;
+}
+string CssTokenizer::getSource() {
+  return source;
 }
 
 bool CssTokenizer::lastReadEq(char c) {

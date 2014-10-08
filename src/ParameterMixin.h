@@ -40,7 +40,7 @@ public:
   ParameterMixin(Selector* name, list<TokenList*>* arguments);
   virtual ~ParameterMixin() ;
 
-  bool insert(Stylesheet* s, Ruleset* ruleset);
+  bool insert(Stylesheet* s, Ruleset* ruleset, LessRuleset* parent);
   bool parse(Selector* selector);
 
   virtual void setStylesheet(LessStylesheet* stylesheet);

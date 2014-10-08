@@ -47,7 +47,8 @@ bool ParameterMixin::parse(Selector* selector) {
   return true;
 }
 
-bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset) {
+bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
+                            LessRuleset* parent) {
   Ruleset* mixinRuleset;
   LessRuleset* lessMixinRuleset;
 
@@ -62,16 +63,21 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset) {
 
   if (ruleset != NULL) {
     if ((mixinRuleset = getStylesheet()->getRuleset(name)) != NULL) {
-      DLOG(INFO) << "Mixin Ruleset: " << *mixinRuleset->getSelector()->toString();
-      mixinRuleset->insert(ruleset);
-      ret = true;
+      // a ruleset can't call itself
+      if (mixinRuleset != parent) {
+        DLOG(INFO) << "Mixin Ruleset: " << *mixinRuleset->getSelector()->toString();
+        mixinRuleset->insert(ruleset);
+        ret = true;
+      }
     }
 
     // the mixin is not in a ruleset then only insert nested rules
   } else if ((lessMixinRuleset = getLessStylesheet()->getLessRuleset(name)) != NULL) {
-    DLOG(INFO) << "Mixin Ruleset: " << *lessMixinRuleset->getSelector()->toString();
-    lessMixinRuleset->insert(s);
-    ret = true;
+    if (lessMixinRuleset != parent) {
+      DLOG(INFO) << "Mixin Ruleset: " << *lessMixinRuleset->getSelector()->toString();
+      lessMixinRuleset->insert(s);
+      ret = true;
+    }
   }
 
   for (arg_i = arguments->begin(); arg_i != arguments->end(); arg_i++) {
@@ -107,7 +113,7 @@ LessStylesheet* ParameterMixin::getLessStylesheet() {
 
 
 void ParameterMixin::process(Stylesheet* s) {
-  insert(s, NULL);
+  insert(s, NULL, NULL);
 }
 
 void ParameterMixin::parseArguments(TokenListIterator* tli) {

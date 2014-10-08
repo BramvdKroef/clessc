@@ -61,7 +61,8 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
       throw new ParseException(tokenizer->getToken()->str,
                                "a declaration block ('{...}') following selector",
                                tokenizer->getLineNumber(),
-                               tokenizer->getColumn());
+                               tokenizer->getColumn(),
+                               tokenizer->getSource());
     }
     
   } else {
@@ -101,7 +102,8 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet* stylesheet) {
         throw new ParseException(tokenizer->getToken()->str,
                                  "delimiter (';') at end of @-rule",
                                  tokenizer->getLineNumber(),
-                                 tokenizer->getColumn());
+                                 tokenizer->getColumn(),
+                                 tokenizer->getSource());
       }
       tokenizer->readNextToken();
       skipWhitespace();
@@ -113,7 +115,8 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet* stylesheet) {
         throw new ParseException(*rule->toString(), "A string with the \
 file path",
                                  tokenizer->getLineNumber(),
-                                 tokenizer->getColumn());
+                                 tokenizer->getColumn(),
+                                 tokenizer->getSource());
       import = rule->front()->str;
       DLOG(INFO) << "Import filename: " << import;
       if (import.size() < 5 ||
@@ -144,13 +147,15 @@ bool LessParser::parseVariable (TokenList* value) {
     throw new ParseException(tokenizer->getToken()->str,
                              "value for variable",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   }
   if (tokenizer->getTokenType() != Token::DELIMITER) {
     throw new ParseException(tokenizer->getToken()->str,
                              "delimiter (';') at end of @-rule",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   }
   tokenizer->readNextToken();
   skipWhitespace();
@@ -185,14 +190,16 @@ bool LessParser::parseSelectorVariable(Selector* selector) {
                                  "Variable inside selector (e.g.: \
 @{identifier})",
                                  tokenizer->getLineNumber(),
-                                 tokenizer->getColumn());
+                                 tokenizer->getColumn(),
+                                 tokenizer->getSource());
       back.append(tokenizer->getToken()->str);
       
       if (tokenizer->readNextToken() != Token::BRACKET_CLOSED)
         throw new ParseException(tokenizer->getToken()->str,
                                  "Closing bracket after variable.",
                                  tokenizer->getLineNumber(),
-                                 tokenizer->getColumn());
+                                 tokenizer->getColumn(),
+                                 tokenizer->getSource());
 
       back.append(tokenizer->getToken()->str);
       tokenizer->readNextToken();
@@ -234,6 +241,7 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
     } catch (ParseException* e) {
       e->setLocation(tokenizer->getLineNumber(),
                      tokenizer->getColumn());
+      e->setSource(tokenizer->getSource());
       throw e;
     }
     
@@ -253,7 +261,8 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
     throw new ParseException(tokenizer->getToken()->str,
                              "end of declaration block ('}')",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   } 
   tokenizer->readNextToken();
   skipWhitespace();
@@ -284,7 +293,8 @@ void LessParser::parseRulesetStatements (LessStylesheet* stylesheet,
         throw new ParseException(tokenizer->getToken()->str,
                                  "Variable declaration after keyword.",
                                  tokenizer->getLineNumber(),
-                                 tokenizer->getColumn());
+                                 tokenizer->getColumn(),
+                                 tokenizer->getSource());
       }
 
       
@@ -321,7 +331,8 @@ void LessParser::parseMediaQueryRuleset(LessStylesheet* stylesheet,
     throw new ParseException(tokenizer->getToken()->str,
                              "{",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   }
   tokenizer->readNextToken();
   skipWhitespace();
@@ -332,7 +343,8 @@ void LessParser::parseMediaQueryRuleset(LessStylesheet* stylesheet,
     throw new ParseException(tokenizer->getToken()->str,
                              "end of media query block ('}')",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   }
   tokenizer->readNextToken();
   skipWhitespace();
@@ -341,6 +353,7 @@ void LessParser::parseMediaQueryRuleset(LessStylesheet* stylesheet,
 bool LessParser::parseRulesetStatement (UnprocessedStatement* statement) {
   statement->line = tokenizer->getLineNumber();
   statement->column = tokenizer->getColumn();
+  statement->source = tokenizer->getSource();
   
   parseProperty(statement->getTokens());
   statement->property_i = statement->getTokens()->size();
@@ -370,24 +383,19 @@ void LessParser::importFile(string filename, LessStylesheet* stylesheet) {
   if (in.fail() || in.bad())
     throw new ParseException(filename, "existing file",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   DLOG(INFO) << "Opening: " << filename;
-  LessTokenizer tokenizer(&in);
+  LessTokenizer tokenizer(&in, filename);
   LessParser parser(&tokenizer);
 
-  try {
-    DLOG(INFO) << "Parsing";
-    parser.parseStylesheet(stylesheet);
-  } catch(ParseException* e) {
-    if (e->getSource() == "")
-      e->setSource(filename);
-    throw e;
-  }
+  DLOG(INFO) << "Parsing";
+  parser.parseStylesheet(stylesheet);
   in.close();
 }
 
-void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) {
-  LessMediaQuery* query = new LessMediaQuery();
+void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) { 
+ LessMediaQuery* query = new LessMediaQuery();
   Selector* s = new Selector();
   
   s->push(new Token("@media", Token::ATKEYWORD));
@@ -405,7 +413,8 @@ void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) {
     throw new ParseException(tokenizer->getToken()->str,
                              "{",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   }
   tokenizer->readNextToken();
   
@@ -418,7 +427,8 @@ void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) {
     throw new ParseException(tokenizer->getToken()->str,
                              "end of media query block ('}')",
                              tokenizer->getLineNumber(),
-                             tokenizer->getColumn());
+                             tokenizer->getColumn(),
+                             tokenizer->getSource());
   }
   tokenizer->readNextToken();
   skipWhitespace();
