@@ -69,11 +69,9 @@ Stylesheet* processInput(istream* in){
     parser.parseStylesheet(&s);
     s.process(css);
   } catch(ParseException* e) {
-    if (e->getSource() != "")
-      cerr << e->getSource() << ": ";
-    
-    LOG(ERROR) << "Line " << e->getLineNumber() << ", Column " << 
+    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what();
+
     return NULL;
   } catch(exception* e) {
     LOG(ERROR) << "Line " << tokenizer.getLineNumber() << ", Column " <<
