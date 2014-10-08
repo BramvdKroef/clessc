@@ -377,16 +377,14 @@ body {
     -x-mixin8: @y;
 }
 
-.recursive-mixin(@n) when (@n > 1) {
-    .recursive-mixin(@n - 1);
-}
-.recursive-mixin(@n) {
-    .test-@{n} {
-        n: @n;
-    }
+.loop(@counter) when (@counter > 0) {
+  .loop((@counter - 1));    // next iteration
+  width: (10px * @counter); // code for each iteration
 }
 
-.recursive-mixin(3);
+div {
+  .loop(5); // launch the loop
+}
 
 .test8 {
     @media screen {

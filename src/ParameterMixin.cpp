@@ -40,7 +40,7 @@ bool ParameterMixin::parse(Selector* selector) {
 
   while(this->name->back()->type == Token::WHITESPACE)
     delete this->name->pop();
-  
+
   parseArguments(itl);
   
   delete itl;
@@ -80,14 +80,17 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset) {
   }
   
   prulesetList = getLessStylesheet()->getParameterRulesets(this);
+
+  if (!prulesetList.empty())
+    ret = true;
   
   for (pri = prulesetList.begin(); pri != prulesetList.end();
        pri++) {
     pruleset = *pri;
     
     DLOG(INFO) << "Mixin: " << *pruleset->getSelector()->toString();
-
-    ret = pruleset->insert(arguments, ruleset, s) || ret;
+    
+    pruleset->insert(arguments, ruleset, s);
   }
 
   return ret;
