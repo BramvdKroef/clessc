@@ -49,6 +49,9 @@ void LessRuleset::setSelector(Selector* selector) {
   this->selector = new LessSelector(selector);
   Ruleset::setSelector(this->selector);
 }
+LessSelector* LessRuleset::getLessSelector() {
+  return selector;
+}
 
 void LessRuleset::addStatement(UnprocessedStatement* statement) {
   Ruleset::addStatement(statement);

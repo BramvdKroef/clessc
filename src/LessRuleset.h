@@ -53,6 +53,7 @@ public:
   virtual ~LessRuleset();
 
   virtual void setSelector(Selector* selector);
+  LessSelector* getLessSelector();
 
   virtual void addStatement (UnprocessedStatement* statement);
   list<UnprocessedStatement*>* getUnprocessedStatements();
