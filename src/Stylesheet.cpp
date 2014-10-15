@@ -258,13 +258,9 @@ void AtRule::write(CssWriter* writer) {
 }
   
 Stylesheet::~Stylesheet() {
-  while (!atrules.empty()) {
-    delete atrules.back();
-    atrules.pop_back();
-  }
-  while (!rulesets.empty()) {
-    delete rulesets.back();
-    rulesets.pop_back();
+  while (!statements.empty()) {
+    delete statements.back();
+    statements.pop_back();
   }
 }
 
@@ -306,7 +302,6 @@ Ruleset* Stylesheet::getRuleset(Selector* selector) {
   vector<Ruleset*>::iterator it;
 
   for (it = rulesets.begin(); it != rulesets.end(); it++) {
-    //DLOG(INFO) << *(*it)->getSelector()->toString();
     if ((*it)->getSelector()->equals(selector)) 
       return *it;
   }
@@ -316,12 +311,13 @@ Ruleset* Stylesheet::getRuleset(Selector* selector) {
 void Stylesheet::process(Stylesheet* s) {
   vector<StylesheetStatement*>* statements;
   vector<StylesheetStatement*>::iterator i;
-  DLOG(INFO) << "Processing stylesheet";
+  VLOG(2) << "Processing stylesheet";
   
   statements = getStatements();  
   for (i = statements->begin(); i != statements->end(); i++) {
     (*i)->process(s);
   }
+  VLOG(2) << "Done processing stylesheet";
 }
 
 void Stylesheet::write(CssWriter* writer) {

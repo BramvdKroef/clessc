@@ -162,7 +162,7 @@ pre { .wrap  }
 @base: 5%;
 @filler: @base * 2;
 @other: @base + @filler;
-@width: 10px;
+@width: -1px + 10px;
 @number: 10;
 @emUnits: 5em + unit(@width, em);
 
@@ -172,6 +172,14 @@ pre { .wrap  }
     border: @width * 2 solid black;
     height: 100% / 2 + @filler;
     top: @emUnits;
+
+/*    @scale: 4;
+    @defaultFontSize: 2;
+    @headerHeight: 75px;
+    
+    transform:rotate(45deg);
+    left:unit(-@defaultFontSize/2.2*@scale, px);
+    height:unit((@headerHeight-15)@scale, px);*/
 }
 
 /* Color Functions */
@@ -394,6 +402,17 @@ div {
             color: #000;
         }
     }
+}
+
+.test9:extends(.test10) {
+    color: #FFF;
+}
+.test10 {
+    background-color: #000;
+}
+.test11 {
+    &:extends(.test9);
+    width: 100px;
 }
 
 /* Multiline comment ending with * at the end of the file */

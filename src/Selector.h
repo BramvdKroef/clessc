@@ -36,11 +36,6 @@ public:
   void addPrefix(Selector* prefix);
 
   /**
-   * Trim whitespace from the front and back of the selector.
-   */
-  void trim();
-  
-  /**
    * If the selector contains commas then it is split up into multiple
    * selectors.
    * 
@@ -50,6 +45,7 @@ public:
   list<TokenList*>* split();
   virtual Selector* clone();
   virtual bool equals(TokenList* list);
+  size_t walk(TokenList* list, size_t offset = 0);
 };
 
 #endif

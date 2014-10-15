@@ -60,9 +60,9 @@ void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
     getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
   
     query->addStatement(target);
-    insert(target);
+    insert(NULL, target);
   } else
-    insert(query);
+    insert(NULL, query);
 }
 
 

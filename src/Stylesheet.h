@@ -96,7 +96,7 @@ public:
   Ruleset ();
   Ruleset(Selector* selector);
   virtual ~Ruleset();
-  void setSelector (Selector* selector);
+  virtual void setSelector (Selector* selector);
 
   virtual void addStatement (RulesetStatement* statement);
   virtual void addStatement(Declaration* declaration);

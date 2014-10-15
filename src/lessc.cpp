@@ -30,6 +30,7 @@
 #include "value/ValueProcessor.h"
 #include "CssWriter.h"
 #include "CssPrettyWriter.h"
+#include "ExtendCssWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
 #include "LessStylesheet.h"
@@ -58,44 +59,61 @@ void usage () {
 }
 
 
-Stylesheet* processInput(istream* in, string source){
+bool parseInput(LessStylesheet* stylesheet, istream* in, string source){
   LessTokenizer tokenizer(in, source);
   LessParser parser(&tokenizer);
-  LessStylesheet s;
-  Stylesheet* css = new Stylesheet();
   DLOG(INFO) << "Process input";
   
   try{
-    parser.parseStylesheet(&s);
-    s.process(css);
+    parser.parseStylesheet(stylesheet);
   } catch(ParseException* e) {
     LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what();
 
-    return NULL;
+    return false;
   } catch(exception* e) {
     LOG(ERROR) << "Line " << tokenizer.getLineNumber() << ", Column " <<
       tokenizer.getColumn() << " Error: " << e->what();
-    return NULL;
+    return false;
   }
   
-  return css;
+  return true;
 }
-void writeOutput (ostream* out, Stylesheet* stylesheet, bool format) {
-  CssWriter *w;
-  w = format ? new CssPrettyWriter(out) : new CssWriter(out);
+void writeOutput (ostream* out, LessStylesheet* stylesheet, bool format) {
+  Stylesheet css;
+  map<string,TokenList*> extensions;
+  CssWriter *w1, *w2;
+  w1 = format ? new CssPrettyWriter(out) : new CssWriter(out);
+
+  try{
+    stylesheet->process(&css);
+
+    stylesheet->getExtensions(&extensions);
+    
+  } catch(ParseException* e) {
+    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what();
+
+    return;
+  } catch(exception* e) {
+    LOG(ERROR) << "Error: " << e->what();
+    return;
+  }
+
+  w2 = new ExtendCssWriter(w1, &extensions);
   
-  stylesheet->write(w);
+  css.write(w2);
   *out << endl;
-  delete w;
+  delete w1;
+  delete w2;
 }
 
 int main(int argc, char * argv[]){
-  Stylesheet* s;
   istream* in = &cin;
   ostream* out = &cout;
   bool formatoutput = false;
   string source = "-";
+  LessStylesheet stylesheet;
   
   FLAGS_logtostderr = 1;
   google::InitGoogleLogging(argv[0]);
@@ -105,7 +123,7 @@ int main(int argc, char * argv[]){
     int c;
     DLOG(INFO) << "argc: " << argc;
 
-    while((c = getopt(argc, argv, ":o:hf")) != EOF) {
+    while((c = getopt(argc, argv, ":o:hfv:")) != EOF) {
       switch (c) {
       case 'h':
         usage();
@@ -115,6 +133,9 @@ int main(int argc, char * argv[]){
         break;
       case 'f':
         formatoutput = true;
+        break;
+      case 'v':
+        FLAGS_v = atoi(optarg);
         break;
       }
     }
@@ -127,10 +148,8 @@ int main(int argc, char * argv[]){
         throw new IOException("Error opening file");
     }
     
-    s = processInput(in, source);
-    if (s != NULL) {
-      writeOutput(out, s, formatoutput);
-      delete s;
+    if (parseInput(&stylesheet, in, source)) {
+        writeOutput(out, &stylesheet, formatoutput);
     } else
       return 1;
 

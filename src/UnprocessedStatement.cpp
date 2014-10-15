@@ -75,6 +75,10 @@ void UnprocessedStatement::process(Ruleset* r) {
 
   DLOG(INFO) << "Statement: " << *getTokens()->toString();
 
+  // skip if this is an extends() statement
+  if (isExtends()) 
+    return;
+  
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
   
   // process mixin
@@ -99,6 +103,53 @@ void UnprocessedStatement::process(Ruleset* r) {
   }
 
   DLOG(INFO) << "Statement done";
+}
+
+bool UnprocessedStatement::isExtends() {
+  return (getTokens()->front()->str == "&" &&
+          getTokens()->at(1)->type == Token::COLON &&
+          getTokens()->at(2)->type == Token::IDENTIFIER &&
+          getTokens()->at(2)->str == "extends" &&
+          getTokens()->at(3)->type == Token::PAREN_OPEN);
+}
+
+TokenList* UnprocessedStatement::getExtension() {
+  TokenList* list;
+  TokenListIterator* it;
+  int parentheses = 1;
+  
+  if (!isExtends())
+    return NULL;
+
+  list = new TokenList();
+  it = getTokens()->iterator(); 
+
+  it->next(); // &
+  it->next(); // :
+  it->next(); // extends
+  it->next(); // (
+  
+  while (it->hasNext() && parentheses > 0) {
+    
+    switch (it->next()->type) {
+    case Token::PAREN_OPEN:
+      parentheses++;
+      break;
+    case Token::PAREN_CLOSED:
+      parentheses--;
+      break;
+    default:
+      break;
+    }
+    if (parentheses > 0)
+      list->push(it->current()->clone());
+  }
+  delete it;
+
+  if (parentheses > 0) {
+    throw new ParseException("end of statement", ")", line, column, source);
+  }
+  return list;
 }
 
 bool UnprocessedStatement::processDeclaration (Declaration* declaration) {

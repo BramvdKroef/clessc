@@ -19,49 +19,33 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __UnprocessedStatement_h__
-#define __UnprocessedStatement_h__
+#ifndef __ExtendCssWriter_h__
+#define __ExtendCssWriter_h__
 
-#include "Stylesheet.h"
+#include "CssWriter.h"
 #include "TokenList.h"
-#include "value/ValueProcessor.h"
+#include <string>
+#include <map>
 
-class LessRuleset;
+using namespace std;
 
-class UnprocessedStatement: public RulesetStatement {
+class ExtendCssWriter: public CssWriter {
 private:
-  Selector tokens;
-  LessRuleset* lessRuleset;
-
-protected:
-  bool processDeclaration (Declaration* declaration);
+  CssWriter* writer;
+  map<string,TokenList*>* extensions;
   
 public:
-  size_t property_i;
+  ExtendCssWriter(CssWriter* writer,
+                    map<string,TokenList*>* extensions);
+  virtual ~ExtendCssWriter();
 
-  string source;
-  unsigned int line, column;
-    
-  UnprocessedStatement();
-  ~UnprocessedStatement() {}
-
-  Selector* getTokens();
-
-  void getProperty(TokenList* tokens);
-  void getValue(TokenList* tokens);
-
-  virtual void setRuleset(LessRuleset* r);
-  LessRuleset* getLessRuleset();
-
-  bool isExtends();
-  TokenList* getExtension();
-  
-  void insert(Stylesheet* s);
-    
-  virtual UnprocessedStatement* clone();
-  virtual void process(Ruleset* r) ;
-  virtual void write(CssWriter* css) {};
+  virtual void writeAtRule(string keyword, TokenList* rule);
+  virtual void writeRulesetStart(TokenList* selector);
+  virtual void writeRulesetEnd();
+  virtual void writeDeclaration(string property, TokenList* value);
+  virtual void writeDeclarationDeliminator();
+  virtual void writeMediaQueryStart(TokenList* selector);
+  virtual void writeMediaQueryEnd();
 };
-
-#endif
   
+#endif

@@ -151,6 +151,23 @@ void TokenList::unshift(TokenList* list) {
   delete it;
 }
 
+void TokenList::ltrim() {
+  while (!empty() &&
+         front()->type == Token::WHITESPACE) {
+    delete shift();
+  }
+}
+void TokenList::rtrim() {
+  while (!empty() &&
+         back()->type == Token::WHITESPACE) {
+    delete pop();
+  }
+}
+void TokenList::trim() {
+  ltrim();
+  rtrim();
+}
+
 void TokenList::clear() {
   while (!empty()) 
     delete pop();

@@ -217,9 +217,6 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
                                Selector* selector,
                                LessRuleset* parent) {
   LessRuleset* ruleset = NULL;
-  ParameterRuleset* pruleset = NULL;
-  list<string> parameters;
-  list<string>::iterator pit;
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN)
     return false;
@@ -228,33 +225,14 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
   skipWhitespace();
 
   // Create the ruleset and parse ruleset statements.
-  // In case of a parameter ruleset the declaration values are not
-  // processed until later.
-  if (ParameterRuleset::isValid(selector)) {
-    if (parent != NULL)
-      selector->addPrefix(parent->getSelector());
-
-    DLOG(INFO) << "Parse: ParamaterRuleset: " << *selector->toString();    
-
-    try {
-      ruleset = pruleset = new ParameterRuleset(selector);
-    } catch (ParseException* e) {
-      e->setLocation(tokenizer->getLineNumber(),
-                     tokenizer->getColumn());
-      e->setSource(tokenizer->getSource());
-      throw e;
-    }
+  DLOG(INFO) << "Parse: Ruleset";
+  
+  ruleset = new LessRuleset(selector);
+  if (parent == NULL) 
+    stylesheet->addStatement(ruleset);
+  else
+    parent->addNestedRule(ruleset);
     
-    stylesheet->addParameterRuleset(pruleset);
-  } else {
-    DLOG(INFO) << "Parse: Ruleset";
-    ruleset = new LessRuleset(selector);
-    if (parent == NULL) 
-      stylesheet->addStatement(ruleset);
-    else
-      parent->addNestedRule(ruleset);
-  }    
-
   parseRulesetStatements(stylesheet, ruleset);
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {

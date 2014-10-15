@@ -39,9 +39,7 @@ public:
   virtual void setStylesheet(LessStylesheet* parent);
   LessStylesheet* getLessStylesheet();
 
-  virtual Ruleset* getRuleset(Selector* selector);
-  virtual LessRuleset* getLessRuleset(Selector* selector);
-  virtual list<ParameterRuleset*> getParameterRulesets(ParameterMixin* mixin);
+  virtual list<LessRuleset*> getLessRulesets(ParameterMixin* mixin);
   
   virtual ValueProcessor* getValueProcessor();
   virtual void process(Stylesheet* s);

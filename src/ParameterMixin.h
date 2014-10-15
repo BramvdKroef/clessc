@@ -24,8 +24,9 @@
 
 #include "Selector.h"
 #include "Stylesheet.h"
-#include "LessRuleset.h"
 
+class LessStylesheet;
+class LessRuleset;
 
 class ParameterMixin: public StylesheetStatement{
 private:

@@ -37,9 +37,7 @@ void Selector::addPrefix(Selector* prefix) {
   for (sepIt = sepParts->begin(); sepIt !=
          sepParts->end(); sepIt++) {
 
-    while (!(*sepIt)->empty() &&
-           (*sepIt)->front()->type == Token::WHITESPACE)
-      delete (*sepIt)->shift();
+    (*sepIt)->ltrim();
 
     if (!(*sepIt)->empty()) {
       if ((*sepIt)->front()->str == "&") 
@@ -110,20 +108,11 @@ Selector* Selector::clone() {
   return newtokens;
 }
 
-void Selector::trim() {
-  while (!empty() &&
-         back()->type == Token::WHITESPACE) {
-    delete pop();
-  }
-  while (!empty() &&
-         front()->type == Token::WHITESPACE) {
-    delete shift();
-  }
-}
 
 bool Selector::equals(TokenList* list) {
   TokenListIterator* it1, * it2;
-    
+  bool ret;
+  
   it1 = iterator();
   it2 = list->iterator();
 
@@ -144,6 +133,36 @@ bool Selector::equals(TokenList* list) {
         it2->next();
     }
   }
+  ret = !(it1->hasNext() || it2->hasNext());
+  delete it1;
+  delete it2;
+  return ret;
+}
 
-  return !(it1->hasNext() || it2->hasNext());
+size_t Selector::walk(TokenList* list, size_t offset) {
+  TokenListIterator* it = list->iterator();
+  
+  while (offset < size() && it->hasNext()) {
+    if (!at(offset)->equals(it->next())) {
+      delete it;
+      return 0;
+    }
+    offset++;
+    
+    if (offset < size() && at(offset)->str == ">") {
+      offset++;
+      if (offset < size() && at(offset)->type == Token::WHITESPACE)
+        offset++;
+    }
+    if (it->hasNext() && it->peek()->str == ">") {
+      it->next();
+      if (it->hasNext() && it->peek()->type == Token::WHITESPACE) 
+        it->next();
+    }
+  }
+  
+  if (it->hasNext())
+    offset = 0;
+  delete it;
+  return offset;
 }

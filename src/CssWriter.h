@@ -33,7 +33,8 @@ protected:
   ostream* out;
   
 public:
-CssWriter(ostream* out);
+  CssWriter();
+  CssWriter(ostream* out);
   virtual ~CssWriter();
   virtual void writeAtRule(string keyword, TokenList* rule);
   virtual void writeRulesetStart(TokenList* selector);

@@ -1,6 +1,6 @@
 #include "ParameterMixin.h"
 #include "LessStylesheet.h"
-#include "ParameterRuleset.h"
+#include "LessRuleset.h"
 
 #include <config.h>
 
@@ -49,57 +49,33 @@ bool ParameterMixin::parse(Selector* selector) {
 
 bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
                             LessRuleset* parent) {
-  Ruleset* mixinRuleset;
-  LessRuleset* lessMixinRuleset;
-
   list<TokenList*>::iterator arg_i;
-  list<ParameterRuleset*>::iterator pri;
-  list<ParameterRuleset*> prulesetList;
-  ParameterRuleset* pruleset;
+  list<LessRuleset*>::iterator i;
+  list<LessRuleset*> rulesetList;
+  LessRuleset* lessruleset;
 
-  bool ret = false;
-
-  DLOG(INFO) << "Mixin: \"" << *name->toString() << "\"";
-
-  if (ruleset != NULL) {
-    if ((mixinRuleset = getStylesheet()->getRuleset(name)) != NULL) {
-      // a ruleset can't call itself
-      if (mixinRuleset != parent) {
-        DLOG(INFO) << "Mixin Ruleset: " << *mixinRuleset->getSelector()->toString();
-        mixinRuleset->insert(ruleset);
-        ret = true;
-      }
-    }
-
-    // the mixin is not in a ruleset then only insert nested rules
-  } else if ((lessMixinRuleset = getLessStylesheet()->getLessRuleset(name)) != NULL) {
-    if (lessMixinRuleset != parent) {
-      DLOG(INFO) << "Mixin Ruleset: " << *lessMixinRuleset->getSelector()->toString();
-      lessMixinRuleset->insert(s);
-      ret = true;
-    }
-  }
-
+  VLOG(2) << "Mixin: \"" << *name->toString() << "\"";
+  
   for (arg_i = arguments->begin(); arg_i != arguments->end(); arg_i++) {
-    DLOG(INFO) << "Mixin Arg: " << *(*arg_i)->toString();
+    VLOG(3) << "Mixin Arg: " << *(*arg_i)->toString();
     getLessStylesheet()->getValueProcessor()->processValue(*arg_i);
   }
-  
-  prulesetList = getLessStylesheet()->getParameterRulesets(this);
 
-  if (!prulesetList.empty())
-    ret = true;
+  rulesetList = getLessStylesheet()->getLessRulesets(this);
   
-  for (pri = prulesetList.begin(); pri != prulesetList.end();
-       pri++) {
-    pruleset = *pri;
+  for (i = rulesetList.begin(); i != rulesetList.end();
+       i++) {
+    lessruleset = *i;
     
-    DLOG(INFO) << "Mixin: " << *pruleset->getSelector()->toString();
-    
-    pruleset->insert(arguments, ruleset, s);
+    VLOG(3) << "Mixin: " << *lessruleset->getSelector()->toString();
+
+    if (ruleset != NULL)
+      lessruleset->insert(arguments, ruleset);
+    else
+      lessruleset->insert(arguments, s);
   }
 
-  return ret;
+  return !rulesetList.empty();
 }
 
 void ParameterMixin::setStylesheet(LessStylesheet* s) {

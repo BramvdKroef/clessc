@@ -72,6 +72,21 @@ public:
   void unshift(TokenList* list);
 
   /**
+   * Trim whitespace tokens from the front of the selector.
+   */
+  void ltrim();
+
+  /**
+   * Trim whitespace tokens from the back of the selector.
+   */
+  void rtrim();
+
+  /**
+   * Trim whitespace tokens from the front and back of the selector.
+   */
+  void trim();
+  
+  /**
    * Delete all tokens in the list and remove them from the list.
    */
   void clear();

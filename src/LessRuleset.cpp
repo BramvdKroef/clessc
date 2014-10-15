@@ -31,10 +31,12 @@
 LessRuleset::LessRuleset() : Ruleset() {
   parent = NULL;
   lessStylesheet = NULL;
+  selector = NULL;
 }
-LessRuleset::LessRuleset(Selector* selector) : Ruleset(selector) {
+LessRuleset::LessRuleset(Selector* selector) : Ruleset() {
   parent = NULL;
   lessStylesheet = NULL;
+  setSelector(selector);
 }
 LessRuleset::~LessRuleset() {
   while (!nestedRules.empty()) {
@@ -42,7 +44,12 @@ LessRuleset::~LessRuleset() {
     nestedRules.pop_back();
   }
 }
-  
+
+void LessRuleset::setSelector(Selector* selector) {
+  this->selector = new LessSelector(selector);
+  Ruleset::setSelector(this->selector);
+}
+
 void LessRuleset::addStatement(UnprocessedStatement* statement) {
   Ruleset::addStatement(statement);
   statement->setRuleset(this);
@@ -88,52 +95,102 @@ LessStylesheet* LessRuleset::getLessStylesheet() {
   return lessStylesheet;
 }
 
-void LessRuleset::insert(Ruleset* target) {
-  map<string, TokenList*> scope;
-
-  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
-
-  DLOG(INFO) << "Inserting variables";
-  // set local variables
-  processVariables();
-
-  DLOG(INFO) << "Inserting statements";
-  // process statements
-  Ruleset::insert(target);
-
-  DLOG(INFO) << "Inserting nested rules";
-  // insert nested rules
-  insertNestedRules(target->getStylesheet(), target->getSelector());
+void LessRuleset::getExtensions(map<string, TokenList*>* extensions) {
+  map<string, TokenList*>::iterator e_it;
   
-  getLessStylesheet()->getValueProcessor()->popScope();
+  list<UnprocessedStatement*>::iterator s_it;
+  TokenList* extension;
+
+  for (e_it = selector->getExtensions()->begin();
+       e_it != selector->getExtensions()->end();
+       e_it++) {
+    extensions->insert(pair<string, TokenList*>
+                       (e_it->first,
+                        e_it->second->clone()));
+  }
+  
+  // look through statements for extensions
+  for(s_it = getUnprocessedStatements()->begin();
+      s_it != getUnprocessedStatements()->end();
+      s_it++) {
+    extension = (*s_it)->getExtension();
+    
+    if (extension != NULL) {
+      extensions->insert(pair<string, TokenList*>
+                         (*extension->toString(),
+                          getSelector()->clone()));
+      delete extension;
+    }
+  }
 }
 
-void LessRuleset::insert(Stylesheet* s) {
+bool LessRuleset::insert(list<TokenList*>* arguments, Ruleset* target) {
+  map<string, TokenList*> scope;
+  bool ret = false;
+  
+  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+
+  if (((arguments == NULL && !selector->needsArguments()) ||
+       putArguments(arguments)) &&
+      matchConditions()) {
+
+    DLOG(INFO) << "Inserting variables";
+    // set local variables
+    processVariables();
+
+    DLOG(INFO) << "Inserting statements";
+    // process statements
+    Ruleset::insert(target);
+
+    DLOG(INFO) << "Inserting nested rules";
+    // insert nested rules
+    insertNestedRules(target->getStylesheet(), target->getSelector());
+
+    ret = true;
+  }
+  getLessStylesheet()->getValueProcessor()->popScope();
+  return ret;
+}
+
+bool LessRuleset::insert(list<TokenList*>* arguments, Stylesheet* s) {
   map<string, TokenList*> scope;
   list<UnprocessedStatement*>* unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::iterator up_it;
-
-  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
-  // set local variables
-  processVariables();
-
-  // insert mixins
-  for (up_it = unprocessedStatements->begin();
-       up_it != unprocessedStatements->end();
-       up_it++) {
-    (*up_it)->insert(s);
-  }
-  // insert nested rules
-  insertNestedRules(s, NULL);
+  bool ret = false;
   
+  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+
+  if (((arguments == NULL && !selector->needsArguments()) ||
+       putArguments(arguments)) &&
+      matchConditions()) {
+
+    // set local variables
+    processVariables();
+
+    // insert mixins
+    for (up_it = unprocessedStatements->begin();
+         up_it != unprocessedStatements->end();
+         up_it++) {
+      (*up_it)->insert(s);
+    }
+    // insert nested rules
+    insertNestedRules(s, NULL);
+    ret = true;
+  }
   getLessStylesheet()->getValueProcessor()->popScope();
+  return ret;
 }
 
 void LessRuleset::process(Stylesheet* s) {
   process(s, NULL);
 }
 void LessRuleset::process(Stylesheet* s, Selector* prefix) {
-  Ruleset* target = new Ruleset();
+  Ruleset* target;
+
+  if (selector->needsArguments())
+    return;
+  
+  target = new Ruleset();
   target->setSelector(getSelector()->clone());
   if (prefix != NULL)
     target->getSelector()->addPrefix(prefix);
@@ -143,9 +200,39 @@ void LessRuleset::process(Stylesheet* s, Selector* prefix) {
   getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
 
   s->addStatement(target);
-  insert(target);
+  insert(NULL, target);
 }
 
+void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
+                                  ParameterMixin* mixin,
+                                  size_t selector_offset) {
+  list<LessRuleset*>* nestedRules = getNestedRules();
+  list<LessRuleset*>::iterator r_it;
+
+  selector_offset = mixin->name->walk(getSelector(), selector_offset);
+
+  if (selector_offset == 0)
+    return;
+
+  VLOG(2) << "Matching mixin " << *mixin->name->toString() <<
+    " against " << *getSelector()->toString();
+
+  while (selector_offset < mixin->name->size() &&
+         mixin->name->at(selector_offset)->type ==
+         Token::WHITESPACE) {
+    selector_offset++;
+  }
+
+  if (selector_offset == mixin->name->size()) {
+    if (selector->matchArguments(mixin->arguments))
+      rulesetList->push_back(this);
+
+  } else {   
+    for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+      (*r_it)->getLessRulesets(rulesetList, mixin, selector_offset);
+    }
+  }
+}
 
 void LessRuleset::processVariables() {
   map<string, TokenList*>::iterator it;
@@ -164,3 +251,68 @@ void LessRuleset::insertNestedRules(Stylesheet* s, Selector* prefix) {
   }
 }
 
+
+bool LessRuleset::matchConditions(){
+  list<TokenList*>* conditions = selector->getConditions();
+  list<TokenList*>::iterator cit;
+  TokenList* condition;
+
+  if (conditions->size() == 0)
+    return true;
+  
+  for(cit = conditions->begin(); cit != conditions->end(); cit++) {
+    condition = (*cit)->clone();
+    
+    if (getLessStylesheet()->getValueProcessor()->validateValue(condition)) {
+      delete condition;
+      return true;
+    } else
+      delete condition;
+  }
+  return false;
+}
+  
+bool LessRuleset::putArguments(list<TokenList*>* arguments) {
+  list<string>* parameters = selector->getParameters();
+  list<TokenList*>::iterator ait  = arguments->begin();
+  list<string>::iterator pit = parameters->begin();
+  TokenList* argsCombined = new TokenList();
+  TokenList* restVar = NULL;
+  TokenList* variable;
+
+  if (selector->unlimitedArguments() && selector->getRestIdentifier() != "")
+    restVar = new TokenList();
+  
+  // combine with parameter names and add to local scope
+  for(; pit != parameters->end(); pit++) {
+    if (ait != arguments->end()) {
+      getLessStylesheet()->putVariable(*pit, *ait);
+      argsCombined->push((*ait)->clone());
+      ait++;
+    } else {
+      variable = selector->getDefault(*pit);
+      if (variable == NULL) {
+        delete argsCombined;
+        return false;
+      }
+      getLessStylesheet()->putVariable(*pit, variable->clone());
+      argsCombined->push(variable->clone());
+    }
+    argsCombined->push(new Token(" ", Token::WHITESPACE));
+  }
+
+  argsCombined->trim();
+
+  if (restVar != NULL) {
+    while (ait != arguments->end()) {
+      restVar->push(*ait);
+      restVar->push(new Token(" ", Token::WHITESPACE));
+      ait++;
+    }
+    restVar->trim();
+    getLessStylesheet()->putVariable(selector->getRestIdentifier(), restVar);
+  }
+  
+  getLessStylesheet()->putVariable("@arguments", argsCombined);
+  return true;
+}

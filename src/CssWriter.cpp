@@ -21,6 +21,10 @@
 
 #include "CssWriter.h"
 
+CssWriter::CssWriter() {
+  out = NULL;
+}
+
 CssWriter::CssWriter(ostream* out) {
   this->out = out;
 }

@@ -27,6 +27,8 @@
 #include "ParseException.h"
 #include "value/ValueProcessor.h"
 #include "UnprocessedStatement.h"
+#include "LessSelector.h"
+#include "ParameterMixin.h"
 #include <map>
 #include <list>
 
@@ -40,11 +42,17 @@ protected:
   list<UnprocessedStatement*> unprocessedStatements;
   LessRuleset* parent;
   LessStylesheet* lessStylesheet;
+  LessSelector* selector;
+
+  void processVariables();
+  void insertNestedRules(Stylesheet* s, Selector* prefix);
   
 public:
   LessRuleset();
   LessRuleset(Selector* selector);
   virtual ~LessRuleset();
+
+  virtual void setSelector(Selector* selector);
 
   virtual void addStatement (UnprocessedStatement* statement);
   list<UnprocessedStatement*>* getUnprocessedStatements();
@@ -61,14 +69,19 @@ public:
   virtual void setStylesheet(LessStylesheet* stylesheet);
   LessStylesheet* getLessStylesheet();
 
-  virtual void insert(Ruleset* target);
-  virtual void insert(Stylesheet* s);
+  void getExtensions(map<string, TokenList*>* extensions);
+  
+  virtual bool insert(list<TokenList*>* arguments, Ruleset* target);
+  virtual bool insert(list<TokenList*>* arguments, Stylesheet* s);
 
   virtual void process(Stylesheet* s);
   virtual void process(Stylesheet* s, Selector* prefix);
   
-  void processVariables();
-  void insertNestedRules(Stylesheet* s, Selector* prefix);
+  void getLessRulesets(list<LessRuleset*>* rulesetList,
+                       ParameterMixin* mixin,
+                       size_t selector_offset);
+  bool matchConditions();
+  bool putArguments(list<TokenList*>* arguments);
 };
 
 #endif

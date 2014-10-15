@@ -23,27 +23,13 @@ LessStylesheet* LessMediaQuery::getLessStylesheet() {
   return parent;
 }
 
-Ruleset* LessMediaQuery::getRuleset(Selector* selector) {
-  Ruleset* r = Stylesheet::getRuleset(selector);
-  if (r == NULL)
-    r = getLessStylesheet()->getRuleset(selector);
-  return r;
-}
+list<LessRuleset*> LessMediaQuery::getLessRulesets(ParameterMixin* mixin) {
+  list<LessRuleset*> rulesetList1 = LessStylesheet::getLessRulesets(mixin);
+  list<LessRuleset*> rulesetList2 = getLessStylesheet()->getLessRulesets(mixin);
 
-LessRuleset* LessMediaQuery::getLessRuleset(Selector* selector) {
-  LessRuleset* r = LessStylesheet::getLessRuleset(selector);
-  if (r == NULL)
-    r = getLessStylesheet()->getLessRuleset(selector);
-  return r;
-}
-
-list<ParameterRuleset*> LessMediaQuery::getParameterRulesets(ParameterMixin* mixin) {
-  list<ParameterRuleset*> prulesetList1, prulesetList2;
-  prulesetList1 = LessStylesheet::getParameterRulesets(mixin);
-  prulesetList2 = getLessStylesheet()->getParameterRulesets(mixin);
-  prulesetList1.insert(prulesetList1.end(),
-                       prulesetList2.begin(),prulesetList2.end());
-  return prulesetList1;
+  rulesetList1.insert(rulesetList1.end(),
+                      rulesetList2.begin(), rulesetList2.end());
+  return rulesetList1;
 }
 
 ValueProcessor* LessMediaQuery::getValueProcessor() {

@@ -19,52 +19,51 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ParameterRuleset_h__
-#define __ParameterRuleset_h__
+#ifndef __LessSelector_h__
+#define __LessSelector_h__
 
-#include "Stylesheet.h"
-#include "LessRuleset.h"
+
 #include "Selector.h"
-#include "ParseException.h"
-#include "value/ValueProcessor.h"
-#include <map>
 
+#include <list>
 
-class ParameterRuleset: public LessRuleset {
+class LessSelector: public Selector {
 private:
-  string rest;
-  bool unlimitedArguments;
-  
-protected:
-  bool processParameter(Selector* selector);
-  void processConditions(Selector* selector);
-  
-public:
+  Selector* original;
+
+  map<string, TokenList*> extensions;
   list<string> parameters;
   list<TokenList*> defaults;
   list<TokenList*> conditions;
-  
-  static bool isValid(Selector* selector);
-  
-  ParameterRuleset(Selector* selector);
-  ~ParameterRuleset();
-  
-  void addParameter(string keyword, TokenList* value);
 
-  bool insert(list<TokenList*>* arguments,
-              Ruleset* target,
-              Stylesheet* s);
-  
-  TokenList* getDefault(string keyword);
-  list<string> getKeywords();
+  bool _unlimitedArguments;
+  bool _needsArguments;
+  string restIdentifier;
 
-  void addCondition(TokenList* condition);
+  TokenList* parseExtension(TokenList* selector);
+  bool parseArguments(TokenList* selector);
+  string determineDelimiter(TokenList* arguments);
+  bool validateArguments(TokenList* arguments, string delimiter);
+  bool parseParameter(TokenList* selector, string delimiter);
+  TokenList* parseDefaultValue(TokenList* arguments,
+                               string delimiter);
+  bool parseConditions (TokenList* selector);
   
+public:
+  LessSelector(Selector* original);
+  virtual ~LessSelector();
+
+  
+  map<string, TokenList*>* getExtensions();
+  list<string>* getParameters();
+  TokenList* getDefault(string parameter);
+
+  list<TokenList*>* getConditions();
   bool matchArguments(list<TokenList*>* arguments);
-  bool matchConditions();
-  
-  bool putArguments(list<TokenList*>* arguments);
 
+  bool needsArguments();
+  bool unlimitedArguments();
+  string getRestIdentifier();
   
 };
 
