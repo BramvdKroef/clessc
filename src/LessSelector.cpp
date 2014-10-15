@@ -92,14 +92,14 @@ TokenList* LessSelector::parseExtension(TokenList* selector) {
   if (selector->size() < 3 ||
       selector->front()->type != Token::COLON ||
       selector->at(1)->type != Token::IDENTIFIER ||
-      selector->at(1)->str != "extends" ||
+      selector->at(1)->str != "extend" ||
       selector->at(2)->type != Token::PAREN_OPEN)
     return NULL;
 
   extension = new TokenList();
 
   delete selector->shift(); // :
-  delete selector->shift(); // extends
+  delete selector->shift(); // extend
   delete selector->shift(); // (
 
   while(!selector->empty() && parentheses > 0) {

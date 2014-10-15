@@ -109,7 +109,7 @@ bool UnprocessedStatement::isExtends() {
   return (getTokens()->front()->str == "&" &&
           getTokens()->at(1)->type == Token::COLON &&
           getTokens()->at(2)->type == Token::IDENTIFIER &&
-          getTokens()->at(2)->str == "extends" &&
+          getTokens()->at(2)->str == "extend" &&
           getTokens()->at(3)->type == Token::PAREN_OPEN);
 }
 

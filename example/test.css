@@ -404,14 +404,14 @@ div {
     }
 }
 
-.test9:extends(.test10) {
+.test9:extend(.test10) {
     color: #FFF;
 }
 .test10 {
     background-color: #000;
 }
 .test11 {
-    &:extends(.test9);
+    &:extend(.test9);
     width: 100px;
 }
 
