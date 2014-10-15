@@ -69,10 +69,13 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
     
     VLOG(3) << "Mixin: " << *lessruleset->getSelector()->toString();
 
-    if (ruleset != NULL)
-      lessruleset->insert(arguments, ruleset);
-    else
-      lessruleset->insert(arguments, s);
+    if (parent == NULL || parent != lessruleset ||
+        lessruleset->getLessSelector()->needsArguments()) {
+      if (ruleset != NULL)
+        lessruleset->insert(arguments, ruleset);
+      else
+        lessruleset->insert(arguments, s);
+    }
   }
 
   return !rulesetList.empty();
