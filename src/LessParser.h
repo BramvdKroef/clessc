@@ -27,7 +27,6 @@
 #include "LessRuleset.h"
 #include "Token.h"
 #include "TokenList.h"
-#include "ParameterRuleset.h"
 #include "LessTokenizer.h"
 #include "LessStylesheet.h"
 #include "LessMediaQuery.h"
@@ -106,14 +105,6 @@ protected:
   bool parseVariable(string keyword, TokenList* value);
 
   
-  bool parseMixin(Selector* selector, Ruleset* ruleset,
-                  Stylesheet* stylesheet,
-                  ParameterRuleset* parent);
-  bool parseParameterMixin(Selector* selector,
-                           Ruleset* target,
-                           Stylesheet* stylesheet,
-                           ParameterRuleset* parent);
-
   void parseList(list<TokenList*>* list, TokenList* tokens);
   
   void importFile(string file, LessStylesheet* stylesheet);

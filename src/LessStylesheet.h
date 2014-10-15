@@ -25,7 +25,6 @@
 #include "Stylesheet.h"
 #include "TokenList.h"
 #include "LessRuleset.h"
-#include "ParameterRuleset.h"
 #include "ParameterMixin.h"
 #include "UnprocessedStatement.h"
 
