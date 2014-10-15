@@ -54,10 +54,15 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   list<LessRuleset*> rulesetList;
   LessRuleset* lessruleset;
 
+#ifdef WITH_LIBGLOG
   VLOG(2) << "Mixin: \"" << *name->toString() << "\"";
+#endif
   
   for (arg_i = arguments->begin(); arg_i != arguments->end(); arg_i++) {
+#ifdef WITH_LIBGLOG
     VLOG(3) << "Mixin Arg: " << *(*arg_i)->toString();
+#endif
+    
     getLessStylesheet()->getValueProcessor()->processValue(*arg_i);
   }
 
@@ -66,8 +71,10 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   for (i = rulesetList.begin(); i != rulesetList.end();
        i++) {
     lessruleset = *i;
-    
+
+#ifdef WITH_LIBGLOG
     VLOG(3) << "Mixin: " << *lessruleset->getSelector()->toString();
+#endif
 
     if (parent == NULL || parent != lessruleset ||
         lessruleset->getLessSelector()->needsArguments()) {

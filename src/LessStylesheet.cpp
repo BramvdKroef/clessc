@@ -19,19 +19,28 @@ void LessStylesheet::addStatement(AtRule* atrule) {
 }
 
 void LessStylesheet::addStatement(LessRuleset* ruleset) {
-  DLOG(INFO) << "Adding LessRuleset";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Adding LessRuleset";
+#endif
+  
   Stylesheet::addStatement(ruleset);
   lessrulesets.push_back(ruleset);
   ruleset->setStylesheet(this);
 }
 void LessStylesheet::addStatement(ParameterMixin* mixin) {
-  DLOG(INFO) << "Adding Parameter mixin";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Adding Parameter mixin";
+#endif
+  
   Stylesheet::addStatement(mixin);
   mixin->setStylesheet(this);
 }
 
 void LessStylesheet::addStatement(LessMediaQuery* query) {
-  DLOG(INFO) << "Adding Media Query";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Adding Media Query";
+#endif
+  
   Stylesheet::addStatement(query);
   query->setStylesheet(this);
 }
@@ -63,6 +72,9 @@ ValueProcessor* LessStylesheet::getValueProcessor() {
 }
 
 void LessStylesheet::putVariable(string key, TokenList* value) {
-  DLOG(INFO) << "Variable: " << key << ": " << *value->toString();
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Variable: " << key << ": " << *value->toString();
+#endif
+  
   getValueProcessor()->putVariable(key, value);
 }

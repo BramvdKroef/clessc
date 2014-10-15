@@ -63,7 +63,11 @@ list<UnprocessedStatement*>* LessRuleset::getUnprocessedStatements() {
 }
 
 void LessRuleset::addNestedRule(LessRuleset* nestedRule) {
-  DLOG(INFO) << "Adding nested rule: " << *nestedRule->getSelector()->toString();
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Adding nested rule: " <<
+    *nestedRule->getSelector()->toString();
+#endif
+  
   nestedRules.push_back(nestedRule);
   nestedRule->setParent(this);
   nestedRule->setStylesheet(getLessStylesheet());
@@ -89,7 +93,9 @@ LessRuleset* LessRuleset::getParent() {
 }
 
 void LessRuleset::setStylesheet(LessStylesheet* s) {
-  DLOG(INFO) << "set LessStylesheet";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "set LessStylesheet";
+#endif
   lessStylesheet = s;
   Ruleset::setStylesheet(s);
 }
@@ -137,15 +143,24 @@ bool LessRuleset::insert(list<TokenList*>* arguments, Ruleset* target) {
        putArguments(arguments)) &&
       matchConditions()) {
 
-    DLOG(INFO) << "Inserting variables";
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Inserting variables";
+#endif
+    
     // set local variables
     processVariables();
 
-    DLOG(INFO) << "Inserting statements";
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Inserting statements";
+#endif
+    
     // process statements
     Ruleset::insert(target);
 
-    DLOG(INFO) << "Inserting nested rules";
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Inserting nested rules";
+#endif
+    
     // insert nested rules
     insertNestedRules(target->getStylesheet(), target->getSelector());
 
@@ -198,7 +213,10 @@ void LessRuleset::process(Stylesheet* s, Selector* prefix) {
   if (prefix != NULL)
     target->getSelector()->addPrefix(prefix);
 
-  DLOG(INFO) << "Processing Less Ruleset: " << *getSelector()->toString();
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing Less Ruleset: " <<
+    *getSelector()->toString();
+#endif
 
   getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
 
@@ -217,9 +235,11 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
   if (selector_offset == 0)
     return;
 
-  VLOG(2) << "Matching mixin " << *mixin->name->toString() <<
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Matching mixin " << *mixin->name->toString() <<
     " against " << *getSelector()->toString();
-
+#endif
+  
   while (selector_offset < mixin->name->size() &&
          mixin->name->at(selector_offset)->type ==
          Token::WHITESPACE) {

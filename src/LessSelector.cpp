@@ -36,7 +36,10 @@ LessSelector::LessSelector(Selector* original) {
 
   _needsArguments = false;
   _unlimitedArguments = false;
+
+#ifdef WITH_LIBGLOG
   VLOG(2) << "Parsing less selector";
+#endif
   
   for (it = parts->begin(); it != parts->end(); it++) {
     old_selector = *it;
@@ -63,7 +66,10 @@ LessSelector::LessSelector(Selector* original) {
       push(new_selector->shift());
   }
 
-  VLOG(2) << "Parsed selector: " << *toString();    
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Parsed selector: " << *toString();
+#endif
+  
   delete new_selector;
 }
 
@@ -113,7 +119,11 @@ TokenList* LessSelector::parseExtension(TokenList* selector) {
   }
   if (!selector->empty())
     delete selector->shift();
+
+#ifdef WITH_LIBGLOG
   VLOG(2) << "Extension: " << *extension->toString();
+#endif
+  
   return extension;  
 }
 
@@ -124,7 +134,10 @@ bool LessSelector::parseArguments(TokenList* selector) {
     return false;
   
   delimiter = determineDelimiter(selector);
+
+#ifdef WITH_LIBGLOG
   VLOG(3) << "Parameter delimiter: " << delimiter;
+#endif
   
   if (!validateArguments(selector, delimiter))
     return false;
@@ -153,7 +166,11 @@ bool LessSelector::parseArguments(TokenList* selector) {
     throw new ParseException(*selector->toString(),
                              "matching parentheses.", 0, 0, "");
   }
+
+#ifdef WITH_LIBGLOG
   VLOG(3) << "Done parsing parameters";
+#endif
+  
   delete selector->shift();
   return true;
 }
@@ -235,7 +252,11 @@ bool LessSelector::validateArguments(TokenList* arguments, string delimiter) {
     delete i;
     return false;
   }
+
+#ifdef WITH_LIBGLOG
   VLOG(2) << "Validated parameters";
+#endif
+  
   return true;
 }
 
@@ -281,7 +302,10 @@ bool LessSelector::parseParameter(TokenList* selector, string delimiter) {
       selector->front()->str == delimiter)
     delete selector->shift();
 
-  VLOG(2) << "Parameter: " << keyword;
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Parameeter: " << keyword;
+#endif
+  
   parameters.push_back(keyword);
   defaults.push_back(value);
   return true;
@@ -320,7 +344,9 @@ bool LessSelector::parseConditions (TokenList* selector) {
       selector->front()->str != "when")
     return false;
 
+#ifdef WITH_LIBGLOG
   VLOG(3) << "Parsing conditions";
+#endif
   
   delete selector->shift();
 
@@ -335,7 +361,10 @@ bool LessSelector::parseConditions (TokenList* selector) {
     if (!selector->empty() && selector->front()->str == ",")
       delete selector->shift();
 
+#ifdef WITH_LIBGLOG
     VLOG(2) << "Condition: " << *condition->toString();
+#endif
+    
     conditions.push_back(condition);
   }
   return true;

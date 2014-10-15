@@ -30,9 +30,15 @@
  * Only allows LessStylesheets
  */
 void LessParser::parseStylesheet(LessStylesheet* stylesheet) {
-  DLOG(INFO) << "Parser Start";
+#ifdef WITH_LIBGLOG
+  VLOG(1) << "Parser Start";
+#endif
+  
   CssParser::parseStylesheet(stylesheet);
-  DLOG(INFO) << "Parser End";
+
+#ifdef WITH_LIBGLOG
+  VLOG(1) << "Parser End";
+#endif
 }
 
 bool LessParser::parseStatement(Stylesheet* stylesheet) {
@@ -40,7 +46,9 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
   ParameterMixin* mixin;
   
   if (parseSelector(selector) && !selector->empty()) {
-    DLOG(INFO) << "Parse: Selector: " << *selector->toString();
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Parse: Selector: " << *selector->toString();
+#endif
     
     if (parseRuleset((LessStylesheet*)stylesheet, selector))
       return true;
@@ -83,10 +91,14 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet* stylesheet) {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  DLOG(INFO) << "Parse: keyword: " << keyword;
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Parse: keyword: " << keyword;
+#endif
     
   if (parseVariable(&value)) {
-    DLOG(INFO) << "Parse: variable";
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Parse: variable";
+#endif
     stylesheet->putVariable(keyword, value.clone());
     
   } else {
@@ -118,7 +130,9 @@ file path",
                                  tokenizer->getColumn(),
                                  tokenizer->getSource());
       import = rule->front()->str;
-      DLOG(INFO) << "Import filename: " << import;
+#ifdef WITH_LIBGLOG
+      VLOG(2) << "Import filename: " << import;
+#endif
       if (import.size() < 5 ||
           import.substr(import.size() - 5, 4) != ".css") {
         if (import.size() < 6 || import.substr(import.size() - 6, 5) != ".less")
@@ -224,9 +238,11 @@ bool LessParser::parseRuleset (LessStylesheet* stylesheet,
   tokenizer->readNextToken();
   skipWhitespace();
 
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Parse: Ruleset";
+#endif
+
   // Create the ruleset and parse ruleset statements.
-  DLOG(INFO) << "Parse: Ruleset";
-  
   ruleset = new LessRuleset(selector);
   if (parent == NULL) 
     stylesheet->addStatement(ruleset);
@@ -363,11 +379,17 @@ void LessParser::importFile(string filename, LessStylesheet* stylesheet) {
                              tokenizer->getLineNumber(),
                              tokenizer->getColumn(),
                              tokenizer->getSource());
-  DLOG(INFO) << "Opening: " << filename;
+#ifdef WITH_LIBGLOG
+  VLOG(1) << "Opening: " << filename;
+#endif
+  
   LessTokenizer tokenizer(&in, filename);
   LessParser parser(&tokenizer);
 
-  DLOG(INFO) << "Parsing";
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Parsing";
+#endif
+  
   parser.parseStylesheet(stylesheet);
   in.close();
 }
@@ -383,7 +405,9 @@ void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) {
   parseSelector(s);
   query->setSelector(s);
 
-  DLOG(INFO) << *s->toString();
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Media query: " << *s->toString();
+#endif
 
   stylesheet->addStatement(query);
 

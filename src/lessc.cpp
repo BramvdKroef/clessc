@@ -62,18 +62,28 @@ void usage () {
 bool parseInput(LessStylesheet* stylesheet, istream* in, string source){
   LessTokenizer tokenizer(in, source);
   LessParser parser(&tokenizer);
-  DLOG(INFO) << "Process input";
   
   try{
     parser.parseStylesheet(stylesheet);
   } catch(ParseException* e) {
+#ifdef WITH_LIBGLOG
     LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what();
-
+#else
+    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what();
+#endif
+    
     return false;
+    
   } catch(exception* e) {
+#ifdef WITH_LIBGLOG
     LOG(ERROR) << "Line " << tokenizer.getLineNumber() << ", Column " <<
       tokenizer.getColumn() << " Error: " << e->what();
+#else
+    cerr << "Line " << tokenizer.getLineNumber() << ", Column " <<
+      tokenizer.getColumn() << " Error: " << e->what();
+#endif
     return false;
   }
   
@@ -91,12 +101,21 @@ void writeOutput (ostream* out, LessStylesheet* stylesheet, bool format) {
     stylesheet->getExtensions(&extensions);
     
   } catch(ParseException* e) {
+#ifdef WITH_LIBGLOG
     LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what();
+#else
+    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what();
+#endif
 
     return;
   } catch(exception* e) {
+#ifdef WITH_LIBGLOG
     LOG(ERROR) << "Error: " << e->what();
+#else
+    cerr << "Error: " << e->what();
+#endif
     return;
   }
 
@@ -114,14 +133,18 @@ int main(int argc, char * argv[]){
   bool formatoutput = false;
   string source = "-";
   LessStylesheet stylesheet;
-  
+
+#ifdef WITH_LIBGLOG
   FLAGS_logtostderr = 1;
   google::InitGoogleLogging(argv[0]);
-  DLOG(INFO) << "Start.";
+  VLOG(1) << "Start.";
+#endif
   
   try {
     int c;
-    DLOG(INFO) << "argc: " << argc;
+#ifdef WITH_LIBGLOG
+    VLOG(3) << "argc: " << argc;
+#endif
 
     while((c = getopt(argc, argv, ":o:hfv:")) != EOF) {
       switch (c) {
@@ -141,7 +164,10 @@ int main(int argc, char * argv[]){
     }
     
     if(argc - optind >= 1){
-      DLOG(INFO) << argv[optind];
+#ifdef WITH_LIBGLOG
+      VLOG(1) << argv[optind];
+#endif
+      
       in = new ifstream(argv[optind]);
       source = argv[optind];
       if (in->fail() || in->bad())
@@ -154,7 +180,11 @@ int main(int argc, char * argv[]){
       return 1;
 
   } catch (IOException* e) {
+#ifdef WITH_LIBGLOG
     LOG(ERROR) << " Error: " << e->what();
+#else
+    cerr << " Error: " << e->what();
+#endif
     return 1;
   }
 		

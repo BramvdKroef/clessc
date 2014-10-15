@@ -51,7 +51,10 @@ void UnprocessedStatement::getValue(TokenList* tokens) {
 }
 
 void UnprocessedStatement::setRuleset(LessRuleset* r) {
-  DLOG(INFO) << "Set LessRuleset";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Set LessRuleset";
+#endif
+  
   RulesetStatement::setRuleset(r);
   lessRuleset = r;
 }
@@ -73,8 +76,10 @@ void UnprocessedStatement::process(Ruleset* r) {
   ParameterMixin mixin;
   Declaration declaration;
 
-  DLOG(INFO) << "Statement: " << *getTokens()->toString();
-
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Statement: " << *getTokens()->toString();
+#endif
+  
   // skip if this is an extends() statement
   if (isExtends()) 
     return;
@@ -86,23 +91,31 @@ void UnprocessedStatement::process(Ruleset* r) {
       mixin.insert(r->getStylesheet(), r, getLessRuleset())) {
 
   } else if (processDeclaration(&declaration)) {
-    DLOG(INFO) << "Declaration: " <<
+    
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Declaration: " <<
       *declaration.getProperty() << ": " << *declaration.getValue()->toString();
+#endif
+    
     getLessRuleset()->getLessStylesheet()->
       getValueProcessor()->processValue(declaration.getValue());
 
     r->addStatement(declaration.clone());
 
-    DLOG(INFO) << "Processed declaration: " <<
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Processed declaration: " <<
       *declaration.getProperty() << ": " << *declaration.getValue()->toString();
-
+#endif
+    
   } else {
     throw new ParseException(*getTokens()->toString(),
                              "variable, mixin or declaration.",
                              line, column, source);
   }
 
-  DLOG(INFO) << "Statement done";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Statement done";
+#endif
 }
 
 bool UnprocessedStatement::isExtends() {
@@ -156,7 +169,9 @@ bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   TokenList property;
   TokenList* value = new TokenList();
 
-  DLOG(INFO) << "Declaration";
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Declaration";
+#endif
   
   getValue(value);
   

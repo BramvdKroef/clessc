@@ -38,7 +38,11 @@ void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
   Ruleset* target;
   MediaQuery* parent;
 
-  DLOG(INFO) << "Processing Less Ruleset: " << *getSelector()->toString();
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing Less Ruleset: " <<
+    *getSelector()->toString();
+#endif
+  
   query->setSelector(getSelector()->clone());
 
   parent = dynamic_cast<MediaQuery*>(s);
@@ -56,7 +60,10 @@ void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
     target = new Ruleset();
     target->setSelector(prefix->clone());
 
-    DLOG(INFO) << "Interpolating selector " << *target->getSelector()->toString();
+#ifdef WITH_LIBGLOG
+    VLOG(3) << "Interpolating selector " <<
+    *target->getSelector()->toString();
+#endif
     getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
   
     query->addStatement(target);

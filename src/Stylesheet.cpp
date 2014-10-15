@@ -75,8 +75,11 @@ Declaration* Declaration::clone() {
   return clone;
 }
 void Declaration::process(Ruleset* r) {
-  DLOG(INFO) << "Processing declaration " << *property << ": " <<
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing declaration " << *property << ": " <<
     *value->toString();
+#endif
+  
   r->addStatement(this->clone());
 }
 void Declaration::write(CssWriter* writer) {
@@ -194,7 +197,11 @@ void Ruleset::insert(Ruleset* target) {
 
 void Ruleset::process(Stylesheet* s) {
   Ruleset* target = new Ruleset();
-  DLOG(INFO) << "Processing Ruleset: " << *getSelector()->toString();
+
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing Ruleset: " << *getSelector()->toString();
+#endif
+  
   target->setSelector(getSelector()->clone());
   s->addStatement(target);
   insert(target);
@@ -247,9 +254,11 @@ void AtRule::process(Stylesheet* s) {
   AtRule* target = new AtRule(new string(*keyword));
   target->setRule(rule->clone());
 
-  DLOG(INFO) << "Processing @rule " << *this->getKeyword() << ": " <<
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing @rule " << *this->getKeyword() << ": " <<
     *this->getRule()->toString();
-
+#endif
+  
   s->addStatement(target);
 }
 
@@ -267,26 +276,32 @@ Stylesheet::~Stylesheet() {
 void Stylesheet::addStatement(StylesheetStatement* statement) {
   statements.push_back(statement);
   statement->setStylesheet(this);
-  DLOG(INFO) << "Adding statement";
+  
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Adding statement";
+#endif
 }
 
 void Stylesheet::addStatement(Ruleset* ruleset) {
-  DLOG(INFO) << "Adding ruleset: " <<
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Adding ruleset: " <<
     *ruleset->getSelector()->toString();
-
+#endif
+  
   addStatement((StylesheetStatement*)ruleset);
   rulesets.push_back(ruleset);
 }
 
 void Stylesheet::addStatement(AtRule* atrule) {
-  DLOG(INFO) << "Adding @rule: " << 
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Adding @rule: " << 
     *atrule->getKeyword() << ": " <<
     *atrule->getRule()->toString();
-
+#endif
+  
   addStatement((StylesheetStatement*)atrule);
   atrules.push_back(atrule);
 }
-
 
 vector<AtRule*>* Stylesheet::getAtRules() {
   return &atrules;
@@ -311,13 +326,19 @@ Ruleset* Stylesheet::getRuleset(Selector* selector) {
 void Stylesheet::process(Stylesheet* s) {
   vector<StylesheetStatement*>* statements;
   vector<StylesheetStatement*>::iterator i;
-  VLOG(2) << "Processing stylesheet";
+
+#ifdef WITH_LIBGLOG
+  VLOG(1) << "Processing stylesheet";
+#endif
   
   statements = getStatements();  
   for (i = statements->begin(); i != statements->end(); i++) {
     (*i)->process(s);
   }
-  VLOG(2) << "Done processing stylesheet";
+
+#ifdef WITH_LIBGLOG
+  VLOG(1) << "Done processing stylesheet";
+#endif
 }
 
 void Stylesheet::write(CssWriter* writer) {
@@ -339,7 +360,11 @@ void MediaQuery::setSelector(Selector* s) {
 
 void MediaQuery::process(Stylesheet* s) {
   MediaQuery* query = new MediaQuery();
-  DLOG(INFO) << "Processing media query " << *getSelector()->toString();
+
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing media query " << *getSelector()->toString();
+#endif
+  
   query->setSelector(getSelector()->clone());
   s->addStatement(query);
   
