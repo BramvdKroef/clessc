@@ -58,6 +58,11 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   VLOG(2) << "Mixin: \"" << *name->toString() << "\"";
 #endif
   
+  rulesetList = getLessStylesheet()->getLessRulesets(this);
+
+  if (rulesetList.empty())
+    return false;
+  
   for (arg_i = arguments->begin(); arg_i != arguments->end(); arg_i++) {
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Mixin Arg: " << *(*arg_i)->toString();
@@ -66,8 +71,6 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
     getLessStylesheet()->getValueProcessor()->processValue(*arg_i);
   }
 
-  rulesetList = getLessStylesheet()->getLessRulesets(this);
-  
   for (i = rulesetList.begin(); i != rulesetList.end();
        i++) {
     lessruleset = *i;
