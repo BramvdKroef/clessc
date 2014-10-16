@@ -86,10 +86,10 @@ Token::Type CssTokenizer::readNextToken(){
   case '-':
     currentToken.add(lastRead);
     readChar();
-    if (readNum(true)) {
+    /*    if (readNum(true)) {
       currentToken.type = Token::NUMBER;
       readNumSuffix();
-    } else if (readIdent()) {
+      } else*/ if (readIdent()) {
       currentToken.type = Token::IDENTIFIER;
     } else
       currentToken.type = Token::OTHER;
