@@ -10,24 +10,48 @@
 
 ParameterMixin::ParameterMixin() {
   this->name = new Selector();
-  this->arguments = new list<TokenList*>();
 }
 
-ParameterMixin::ParameterMixin(Selector* name, list<TokenList*>* arguments) {
+ParameterMixin::ParameterMixin(Selector* name) {
   this->name = name;
-  this->arguments = arguments;
 }
 
 
 ParameterMixin::~ParameterMixin() {
+  map<string, TokenList*>::iterator i;
+  
   delete this->name;
 
-  while(!arguments->empty()) {
-    delete arguments->back();
-    arguments->pop_back();
+  while(!arguments.empty()) {
+    delete arguments.back();
+    arguments.pop_back();
   }
-  delete arguments;
+
+  for (i = namedArguments.begin(); i != namedArguments.end(); i++) {
+    delete i->second;
+  }
 }
+
+TokenList* ParameterMixin::getArgument(size_t i) {
+  if (i < arguments.size())
+    return arguments[i];
+  else
+    return NULL;
+}
+size_t ParameterMixin::getArgumentCount() {
+  return arguments.size();
+}
+TokenList* ParameterMixin::getArgument(string name) {
+  map<string, TokenList*>::iterator i;
+
+  i = namedArguments.find(name);
+  
+  if (i != namedArguments.end())
+    return i->second;
+  else
+    return NULL;
+}
+
 
 bool ParameterMixin::parse(Selector* selector) {
   
@@ -49,7 +73,8 @@ bool ParameterMixin::parse(Selector* selector) {
 
 bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
                             LessRuleset* parent) {
-  list<TokenList*>::iterator arg_i;
+  vector<TokenList*>::iterator arg_i;
+  map<string, TokenList*>::iterator argn_i;
   list<LessRuleset*>::iterator i;
   list<LessRuleset*> rulesetList;
   LessRuleset* lessruleset;
@@ -63,13 +88,21 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   if (rulesetList.empty())
     return false;
   
-  for (arg_i = arguments->begin(); arg_i != arguments->end(); arg_i++) {
+  for (arg_i = arguments.begin(); arg_i != arguments.end(); arg_i++) {
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Mixin Arg: " << *(*arg_i)->toString();
 #endif
-    
     getLessStylesheet()->getValueProcessor()->processValue(*arg_i);
   }
+
+  for (argn_i = namedArguments.begin(); argn_i !=
+         namedArguments.end(); argn_i++) {
+#ifdef WITH_LIBGLOG
+    VLOG(3) << "Mixin Arg " << argn_i->first << ": " << *argn_i->second->toString();
+#endif
+    getLessStylesheet()->getValueProcessor()->processValue(argn_i->second);
+  }
+  
 
   for (i = rulesetList.begin(); i != rulesetList.end();
        i++) {
@@ -82,9 +115,9 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
     if (parent == NULL || parent != lessruleset ||
         lessruleset->getLessSelector()->needsArguments()) {
       if (ruleset != NULL)
-        lessruleset->insert(arguments, ruleset);
+        lessruleset->insert(this, ruleset);
       else
-        lessruleset->insert(arguments, s);
+        lessruleset->insert(this, s);
     }
   }
 
@@ -110,8 +143,8 @@ void ParameterMixin::parseArguments(TokenListIterator* tli) {
   string delimiter = ",";
 
   TokenList* argument;
-  Token* current;
   size_t nestedParenthesis = 0;
+  string argName;
 
   // if a ';' token occurs then that is the delimiter instead of the ','.
   while (tli2.hasNext()) {
@@ -121,26 +154,47 @@ void ParameterMixin::parseArguments(TokenListIterator* tli) {
     }
   }
 
-  while (tli->hasNext() && tli->peek()->type != Token::PAREN_CLOSED) {
+  while (tli->hasNext() && tli->next()->type != Token::PAREN_CLOSED) {
     argument = new TokenList();
+    argName = "";
 
-    while (tli->hasNext()) {
-      current = tli->next();
-      if (nestedParenthesis == 0 &&
-          (current->str == delimiter ||
-           current->type == Token::PAREN_CLOSED))
-        break;
-      
-      if (current->type == Token::PAREN_OPEN) 
-        nestedParenthesis++;
-      
-      if (current->type == Token::PAREN_CLOSED) 
-        nestedParenthesis--;
-      
-      argument->push(current->clone());
+    while (tli->hasNext() && tli->current()->type ==
+           Token::WHITESPACE) {
+      tli->next();
     }
 
-    this->arguments->push_back(argument);
+    if (tli->current()->type == Token::ATKEYWORD &&
+        tli->hasNext() &&
+        tli->peek()->type == Token::COLON) {
+          
+      argName = tli->current()->str;
+      tli->next();
+      if (tli->hasNext())
+        tli->next();
+    }
+
+    while (nestedParenthesis > 0 ||
+           (tli->current()->str != delimiter &&
+            tli->current()->type != Token::PAREN_CLOSED)) {
+      
+      if (tli->current()->type == Token::PAREN_OPEN) 
+        nestedParenthesis++;
+      
+      if (tli->current()->type == Token::PAREN_CLOSED) 
+        nestedParenthesis--;
+      
+      argument->push(tli->current()->clone());
+
+      if (tli->hasNext())
+        tli->next();
+      else
+        break;
+    }
+
+    if (argName == "")
+      this->arguments.push_back(argument);
+    else
+      this->namedArguments.insert(pair<string, TokenList*>(argName,argument));
   }
 }
 

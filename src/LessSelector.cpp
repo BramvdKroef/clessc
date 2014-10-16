@@ -401,18 +401,20 @@ map<string, TokenList*>* LessSelector::getExtensions() {
   return &extensions;
 }
 
-bool LessSelector::matchArguments(list<TokenList*>* arguments) {
-  list<TokenList*>::iterator a_it  = arguments->begin();
+bool LessSelector::matchArguments(ParameterMixin* mixin) {
   list<string>::iterator p_it = parameters.begin();
   list<TokenList*>::iterator d_it = defaults.begin();
+  size_t pos = 0;
 
   for(; p_it != parameters.end(); p_it++, d_it++) {
-    if (a_it != arguments->end()) 
-      a_it++;
-    else if (*d_it == NULL) 
-      return false;
+    
+    if (mixin->getArgument(*p_it) == NULL &&
+        mixin->getArgument(pos++) == NULL &&
+        *d_it == NULL) {
+          return false;
+    }
   }
-  return (a_it == arguments->end() || unlimitedArguments());
+  return (pos >= mixin->getArgumentCount() || unlimitedArguments());
 }
 
 bool LessSelector::needsArguments() {

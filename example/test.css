@@ -433,6 +433,13 @@ div {
     .test12();
 }
 
+.test13(@start-color: #555; @end-color: #333; @start-percent: 0%; @end-percent: 100%) {
+    background-image: -webkit-linear-gradient(left, @start-color @start-percent, @end-color @end-percent); 
+}
+.mixin13 {
+    .test13(@end-color: #000, @start-color: #FFF);
+}
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

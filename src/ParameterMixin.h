@@ -24,22 +24,31 @@
 
 #include "Selector.h"
 #include "Stylesheet.h"
+#include <list>
+#include <map>
 
 class LessStylesheet;
 class LessRuleset;
 
 class ParameterMixin: public StylesheetStatement{
 private:
+  vector<TokenList*> arguments;
+  map<string, TokenList*> namedArguments;
+
   LessStylesheet* lessStylesheet;
   void parseArguments(TokenListIterator* tli);
 
 public:
   Selector* name;
-  list<TokenList*>* arguments;
 
   ParameterMixin();
-  ParameterMixin(Selector* name, list<TokenList*>* arguments);
+  ParameterMixin(Selector* name);
   virtual ~ParameterMixin() ;
+
+  TokenList* getArgument(size_t i);
+  size_t getArgumentCount();
+  
+  TokenList* getArgument(string name);
 
   bool insert(Stylesheet* s, Ruleset* ruleset, LessRuleset* parent);
   bool parse(Selector* selector);

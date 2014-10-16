@@ -72,8 +72,8 @@ public:
 
   void getExtensions(map<string, TokenList*>* extensions);
   
-  virtual bool insert(list<TokenList*>* arguments, Ruleset* target);
-  virtual bool insert(list<TokenList*>* arguments, Stylesheet* s);
+  virtual bool insert(ParameterMixin* mixin, Ruleset* target);
+  virtual bool insert(ParameterMixin* mixin, Stylesheet* s);
 
   virtual void process(Stylesheet* s);
   virtual void process(Stylesheet* s, Selector* prefix);
@@ -82,7 +82,7 @@ public:
                        ParameterMixin* mixin,
                        size_t selector_offset);
   bool matchConditions();
-  bool putArguments(list<TokenList*>* arguments);
+  bool putArguments(ParameterMixin* mixin);
 };
 
 #endif

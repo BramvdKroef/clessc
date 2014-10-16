@@ -133,14 +133,14 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions) {
   }
 }
 
-bool LessRuleset::insert(list<TokenList*>* arguments, Ruleset* target) {
+bool LessRuleset::insert(ParameterMixin* mixin, Ruleset* target) {
   map<string, TokenList*> scope;
   bool ret = false;
   
   getLessStylesheet()->getValueProcessor()->pushScope(&scope);
 
-  if (((arguments == NULL && !selector->needsArguments()) ||
-       putArguments(arguments)) &&
+  if (((mixin == NULL && !selector->needsArguments()) ||
+       putArguments(mixin)) &&
       matchConditions()) {
 
 #ifdef WITH_LIBGLOG
@@ -170,7 +170,7 @@ bool LessRuleset::insert(list<TokenList*>* arguments, Ruleset* target) {
   return ret;
 }
 
-bool LessRuleset::insert(list<TokenList*>* arguments, Stylesheet* s) {
+bool LessRuleset::insert(ParameterMixin* mixin, Stylesheet* s) {
   map<string, TokenList*> scope;
   list<UnprocessedStatement*>* unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::iterator up_it;
@@ -178,8 +178,8 @@ bool LessRuleset::insert(list<TokenList*>* arguments, Stylesheet* s) {
   
   getLessStylesheet()->getValueProcessor()->pushScope(&scope);
 
-  if (((arguments == NULL && !selector->needsArguments()) ||
-       putArguments(arguments)) &&
+  if (((mixin == NULL && !selector->needsArguments()) ||
+       putArguments(mixin)) &&
       matchConditions()) {
 
     // set local variables
@@ -247,11 +247,11 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
     selector_offset++;
   }
 #ifdef WITH_LIBGLOG
-  VLOG(3) "Selector offset:" << selector_offset;
+  VLOG(3) << "Selector offset:" << selector_offset;
 #endif
 
   if (selector_offset == mixin->name->size()) {
-    if (selector->matchArguments(mixin->arguments))
+    if (selector->matchArguments(mixin))
       rulesetList->push_back(this);
 
   } else {   
@@ -308,43 +308,45 @@ bool LessRuleset::matchConditions(){
   return false;
 }
   
-bool LessRuleset::putArguments(list<TokenList*>* arguments) {
+bool LessRuleset::putArguments(ParameterMixin* mixin) {
   list<string>* parameters = selector->getParameters();
-  list<TokenList*>::iterator ait  = arguments->begin();
   list<string>::iterator pit = parameters->begin();
   TokenList* argsCombined = new TokenList();
   TokenList* restVar = NULL;
   TokenList* variable;
+  size_t pos = 0;
 
   if (selector->unlimitedArguments() && selector->getRestIdentifier() != "")
     restVar = new TokenList();
   
   // combine with parameter names and add to local scope
   for(; pit != parameters->end(); pit++) {
-    if (ait != arguments->end()) {
-      getLessStylesheet()->putVariable(*pit, *ait);
-      argsCombined->push((*ait)->clone());
-      ait++;
-    } else {
+    variable = mixin->getArgument(*pit);
+
+    if (variable == NULL) 
+      variable = mixin->getArgument(pos++);
+
+    if (variable == NULL)
       variable = selector->getDefault(*pit);
-      if (variable == NULL) {
-        delete argsCombined;
-        return false;
-      }
-      getLessStylesheet()->putVariable(*pit, variable->clone());
-      argsCombined->push(variable->clone());
+
+    if (variable == NULL) {
+      delete argsCombined;
+      return false;
     }
+    
+    getLessStylesheet()->putVariable(*pit, variable);
+    argsCombined->push(variable->clone());
     argsCombined->push(new Token(" ", Token::WHITESPACE));
   }
 
   argsCombined->trim();
 
   if (restVar != NULL) {
-    while (ait != arguments->end()) {
-      restVar->push(*ait);
+    while (pos < mixin->getArgumentCount()) {
+      restVar->push(mixin->getArgument(pos++));
       restVar->push(new Token(" ", Token::WHITESPACE));
-      ait++;
     }
+    
     restVar->trim();
     getLessStylesheet()->putVariable(selector->getRestIdentifier(), restVar);
   }
