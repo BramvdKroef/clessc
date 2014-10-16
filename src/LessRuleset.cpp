@@ -241,10 +241,14 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
 #endif
   
   while (selector_offset < mixin->name->size() &&
-         mixin->name->at(selector_offset)->type ==
-         Token::WHITESPACE) {
+         (mixin->name->at(selector_offset)->type ==
+          Token::WHITESPACE ||
+          mixin->name->at(selector_offset)->str == ">")) {
     selector_offset++;
   }
+#ifdef WITH_LIBGLOG
+  VLOG(3) "Selector offset:" << selector_offset;
+#endif
 
   if (selector_offset == mixin->name->size()) {
     if (selector->matchArguments(mixin->arguments))
