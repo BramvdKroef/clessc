@@ -173,13 +173,12 @@ pre { .wrap  }
     height: 100% / 2 + @filler;
     top: @emUnits;
 
-/*    @scale: 4;
+    @scale: 4;
     @defaultFontSize: 2;
     @headerHeight: 75px;
     
     transform:rotate(45deg);
     left:unit(-@defaultFontSize/2.2*@scale, px);
-    height:unit((@headerHeight-15)@scale, px);*/
 }
 
 /* Color Functions */

@@ -58,7 +58,9 @@ private:
   bool needsSpace(Token* t);
   string removeQuotes(string str);
   string getUrlString(string url);
-    
+
+  NumberValue* processNegative(TokenList* value);
+  
 public:
   ValueProcessor();
   virtual ~ValueProcessor();

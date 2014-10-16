@@ -86,7 +86,12 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
         delete var;
         delete value->shift();
         delete value->shift();
-          
+
+      } else if (value->size() > 2 &&
+                 value->front()->type == Token::IDENTIFIER &&
+                 value->at(1)->type == Token::PAREN_OPEN) {
+        newvalue.push(value->shift());
+        newvalue.push(value->shift());
       } else 
         newvalue.push(value->shift());
     }
@@ -144,11 +149,18 @@ map<string, TokenList*>* ValueProcessor::popScope() {
 
 
 Value* ValueProcessor::processStatement(TokenList* value) {
-  Value* op, *v = processConstant(value);
+  Value* op, *v;
+
+  value->ltrim();
+  v = processConstant(value);
   
   if (v != NULL) {
-    while ((op = processOperator(value, v)) != NULL)
+    value->ltrim();
+
+    while ((op = processOperator(value, v)) != NULL) {
       v = op;
+      value->ltrim();
+    }
     
     return v;
   } else
@@ -162,10 +174,6 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
   string operators("+-*/=><");
   size_t pos;
   
-  while (value->size() > 0 &&
-         value->front()->type == Token::WHITESPACE) {
-    delete value->shift();
-  }
   if (value->size() == 0 ||
       (pos = operators.find(value->front()->str)) == string::npos)
     return NULL;
@@ -183,6 +191,8 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
     op->str.append(value->front()->str);
     delete value->shift();
   }
+
+  value->ltrim();
   
   v2 = processConstant(value);
   if (v2 == NULL) {
@@ -193,8 +203,13 @@ Value* ValueProcessor::processOperator(TokenList* value, Value* v1,
       throw new ParseException("end of line",
                                "Constant or @-variable", 0, 0, "");
   }
-  while ((tmp = processOperator(value, v2, op))) 
+
+  value->ltrim();
+  
+  while ((tmp = processOperator(value, v2, op))) {
     v2 = tmp;
+    value->ltrim();
+  }
   
   if (op->str == "+") 
     tmp = v1->add(v2);
@@ -225,11 +240,6 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   Token* token;
   Value* ret;
   TokenList* variable;
-
-  while (value->size() > 0 &&
-         value->front()->type == Token::WHITESPACE) {
-    delete value->shift();
-  }
 
   if (value->size() == 0)
     return NULL;
@@ -277,14 +287,18 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   case Token::IDENTIFIER:
 
     if (value->size() > 2 &&
-        value->at(1)->type == Token::PAREN_OPEN &&
-        functionExists(token->str)) {
-      value->shift();
-      delete value->shift();
+        value->at(1)->type == Token::PAREN_OPEN) {
+
+      if (functionExists(token->str)) {
+        value->shift();
+        delete value->shift();
       
-      ret = processFunction(token->str, value);
-      delete token;
-      return ret;
+        ret = processFunction(token->str, value);
+        delete token;
+        return ret;
+      } else {
+        return NULL;
+      }
       
     } else if ((ret = processUnit(token)) != NULL) {
       value->shift();
@@ -341,6 +355,8 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return processFunction("%", value);
       
   } else if ((ret = processEscape(value)) != NULL) {
+    return ret;
+  } else if ((ret = processNegative(value)) != NULL) {
     return ret;
   }
   return NULL;
@@ -555,4 +571,28 @@ bool ValueProcessor::needsSpace(Token* t) {
     return false;
   return !(t->type == Token::PAREN_OPEN ||
            t->type == Token::PAREN_CLOSED);
+}
+
+NumberValue* ValueProcessor::processNegative(TokenList* value) {
+  Token* minus;
+  Value* constant;
+  NumberValue *zero;
+    
+  if (value->front()->str != "-")
+    return NULL;
+  
+  minus = value->shift();
+  
+  value->ltrim();
+  constant = processConstant(value);
+  if (constant == NULL) {
+    value->unshift(minus);
+    return NULL;
+  }
+
+  zero = new NumberValue(new Token("0", Token::NUMBER));
+  zero->substract(constant);
+
+  delete minus;
+  return zero;
 }
