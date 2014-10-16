@@ -43,7 +43,7 @@ class ValueProcessor {
 private:
   list<map<string, TokenList*>*> scopes;
   FunctionLibrary* functionLibrary;
-  
+
   Value* processStatement(TokenList* value);
   Value* processOperator(TokenList* value, Value* v1,
                          Token* lastop = NULL);
@@ -67,6 +67,15 @@ public:
 
   void putVariable(string key, TokenList* value);
   TokenList* getVariable(string key);
+
+  /**
+   * Determine if a value contains anything that can be processed.
+   *
+   * @return  true if value contains an @-keyword, an operator (+-* or
+   *          /), a LESS function, an escaped value or a url.
+   */
+  bool needsProcessing(TokenList* value);
+
   TokenList* processValue(TokenList* value);
   bool validateValue(TokenList* value);
   

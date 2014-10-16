@@ -57,6 +57,9 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   TokenList* var;
   TokenList* variable;
 
+  if (!needsProcessing(value))
+    return value;
+
   while (value->size() > 0) {
     v = processStatement(value);
 
@@ -99,6 +102,42 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   value->push(&newvalue);
   return value;
 }
+
+bool ValueProcessor::needsProcessing(TokenList* value) {
+  TokenListIterator* i = value->iterator();
+  Token* t;
+  string operators("+-*/");
+  bool ret = false;
+  
+  while(!ret && i->hasNext()) {
+    t = i->next();
+
+    ret = 
+      // variable
+      (t->type == Token::ATKEYWORD) ||
+
+      // url
+      (t->type == Token::URL) ||
+
+      // function
+      (t->type == Token::IDENTIFIER &&
+        i->hasNext() &&
+        i->peek()->type == Token::PAREN_OPEN &&
+        functionExists(t->str)) ||
+
+      // operator
+      (operators.find(t->str) != string::npos) ||
+
+      // escaped value
+      (t->str == "~" &&
+       i->hasNext() &&
+       i->peek()->type == Token::STRING);
+  }
+  
+  delete i;
+  return ret;
+}
+
 bool ValueProcessor::validateValue(TokenList* value) {
   Value* v = processStatement(value);
   Value* trueVal = new BooleanValue(true);
@@ -306,8 +345,8 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     } else if (token->str.compare("true") == 0) {
       delete value->shift();
       return new BooleanValue(true);
-    } else
-      return NULL;
+    } else  
+      return new StringValue(value->shift(), false);
     
   case Token::PAREN_OPEN:
     value->shift();
