@@ -229,6 +229,9 @@ pre { .wrap  }
     color: orange;
     #bundle .button;
 }
+#header2 a {
+    #bundle > .button;
+}
 
 /* Scope */
 
@@ -274,6 +277,8 @@ body {
     background-image: linear-gradient(bottom, rgb(232,63,25) 0%,
                                       rgb(255,130,95) 50%);
     width: 10-1;
+
+    x: 4 = 1;
     filter:progid:DXImageTransform.Microsoft.gradient(enabled='false',startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);         
 }
 
@@ -299,6 +304,13 @@ audio:not([controls]) {
 .class1 { .mixin5(#ddd) }
 .class2 { .mixin5(#555) }
 
+.mixin5a (@b, @c) when (@b = string) {
+    width: @c;
+}
+
+.class1a {
+    .mixin5a(string, 10px);
+}
 
 .test (@h) {
     h1{
@@ -412,6 +424,13 @@ div {
 .test11 {
     &:extend(.test9);
     width: 100px;
+}
+
+.test12 (@c: rgb(1,2,3); @b: 4) {
+    color: @c;
+}
+.mixin12 {
+    .test12();
 }
 
 /* Multiline comment ending with * at the end of the file */

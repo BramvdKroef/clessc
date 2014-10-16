@@ -314,6 +314,7 @@ bool LessSelector::parseParameter(TokenList* selector, string delimiter) {
 TokenList* LessSelector::parseDefaultValue(TokenList* arguments,
                                      string delimiter) {
   TokenList* value;
+  int parentheses = 0;
   
   if (arguments->front()->type != Token::COLON)
     return NULL;
@@ -322,8 +323,15 @@ TokenList* LessSelector::parseDefaultValue(TokenList* arguments,
   value = new TokenList();
     
   while (!arguments->empty() &&
-         arguments->front()->type != Token::PAREN_CLOSED &&
+         (parentheses != 0 ||
+          arguments->front()->type != Token::PAREN_CLOSED) &&
          arguments->front()->str != delimiter) {
+
+    if (arguments->front()->type == Token::PAREN_OPEN)
+      parentheses++;
+    if (arguments->front()->type == Token::PAREN_CLOSED)
+      parentheses--;
+
     value->push(arguments->shift());
   }
 
