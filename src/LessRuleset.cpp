@@ -282,11 +282,20 @@ bool LessRuleset::matchConditions(){
 
   if (conditions->size() == 0)
     return true;
-  
+
+
   for(cit = conditions->begin(); cit != conditions->end(); cit++) {
     condition = (*cit)->clone();
+#ifdef WITH_LIBGLOG
+    VLOG(3) << "Checking condition: " << *condition->toString();
+#endif
     
     if (getLessStylesheet()->getValueProcessor()->validateValue(condition)) {
+
+#ifdef WITH_LIBGLOG
+      VLOG(3) << "Found valid condition: " << *condition->toString();
+#endif
+      
       delete condition;
       return true;
     } else
