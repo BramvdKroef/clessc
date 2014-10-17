@@ -63,7 +63,7 @@ void LessStylesheet::getExtensions(map<string,TokenList*>* extensions) {
   for (i = lessrulesets.begin(); i != lessrulesets.end();
        i++) {
 
-    (*i)->getExtensions(extensions);
+    (*i)->getExtensions(extensions, NULL);
   }
 }
 

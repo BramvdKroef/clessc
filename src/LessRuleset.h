@@ -70,7 +70,8 @@ public:
   virtual void setStylesheet(LessStylesheet* stylesheet);
   LessStylesheet* getLessStylesheet();
 
-  void getExtensions(map<string, TokenList*>* extensions);
+  void getExtensions(map<string, TokenList*>* extensions,
+                     Selector* prefix);
   
   virtual bool insert(ParameterMixin* mixin, Ruleset* target);
   virtual bool insert(ParameterMixin* mixin, Stylesheet* s);

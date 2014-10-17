@@ -104,19 +104,35 @@ LessStylesheet* LessRuleset::getLessStylesheet() {
   return lessStylesheet;
 }
 
-void LessRuleset::getExtensions(map<string, TokenList*>* extensions) {
+void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
+                                Selector* prefix) {
+  
   map<string, TokenList*>::iterator e_it;
   
   list<UnprocessedStatement*>::iterator s_it;
   TokenList* extension;
+  Selector* selector;
+
+  list<LessRuleset*>* nestedRules = getNestedRules();
+  list<LessRuleset*>::iterator r_it;
 
   for (e_it = selector->getExtensions()->begin();
        e_it != selector->getExtensions()->end();
        e_it++) {
+    selector = new Selector();
+    selector->push(e_it->second);
+    
+    if (prefix != NULL)
+      selector->addPrefix(prefix);
+    
     extensions->insert(pair<string, TokenList*>
-                       (e_it->first,
-                        e_it->second->clone()));
+                       (e_it->first,selector));
   }
+
+  selector = new Selector();
+  selector->push(getSelector());
+  if (prefix != NULL)
+    selector->addPrefix(prefix);
   
   // look through statements for extensions
   for(s_it = getUnprocessedStatements()->begin();
@@ -127,10 +143,16 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions) {
     if (extension != NULL) {
       extensions->insert(pair<string, TokenList*>
                          (*extension->toString(),
-                          getSelector()->clone()));
+                          selector->clone()));
       delete extension;
     }
   }
+
+  // look in nested rules
+  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+    (*r_it)->getExtensions(extensions, selector);
+  }
+  delete selector;
 }
 
 bool LessRuleset::insert(ParameterMixin* mixin, Ruleset* target) {
