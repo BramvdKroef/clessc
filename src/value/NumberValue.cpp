@@ -291,8 +291,8 @@ Value* NumberValue::floor(vector<Value*> args) {
 }  
 Value* NumberValue::percentage(vector<Value*> args) {
   double val = ((NumberValue*)args[0])->getValue();
-  ((NumberValue*)args[0])->setValue(val * 100);
   ((NumberValue*)args[0])->type = Value::PERCENTAGE;
+  ((NumberValue*)args[0])->setValue(val * 100);
   return args[0];
 }
 Value* NumberValue::round(vector<Value*> args) {
