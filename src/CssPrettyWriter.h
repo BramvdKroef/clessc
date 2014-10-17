@@ -25,11 +25,16 @@
 #include "CssWriter.h"
 
 class CssPrettyWriter: public CssWriter {
+private:
+  int indent_size;
+  
 public:
   CssPrettyWriter(ostream* out): CssWriter(out) {
+    indent_size = 0;
   };
 
 protected:
+  void indent();
   virtual void writeAtRule(string keyword, TokenList* rule);
   virtual void writeRulesetStart(TokenList* selector);
   virtual void writeRulesetEnd();

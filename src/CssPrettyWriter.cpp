@@ -21,34 +21,80 @@
 
 #include "CssPrettyWriter.h"
 
+void CssPrettyWriter::indent() {
+  int i;
+  if (indent_size == 0)
+    return;
+  for (i = 0; i < indent_size; i++)
+    out->write("  ", 2);
+}
 
 void CssPrettyWriter::writeAtRule(string keyword, TokenList* rule) {
+  indent();
+  
   CssWriter::writeAtRule(keyword, rule);
   out->write("\n", 1);
 }
 
 void CssPrettyWriter::writeRulesetStart(TokenList* selector) {
-  CssWriter::writeRulesetStart(selector);
-  out->write("\n", 1);
+  TokenListIterator* it;
+
+  indent();
+  
+  if (selector != NULL) {
+    for (it = selector->iterator(); it->hasNext();) {
+      Token* next = it->next();
+      out->write(next->str.c_str(), next->str.size());
+      
+      if (next->str == ",") {
+        out->write("\n", 1);
+        indent();
+      }
+    }
+  }
+  out->write(" {\n", 3);
+  indent_size++;
 }
 
 void CssPrettyWriter::writeRulesetEnd() {
-  out->write(";\n}\n", 4);
+  out->write(";\n", 2);
+  indent_size--;
+  indent();
+  out->write("}\n", 2);
 }
 void CssPrettyWriter::writeDeclaration(string property,
                                        TokenList* value) {
-  out->write("    ", 4);
-  CssWriter::writeDeclaration(property, value);
+  TokenListIterator* it = value->iterator();
+
+  indent();
+    
+  out->write(property.c_str(), property.size());
+  out->write(": ", 2);
+
+  value->ltrim();
+  while (it->hasNext()) {
+    Token* next = it->next();
+    out->write(next->str.c_str(), next->str.size());
+  }
 }
 void CssPrettyWriter::writeDeclarationDeliminator() {
   out->write(";\n", 2);  
 }
 
 void CssPrettyWriter::writeMediaQueryStart(TokenList* selector) {
-  CssWriter::writeMediaQueryStart(selector);
-  out->write("\n", 1);
+  TokenListIterator* it;
+  
+  if (selector != NULL) {
+    for (it = selector->iterator(); it->hasNext();) {
+      Token* next = it->next();
+      out->write(next->str.c_str(), next->str.size());
+    }
+  }
+  out->write(" {\n", 3);
+  indent_size++;
 }
 
 void CssPrettyWriter::writeMediaQueryEnd() {
+  indent_size--;
   out->write("}\n", 2);
 }
