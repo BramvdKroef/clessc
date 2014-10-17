@@ -94,6 +94,8 @@ public:
   virtual TokenList* clone();
   
   string* toString();
+
+  bool contains(Token::Type t, string str);
 };
 
 #endif

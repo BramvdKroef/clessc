@@ -192,3 +192,18 @@ string* TokenList::toString() {
   }
   return str;
 }
+
+bool TokenList::contains(Token::Type type, string str) {
+  TokenListIterator* i = iterator();
+  Token* t;
+  while(i->hasNext()) {
+    t = i->next();
+    if (t->type == type &&
+        t->str == str) {
+      delete i;
+      return true;
+    }
+  }
+  delete i;
+  return false;
+}

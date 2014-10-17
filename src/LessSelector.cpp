@@ -132,8 +132,11 @@ bool LessSelector::parseArguments(TokenList* selector) {
 
   if (selector->front()->type != Token::PAREN_OPEN)
     return false;
-  
-  delimiter = determineDelimiter(selector);
+
+  if (selector->contains(Token::DELIMITER, ";"))
+    delimiter = ";";
+  else
+    delimiter = ",";
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Parameter delimiter: " << delimiter;
@@ -175,17 +178,6 @@ bool LessSelector::parseArguments(TokenList* selector) {
   return true;
 }
 
-string LessSelector::determineDelimiter(TokenList* arguments) {
-  TokenListIterator* i = arguments->iterator();
-  while(i->hasNext()) {
-    if (i->next()->str == ";") {
-      delete i;
-      return ";";
-    }
-  }
-  delete i;
-  return ",";
-}
 
 bool LessSelector::validateArguments(TokenList* arguments, string delimiter) {
   TokenListIterator* i = arguments->iterator();

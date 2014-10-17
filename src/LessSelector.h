@@ -43,7 +43,6 @@ private:
 
   TokenList* parseExtension(TokenList* selector);
   bool parseArguments(TokenList* selector);
-  string determineDelimiter(TokenList* arguments);
   bool validateArguments(TokenList* arguments, string delimiter);
   bool parseParameter(TokenList* selector, string delimiter);
   TokenList* parseDefaultValue(TokenList* arguments,
