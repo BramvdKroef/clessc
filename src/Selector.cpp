@@ -31,29 +31,41 @@ void Selector::addPrefix(Selector* prefix) {
   list<TokenList*>* sepParts = split();
   list<TokenList*>::iterator prefixIt;
   list<TokenList*>::iterator sepIt;
-  TokenList* tmp;
+
+  TokenList* tmp, *prefixPart;
+  TokenListIterator* i;
+  bool containsAmp;
+  
   clear();
 
   for (sepIt = sepParts->begin(); sepIt !=
          sepParts->end(); sepIt++) {
 
-    (*sepIt)->ltrim();
+    tmp = *sepIt;
+    tmp->ltrim();
+    containsAmp = tmp->contains(Token::OTHER, "&");
 
-    if (!(*sepIt)->empty()) {
-      if ((*sepIt)->front()->str == "&") 
-        delete (*sepIt)->shift();
-      else 
-        (*sepIt)->unshift(new Token(" ", Token::WHITESPACE));
-    }
-  }
+    for (prefixIt = prefixParts->begin(); prefixIt !=
+           prefixParts->end(); prefixIt++) {
 
-  for (prefixIt = prefixParts->begin(); prefixIt !=
-         prefixParts->end(); prefixIt++) {
-    
-    for (sepIt = sepParts->begin(); sepIt !=
-           sepParts->end(); sepIt++) {
-      push(*prefixIt);
-      push(*sepIt);
+      prefixPart = *prefixIt;
+      
+      if (!tmp->empty() && containsAmp) {
+        
+        for (i = tmp->iterator();
+             i->hasNext();) {
+          
+          if (i->next()->str == "&") {
+            push(prefixPart);
+          } else
+            push(i->current()->clone());
+        }
+        delete i;
+      } else {
+        push(prefixPart);
+        push(new Token(" ", Token::WHITESPACE));
+        push(tmp);
+      }
       push(new Token(",", Token::OTHER));
     }
   }
