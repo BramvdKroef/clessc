@@ -55,7 +55,7 @@ private:
   Value* processEscape (TokenList* value);
   UnitValue* processUnit(Token* t);
   
-  bool needsSpace(Token* t);
+  bool needsSpace(Token* t, bool before);
   string removeQuotes(string str);
   string getUrlString(string url);
 

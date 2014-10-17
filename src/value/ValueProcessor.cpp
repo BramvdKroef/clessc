@@ -66,9 +66,9 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
     // add spaces between values
     if (v != NULL || value->size() > 0) {
       if (newvalue.size() == 0 ||
-          !needsSpace(newvalue.back()) ||
+          !needsSpace(newvalue.back(), false) ||
           (v == NULL &&
-           !needsSpace(value->front()))) {
+           !needsSpace(value->front(), true))) {
         
       } else {
         newvalue.push(new Token(" ", Token::WHITESPACE));
@@ -79,9 +79,10 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
       newvalue.push(v->getTokens());
       delete v;
     } else if (value->size() > 0) {
+      // variable containing a non-value.
       if (value->front()->type == Token::ATKEYWORD &&
           (variable = getVariable(value->front()->str)) != NULL) {
-        newvalue.push(variable);
+        newvalue.push(processValue(variable));
         delete value->shift();
         
       } else if ((var = processDeepVariable(value)) != NULL) {
@@ -119,6 +120,9 @@ bool ValueProcessor::needsProcessing(TokenList* value) {
       // url
       (t->type == Token::URL) ||
 
+      // string
+      (t->type == Token::STRING) ||
+
       // function
       (t->type == Token::IDENTIFIER &&
         i->hasNext() &&
@@ -126,12 +130,7 @@ bool ValueProcessor::needsProcessing(TokenList* value) {
         functionExists(t->str)) ||
 
       // operator
-      (operators.find(t->str) != string::npos) ||
-
-      // escaped value
-      (t->str == "~" &&
-       i->hasNext() &&
-       i->peek()->type == Token::STRING);
+      (operators.find(t->str) != string::npos);
   }
   
   delete i;
@@ -523,22 +522,22 @@ void ValueProcessor::interpolateString(Token* token) {
   string key = "@", value;
   TokenList* var;
   
-  if ((start = token->str.find("@{")) == string::npos ||
-      (end = token->str.find("}", start)) == string::npos)
-    return;
+  while ((start = token->str.find("@{")) != string::npos &&
+         (end = token->str.find("}", start)) != string::npos) {
   
-  key.append(token->str.substr(start + 2, end - (start + 2)));
-  var = getVariable(key);
-  if (var == NULL)
-    return;
+    key.append(token->str.substr(start + 2, end - (start + 2)));
+    var = getVariable(key);
 
-  value = *var->toString();
+    if (var != NULL) {
+      value = *var->toString();
 
-  // Remove quotes off strings.
-  if (var->size() == 1 && var->front()->type == Token::STRING) 
-    value = value.substr(1, value.size() - 2);
+      // Remove quotes off strings.
+      if (var->size() == 1 && var->front()->type == Token::STRING) 
+        value = value.substr(1, value.size() - 2);
   
-  token->str.replace(start, (end + 1) - start, value);
+      token->str.replace(start, (end + 1) - start, value);
+    }
+  }
 }
 
 void ValueProcessor::interpolateTokenList(TokenList* tokens) {
@@ -565,12 +564,13 @@ Value* ValueProcessor::processEscape (TokenList* value) {
 }
 
 string ValueProcessor::removeQuotes(string str) {
+  char quote = str[0];
   str = str.substr(1, str.size() - 2);
   string::iterator i;
   string ret;
   
   for (i = str.begin(); i != str.end(); i++) {
-    if (*i == '\\') 
+    if (*i == '\\' && *(i + 1) == quote) 
       i++;
     ret.push_back(*i);
   }
@@ -600,7 +600,7 @@ UnitValue* ValueProcessor::processUnit(Token* t) {
     return NULL;
 }
 
-bool ValueProcessor::needsSpace(Token* t) {
+bool ValueProcessor::needsSpace(Token* t, bool before) {
   if (t->type == Token::OTHER &&
       t->str.size() == 1 &&
       string(",:=.").find(t->str.at(0)) != string::npos) {
@@ -609,7 +609,7 @@ bool ValueProcessor::needsSpace(Token* t) {
   if (t->type == Token::COLON)
     return false;
   return !(t->type == Token::PAREN_OPEN ||
-           t->type == Token::PAREN_CLOSED);
+           (before && t->type == Token::PAREN_CLOSED));
 }
 
 NumberValue* ValueProcessor::processNegative(TokenList* value) {
