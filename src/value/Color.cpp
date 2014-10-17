@@ -390,6 +390,7 @@ void Color::loadFunctions(FunctionLibrary* lib) {
   lib->push("hue", "C", &Color::hue);
   lib->push("saturation", "C", &Color::saturation);
   lib->push("lightness", "C", &Color::lightness);
+  lib->push("argb", "C", &Color::argb);
 }
 
 Value* Color::rgb(vector<Value*> arguments) {
@@ -508,4 +509,35 @@ Value* Color::lightness(vector<Value*> arguments) {
   percentage.append(to_string(hsl[2] * 100));
   percentage.append("%");
   return new NumberValue(new Token(percentage, Token::PERCENTAGE));
+}
+Value* Color::argb(vector<Value*> arguments) {
+  Color* c = (Color*)arguments[0];
+  ostringstream stm;
+  unsigned int color[4];
+  string sColor[4];
+  string hash;
+  int i;
+
+  color[0] = c->getAlpha();
+  color[1] = c->getRed();
+  color[2] = c->getGreen();
+  color[3] = c->getBlue();
+  
+  for (i = 0; i < 4; i++) {
+    stm.str("");
+    stm << hex << (color[i] & 0xFF);
+    sColor[i] = stm.str();
+  }
+  stm.str("");
+  stm << "#";
+  
+  for (i = 0; i < 4; i++) {
+    if (sColor[i].size() == 1)
+      stm << "0";
+    else if (sColor[i].size() > 2) 
+      sColor[i] = sColor[i].substr(0, 2);
+    stm << sColor[i];
+  }
+  hash = stm.str();
+  return new StringValue(new Token(hash, Token::STRING), false);
 }

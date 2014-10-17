@@ -111,6 +111,7 @@ public:
   static Value* hue(vector<Value*> arguments);
   static Value* saturation(vector<Value*> arguments);
   static Value* lightness(vector<Value*> arguments);
+  static Value* argb(vector<Value*> arguments);
 
   static Value* hsla(vector<Value*> arguments);
   static Value* hsv(vector<Value*> arguments);
