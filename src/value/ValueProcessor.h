@@ -77,6 +77,8 @@ public:
   bool needsProcessing(TokenList* value);
 
   TokenList* processValue(TokenList* value);
+
+  bool validateCondition(TokenList* value);
   bool validateValue(TokenList* value);
   
   bool functionExists(string function);

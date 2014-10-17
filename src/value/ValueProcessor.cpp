@@ -137,14 +137,36 @@ bool ValueProcessor::needsProcessing(TokenList* value) {
   return ret;
 }
 
+bool ValueProcessor::validateCondition(TokenList* value) {
+  bool ret = validateValue(value);
+
+  value->ltrim();
+  
+  while(ret == true &&
+        !value->empty() &&
+        value->front()->str == "and") {
+    delete value->shift();
+    value->ltrim();
+    ret = validateValue(value);
+    value->ltrim();
+  }
+  
+  return ret;
+}
 bool ValueProcessor::validateValue(TokenList* value) {
   Value* v = processStatement(value);
   Value* trueVal = new BooleanValue(true);
   Value* v2;
   bool ret;
+
+  if (v == NULL) {
+    throw new ParseException(value->front()->str,
+                             "condition", 0, 0, "");
+  }
+  
   v2 = v->equals(trueVal);
   ret = ((BooleanValue*)v2)->getValue();
-  
+
   delete trueVal;
   delete v;
   delete v2;

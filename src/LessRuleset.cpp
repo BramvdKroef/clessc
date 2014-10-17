@@ -116,8 +116,8 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
 
-  for (e_it = selector->getExtensions()->begin();
-       e_it != selector->getExtensions()->end();
+  for (e_it = getLessSelector()->getExtensions()->begin();
+       e_it != getLessSelector()->getExtensions()->end();
        e_it++) {
     selector = new Selector();
     selector->push(e_it->second);
@@ -316,8 +316,8 @@ bool LessRuleset::matchConditions(){
     VLOG(3) << "Checking condition: " << *condition->toString();
 #endif
     
-    if (getLessStylesheet()->getValueProcessor()->validateValue(condition)) {
-
+    if (getLessStylesheet()->getValueProcessor()->validateCondition(condition)) {
+      
 #ifdef WITH_LIBGLOG
       VLOG(3) << "Found valid condition: " << *condition->toString();
 #endif
