@@ -440,6 +440,18 @@ div {
     .test13(@end-color: #000, @start-color: #FFF);
 }
 
+.test14 {
+    &:hover {
+        color: #FFF;
+    }
+    p & {
+        color: #123;
+    }
+    &.class > &[checked] {
+        color: #432;
+    }
+}
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
