@@ -39,6 +39,7 @@ void LessMediaQuery::process(Stylesheet* s) {
   MediaQuery* query = new MediaQuery();
 
   query->setSelector(getSelector()->clone());
+  getValueProcessor()->processValue(query->getSelector());
   s->addStatement(query);
 
   Stylesheet::process(query);

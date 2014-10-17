@@ -44,6 +44,7 @@ void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
 #endif
   
   query->setSelector(getSelector()->clone());
+  getLessStylesheet()->getValueProcessor()->processValue(query->getSelector());
 
   parent = dynamic_cast<MediaQuery*>(s);
   
