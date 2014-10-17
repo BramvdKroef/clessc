@@ -41,7 +41,7 @@ TokenList* StringValue::getTokens() {
     // add quotes
     newstr.push_back('"');
     for (i = stringvalue.begin(); i != stringvalue.end(); i++) {
-      if (*i == '"' || *i == '\\') 
+      if (*i == '"') 
         newstr.push_back('\\');
       newstr.push_back(*i);
     }
