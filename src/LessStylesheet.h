@@ -34,6 +34,7 @@ class LessStylesheet: public Stylesheet {
 private:
   ValueProcessor valueProcessor;
   vector<LessRuleset*> lessrulesets;
+  map<string, TokenList*> variables;
   
 public:
   LessStylesheet();
@@ -44,12 +45,17 @@ public:
   virtual void addStatement(ParameterMixin* mixin);
   virtual void addStatement(LessMediaQuery* query);
 
-  virtual list<LessRuleset*> getLessRulesets(ParameterMixin* mixin);
+  virtual void getLessRulesets(list<LessRuleset*>* rulesetList,
+                               ParameterMixin* mixin);
 
   void getExtensions(map<string, TokenList*>* extensions);
   
   virtual ValueProcessor* getValueProcessor();
   void putVariable(string key, TokenList* value);
+
+  virtual void process(Stylesheet* s);
+
+  void processVariables();
 };
 
 #endif

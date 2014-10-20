@@ -82,6 +82,14 @@ public:
   void getLessRulesets(list<LessRuleset*>* rulesetList,
                        ParameterMixin* mixin,
                        size_t selector_offset);
+
+  /**
+   * Look for a ruleset inside this ruleset and scope up to
+   * getParent(), or getLessStylesheet() if getParent() is NULL.
+   */
+  void getLocalLessRulesets(list<LessRuleset*>* rulesetList,
+                            ParameterMixin* mixin);
+
   bool matchConditions();
   bool putArguments(ParameterMixin* mixin);
 };

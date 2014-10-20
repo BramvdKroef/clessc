@@ -116,6 +116,8 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
 
+  map<string, TokenList*>::iterator e_find;
+
   for (e_it = getLessSelector()->getExtensions()->begin();
        e_it != getLessSelector()->getExtensions()->end();
        e_it++) {
@@ -124,9 +126,16 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
     
     if (prefix != NULL)
       selector->addPrefix(prefix);
-    
-    extensions->insert(pair<string, TokenList*>
-                       (e_it->first,selector));
+
+    e_find = extensions->find(e_it->first);
+    if (e_find != extensions->end()) {
+      e_find->second->push(new Token(",", Token::OTHER));
+      e_find->second->push(selector);
+      delete selector;
+    } else {
+      extensions->insert(pair<string, TokenList*>
+                         (e_it->first,selector));
+    }
   }
 
   selector = new Selector();
@@ -141,9 +150,16 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
     extension = (*s_it)->getExtension();
     
     if (extension != NULL) {
-      extensions->insert(pair<string, TokenList*>
-                         (*extension->toString(),
-                          selector->clone()));
+      e_find = extensions->find(*extension->toString());
+      
+      if (e_find != extensions->end()) {
+        e_find->second->push(new Token(",", Token::OTHER));
+        e_find->second->push(selector);
+      } else {
+        extensions->insert(pair<string, TokenList*>
+                           (*extension->toString(),
+                            selector->clone()));
+      }
       delete extension;
     }
   }
@@ -283,11 +299,27 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
   }
 }
 
+void LessRuleset::getLocalLessRulesets(list<LessRuleset*>* rulesetList,
+                                       ParameterMixin* mixin) {
+  list<LessRuleset*>* nestedRules = getNestedRules();
+  list<LessRuleset*>::iterator r_it;
+  
+  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+    (*r_it)->getLessRulesets(rulesetList, mixin, 0);
+  }
+
+  if (getParent() != NULL) {
+    getParent()->getLocalLessRulesets(rulesetList, mixin);
+  } else {
+    getLessStylesheet()->getLessRulesets(rulesetList, mixin);
+  }
+}
+
 void LessRuleset::processVariables() {
   map<string, TokenList*>::iterator it;
 
   for (it = variables.begin(); it != variables.end(); ++it) {
-    getLessStylesheet()->putVariable(it->first, it->second);
+    getLessStylesheet()->getValueProcessor()->putVariable(it->first, it->second);
   }
 }
 
@@ -356,7 +388,7 @@ bool LessRuleset::putArguments(ParameterMixin* mixin) {
       return false;
     }
     
-    getLessStylesheet()->putVariable(*pit, variable);
+    getLessStylesheet()->getValueProcessor()->putVariable(*pit, variable);
     argsCombined->push(variable->clone());
     argsCombined->push(new Token(" ", Token::WHITESPACE));
   }
@@ -370,9 +402,9 @@ bool LessRuleset::putArguments(ParameterMixin* mixin) {
     }
     
     restVar->trim();
-    getLessStylesheet()->putVariable(selector->getRestIdentifier(), restVar);
+    getLessStylesheet()->getValueProcessor()->putVariable(selector->getRestIdentifier(), restVar);
   }
   
-  getLessStylesheet()->putVariable("@arguments", argsCombined);
+  getLessStylesheet()->getValueProcessor()->putVariable("@arguments", argsCombined);
   return true;
 }

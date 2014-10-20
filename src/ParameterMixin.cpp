@@ -82,8 +82,11 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Mixin: \"" << *name->toString() << "\"";
 #endif
-  
-  rulesetList = getLessStylesheet()->getLessRulesets(this);
+
+  if (parent != NULL)
+    parent->getLocalLessRulesets(&rulesetList, this);
+  else
+    getLessStylesheet()->getLessRulesets(&rulesetList, this);
 
   if (rulesetList.empty())
     return false;

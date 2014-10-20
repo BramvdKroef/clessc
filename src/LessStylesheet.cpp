@@ -45,16 +45,15 @@ void LessStylesheet::addStatement(LessMediaQuery* query) {
   query->setStylesheet(this);
 }
   
-list<LessRuleset*> LessStylesheet::getLessRulesets(ParameterMixin* mixin) {
+void LessStylesheet::getLessRulesets(list<LessRuleset*>* rulesetList,
+                                     ParameterMixin* mixin) {
   vector<LessRuleset*>::iterator i;
-  list<LessRuleset*> rulesetList;
   
   for (i = lessrulesets.begin(); i != lessrulesets.end();
        i++) {
 
-    (*i)->getLessRulesets(&rulesetList, mixin, 0);
+    (*i)->getLessRulesets(rulesetList, mixin, 0);
   }
-  return rulesetList;
 }
 
 void LessStylesheet::getExtensions(map<string,TokenList*>* extensions) {
@@ -72,9 +71,21 @@ ValueProcessor* LessStylesheet::getValueProcessor() {
 }
 
 void LessStylesheet::putVariable(string key, TokenList* value) {
+  variables.insert(pair<string, TokenList*>(key, value));  
+}
+
+void LessStylesheet::processVariables() {
+  map<string, TokenList*>::iterator it;
+
+  for (it = variables.begin(); it != variables.end(); ++it) {
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Variable: " << key << ": " << *value->toString();
+    VLOG(3) << "Variable: " << it->first << ": " << *it->second->toString();
 #endif
-  
-  getValueProcessor()->putVariable(key, value);
+    getValueProcessor()->putVariable(it->first, it->second);
+  }
+}
+
+void LessStylesheet::process(Stylesheet* s) {
+  processVariables();
+  Stylesheet::process(s);
 }

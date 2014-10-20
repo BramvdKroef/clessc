@@ -23,13 +23,10 @@ LessStylesheet* LessMediaQuery::getLessStylesheet() {
   return parent;
 }
 
-list<LessRuleset*> LessMediaQuery::getLessRulesets(ParameterMixin* mixin) {
-  list<LessRuleset*> rulesetList1 = LessStylesheet::getLessRulesets(mixin);
-  list<LessRuleset*> rulesetList2 = getLessStylesheet()->getLessRulesets(mixin);
-
-  rulesetList1.insert(rulesetList1.end(),
-                      rulesetList2.begin(), rulesetList2.end());
-  return rulesetList1;
+void LessMediaQuery::getLessRulesets(list<LessRuleset*>* rulesetList,
+                                     ParameterMixin* mixin) {
+  LessStylesheet::getLessRulesets(rulesetList, mixin);
+  getLessStylesheet()->getLessRulesets(rulesetList, mixin);
 }
 
 ValueProcessor* LessMediaQuery::getValueProcessor() {
@@ -42,7 +39,7 @@ void LessMediaQuery::process(Stylesheet* s) {
   getValueProcessor()->processValue(query->getSelector());
   s->addStatement(query);
 
-  Stylesheet::process(query);
+  LessStylesheet::process(query);
 }
 
 
