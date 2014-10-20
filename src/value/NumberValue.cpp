@@ -211,7 +211,7 @@ string NumberValue::getUnit () {
 
 void NumberValue::setUnit(string unit) {
   ostringstream stm;
-  stm << getValue();
+  stm << setprecision(10) << getValue();
   stm << unit;
   tokens.front()->str = stm.str();
   
@@ -226,7 +226,7 @@ void NumberValue::setUnit(string unit) {
 
 void NumberValue::setValue(double d) {
   ostringstream stm;
-  stm << d;
+  stm << setprecision(10) << d;
   if (type == DIMENSION)
     stm << getUnit();
   else if (type == PERCENTAGE)
