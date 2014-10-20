@@ -50,7 +50,10 @@ LessSelector::LessSelector(Selector* original) {
         extensions.insert(pair<string,TokenList*>
                           (*extension->toString(), new_selector->clone()));
         delete extension;
-      } else if (parts->size() == 1 && parseArguments(old_selector)) {
+      } else if (parts->size() == 1 &&
+                 !new_selector->empty() &&
+                 new_selector->back()->str != "nth-child" &&
+                 parseArguments(old_selector)) {
         _needsArguments = true;
         old_selector->ltrim();
         
