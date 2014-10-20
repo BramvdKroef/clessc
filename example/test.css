@@ -405,6 +405,21 @@ div {
   .loop(5); // launch the loop
 }
 
+.test-nested-loop () {
+    @name: ~"abc";
+    
+    .nested-loop(@name, @counter) when (@counter > 0) {
+        .nested-loop-@{name} {
+            c: @counter;
+        }
+        .nested-loop(~"@{name}-@{counter}", @counter - 1);
+    }
+
+    .nested-loop(@name, 3);
+}
+
+.test-nested-loop();
+
 .test8 {
     @media screen {
         width: 300px;
