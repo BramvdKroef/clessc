@@ -321,7 +321,7 @@ void Color::setHSL(double hue, double saturation, double lightness) {
 }
 
 void Color::setAlpha(double alpha) {
-  this->alpha = alpha;
+  this->alpha = min(max(alpha, 0.0), 1.0);
   valueChanged = true;
 }
 double Color::getAlpha() {
@@ -459,7 +459,7 @@ Value* Color::fadein(vector<Value*> arguments) {
   double alpha = ((Color*)arguments[0])->getAlpha();
   double value = ((NumberValue*)arguments[1])->getValue();
 
-  ((Color*)arguments[0])->setAlpha(alpha * min(1 + value * .01, 100.00));
+  ((Color*)arguments[0])->setAlpha(alpha + value * .01);
   return arguments[0];
 }
 
@@ -467,7 +467,7 @@ Value* Color::fadeout(vector<Value*> arguments) {
   double alpha = ((Color*)arguments[0])->getAlpha();
   double value = ((NumberValue*)arguments[1])->getValue();
 
-  ((Color*)arguments[0])->setAlpha(alpha * max(1 - value * .01, 0.00));
+  ((Color*)arguments[0])->setAlpha(alpha - value * .01);
   return arguments[0];
 }
 
