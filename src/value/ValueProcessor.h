@@ -56,6 +56,8 @@ private:
   UnitValue* processUnit(Token* t);
   
   bool needsSpace(Token* t, bool before);
+
+  bool stringHasQuotes(string str);
   string removeQuotes(string str);
   string getUrlString(string url);
 
@@ -83,7 +85,7 @@ public:
   
   bool functionExists(string function);
 
-  void interpolateString(Token* str);
+  string interpolateString(string str);
   void interpolateTokenList(TokenList* tokens);
     
   void pushScope(map<string, TokenList*>* scope);

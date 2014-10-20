@@ -62,7 +62,7 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
     // interpolate strings
     for(i = value->iterator(); i->hasNext();) {
       if (i->next()->type == Token::STRING)
-        interpolateString(i->current());
+        i->current()->str = interpolateString(i->current()->str);
     }
     return value;
   }
@@ -310,6 +310,7 @@ Value* ValueProcessor::processConstant(TokenList* value) {
   Token* token;
   Value* ret;
   TokenList* variable;
+  bool hasQuotes;
 
   if (value->size() == 0)
     return NULL;
@@ -350,12 +351,12 @@ Value* ValueProcessor::processConstant(TokenList* value) {
       return NULL;
 
   case Token::STRING:
-    interpolateString(token);
-    token->str = removeQuotes(token->str);
-    return new StringValue(value->shift(), true);
+    hasQuotes = stringHasQuotes(token->str);
+    token->str = removeQuotes(interpolateString(token->str));
+    return new StringValue(value->shift(), hasQuotes);
 
   case Token::URL:
-    interpolateString(token);
+    token->str = interpolateString(token->str);
     return new UrlValue(token,
                         removeQuotes(getUrlString(value->shift()->str)));
         
@@ -559,15 +560,20 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
   return arguments;
 }
 
-void ValueProcessor::interpolateString(Token* token) {
+bool ValueProcessor::stringHasQuotes(string str) {
+  return (str[0] == '"' ||
+          str[0] == '\'');
+}
+
+string ValueProcessor::interpolateString(string str) {
   size_t start, end = 0;
   string key , value;
   TokenList* var;
   
-  while ((start = token->str.find("@{", end)) != string::npos &&
-         (end = token->str.find("}", start)) != string::npos) {
+  while ((start = str.find("@{", end)) != string::npos &&
+         (end = str.find("}", start)) != string::npos) {
     key = "@";
-    key.append(token->str.substr(start + 2, end - (start + 2)));
+    key.append(str.substr(start + 2, end - (start + 2)));
 
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Key: " << key;
@@ -582,23 +588,24 @@ void ValueProcessor::interpolateString(Token* token) {
       
       // Remove quotes off strings.
       if (var->size() == 1 &&
-          var->front()->type == Token::STRING &&
-          (value[0] == '"' || value[0] == '\'')) {
-        value = value.substr(1, value.size() - 2);
+          var->front()->type == Token::STRING) {
+        value = removeQuotes(value);
       }
   
-      token->str.replace(start, (end + 1) - start, value);
+      str.replace(start, (end + 1) - start, value);
       end = start + value.length();
       delete var;
     }
   }
+  return str;
 }
 
 void ValueProcessor::interpolateTokenList(TokenList* tokens) {
   TokenListIterator* tli = tokens->iterator();
   
   while (tli->hasNext()) {
-    interpolateString(tli->next());
+    tli->next();
+    tli->current()->str = interpolateString(tli->current()->str);
   }
 
   delete tli;
@@ -612,17 +619,20 @@ Value* ValueProcessor::processEscape (TokenList* value) {
     return NULL;
 
   delete value->shift();
-  interpolateString(value->front());
-  value->front()->str = removeQuotes(value->front()->str);
+  value->front()->str = removeQuotes(interpolateString(value->front()->str));
   return new StringValue(value->shift(), false);
 }
 
 string ValueProcessor::removeQuotes(string str) {
   char quote = str[0];
-  str = str.substr(1, str.size() - 2);
   string::iterator i;
   string ret;
+
+  if (!stringHasQuotes(str))
+    return str;
   
+  str = str.substr(1, str.size() - 2);
+
   for (i = str.begin(); i != str.end(); i++) {
     if (*i == '\\' && *(i + 1) == quote) 
       i++;
