@@ -467,6 +467,14 @@ div {
     }
 }
 
+.test15(@x) {
+    width: @x;
+}
+
+.class15 {
+    .test15(~"1px solid blue");
+}
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
