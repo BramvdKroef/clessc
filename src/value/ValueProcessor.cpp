@@ -56,9 +56,16 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
   Value* v;
   TokenList* var;
   TokenList* variable;
+  TokenListIterator* i;
 
-  if (!needsProcessing(value))
+  if (!needsProcessing(value)) {
+    // interpolate strings
+    for(i = value->iterator(); i->hasNext();) {
+      if (i->next()->type == Token::STRING)
+        interpolateString(i->current());
+    }
     return value;
+  }
 
   while (value->size() > 0) {
     v = processStatement(value);
@@ -82,8 +89,10 @@ TokenList* ValueProcessor::processValue(TokenList* value) {
       // variable containing a non-value.
       if (value->front()->type == Token::ATKEYWORD &&
           (variable = getVariable(value->front()->str)) != NULL) {
+        variable = variable->clone();
         newvalue.push(processValue(variable));
         delete value->shift();
+        delete variable;
         
       } else if ((var = processDeepVariable(value)) != NULL) {
         newvalue.push(var);
@@ -120,9 +129,6 @@ bool ValueProcessor::needsProcessing(TokenList* value) {
       // url
       (t->type == Token::URL) ||
 
-      // string
-      (t->type == Token::STRING) ||
-
       // function
       (t->type == Token::IDENTIFIER &&
         i->hasNext() &&
@@ -130,7 +136,11 @@ bool ValueProcessor::needsProcessing(TokenList* value) {
         functionExists(t->str)) ||
 
       // operator
-      (operators.find(t->str) != string::npos);
+      (operators.find(t->str) != string::npos) ||
+
+      (t->str == "~" &&
+       i->hasNext() &&
+       i->peek()->type == Token::STRING); 
   }
   
   delete i;
@@ -305,6 +315,11 @@ Value* ValueProcessor::processConstant(TokenList* value) {
     return NULL;
   
   token = value->front();
+  
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Constant: " << token->str;
+#endif
+  
   switch(token->type) {
   case Token::HASH:
     // generate color from hex value
@@ -454,6 +469,7 @@ TokenList* ValueProcessor::processDeepVariable (TokenList* value) {
 }
 
 bool ValueProcessor::functionExists(string function) {
+  
   return (functionLibrary->getFunction(function.c_str()) != NULL);
 }
 
@@ -464,6 +480,10 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
   Value* ret;
   vector<Value*>::iterator it;
   string arg_str;
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Function: " << function;
+#endif
   
   fi = functionLibrary->getFunction(function.c_str());
   
@@ -518,7 +538,7 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
          (value->front()->str == "," ||
           value->front()->str == ";")) {
     delete value->shift();
-    
+
     argument = processStatement(value);
 
     if (argument != NULL) {
@@ -540,24 +560,36 @@ vector<Value*> ValueProcessor::processArguments (TokenList* value) {
 }
 
 void ValueProcessor::interpolateString(Token* token) {
-  size_t start, end;
-  string key = "@", value;
+  size_t start, end = 0;
+  string key , value;
   TokenList* var;
   
-  while ((start = token->str.find("@{")) != string::npos &&
+  while ((start = token->str.find("@{", end)) != string::npos &&
          (end = token->str.find("}", start)) != string::npos) {
-  
+    key = "@";
     key.append(token->str.substr(start + 2, end - (start + 2)));
+
+#ifdef WITH_LIBGLOG
+    VLOG(3) << "Key: " << key;
+#endif
+    
     var = getVariable(key);
-
+    
     if (var != NULL) {
+      var = var->clone();
+      var = processValue(var);
       value = *var->toString();
-
+      
       // Remove quotes off strings.
-      if (var->size() == 1 && var->front()->type == Token::STRING) 
+      if (var->size() == 1 &&
+          var->front()->type == Token::STRING &&
+          (value[0] == '"' || value[0] == '\'')) {
         value = value.substr(1, value.size() - 2);
+      }
   
       token->str.replace(start, (end + 1) - start, value);
+      end = start + value.length();
+      delete var;
     }
   }
 }
