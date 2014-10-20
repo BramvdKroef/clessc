@@ -391,6 +391,10 @@ void Color::loadFunctions(FunctionLibrary* lib) {
   lib->push("saturation", "C", &Color::saturation);
   lib->push("lightness", "C", &Color::lightness);
   lib->push("argb", "C", &Color::argb);
+  lib->push("red", "C", &Color::red);
+  lib->push("blue", "C", &Color::blue);
+  lib->push("green", "C", &Color::green);
+  lib->push("alpha", "C", &Color::_alpha);
 }
 
 Value* Color::rgb(vector<Value*> arguments) {
@@ -540,4 +544,37 @@ Value* Color::argb(vector<Value*> arguments) {
   }
   hash = stm.str();
   return new StringValue(new Token(hash, Token::STRING), false);
+}
+
+Value* Color::red(vector<Value*> arguments) {
+  Color* c = (Color*)arguments[0];
+  ostringstream stm;
+
+  stm.str("");
+  stm << c->getRed();
+  return new NumberValue(new Token(stm.str(), Token::NUMBER));
+}
+Value* Color::blue(vector<Value*> arguments) {
+  Color* c = (Color*)arguments[0];
+  ostringstream stm;
+
+  stm.str("");
+  stm << c->getBlue();
+  return new NumberValue(new Token(stm.str(), Token::NUMBER));
+}
+Value* Color::green(vector<Value*> arguments) {
+  Color* c = (Color*)arguments[0];
+  ostringstream stm;
+
+  stm.str("");
+  stm << c->getGreen();
+  return new NumberValue(new Token(stm.str(), Token::NUMBER));
+}
+Value* Color::_alpha(vector<Value*> arguments) {
+  Color* c = (Color*)arguments[0];
+  ostringstream stm;
+
+  stm.str("");
+  stm << c->getAlpha();
+  return new NumberValue(new Token(stm.str(), Token::NUMBER));
 }

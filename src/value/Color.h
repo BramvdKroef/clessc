@@ -112,17 +112,17 @@ public:
   static Value* saturation(vector<Value*> arguments);
   static Value* lightness(vector<Value*> arguments);
   static Value* argb(vector<Value*> arguments);
-
+  static Value* red(vector<Value*> arguments);
+  static Value* green(vector<Value*> arguments);
+  static Value* blue(vector<Value*> arguments);
+  static Value* _alpha(vector<Value*> arguments);
+  
   static Value* hsla(vector<Value*> arguments);
   static Value* hsv(vector<Value*> arguments);
   static Value* hsva(vector<Value*> arguments);
   static Value* hsvhue(vector<Value*> arguments);
   static Value* hsvsaturation(vector<Value*> arguments);
   static Value* hsvvalue(vector<Value*> arguments);
-  static Value* red(vector<Value*> arguments);
-  static Value* green(vector<Value*> arguments);
-  static Value* blue(vector<Value*> arguments);
-  static Value* _alpha(vector<Value*> arguments);
   static Value* luma(vector<Value*> arguments);
   static Value* fade(vector<Value*> arguments);
   static Value* mix(vector<Value*> arguments);
