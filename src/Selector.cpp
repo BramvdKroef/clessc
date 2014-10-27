@@ -27,12 +27,12 @@ Selector::~Selector() {
 }
 
 void Selector::addPrefix(Selector* prefix) {
-  list<TokenList*>* prefixParts = prefix->split();
-  list<TokenList*>* sepParts = split();
-  list<TokenList*>::iterator prefixIt;
-  list<TokenList*>::iterator sepIt;
+  list<Selector*>* prefixParts = prefix->split();
+  list<Selector*>* sepParts = split();
+  list<Selector*>::iterator prefixIt;
+  list<Selector*>::iterator sepIt;
 
-  TokenList* tmp, *prefixPart;
+  Selector* tmp, *prefixPart;
   TokenListIterator* i;
   bool containsAmp;
   
@@ -83,10 +83,10 @@ void Selector::addPrefix(Selector* prefix) {
   }
 }
 
-list<TokenList*>* Selector::split() {
-  list<TokenList*>* l = new list<TokenList*>();
+list<Selector*>* Selector::split() {
+  list<Selector*>* l = new list<Selector*>();
   TokenListIterator* it = iterator();
-  TokenList* current = new TokenList();
+  Selector* current = new Selector();
   Token* t;
   unsigned int parentheses = 0;
   
@@ -97,7 +97,7 @@ list<TokenList*>* Selector::split() {
     
     if (parentheses == 0 &&
         t->type == Token::OTHER && t->str == ",") {
-      current = new TokenList();
+      current = new Selector();
       l->push_back(current);
     } else {
       if (t->str == "(")
@@ -122,43 +122,16 @@ Selector* Selector::clone() {
 
 
 bool Selector::equals(TokenList* list) {
-  TokenListIterator* it1, * it2;
-  bool ret;
-  
-  it1 = iterator();
-  it2 = list->iterator();
-
-  while (it1->hasNext() && it2->hasNext()) {
-    if (!it1->next()->equals(it2->next())) {
-      delete it1;
-      delete it2;
-      return false;
-    }
-    if (it1->hasNext() && it1->peek()->str == ">") {
-      it1->next();
-      if (it1->hasNext() && it1->peek()->type == Token::WHITESPACE) 
-        it1->next();
-    }
-    if (it2->hasNext() && it2->peek()->str == ">") {
-      it2->next();
-      if (it2->hasNext() && it2->peek()->type == Token::WHITESPACE) 
-        it2->next();
-    }
-  }
-  ret = !(it1->hasNext() || it2->hasNext());
-  delete it1;
-  delete it2;
-  return ret;
+  return (walk(list, 0) == size());
 }
 
-size_t Selector::walk(TokenList* list, size_t offset) {
-  TokenListIterator* it = list->iterator();
+size_t Selector::walk(TokenList* list, size_t offset = 0) {
+  size_t i = 0;
   
-  while (offset < size() && it->hasNext()) {
-    if (!at(offset)->equals(it->next())) {
-      delete it;
+  while (offset < size() && i < list->size()) {
+    if (!at(offset)->equals(list->at(i))) 
       return 0;
-    }
+    
     offset++;
     
     if (offset < size() && at(offset)->str == ">") {
@@ -166,7 +139,7 @@ size_t Selector::walk(TokenList* list, size_t offset) {
       if (offset < size() && at(offset)->type == Token::WHITESPACE)
         offset++;
     }
-    if (it->hasNext() && it->peek()->str == ">") {
+    if (i < list->size() && it->peek()->str == ">") {
       it->next();
       if (it->hasNext() && it->peek()->type == Token::WHITESPACE) 
         it->next();
@@ -174,7 +147,15 @@ size_t Selector::walk(TokenList* list, size_t offset) {
   }
   
   if (it->hasNext())
-    offset = 0;
+    offset = Selector::npos;
   delete it;
   return offset;
+}
+
+size_t Selector::find(TokenList* list, size_t offset = 0) {
+  for (; offset < size(); offset++) {
+    if (walk(list, offset) != Selector::npos)
+      return offset;
+  }
+  return Selector::npos;
 }

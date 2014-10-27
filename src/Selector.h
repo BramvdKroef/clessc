@@ -31,6 +31,8 @@ using namespace std;
  */
 class Selector: public TokenList {
 public:
+  static const size_t npos = -1;
+  
   virtual ~Selector();
 
   void addPrefix(Selector* prefix);
@@ -42,10 +44,11 @@ public:
    * For example <code>p .class, a:hover</code> is split up into
    * <code>p .class</code> and <code>a:hover</code>.
    */
-  list<TokenList*>* split();
+  list<Selector*>* split();
   virtual Selector* clone();
   virtual bool equals(TokenList* list);
   size_t walk(TokenList* list, size_t offset = 0);
+  size_t find(TokenList* list, size_t offset = 0);
 };
 
 #endif

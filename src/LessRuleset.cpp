@@ -270,7 +270,7 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
 
   selector_offset = mixin->name->walk(getSelector(), selector_offset);
 
-  if (selector_offset == 0)
+  if (selector_offset == Selector::npos)
     return;
 
 #ifdef WITH_LIBGLOG
