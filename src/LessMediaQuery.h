@@ -40,7 +40,7 @@ public:
   LessStylesheet* getLessStylesheet();
 
   virtual void getLessRulesets(list<LessRuleset*>* rulesetList,
-                               ParameterMixin* mixin);
+                               Mixin* mixin);
   
   virtual ValueProcessor* getValueProcessor();
   virtual void process(Stylesheet* s);

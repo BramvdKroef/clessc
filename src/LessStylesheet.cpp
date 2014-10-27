@@ -79,13 +79,25 @@ void LessStylesheet::processVariables() {
 
   for (it = variables.begin(); it != variables.end(); ++it) {
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Variable: " << it->first << ": " << *it->second->toString();
+    VLOG(3) << "Variable: " << it->first << ": " << it->second->toString();
 #endif
     getValueProcessor()->putVariable(it->first, it->second);
   }
 }
 
 void LessStylesheet::process(Stylesheet* s) {
+  map<string,TokenList*> extensions;
+  vector<Ruleset>::iterator r_it;
+  
   processVariables();
   Stylesheet::process(s);
+
+  /*extensions = getExtensions(&extensions);
+
+  for (r_it = s->getRulesets()->begin();
+       r_it != s->getRulesets()->end();
+       r_it++) {
+    // (*r_it)->getSelector()
+  }
+  */
 }

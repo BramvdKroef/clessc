@@ -65,7 +65,7 @@ list<UnprocessedStatement*>* LessRuleset::getUnprocessedStatements() {
 void LessRuleset::addNestedRule(LessRuleset* nestedRule) {
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Adding nested rule: " <<
-    *nestedRule->getSelector()->toString();
+    nestedRule->getSelector()->toString();
 #endif
   
   nestedRules.push_back(nestedRule);
@@ -150,14 +150,14 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
     extension = (*s_it)->getExtension();
     
     if (extension != NULL) {
-      e_find = extensions->find(*extension->toString());
+      e_find = extensions->find(extension->toString());
       
       if (e_find != extensions->end()) {
         e_find->second->push(new Token(",", Token::OTHER));
         e_find->second->push(selector);
       } else {
         extensions->insert(pair<string, TokenList*>
-                           (*extension->toString(),
+                           (extension->toString(),
                             selector->clone()));
       }
       delete extension;
@@ -253,7 +253,7 @@ void LessRuleset::process(Stylesheet* s, Selector* prefix) {
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Less Ruleset: " <<
-    *getSelector()->toString();
+    getSelector()->toString();
 #endif
 
   getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
@@ -274,8 +274,8 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
     return;
 
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Matching mixin " << *mixin->name->toString() <<
-    " against " << *getSelector()->toString();
+  VLOG(3) << "Matching mixin " << mixin->name->toString() <<
+    " against " << getSelector()->toString();
 #endif
   
   while (selector_offset < mixin->name->size() &&
@@ -345,13 +345,13 @@ bool LessRuleset::matchConditions(){
   for(cit = conditions->begin(); cit != conditions->end(); cit++) {
     condition = (*cit)->clone();
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Checking condition: " << *condition->toString();
+    VLOG(3) << "Checking condition: " << condition->toString();
 #endif
     
     if (getLessStylesheet()->getValueProcessor()->validateCondition(condition)) {
       
 #ifdef WITH_LIBGLOG
-      VLOG(3) << "Found valid condition: " << *condition->toString();
+      VLOG(3) << "Found valid condition: " << condition->toString();
 #endif
       
       delete condition;

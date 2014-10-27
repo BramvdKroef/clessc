@@ -183,12 +183,12 @@ TokenList* TokenList::clone() {
   return newtokens;
 }
   
-string* TokenList::toString() {
-  string* str = new string();
+string TokenList::toString() {
+  string str;
   list<Token*>::iterator it;
     
   for (it = tokens.begin(); it != tokens.end(); it++) {
-    str->append((*it)->str);
+    str.append((*it)->str);
   }
   return str;
 }

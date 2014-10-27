@@ -40,7 +40,7 @@ void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Less Ruleset: " <<
-    *getSelector()->toString();
+    getSelector()->toString();
 #endif
   
   query->setSelector(getSelector()->clone());
@@ -63,7 +63,7 @@ void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
 
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Interpolating selector " <<
-    *target->getSelector()->toString();
+    target->getSelector()->toString();
 #endif
     getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
   

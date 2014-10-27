@@ -501,7 +501,7 @@ Value* ValueProcessor::processFunction(string function, TokenList* value) {
     for (it = arguments.begin(); it != arguments.end(); it++) {
       if (it != arguments.begin())
         arg_str.append(", ");
-      arg_str.append((*it)->getTokens()->toString()->c_str());
+      arg_str.append((*it)->getTokens()->toString().c_str());
     }
     arg_str.append(")");
     
@@ -584,7 +584,7 @@ string ValueProcessor::interpolateString(string str) {
     if (var != NULL) {
       var = var->clone();
       var = processValue(var);
-      value = *var->toString();
+      value = var->toString();
       
       // Remove quotes off strings.
       if (var->size() == 1 &&

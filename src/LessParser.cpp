@@ -47,7 +47,7 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
   
   if (parseSelector(selector) && !selector->empty()) {
 #ifdef WITH_LIBGLOG
-    VLOG(2) << "Parse: Selector: " << *selector->toString();
+    VLOG(2) << "Parse: Selector: " << selector->toString();
 #endif
     
     if (parseRuleset((LessStylesheet*)stylesheet, selector))
@@ -124,7 +124,7 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet* stylesheet) {
     if (keyword == "@import") {
       if (rule->size() != 1 ||
           rule->front()->type != Token::STRING)
-        throw new ParseException(*rule->toString(), "A string with the \
+        throw new ParseException(rule->toString(), "A string with the \
 file path",
                                  tokenizer->getLineNumber(),
                                  tokenizer->getColumn(),
@@ -406,7 +406,7 @@ void LessParser::parseLessMediaQuery(LessStylesheet* stylesheet) {
   query->setSelector(s);
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Media query: " << *s->toString();
+  VLOG(2) << "Media query: " << s->toString();
 #endif
 
   stylesheet->addStatement(query);

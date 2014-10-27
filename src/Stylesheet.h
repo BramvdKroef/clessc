@@ -54,17 +54,17 @@ public:
 
 class Declaration: public RulesetStatement {
 private:
-  string* property;
+  string property;
   TokenList* value;
   
 public:
   Declaration();
-  Declaration(string* property);
+  Declaration(string property);
   virtual ~Declaration();
-  void setProperty(string* property);
+  void setProperty(string property);
   void setValue(TokenList* value);
   
-  string* getProperty();
+  string getProperty();
   TokenList* getValue();
   virtual Declaration* clone();
 

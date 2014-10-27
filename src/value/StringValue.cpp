@@ -68,7 +68,7 @@ bool StringValue::getQuotes() {
 
 Value* StringValue::add(Value* v) {
   bool v_quotes;
-  string* newstr;
+  string newstr;
   
   if (v->type == Value::STRING) {
     v_quotes = ((StringValue*)v)->getQuotes();
@@ -79,8 +79,7 @@ Value* StringValue::add(Value* v) {
   } else
     newstr = v->getTokens()->toString();
   
-  stringvalue.append(*newstr);
-  delete newstr;
+  stringvalue.append(newstr);
   return this;
 }
 
@@ -180,7 +179,7 @@ arguments than provided.");
             arguments[argc]->type == STRING) {
           argStr = ((StringValue*)arguments[argc])->getString();
         } else
-          argStr = *arguments[argc]->getTokens()->toString(); 
+          argStr = arguments[argc]->getTokens()->toString(); 
 
         if (oldstr[i] == 'A' || oldstr[i] == 'D' ||
             oldstr[i] == 'S') {

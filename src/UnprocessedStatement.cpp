@@ -77,7 +77,7 @@ void UnprocessedStatement::process(Ruleset* r) {
   Declaration declaration;
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Statement: " << *getTokens()->toString();
+  VLOG(2) << "Statement: " << getTokens()->toString();
 #endif
   
   // skip if this is an extends() statement
@@ -94,7 +94,7 @@ void UnprocessedStatement::process(Ruleset* r) {
     
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Declaration: " <<
-      *declaration.getProperty() << ": " << *declaration.getValue()->toString();
+      declaration.getProperty() << ": " << declaration.getValue()->toString();
 #endif
     
     getLessRuleset()->getLessStylesheet()->
@@ -104,11 +104,11 @@ void UnprocessedStatement::process(Ruleset* r) {
 
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Processed declaration: " <<
-      *declaration.getProperty() << ": " << *declaration.getValue()->toString();
+      declaration.getProperty() << ": " << declaration.getValue()->toString();
 #endif
     
   } else {
-    throw new ParseException(*getTokens()->toString(),
+    throw new ParseException(getTokens()->toString(),
                              "variable, mixin or declaration.",
                              line, column, source);
   }

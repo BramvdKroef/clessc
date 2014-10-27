@@ -28,11 +28,11 @@
 #endif
 
 LessSelector::LessSelector(Selector* original) {
-  list<TokenList*>* parts = original->split();
-  list<TokenList*>::iterator it;
-  TokenList* old_selector,
-    *new_selector = new TokenList(),
-    *extension;
+  list<Selector*>* parts = original->split();
+  list<Selector*>::iterator it;
+  Selector* old_selector,
+    *new_selector = new Selector();
+  TokenList* extension;
 
   _needsArguments = false;
   _unlimitedArguments = false;
@@ -48,7 +48,7 @@ LessSelector::LessSelector(Selector* original) {
       extension = parseExtension(old_selector);
       if (extension != NULL) {
         extensions.insert(pair<string,TokenList*>
-                          (*extension->toString(), new_selector->clone()));
+                          (extension->toString(), new_selector->clone()));
         delete extension;
       } else if (parts->size() == 1 &&
                  !new_selector->empty() &&
@@ -70,7 +70,7 @@ LessSelector::LessSelector(Selector* original) {
   }
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Parsed selector: " << *toString();
+  VLOG(2) << "Parsed selector: " << toString();
 #endif
   
   delete new_selector;
@@ -124,7 +124,7 @@ TokenList* LessSelector::parseExtension(TokenList* selector) {
     delete selector->shift();
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Extension: " << *extension->toString();
+  VLOG(2) << "Extension: " << extension->toString();
 #endif
   
   return extension;  
@@ -169,7 +169,7 @@ bool LessSelector::parseArguments(TokenList* selector) {
   selector->ltrim();
 
   if (selector->front()->type != Token::PAREN_CLOSED) {
-    throw new ParseException(*selector->toString(),
+    throw new ParseException(selector->toString(),
                              "matching parentheses.", 0, 0, "");
   }
 
@@ -365,7 +365,7 @@ bool LessSelector::parseConditions (TokenList* selector) {
       delete selector->shift();
 
 #ifdef WITH_LIBGLOG
-    VLOG(2) << "Condition: " << *condition->toString();
+    VLOG(2) << "Condition: " << condition->toString();
 #endif
     
     conditions.push_back(condition);

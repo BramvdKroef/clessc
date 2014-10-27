@@ -35,19 +35,16 @@ Ruleset* RulesetStatement::getRuleset() {
 }
 
 Declaration::Declaration() {
-  property = NULL;
+  property = "";
   value = NULL;
 }
 
-Declaration::Declaration(string* property) {
+Declaration::Declaration(string property) {
   this->property = property;
   value = NULL;
 }
 
 Declaration::~Declaration() {
-  if (property != NULL)
-    delete property;
-
   if (value != NULL) {
     while (!value->empty()) 
       delete value->pop();
@@ -55,13 +52,13 @@ Declaration::~Declaration() {
   }
 }
 
-void Declaration::setProperty(string* property) {
+void Declaration::setProperty(string property) {
   this->property = property;
 }
 void Declaration::setValue(TokenList* value) {
   this->value = value;
 }
-string* Declaration::getProperty() {
+string Declaration::getProperty() {
   return property;
 }
 TokenList* Declaration::getValue() {
@@ -69,21 +66,21 @@ TokenList* Declaration::getValue() {
 }
 Declaration* Declaration::clone() {
   Declaration* clone =
-    new Declaration(new string(*this->getProperty()));
+    new Declaration(this->getProperty());
   
   clone->setValue(value->clone());
   return clone;
 }
 void Declaration::process(Ruleset* r) {
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing declaration " << *property << ": " <<
-    *value->toString();
+  VLOG(2) << "Processing declaration " << property << ": " <<
+    value->toString();
 #endif
   
   r->addStatement(this->clone());
 }
 void Declaration::write(CssWriter* writer) {
-  writer->writeDeclaration(*property, value);
+  writer->writeDeclaration(property, value);
 }
 
 void StylesheetStatement::setStylesheet(Stylesheet* s) {
@@ -199,7 +196,7 @@ void Ruleset::process(Stylesheet* s) {
   Ruleset* target = new Ruleset();
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing Ruleset: " << *getSelector()->toString();
+  VLOG(2) << "Processing Ruleset: " << getSelector()->toString();
 #endif
   
   target->setSelector(getSelector()->clone());
@@ -256,7 +253,7 @@ void AtRule::process(Stylesheet* s) {
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing @rule " << *this->getKeyword() << ": " <<
-    *this->getRule()->toString();
+    this->getRule()->toString();
 #endif
   
   s->addStatement(target);
@@ -285,7 +282,7 @@ void Stylesheet::addStatement(StylesheetStatement* statement) {
 void Stylesheet::addStatement(Ruleset* ruleset) {
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Adding ruleset: " <<
-    *ruleset->getSelector()->toString();
+    ruleset->getSelector()->toString();
 #endif
   
   addStatement((StylesheetStatement*)ruleset);
@@ -296,7 +293,7 @@ void Stylesheet::addStatement(AtRule* atrule) {
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Adding @rule: " << 
     *atrule->getKeyword() << ": " <<
-    *atrule->getRule()->toString();
+    atrule->getRule()->toString();
 #endif
   
   addStatement((StylesheetStatement*)atrule);
@@ -362,7 +359,7 @@ void MediaQuery::process(Stylesheet* s) {
   MediaQuery* query = new MediaQuery();
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing media query " << *getSelector()->toString();
+  VLOG(2) << "Processing media query " << getSelector()->toString();
 #endif
   
   query->setSelector(getSelector()->clone());

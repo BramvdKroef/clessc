@@ -154,7 +154,7 @@ Value* Color::add(Value* v) {
   Color* c;
   NumberValue* n;
   StringValue* s;
-  string* str;
+  string str;
   
   if (v->type == COLOR) {
     c = static_cast<Color*>(v);
@@ -170,10 +170,9 @@ Value* Color::add(Value* v) {
     color[RGB_BLUE] += n->getValue();
   } else if(v->type == STRING) {
     str = this->getTokens()->toString();
-    s = new StringValue(new Token(*str, Token::STRING),
+    s = new StringValue(new Token(str, Token::STRING),
                         ((StringValue*)v)->getQuotes());
     s->add(v);
-    delete str;
     return s;
   }
   valueChanged = true;

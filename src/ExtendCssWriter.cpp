@@ -38,7 +38,7 @@ void ExtendCssWriter::writeAtRule(string keyword, TokenList* rule) {
 void ExtendCssWriter::writeRulesetStart(TokenList* selector) {
   map<string, TokenList*>::iterator mit;
   
-  mit = extensions->find(*selector->toString());
+  mit = extensions->find(selector->toString());
   if (mit != extensions->end()) {
     selector->push(new Token(",", Token::OTHER));
     selector->push(mit->second);

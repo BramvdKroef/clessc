@@ -24,7 +24,7 @@ LessStylesheet* LessMediaQuery::getLessStylesheet() {
 }
 
 void LessMediaQuery::getLessRulesets(list<LessRuleset*>* rulesetList,
-                                     ParameterMixin* mixin) {
+                                     Mixin* mixin) {
   LessStylesheet::getLessRulesets(rulesetList, mixin);
   getLessStylesheet()->getLessRulesets(rulesetList, mixin);
 }

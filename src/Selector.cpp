@@ -125,7 +125,7 @@ bool Selector::equals(TokenList* list) {
   return (walk(list, 0) == size());
 }
 
-size_t Selector::walk(TokenList* list, size_t offset = 0) {
+size_t Selector::walk(TokenList* list, size_t offset) {
   size_t i = 0;
   
   while (offset < size() && i < list->size()) {
@@ -139,20 +139,20 @@ size_t Selector::walk(TokenList* list, size_t offset = 0) {
       if (offset < size() && at(offset)->type == Token::WHITESPACE)
         offset++;
     }
-    if (i < list->size() && it->peek()->str == ">") {
-      it->next();
-      if (it->hasNext() && it->peek()->type == Token::WHITESPACE) 
-        it->next();
+    if (i < list->size() && list->at(i)->str == ">") {
+      i++;
+      if (i < list->size() && list->at(i)->type == Token::WHITESPACE) 
+        i++;
     }
   }
   
-  if (it->hasNext())
+  if (i < list->size())
     offset = Selector::npos;
-  delete it;
+  
   return offset;
 }
 
-size_t Selector::find(TokenList* list, size_t offset = 0) {
+size_t Selector::find(TokenList* list, size_t offset) {
   for (; offset < size(); offset++) {
     if (walk(list, offset) != Selector::npos)
       return offset;
