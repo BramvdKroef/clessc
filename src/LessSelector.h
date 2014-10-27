@@ -24,7 +24,7 @@
 
 
 #include "Selector.h"
-#include "ParameterMixin.h"
+#include "Mixin.h"
 
 #include <list>
 
@@ -59,7 +59,7 @@ public:
   TokenList* getDefault(string parameter);
 
   list<TokenList*>* getConditions();
-  bool matchArguments(ParameterMixin* arguments);
+  bool matchArguments(Mixin* arguments);
 
   bool needsArguments();
   bool unlimitedArguments();

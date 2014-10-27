@@ -25,7 +25,7 @@
 #include "Stylesheet.h"
 #include "TokenList.h"
 #include "LessRuleset.h"
-#include "ParameterMixin.h"
+#include "Mixin.h"
 #include "UnprocessedStatement.h"
 
 class LessMediaQuery;
@@ -42,11 +42,11 @@ public:
 
   virtual void addStatement(AtRule* atrule);
   virtual void addStatement(LessRuleset* ruleset);
-  virtual void addStatement(ParameterMixin* mixin);
+  virtual void addStatement(Mixin* mixin);
   virtual void addStatement(LessMediaQuery* query);
 
   virtual void getLessRulesets(list<LessRuleset*>* rulesetList,
-                               ParameterMixin* mixin);
+                               Mixin* mixin);
 
   void getExtensions(map<string, TokenList*>* extensions);
   

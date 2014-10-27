@@ -9,7 +9,7 @@ LessParser.cpp Selector.cpp CssPrettyWriter.cpp				\
 CssParser.h CssPrettyWriter.h CssTokenizer.h CssWriter.h		\
 IOException.h LessParser.h LessTokenizer.h 				\
 ParseException.cpp ParseException.h Selector.h Stylesheet.h Token.h	\
-TokenList.h ParameterMixin.cpp ParameterMixin.h				\
+TokenList.h Mixin.cpp Mixin.h						\
 UnprocessedStatement.cpp UnprocessedStatement.h LessStylesheet.cpp	\
 LessStylesheet.h LessRuleset.cpp LessRuleset.h LessMediaQuery.h		\
 LessMediaQuery.cpp MediaQueryRuleset.h MediaQueryRuleset.cpp		\

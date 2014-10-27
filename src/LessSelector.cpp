@@ -396,7 +396,7 @@ map<string, TokenList*>* LessSelector::getExtensions() {
   return &extensions;
 }
 
-bool LessSelector::matchArguments(ParameterMixin* mixin) {
+bool LessSelector::matchArguments(Mixin* mixin) {
   list<string>::iterator p_it = parameters.begin();
   list<TokenList*>::iterator d_it = defaults.begin();
   size_t pos = 0;

@@ -28,7 +28,7 @@
 #include "value/ValueProcessor.h"
 #include "UnprocessedStatement.h"
 #include "LessSelector.h"
-#include "ParameterMixin.h"
+#include "Mixin.h"
 #include <map>
 #include <list>
 
@@ -73,14 +73,14 @@ public:
   void getExtensions(map<string, TokenList*>* extensions,
                      Selector* prefix);
   
-  virtual bool insert(ParameterMixin* mixin, Ruleset* target);
-  virtual bool insert(ParameterMixin* mixin, Stylesheet* s);
+  virtual bool insert(Mixin* mixin, Ruleset* target);
+  virtual bool insert(Mixin* mixin, Stylesheet* s);
 
   virtual void process(Stylesheet* s);
   virtual void process(Stylesheet* s, Selector* prefix);
   
   void getLessRulesets(list<LessRuleset*>* rulesetList,
-                       ParameterMixin* mixin,
+                       Mixin* mixin,
                        size_t selector_offset);
 
   /**
@@ -88,10 +88,10 @@ public:
    * getParent(), or getLessStylesheet() if getParent() is NULL.
    */
   void getLocalLessRulesets(list<LessRuleset*>* rulesetList,
-                            ParameterMixin* mixin);
+                            Mixin* mixin);
 
   bool matchConditions();
-  bool putArguments(ParameterMixin* mixin);
+  bool putArguments(Mixin* mixin);
 };
 
 #endif

@@ -22,7 +22,7 @@
 #include "UnprocessedStatement.h"
 #include "LessRuleset.h"
 #include "LessStylesheet.h"
-#include "ParameterMixin.h"
+#include "Mixin.h"
 
 #include <config.h>
 
@@ -64,7 +64,7 @@ LessRuleset* UnprocessedStatement::getLessRuleset() {
 }
 
 void UnprocessedStatement::insert(Stylesheet* s) {
-  ParameterMixin mixin;
+  Mixin mixin;
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
   
   // process mixin
@@ -73,7 +73,7 @@ void UnprocessedStatement::insert(Stylesheet* s) {
 }
 
 void UnprocessedStatement::process(Ruleset* r) {
-  ParameterMixin mixin;
+  Mixin mixin;
   Declaration declaration;
 
 #ifdef WITH_LIBGLOG

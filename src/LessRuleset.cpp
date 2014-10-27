@@ -171,7 +171,7 @@ void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
   delete selector;
 }
 
-bool LessRuleset::insert(ParameterMixin* mixin, Ruleset* target) {
+bool LessRuleset::insert(Mixin* mixin, Ruleset* target) {
   map<string, TokenList*> scope;
   bool ret = false;
   
@@ -208,7 +208,7 @@ bool LessRuleset::insert(ParameterMixin* mixin, Ruleset* target) {
   return ret;
 }
 
-bool LessRuleset::insert(ParameterMixin* mixin, Stylesheet* s) {
+bool LessRuleset::insert(Mixin* mixin, Stylesheet* s) {
   map<string, TokenList*> scope;
   list<UnprocessedStatement*>* unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::iterator up_it;
@@ -263,7 +263,7 @@ void LessRuleset::process(Stylesheet* s, Selector* prefix) {
 }
 
 void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
-                                  ParameterMixin* mixin,
+                                  Mixin* mixin,
                                   size_t selector_offset) {
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
@@ -300,7 +300,7 @@ void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
 }
 
 void LessRuleset::getLocalLessRulesets(list<LessRuleset*>* rulesetList,
-                                       ParameterMixin* mixin) {
+                                       Mixin* mixin) {
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
   
@@ -362,7 +362,7 @@ bool LessRuleset::matchConditions(){
   return false;
 }
   
-bool LessRuleset::putArguments(ParameterMixin* mixin) {
+bool LessRuleset::putArguments(Mixin* mixin) {
   list<string>* parameters = selector->getParameters();
   list<string>::iterator pit = parameters->begin();
   TokenList* argsCombined = new TokenList();

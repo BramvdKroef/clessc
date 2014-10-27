@@ -19,8 +19,8 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ParameterMixin_h__
-#define __ParameterMixin_h__
+#ifndef __Mixin_h__
+#define __Mixin_h__
 
 #include "Selector.h"
 #include "Stylesheet.h"
@@ -30,7 +30,7 @@
 class LessStylesheet;
 class LessRuleset;
 
-class ParameterMixin: public StylesheetStatement{
+class Mixin: public StylesheetStatement{
 private:
   vector<TokenList*> arguments;
   map<string, TokenList*> namedArguments;
@@ -41,9 +41,9 @@ private:
 public:
   Selector* name;
 
-  ParameterMixin();
-  ParameterMixin(Selector* name);
-  virtual ~ParameterMixin() ;
+  Mixin();
+  Mixin(Selector* name);
+  virtual ~Mixin() ;
 
   TokenList* getArgument(size_t i);
   size_t getArgumentCount();

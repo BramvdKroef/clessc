@@ -1,4 +1,4 @@
-#include "ParameterMixin.h"
+#include "Mixin.h"
 #include "LessStylesheet.h"
 #include "LessRuleset.h"
 
@@ -8,16 +8,16 @@
 #include <glog/logging.h>
 #endif
 
-ParameterMixin::ParameterMixin() {
+Mixin::Mixin() {
   this->name = new Selector();
 }
 
-ParameterMixin::ParameterMixin(Selector* name) {
+Mixin::Mixin(Selector* name) {
   this->name = name;
 }
 
 
-ParameterMixin::~ParameterMixin() {
+Mixin::~Mixin() {
   map<string, TokenList*>::iterator i;
   
   delete this->name;
@@ -32,16 +32,16 @@ ParameterMixin::~ParameterMixin() {
   }
 }
 
-TokenList* ParameterMixin::getArgument(size_t i) {
+TokenList* Mixin::getArgument(size_t i) {
   if (i < arguments.size())
     return arguments[i];
   else
     return NULL;
 }
-size_t ParameterMixin::getArgumentCount() {
+size_t Mixin::getArgumentCount() {
   return arguments.size();
 }
-TokenList* ParameterMixin::getArgument(string name) {
+TokenList* Mixin::getArgument(string name) {
   map<string, TokenList*>::iterator i;
 
   i = namedArguments.find(name);
@@ -53,7 +53,7 @@ TokenList* ParameterMixin::getArgument(string name) {
 }
 
 
-bool ParameterMixin::parse(Selector* selector) {
+bool Mixin::parse(Selector* selector) {
   
   TokenListIterator* itl = selector->iterator();
   
@@ -71,7 +71,7 @@ bool ParameterMixin::parse(Selector* selector) {
   return true;
 }
 
-bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
+bool Mixin::insert(Stylesheet* s, Ruleset* ruleset,
                             LessRuleset* parent) {
   vector<TokenList*>::iterator arg_i;
   map<string, TokenList*>::iterator argn_i;
@@ -80,7 +80,7 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   LessRuleset* lessruleset;
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Mixin: \"" << *name->toString() << "\"";
+  VLOG(2) << "Mixin: \"" << name->toString() << "\"";
 #endif
 
   if (parent != NULL)
@@ -93,7 +93,7 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   
   for (arg_i = arguments.begin(); arg_i != arguments.end(); arg_i++) {
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin Arg: " << *(*arg_i)->toString();
+    VLOG(3) << "Mixin Arg: " << (*arg_i)->toString();
 #endif
     getLessStylesheet()->getValueProcessor()->processValue(*arg_i);
   }
@@ -101,7 +101,7 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   for (argn_i = namedArguments.begin(); argn_i !=
          namedArguments.end(); argn_i++) {
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin Arg " << argn_i->first << ": " << *argn_i->second->toString();
+    VLOG(3) << "Mixin Arg " << argn_i->first << ": " << argn_i->second->toString();
 #endif
     getLessStylesheet()->getValueProcessor()->processValue(argn_i->second);
   }
@@ -112,7 +112,7 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
     lessruleset = *i;
 
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin: " << *lessruleset->getSelector()->toString();
+    VLOG(3) << "Mixin: " << lessruleset->getSelector()->toString();
 #endif
 
     if (parent == NULL || parent != lessruleset ||
@@ -127,21 +127,21 @@ bool ParameterMixin::insert(Stylesheet* s, Ruleset* ruleset,
   return !rulesetList.empty();
 }
 
-void ParameterMixin::setStylesheet(LessStylesheet* s) {
+void Mixin::setStylesheet(LessStylesheet* s) {
   lessStylesheet = s;
   stylesheet = s;
 }
 
-LessStylesheet* ParameterMixin::getLessStylesheet() {
+LessStylesheet* Mixin::getLessStylesheet() {
   return lessStylesheet;
 }
 
 
-void ParameterMixin::process(Stylesheet* s) {
+void Mixin::process(Stylesheet* s) {
   insert(s, NULL, NULL);
 }
 
-void ParameterMixin::parseArguments(TokenListIterator* tli) {
+void Mixin::parseArguments(TokenListIterator* tli) {
   TokenListIterator tli2 = *tli;
   string delimiter = ",";
 

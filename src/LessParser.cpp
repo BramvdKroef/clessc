@@ -43,7 +43,7 @@ void LessParser::parseStylesheet(LessStylesheet* stylesheet) {
 
 bool LessParser::parseStatement(Stylesheet* stylesheet) {
   Selector* selector = new Selector();
-  ParameterMixin* mixin;
+  Mixin* mixin;
   
   if (parseSelector(selector) && !selector->empty()) {
 #ifdef WITH_LIBGLOG
@@ -55,7 +55,7 @@ bool LessParser::parseStatement(Stylesheet* stylesheet) {
 
     // Parameter mixin in the root. Inserts nested rules but no
     // declarations.
-    mixin = new ParameterMixin();
+    mixin = new Mixin();
     
     if (mixin->parse(selector)) {
       ((LessStylesheet*)stylesheet)->addStatement(mixin);

@@ -27,7 +27,7 @@ void LessStylesheet::addStatement(LessRuleset* ruleset) {
   lessrulesets.push_back(ruleset);
   ruleset->setStylesheet(this);
 }
-void LessStylesheet::addStatement(ParameterMixin* mixin) {
+void LessStylesheet::addStatement(Mixin* mixin) {
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Adding Parameter mixin";
 #endif
@@ -46,7 +46,7 @@ void LessStylesheet::addStatement(LessMediaQuery* query) {
 }
   
 void LessStylesheet::getLessRulesets(list<LessRuleset*>* rulesetList,
-                                     ParameterMixin* mixin) {
+                                     Mixin* mixin) {
   vector<LessRuleset*>::iterator i;
   
   for (i = lessrulesets.begin(); i != lessrulesets.end();
