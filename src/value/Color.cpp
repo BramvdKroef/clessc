@@ -142,7 +142,7 @@ TokenList* Color::getTokens() {
       hash[3] == hash[4] &&
       hash[5] == hash[6]) {
     stm.str("");
-    stm << "#" << hash[1] << hash[3] << hash[4];
+    stm << "#" << hash[1] << hash[3] << hash[5];
     hash = stm.str();
   }
 
