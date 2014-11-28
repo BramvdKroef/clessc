@@ -2,47 +2,43 @@
 
 LessMediaQuery::LessMediaQuery() {
   parent = NULL;
-  selector = NULL;
 }
 LessMediaQuery::~LessMediaQuery() {
-  if (selector != NULL)
-    delete selector;
 }
 
 Selector* LessMediaQuery::getSelector() {
-  return selector;
+  return &selector;
 }
-void LessMediaQuery::setSelector(Selector* s) {
+void LessMediaQuery::setSelector(const Selector &s) {
   selector = s;
 }
 
-void LessMediaQuery::setStylesheet(LessStylesheet* parent) {
-  this->parent = parent;
+void LessMediaQuery::setLessStylesheet(LessStylesheet &parent) {
+  this->parent = &parent;
 }
 LessStylesheet* LessMediaQuery::getLessStylesheet() {
   return parent;
 }
 
-void LessMediaQuery::getLessRulesets(list<LessRuleset*>* rulesetList,
-                                     Mixin* mixin) {
+void LessMediaQuery::getLessRulesets(std::list<LessRuleset*> &rulesetList,
+                                     const Mixin &mixin) {
   LessStylesheet::getLessRulesets(rulesetList, mixin);
   getLessStylesheet()->getLessRulesets(rulesetList, mixin);
 }
 
-ValueProcessor* LessMediaQuery::getValueProcessor() {
-  return getLessStylesheet()->getValueProcessor();
+ProcessingContext* LessMediaQuery::getContext() {
+  return getLessStylesheet()->getContext();
 }
-void LessMediaQuery::process(Stylesheet* s) {
-  MediaQuery* query = new MediaQuery();
+void LessMediaQuery::process(Stylesheet &s) {
+  MediaQuery* query = s.createMediaQuery();
 
-  query->setSelector(getSelector()->clone());
-  getValueProcessor()->processValue(query->getSelector());
-  s->addStatement(query);
+  query->setSelector(*getSelector());
+  getContext()->interpolate(*query->getSelector());
 
-  LessStylesheet::process(query);
+  LessStylesheet::process(*query);
 }
 
 
-void LessMediaQuery::write(CssWriter* writer) {
+void LessMediaQuery::write(CssWriter &writer) {
   LessStylesheet::write(writer);
 }

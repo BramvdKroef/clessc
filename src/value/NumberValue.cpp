@@ -21,10 +21,10 @@
 
 #include "NumberValue.h"
 
-NumberValue::NumberValue(Token* token) {
-  tokens.push(token);
+NumberValue::NumberValue(Token &token) {
+  tokens.push_back(token);
   
-  switch(token->type) {
+  switch(token.type) {
   case Token::NUMBER:
     type = NUMBER;
     break;
@@ -42,12 +42,12 @@ NumberValue::NumberValue(Token* token) {
 NumberValue::~NumberValue() {
 }
 
-void NumberValue::verifyUnits(NumberValue* v) {
+void NumberValue::verifyUnits(const NumberValue &n) {
   if (type == Value::DIMENSION &&
-      v->type == Value::DIMENSION &&
-      getUnit().compare(v->getUnit()) != 0) {
+      n.type == Value::DIMENSION &&
+      getUnit().compare(n.getUnit()) != 0) {
     
-    if (v->convert(getUnit())) {
+    if (convert(n.getUnit())) {
       return;
     } else
       throw new ValueException("Can't do math on dimensions with different units.");
@@ -86,125 +86,152 @@ bool NumberValue::convert(string unit) {
   return false;
 }
 
-Value* NumberValue::add(Value* v) {
-  Token* t;
-  StringValue* s;
+Value* NumberValue::add(const Value &v) {
+  Token t;
+  const NumberValue* n;
+  const StringValue* s;
+  const Color* c;
+  Color* cret;
+  StringValue* sret;
   
   if (isNumber(v)) {
+    n = static_cast<const NumberValue*>(&v);
     if (type == NUMBER) 
-      setType(v);
+      setType(*n);
     else
-      verifyUnits((NumberValue*)v);
+      verifyUnits(*n);
     
-    setValue(getValue() + ((NumberValue*)v)->getValue());
+    setValue(getValue() + n->getValue());
     return this;
     
-  } else if (v->type == COLOR) {
-    return v->add(this);
+  } else if (v.type == COLOR) {
+    c = static_cast<const Color*>(&v);
+    cret = new Color(*c);
+    return cret->add(*this);
     
-  } else if (v->type == STRING) {
-    t = this->tokens.front()->clone();
-    t->type = Token::STRING;
-    s = new StringValue(t, ((StringValue*)v)->getQuotes());
-    s->add(v);
-    return s;
+  } else if (v.type == STRING) {
+    t = this->tokens.front();
+    t.type = Token::STRING;
+    s = static_cast<const StringValue*>(&v);
+    
+    sret = new StringValue(t, s->getQuotes());
+    return sret->add(v);
   } else {
     throw new ValueException("Unsupported type.");
   }
 }
-Value* NumberValue::substract(Value* v) {
+Value* NumberValue::substract(const Value &v) {
+  const NumberValue* n;
+  
   if (isNumber(v)) {
+    n = static_cast<const NumberValue*>(&v);
     if (type == NUMBER) 
-      setType(v);
+      setType(*n);
     else
-      verifyUnits((NumberValue*)v);
+      verifyUnits(*n);
     
-    setValue(getValue() - ((NumberValue*)v)->getValue());
+    setValue(getValue() - n->getValue());
     return this;
   } else
     throw new ValueException("You can only substract a *number* from a number.");
 }
-Value* NumberValue::multiply(Value* v) {
+Value* NumberValue::multiply(const Value &v) {
+  const NumberValue* n;
+  const Color* c;
+  const StringValue* s;
+  Color* cret;
+  StringValue* sret;
+  
   if (isNumber(v)) {
+    n = static_cast<const NumberValue*>(&v);
     if (type == NUMBER) 
-      setType(v);
+      setType(*n);
     else
-      verifyUnits((NumberValue*)v);
-    setValue(getValue() * ((NumberValue*)v)->getValue());
+      verifyUnits(*n);
+    setValue(getValue() * n->getValue());
     return this;
-  } else if (v->type == COLOR ||
-             v->type == STRING) {
-    return v->multiply(this);
+
+  } else if (v.type == COLOR) {
+    c = static_cast<const Color*>(&v);
+    cret = new Color(*c);
+    return cret->multiply(*this);
+    
+  } else if(v.type == STRING) {
+    s = static_cast<const StringValue*>(&v);
+    sret = new StringValue(*s);
+    return sret->multiply(*this);
+
   } else {
     throw new ValueException("Unsupported type.");
   }
 }
 
-Value* NumberValue::divide(Value* v) {
+Value* NumberValue::divide(const Value &v) {
+  const NumberValue* n;
+  
   if (isNumber(v)) {
+    n = static_cast<const NumberValue*>(&v);
+    
     if (type == NUMBER) 
-      setType(v);
+      setType(*n);
     else
-      verifyUnits((NumberValue*)v);
-    setValue(getValue() / ((NumberValue*)v)->getValue());
+      verifyUnits(*n);
+    setValue(getValue() / n->getValue());
     return this;
   } else
     throw new ValueException("You can only divide a number by a *number*.");
 }
-int NumberValue::compare(Value* v) {
+int NumberValue::compare(const Value &v) {
+  const NumberValue* n;
+  
   if (isNumber(v)) {
-    verifyUnits((NumberValue*)v);
-    return getValue() - ((NumberValue*)v)->getValue();
+    n = static_cast<const NumberValue*>(&v);
+    
+    verifyUnits(*n);
+    return getValue() - n->getValue();
   } else {
     throw new ValueException("You can only compare a number with a *number*.");
   }
 }
 
-void NumberValue::setType(Value* v) {
-  NumberValue* n;
-  
-  if (isNumber(v)) {
-
-    n = (NumberValue*)v;
-    
-    type = n->type;
-    if (n->type == DIMENSION)
-      setUnit(n->getUnit());
-    else if (n->type == PERCENTAGE) 
-      tokens.front()->type = Token::PERCENTAGE;
-    else if (n->type == NUMBER) {
-      setUnit("");
-    }
+void NumberValue::setType(const NumberValue &n) {
+  type = n.type;
+  if (n.type == DIMENSION)
+    setUnit(n.getUnit());
+  else if (n.type == PERCENTAGE) 
+    tokens.front().type = Token::PERCENTAGE;
+  else if (n.type == NUMBER) {
+    setUnit("");
   }
 }
 
-double NumberValue::getValue() {
+double NumberValue::getValue() const {
   string number;
   istringstream stm;
   double ret;
   char c;
 
-  for (unsigned int i = 0; i < tokens.front()->str.size(); i++) {
-    c = tokens.front()->str[i];
+  for (unsigned int i = 0; i < tokens.front().str.size(); i++) {
+    c = tokens.front().str[i];
     if (!isdigit(c) && c != '.' && c != '-') {
-      number = tokens.front()->str.substr(0, i);
+      number = tokens.front().str.substr(0, i);
       break;
     }
   }
   if (number == "")
-    number = tokens.front()->str;
+    number = tokens.front().str;
   stm.str(number);
   stm >>ret;
   return ret;
 }
-string NumberValue::getUnit () {
+string NumberValue::getUnit () const {
   char c;
   unsigned int i;
   
-  for (i = 0; i < tokens.front()->str.size(); i++) {
-    c = tokens.front()->str[i];
+  for (i = 0; i < tokens.front().str.size(); i++) {
+    c = tokens.front().str[i];
     if (!isdigit(c) && c != '.' && c != '-')
-      return tokens.front()->str.substr(i);
+      return tokens.front().str.substr(i);
   }
   return string("");
 }
@@ -213,14 +240,14 @@ void NumberValue::setUnit(string unit) {
   ostringstream stm;
   stm << setprecision(10) << getValue();
   stm << unit;
-  tokens.front()->str = stm.str();
+  tokens.front().str = stm.str();
   
   if (unit.length() == 0) {
     type = NUMBER;
-    tokens.front()->type = Token::NUMBER;
+    tokens.front().type = Token::NUMBER;
   } else {
     type = DIMENSION;
-    tokens.front()->type = Token::DIMENSION;
+    tokens.front().type = Token::DIMENSION;
   }
 }
 
@@ -231,33 +258,33 @@ void NumberValue::setValue(double d) {
     stm << getUnit();
   else if (type == PERCENTAGE)
     stm << "%";
-  tokens.front()->str = stm.str();
+  tokens.front().str = stm.str();
 }
 
-bool NumberValue::isNumber(Value* val) {
-  return (val->type == Value::NUMBER ||
-          val->type == Value::DIMENSION ||
-          val->type == Value::PERCENTAGE);
+bool NumberValue::isNumber(const Value &val) {
+  return (val.type == Value::NUMBER ||
+          val.type == Value::DIMENSION ||
+          val.type == Value::PERCENTAGE);
 }
 
-void NumberValue::loadFunctions(FunctionLibrary* lib) {
-  lib->push("unit", ".U?", &NumberValue::unit);
-  lib->push("ceil", ".", &NumberValue::ceil);
-  lib->push("floor", ".", &NumberValue::floor);
-  lib->push("percentage", "N", &NumberValue::percentage);
-  lib->push("round", ".", &NumberValue::round);
-  lib->push("sqrt", ".", &NumberValue::sqrt);
-  lib->push("abs", ".", &NumberValue::abs);
-  lib->push("sin", ".", &NumberValue::sin);
-  lib->push("asin", "N", &NumberValue::asin);
-  lib->push("cos", ".", &NumberValue::cos);
-  lib->push("acos", "N", &NumberValue::acos);
-  lib->push("tan", ".", &NumberValue::tan);
-  lib->push("atan", "N", &NumberValue::atan);
-  lib->push("pi", "", &NumberValue::pi);
-  lib->push("pow", ".N", &NumberValue::pow);
-  lib->push("mod", "..", &NumberValue::mod);
-  lib->push("convert", "..", &NumberValue::convert);
+void NumberValue::loadFunctions(FunctionLibrary &lib) {
+  lib.push("unit", ".U?", &NumberValue::unit);
+  lib.push("ceil", ".", &NumberValue::ceil);
+  lib.push("floor", ".", &NumberValue::floor);
+  lib.push("percentage", "N", &NumberValue::percentage);
+  lib.push("round", ".", &NumberValue::round);
+  lib.push("sqrt", ".", &NumberValue::sqrt);
+  lib.push("abs", ".", &NumberValue::abs);
+  lib.push("sin", ".", &NumberValue::sin);
+  lib.push("asin", "N", &NumberValue::asin);
+  lib.push("cos", ".", &NumberValue::cos);
+  lib.push("acos", "N", &NumberValue::acos);
+  lib.push("tan", ".", &NumberValue::tan);
+  lib.push("atan", "N", &NumberValue::atan);
+  lib.push("pi", "", &NumberValue::pi);
+  lib.push("pow", ".N", &NumberValue::pow);
+  lib.push("mod", "..", &NumberValue::mod);
+  lib.push("convert", "..", &NumberValue::convert);
 }
 
 // DIMENSION unit(DIMENSION, UNIT)
@@ -274,19 +301,27 @@ Value* NumberValue::unit(vector<Value*> arguments) {
     throw new ValueException("argument 1 has to be a number or dimension");
 }
 Value* NumberValue::ceil(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
-    throw new ValueException("ceil() only works on numeric values");
+  NumberValue *n;
   
-  double val = ((NumberValue*)args[0])->getValue();
-  ((NumberValue*)args[0])->setValue(std::ceil(val));
+  if (!NumberValue::isNumber(*args[0]))
+    throw new ValueException("ceil() only works on numeric values");
+
+  n = static_cast<NumberValue*>(args[0]);
+
+  double val = n->getValue();
+  n->setValue(std::ceil(val));
+
   return args[0];
 }   
 Value* NumberValue::floor(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
+  NumberValue *n;
+  
+  if (!NumberValue::isNumber(*args[0]))
     throw new ValueException("floor() only works on numeric values");
 
-  double val = ((NumberValue*)args[0])->getValue();
-  ((NumberValue*)args[0])->setValue(std::floor(val));
+  n = static_cast<NumberValue*>(args[0]);
+  double val = n->getValue();
+  n->setValue(std::floor(val));
   return args[0];
 }  
 Value* NumberValue::percentage(vector<Value*> args) {
@@ -296,7 +331,7 @@ Value* NumberValue::percentage(vector<Value*> args) {
   return args[0];
 }
 Value* NumberValue::round(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
+  if (!NumberValue::isNumber(*args[0]))
     throw new ValueException("round() only works on numeric values");
 
   double val = ((NumberValue*)args[0])->getValue();
@@ -312,7 +347,7 @@ Value* NumberValue::round(vector<Value*> args) {
   return args[0];
 }  
 Value* NumberValue::sqrt(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
+  if (!NumberValue::isNumber(*args[0]))
     throw new ValueException("sqrt() only works on numeric values");
 
   double val = ((NumberValue*)args[0])->getValue();
@@ -320,7 +355,7 @@ Value* NumberValue::sqrt(vector<Value*> args) {
   return args[0];
 }   
 Value* NumberValue::abs(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
+  if (!NumberValue::isNumber(*args[0]))
     throw new ValueException("abs() only works on numeric values");
 
   double val = ((NumberValue*)args[0])->getValue();
@@ -424,10 +459,11 @@ Value* NumberValue::atan(vector<Value*> args) {
 }   
 Value* NumberValue::pi(vector<Value*> args) {
   (void)args;
-  return new NumberValue(new Token("3.141592653589793", Token::NUMBER));
+  Token t("3.141592653589793", Token::NUMBER);
+  return new NumberValue(t);
 }
 Value* NumberValue::pow(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
+  if (!NumberValue::isNumber(*args[0]))
     throw new ValueException("pow() only works on numeric values");
 
   double val = ((NumberValue*)args[0])->getValue();
@@ -436,8 +472,8 @@ Value* NumberValue::pow(vector<Value*> args) {
   return args[0];
 }    
 Value* NumberValue::mod(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]) ||
-      !NumberValue::isNumber(args[1]))
+  if (!NumberValue::isNumber(*args[0]) ||
+      !NumberValue::isNumber(*args[1]))
     throw new ValueException("mod() only works on numeric values");
 
   double val1 = ((NumberValue*)args[0])->getValue();
@@ -446,7 +482,7 @@ Value* NumberValue::mod(vector<Value*> args) {
   return args[0];
 }    
 Value* NumberValue::convert(vector<Value*> args) {
-  if (!NumberValue::isNumber(args[0]))
+  if (!NumberValue::isNumber(*args[0]))
     throw new ValueException("convert() only works on numeric values");  
   if (args[1]->type != Value::STRING &&
       args[1]->type != Value::UNIT) {

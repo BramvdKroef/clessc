@@ -21,48 +21,53 @@
 
 #include "UnitValue.h"
 
-UnitValue::UnitValue(Token* token) {
-  tokens.push(token);
+UnitValue::UnitValue(Token &token) {
+  tokens.push_back(token);
   type = UNIT;
 }
 
 UnitValue::~UnitValue() {
 }
 
-const char* UnitValue::getUnit() {
-  return tokens.front()->str.c_str();
+const char* UnitValue::getUnit() const {
+  return tokens.front().str.c_str();
 }
 
-Value* UnitValue::add(Value* v) {
-  Token* t;
-  StringValue* s;
+Value* UnitValue::add(const Value &v) {
+  Token t;
+  const StringValue* s;
+  StringValue* ret;
 
-  if (v->type == STRING) {
-    t = this->tokens.front()->clone();
-    t->type = Token::STRING;
-    s = new StringValue(t, ((StringValue*)v)->getQuotes());
-    s->add(v);
-    return s;
+  if (v.type == STRING) {
+    s = static_cast<const StringValue*>(&v);
+    t = this->tokens.front();
+    t.type = Token::STRING;
+    ret = new StringValue(t, s->getQuotes());
+    ret->add(v);
+    return ret;
   }
   throw new ValueException("Can't do math on unit types.");
 }
-Value* UnitValue::substract(Value* v) {
+Value* UnitValue::substract(const Value &v) {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
-Value* UnitValue::multiply(Value* v) {
+Value* UnitValue::multiply(const Value &v) {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
-Value* UnitValue::divide(Value* v) {
+Value* UnitValue::divide(const Value &v) {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
-int UnitValue::compare(Value* v) {
+int UnitValue::compare(const Value &v) {
+  const UnitValue* u;
   string unit1, unit2;
-  if (v->type == UNIT) {
+  
+  if (v.type == UNIT) {
+    u = static_cast<const UnitValue*>(&v);
     unit1.append(getUnit());
-    unit2.append(((UnitValue*)v)->getUnit());
+    unit2.append(u->getUnit());
     return unit1.compare(unit2);
   } else {
     throw new ValueException("You can only compare a unit with a *unit*.");
@@ -70,7 +75,7 @@ int UnitValue::compare(Value* v) {
 }
 
 
-UnitValue::UnitGroup UnitValue::getUnitGroup(const string unit) {
+UnitValue::UnitGroup UnitValue::getUnitGroup(const string &unit) {
   if (unit.compare("m") == 0 ||
       unit.compare("cm") == 0 ||
       unit.compare("mm") == 0 ||
@@ -93,7 +98,7 @@ UnitValue::UnitGroup UnitValue::getUnitGroup(const string unit) {
   return NO_GROUP;
 }
 
-double UnitValue::lengthToPx(const double length, const string unit) {
+double UnitValue::lengthToPx(const double length, const std::string &unit) {
   if (unit.compare("m") == 0)
     return length * (96 / .0254);
   
@@ -117,7 +122,7 @@ double UnitValue::lengthToPx(const double length, const string unit) {
 
   return -1;
 }
-double UnitValue::pxToLength(const double px, const string unit) {
+double UnitValue::pxToLength(const double px, const std::string &unit) {
   if (unit.compare("m") == 0)
     return px / (96 / .254);
   
@@ -141,21 +146,21 @@ double UnitValue::pxToLength(const double px, const string unit) {
 
   return -1;
 }
-double UnitValue::timeToMs(const double time, const string unit) {
+double UnitValue::timeToMs(const double time, const std::string &unit) {
   if (unit.compare("s") == 0)
     return time * 1000;
   if (unit.compare("ms") == 0)
     return time;
   return -1;
 }
-double UnitValue::msToTime(const double ms, const string unit) {
+double UnitValue::msToTime(const double ms, const std::string &unit) {
   if (unit.compare("s") == 0)
     return ms / 1000;
   if (unit.compare("ms") == 0)
     return ms;
   return -1;
 }
-double UnitValue::angleToRad(const double angle, const string unit) {
+double UnitValue::angleToRad(const double angle, const std::string &unit) {
   const double pi = 3.141592653589793;
   
   if (unit.compare("rad") == 0) 
@@ -172,7 +177,7 @@ double UnitValue::angleToRad(const double angle, const string unit) {
   
   return -1;
 }
-double UnitValue::radToAngle(double rad, string unit) {
+double UnitValue::radToAngle(const double rad, const std::string &unit) {
   const double pi = 3.141592653589793;
   
   if (unit.compare("rad") == 0) 

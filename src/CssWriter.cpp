@@ -25,36 +25,34 @@ CssWriter::CssWriter() {
   out = NULL;
 }
 
-CssWriter::CssWriter(ostream* out) {
-  this->out = out;
+CssWriter::CssWriter(ostream &out) {
+  this->out = &out;
 }
 
 CssWriter::~CssWriter() {
 }
 
 
-void CssWriter::writeAtRule(string keyword, TokenList* rule) {
-  TokenListIterator* it = rule->iterator();
+void CssWriter::writeAtRule(const string &keyword, const TokenList &rule) {
+  TokenList::const_iterator i = rule.begin();
   
   out->write(keyword.c_str(),
              keyword.size());
   out->write(" ", 1);
   
-  while (it->hasNext()) {
-    Token* next = it->next();
-    out->write(next->str.c_str(), next->str.size());
+  for(; i != rule.end(); i++) {
+    const Token next = *i;
+    out->write(next.str.c_str(), next.str.size());
   }
   out->write(";", 1);
 }
 
-void CssWriter::writeRulesetStart(TokenList* selector) {
-  TokenListIterator* it;
+void CssWriter::writeRulesetStart(const TokenList &selector) {
+  TokenList::const_iterator i;
   
-  if (selector != NULL) {
-    for (it = selector->iterator(); it->hasNext();) {
-      Token* next = it->next();
-      out->write(next->str.c_str(), next->str.size());
-    }
+  for (i = selector.begin(); i != selector.end(); i++) {
+    const Token next = *i;
+    out->write(next.str.c_str(), next.str.size());
   }
   out->write("{", 1);
 }
@@ -63,15 +61,15 @@ void CssWriter::writeRulesetEnd() {
   out->write("}", 1);
 }
 
-void CssWriter::writeDeclaration(string property, TokenList* value) {
-  TokenListIterator* it = value->iterator();
+void CssWriter::writeDeclaration(const string &property, const TokenList &value) {
+  TokenList::const_iterator i;
     
   out->write(property.c_str(), property.size());
   out->write(":", 1);
   
-  while (it->hasNext()) {
-    Token* next = it->next();
-    out->write(next->str.c_str(), next->str.size());
+  for (i = value.begin(); i != value.end(); i++) {
+    const Token next = *i;
+    out->write(next.str.c_str(), next.str.size());
   }
 }
 
@@ -79,14 +77,12 @@ void CssWriter::writeDeclarationDeliminator() {
   out->write(";", 1);
 }
 
-void CssWriter::writeMediaQueryStart(TokenList* selector) {
-  TokenListIterator* it;
+void CssWriter::writeMediaQueryStart(const TokenList &selector) {
+  TokenList::const_iterator i;
   
-  if (selector != NULL) {
-    for (it = selector->iterator(); it->hasNext();) {
-      Token* next = it->next();
-      out->write(next->str.c_str(), next->str.size());
-    }
+  for (i = selector.begin(); i != selector.end(); i++) {
+    const Token next = *i;
+    out->write(next.str.c_str(), next.str.size());
   }
   out->write("{", 1);
 }

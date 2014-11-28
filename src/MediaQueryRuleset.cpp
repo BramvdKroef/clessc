@@ -33,44 +33,43 @@ MediaQueryRuleset::MediaQueryRuleset(): LessRuleset() {
 MediaQueryRuleset::~MediaQueryRuleset() {
 }
 
-void MediaQueryRuleset::process(Stylesheet* s, Selector* prefix) {
-  MediaQuery* query = new MediaQuery();
+void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix) {
+  MediaQuery* query;
   Ruleset* target;
-  MediaQuery* parent;
+  Selector selector;
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Less Ruleset: " <<
     getSelector()->toString();
 #endif
   
-  query->setSelector(getSelector()->clone());
-  getLessStylesheet()->getValueProcessor()->processValue(query->getSelector());
+  query = s.createMediaQuery();
+  selector = *getSelector();
+  getLessStylesheet()->getContext()->interpolate(selector);
 
-  parent = dynamic_cast<MediaQuery*>(s);
-  
-  if (parent != NULL) {
-    delete query->getSelector()->shift();
-    query->getSelector()->unshift(new Token("and", Token::IDENTIFIER));
-    query->getSelector()->addPrefix(parent->getSelector());
-    parent->getStylesheet()->addStatement(query);
-  } else {
-    s->addStatement(query);
-  }
+  if (query->getSelector()->size() > 0) {
+    selector.pop_front();
+
+    query->getSelector()->push_front(Token("and", Token::IDENTIFIER));
+    query->getSelector()->insert(query->getSelector()->end(),
+                                 selector.begin(),
+                                 selector.end());
+  } else
+    query->setSelector(selector);
 
   if (prefix != NULL) {
-    target = new Ruleset();
-    target->setSelector(prefix->clone());
+    target = query->createRuleset();
+    target->setSelector(*prefix);
 
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Interpolating selector " <<
     target->getSelector()->toString();
 #endif
-    getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
+    getLessStylesheet()->getContext()->interpolate(*target->getSelector());
   
-    query->addStatement(target);
-    insert(NULL, target);
+    insert(NULL, *target, *getLessStylesheet()->getContext());
   } else
-    insert(NULL, query);
+    insert(NULL, *query, *getLessStylesheet()->getContext());
 }
 
 

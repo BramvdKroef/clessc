@@ -27,14 +27,11 @@
 #include "Selector.h"
 #include "CssWriter.h"
 #include <string>
-#include <vector>
-
-
-using namespace std;
+#include <list>
 
 class CssWritable {
 public:
-  virtual void write(CssWriter* css) = 0; 
+  virtual void write(CssWriter &css) = 0; 
 };
   
 class Ruleset; 
@@ -45,31 +42,28 @@ protected:
 public:
   virtual ~RulesetStatement() {};
 
-  virtual void setRuleset(Ruleset* r);
+  virtual void setRuleset(Ruleset *r);
   Ruleset* getRuleset();
-
-  virtual RulesetStatement* clone() = 0;
-  virtual void process(Ruleset* r) = 0;
+  virtual void process(Ruleset &r) = 0;
 };
 
 class Declaration: public RulesetStatement {
 private:
-  string property;
-  TokenList* value;
+  std::string property;
+  TokenList value;
   
 public:
   Declaration();
-  Declaration(string property);
+  Declaration(const std::string &property);
   virtual ~Declaration();
-  void setProperty(string property);
-  void setValue(TokenList* value);
+  void setProperty(const std::string &property);
+  void setValue(const TokenList &value);
   
-  string getProperty();
+  std::string getProperty();
   TokenList* getValue();
-  virtual Declaration* clone();
 
-  virtual void process(Ruleset* r);
-  virtual void write(CssWriter* writer);
+  virtual void process(Ruleset &r);
+  virtual void write(CssWriter &writer);
 };
 
 class Stylesheet;
@@ -82,94 +76,111 @@ public:
   virtual ~StylesheetStatement() {};
   virtual void setStylesheet(Stylesheet* s);
   Stylesheet* getStylesheet();
-
-  virtual void process(Stylesheet* s) = 0;
+  
+  virtual void process(Stylesheet &s) = 0;
 };
 
 class Ruleset: public StylesheetStatement {
+private:
+  std::list<RulesetStatement*> statements;
+  std::list<Declaration*> declarations;
+
 protected:
-  Selector* selector;
-  vector<RulesetStatement*> statements;
-  vector<Declaration*> declarations;
+  Selector selector;
+  virtual void addStatement(RulesetStatement &statement);
+  virtual void deleteStatement(RulesetStatement &statement);
   
 public:
   Ruleset ();
-  Ruleset(Selector* selector);
+  Ruleset(const Selector &selector);
   virtual ~Ruleset();
-  virtual void setSelector (Selector* selector);
+  virtual void setSelector (const Selector &selector);
 
-  virtual void addStatement (RulesetStatement* statement);
-  virtual void addStatement(Declaration* declaration);
-    
-  void addStatements (vector<RulesetStatement*>* statements);
-  void addDeclarations (vector<Declaration*>* declarations);
+  Declaration* createDeclaration();
+  Declaration* createDeclaration(const std::string &property);
+
+  void deleteDeclaration(Declaration &declaration);
+  
+  void addDeclarations (std::list<Declaration> &declarations);
     
   Selector* getSelector();
-  vector<RulesetStatement*>* getStatements();
-  vector<Declaration*>* getDeclarations();
+  std::list<RulesetStatement*>* getStatements();
+  std::list<Declaration*>* getDeclarations();
 
   void clearStatements();
   
-  vector<Declaration*>* cloneDeclarations();
-  Ruleset* clone();
-  void swap(Ruleset* ruleset);
-
-  virtual void insert(Ruleset* target);
-  virtual void process(Stylesheet* s);
-  virtual void write(CssWriter* writer);
+  virtual void insert(Ruleset &target);
+  virtual void process(Stylesheet& s);
+  virtual void write(CssWriter &writer);
 };
 
 class AtRule: public StylesheetStatement {
 private:
-  string* keyword;
-  TokenList* rule;
+  std::string keyword;
+  TokenList rule;
 
 public:
-  AtRule(string* keyword);
+  AtRule(const std::string& keyword);
   virtual ~AtRule();
-  void setKeyword (string* keyword);
-  void setRule(TokenList* rule);
+  void setKeyword (const std::string &keyword);
+  void setRule(const TokenList &rule);
 
-  string* getKeyword();
+  std::string* getKeyword();
   TokenList* getRule();
 
-  virtual void process(Stylesheet* s);
-  virtual void write(CssWriter* writer);
+  virtual void process(Stylesheet &s);
+  virtual void write(CssWriter &writer);
 };
 
+class MediaQuery;
 
 class Stylesheet: public CssWritable {
 private:
-  vector<AtRule*> atrules;
-  vector<Ruleset*> rulesets;
-  vector<StylesheetStatement*> statements;
+  std::list<AtRule*> atrules;
+  std::list<Ruleset*> rulesets;
+  std::list<StylesheetStatement*> statements;
+
+protected:
+  virtual void addStatement(StylesheetStatement &statement);
+  virtual void addRuleset(Ruleset &ruleset);
+  void deleteStatement(StylesheetStatement &statement);
+  
 public:
   Stylesheet() {}
   virtual ~Stylesheet();
   
-  virtual void addStatement(StylesheetStatement* statement);
-  virtual void addStatement(Ruleset* ruleset);
-  virtual void addStatement(AtRule* rule);
+  Ruleset* createRuleset();
+  Ruleset* createRuleset(const Selector &selector);
 
-  vector<AtRule*>* getAtRules();
-  vector<Ruleset*>* getRulesets();
-  vector<StylesheetStatement*>* getStatements();
+  AtRule* createAtRule(const std::string &keyword);
+  virtual MediaQuery* createMediaQuery();
+
+  void deleteRuleset(Ruleset &ruleset);
+  void deleteAtRule(AtRule &atrule);
+  void deleteMediaQuery(MediaQuery &query);
   
-  virtual Ruleset* getRuleset(Selector* selector);
+  std::list<AtRule*>* getAtRules();
+  std::list<Ruleset*>* getRulesets();
+  std::list<StylesheetStatement*>* getStatements();
+  
+  virtual Ruleset* getRuleset(const Selector& selector);
 
-  virtual void process(Stylesheet* s);
-  virtual void write(CssWriter* writer);
+  virtual void process(Stylesheet &s);
+  virtual void write(CssWriter &writer);
 };
 
 class MediaQuery: public Stylesheet, public StylesheetStatement {
 private:
-  Selector* selector;
+  Selector selector;
 
 public:
   Selector* getSelector();
-  void setSelector(Selector* s);
-  virtual void process(Stylesheet* s);
-  virtual void write(CssWriter* writer);
+  void setSelector(const Selector& s);
+
+  virtual MediaQuery* createMediaQuery();
+  
+  virtual void process(Stylesheet& s);
+  virtual void write(CssWriter &writer);
 };
 
 #endif

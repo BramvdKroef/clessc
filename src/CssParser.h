@@ -25,7 +25,6 @@
 #include "CssTokenizer.h"
 #include "Stylesheet.h"
 #include "Token.h"
-#include "TokenList.h"
 #include <string>
 
 using namespace std;
@@ -68,7 +67,7 @@ protected:
    * Parse whitespace tokens and add them to the tokens
    * argument. Comments are skipped.
    */
-  bool parseWhitespace(TokenList* tokens);
+  bool parseWhitespace(TokenList &tokens);
   
   /**
    * Parses a Ruleset or an AtRule and adds it to the stylesheet.
@@ -76,21 +75,21 @@ protected:
    * @return true if a Ruleset or AtRule could be parsed, false if
    *         neither were found.
    */
-  virtual bool parseStatement(Stylesheet* stylesheet);
+  virtual bool parseStatement(Stylesheet &stylesheet);
 
   /**
    * Parse a media query, starting with the @media keyword.
    *
    * @return a MediaQuery object or NULL if the current token is not '@media'. 
    */
-  MediaQuery* parseMediaQuery();
+  MediaQuery* parseMediaQuery(Stylesheet &stylesheet);
   
   /**
    * Parses an keyword that begins with '@' and the rule following the keyword.
    *
    * @return an AtRule object or NULL if none was found.
    */
-  AtRule* parseAtRule ();
+  AtRule* parseAtRule(Stylesheet &stylesheet);
   
   /**
    * Parse tokens inside brackets ('{', '}'). The tokens are added to
@@ -99,14 +98,14 @@ protected:
    * @return true if a block was parsed or false if the next token was
    *    not '{'.
    */
-  bool parseBlock (TokenList* tokens);
+  bool parseBlock (TokenList& tokens);
 
   /**
    * Parses an optional selector and a decleration block.
    *
    * @return a Ruleset object or NULL if none was found.
    */
-  Ruleset* parseRuleset ();
+  Ruleset* parseRuleset (Stylesheet &stylesheet);
 
   /**
    * Parses a selector into a list of tokens.
@@ -114,14 +113,14 @@ protected:
    * @return a list of tokens or NULL if no
    *    selector was found.
    */
-  virtual bool parseSelector(Selector* selector);
+  virtual bool parseSelector(Selector &selector);
 
   /**
    * Parses a 'property: value' pair.
    *
    * @return a Declaration* object or NULL if none was found.
    */
-  Declaration* parseDeclaration ();
+  Declaration* parseDeclaration (Ruleset &ruleset);
 
   /**
    * Parses an identifier token that represents a property name.
@@ -131,7 +130,7 @@ protected:
    *   If no property was found the return value is false and the
    *   argument will be untouched.
    */
-  bool parseProperty (TokenList* property);
+  bool parseProperty (TokenList &property);
 
   /**
    * Parses a list of tokens that represent a value.
@@ -139,7 +138,7 @@ protected:
    * @return true if tokens were parsed or NULL if no
    *         valid tokens could be found.
    */
-  virtual bool parseValue (TokenList* value);
+  virtual bool parseValue (TokenList &value);
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
@@ -160,7 +159,7 @@ protected:
    *  @return true if the token found was one of the tokens in the
    *          above list.
    */
-  bool parseAny (TokenList* tokens);
+  bool parseAny (TokenList &tokens);
 
 
   /**
@@ -172,14 +171,14 @@ protected:
    *
    *  @return true if a block, atkeyword or delimiter could be parsed.
    */
-  bool parseUnused(TokenList* tokens);
+  bool parseUnused(TokenList &tokens);
   
 public:
 
   /**
    * Initializes the CssParser with the given CssTokenizer argument.
    */
-  CssParser(CssTokenizer* tokenizer);
+  CssParser(CssTokenizer &tokenizer);
 
   virtual ~CssParser() {};
   /**
@@ -190,7 +189,7 @@ public:
    * @throws ParseException if the parser comes across a mistake in
    *   the input, such as unterminated strings or parentheses.
    */
-  virtual void parseStylesheet(Stylesheet* stylesheet);
+  virtual void parseStylesheet(Stylesheet &stylesheet);
   
   
 };

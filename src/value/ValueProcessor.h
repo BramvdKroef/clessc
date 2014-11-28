@@ -32,6 +32,7 @@
 #include "UnitValue.h"
 #include "UrlValue.h"
 #include "ValueException.h"
+#include "ValueScope.h"
 #include "FunctionLibrary.h"
 #include <map>
 #include <vector>
@@ -41,34 +42,40 @@
  */
 class ValueProcessor {
 private:
-  list<map<string, TokenList*>*> scopes;
-  FunctionLibrary* functionLibrary;
+  FunctionLibrary functionLibrary;
 
-  Value* processStatement(TokenList* value);
-  Value* processOperator(TokenList* value, Value* v1,
-                         Token* lastop = NULL);
-  Value* processConstant(TokenList* value);
-  TokenList* processDeepVariable (TokenList* value);
-  Value* processFunction(string function,
-                         TokenList* value);
-  vector<Value*> processArguments (TokenList* value);
-  Value* processEscape (TokenList* value);
-  UnitValue* processUnit(Token* t);
+  Value* processStatement(TokenList& value, const ValueScope &scope);
+
+  Value* processOperator(TokenList& value, Value &v1,
+                         const ValueScope &scope, Token* lastop = NULL);
+
+  Value* processConstant(TokenList &value, const ValueScope& scope);
+
+  const TokenList* processDeepVariable (TokenList &value, const ValueScope& scope);
   
-  bool needsSpace(Token* t, bool before);
+  Value* processFunction(const std::string &function,
+                         TokenList &value,
+                         const ValueScope &scope);
+  
+  vector<Value*> processArguments (TokenList &value,
+                                   const ValueScope &scope);
+  Value* processEscape (TokenList &value,
+                        const ValueScope &scope);
+  UnitValue* processUnit(Token &t);
+  
+  bool needsSpace(const Token &t, bool before);
 
-  bool stringHasQuotes(string str);
-  string removeQuotes(string str);
-  string getUrlString(string url);
+  bool stringHasQuotes(const std::string &str);
+  void removeQuotes(std::string &str);
+  std::string getUrlString(const std::string &url);
 
-  NumberValue* processNegative(TokenList* value);
+  NumberValue* processNegative(TokenList &value,
+                               const ValueScope &scope);
   
 public:
   ValueProcessor();
   virtual ~ValueProcessor();
 
-  void putVariable(string key, TokenList* value);
-  TokenList* getVariable(string key);
 
   /**
    * Determine if a value contains anything that can be processed.
@@ -76,20 +83,17 @@ public:
    * @return  true if value contains an @-keyword, an operator (+-* or
    *          /), a LESS function, an escaped value or a url.
    */
-  bool needsProcessing(TokenList* value);
+  bool needsProcessing(const TokenList &value);
 
-  TokenList* processValue(TokenList* value);
+  void processValue(TokenList &value, const ValueScope &scope);
 
-  bool validateCondition(TokenList* value);
-  bool validateValue(TokenList* value);
+  bool validateCondition(TokenList &value, const ValueScope &scope);
+  bool validateValue(TokenList &value, const ValueScope &scope);
   
-  bool functionExists(string function);
+  bool functionExists(const string &function);
 
-  string interpolateString(string str);
-  void interpolateTokenList(TokenList* tokens);
-    
-  void pushScope(map<string, TokenList*>* scope);
-  map<string, TokenList*>* popScope();
+  void interpolate(string &str, const ValueScope &scope);
+  void interpolate(TokenList &tokens, const ValueScope &scope);
 };
 
 #endif

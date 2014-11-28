@@ -27,13 +27,14 @@
 #include <glog/logging.h>
 #endif
 
-LessSelector::LessSelector(Selector* original) {
-  list<Selector*>* parts = original->split();
-  list<Selector*>::iterator it;
-  Selector* old_selector,
-    *new_selector = new Selector();
-  TokenList* extension;
+LessSelector::LessSelector(const Selector &original) {
+  list<Selector> parts;
+  list<Selector>::iterator it;
+  Selector* old_selector;
+  Selector new_selector;
 
+  original.split(parts);
+  
   _needsArguments = false;
   _unlimitedArguments = false;
 
@@ -41,102 +42,91 @@ LessSelector::LessSelector(Selector* original) {
   VLOG(2) << "Parsing less selector";
 #endif
   
-  for (it = parts->begin(); it != parts->end(); it++) {
-    old_selector = *it;
+  for (it = parts.begin(); it != parts.end(); it++) {
+    old_selector = &(*it);
 
     while(!old_selector->empty()) {
-      extension = parseExtension(old_selector);
-      if (extension != NULL) {
-        extensions.insert(pair<string,TokenList*>
-                          (extension->toString(), new_selector->clone()));
-        delete extension;
-      } else if (parts->size() == 1 &&
-                 !new_selector->empty() &&
-                 new_selector->back()->str != "nth-child" &&
-                 parseArguments(old_selector)) {
+      
+      if (parseExtension(*old_selector, new_selector)) {
+        
+      } else if (parts.size() == 1 &&
+                 !new_selector.empty() &&
+                 new_selector.back() != "nth-child" &&
+                 parseArguments(*old_selector)) {
         _needsArguments = true;
         old_selector->ltrim();
         
-        parseConditions(old_selector);
-      } else
-        new_selector->push(old_selector->shift());
+        parseConditions(*old_selector);
+        
+      } else {
+        new_selector.push_back(old_selector->front());
+        old_selector->pop_front();
+      }
+      
     }
     if (!empty()) 
-      push(new Token(",", Token::OTHER));
+      push_back(Token(",", Token::OTHER));
 
-    new_selector->trim();
-    while(!new_selector->empty()) 
-      push(new_selector->shift());
+    new_selector.trim();
+    insert(end(), new_selector.begin(), new_selector.end());
   }
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Parsed selector: " << toString();
 #endif
-  
-  delete new_selector;
 }
 
 LessSelector::~LessSelector() {
-  map<string, TokenList*>::iterator i;
-  
-  while (!defaults.empty()) {
-    delete defaults.back();
-    defaults.pop_back();
-  }
-  while (!conditions.empty()) {
-    delete conditions.back();
-    conditions.pop_back();
-  }
-  for (i = extensions.begin();
-       i != extensions.end();
-       i++) {
-    delete i->second;
-  }
 }
 
-TokenList* LessSelector::parseExtension(TokenList* selector) {
-  TokenList* extension;
+bool LessSelector::parseExtension(Selector &selector, Selector &extension) {
   int parentheses = 1;
-  
-  if (selector->size() < 3 ||
-      selector->front()->type != Token::COLON ||
-      selector->at(1)->type != Token::IDENTIFIER ||
-      selector->at(1)->str != "extend" ||
-      selector->at(2)->type != Token::PAREN_OPEN)
-    return NULL;
+  TokenList::iterator i;
+  Extension e;
 
-  extension = new TokenList();
+  i = selector.begin();
 
-  delete selector->shift(); // :
-  delete selector->shift(); // extend
-  delete selector->shift(); // (
-
-  while(!selector->empty() && parentheses > 0) {
-    if (selector->front()->type == Token::PAREN_OPEN) 
-      parentheses++;
-    else if (selector->front()->type == Token::PAREN_CLOSED)
-      parentheses--;
-    
-    if (parentheses > 0)
-      extension->push(selector->shift());
-  }
-  if (!selector->empty())
-    delete selector->shift();
-
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Extension: " << extension->toString();
-#endif
-  
-  return extension;  
-}
-
-bool LessSelector::parseArguments(TokenList* selector) {
-  string delimiter;
-
-  if (selector->front()->type != Token::PAREN_OPEN)
+  // ":", "extend", "("
+  if (selector.size() < 3 ||
+      (*i).type != Token::COLON ||
+      (*++i).type != Token::IDENTIFIER ||
+      (*i).str != "extend" ||
+      (*++i).type != Token::PAREN_OPEN)
     return false;
 
-  if (selector->contains(Token::DELIMITER, ";"))
+  i++;
+ 
+  for(; i != selector.end() && parentheses > 0; i++) {
+    if ((*i).type == Token::PAREN_OPEN) 
+      parentheses++;
+    else if ((*i).type == Token::PAREN_CLOSED)
+      parentheses--;
+    
+    if (parentheses > 0) {
+      e.getTarget()->push_back(*i);
+    }
+  }
+  
+  e.setExtension(extension);
+  extensions.push_back(e);
+
+  selector.erase(selector.begin(), i);
+  
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Extension: " << extension.toString();
+#endif
+  
+  return true; 
+}
+
+bool LessSelector::parseArguments(TokenList &selector) {
+  string delimiter;
+  TokenList::iterator i;
+
+  if (selector.front().type != Token::PAREN_OPEN)
+    return false;
+
+  if (selector.contains(Token::DELIMITER, ";"))
     delimiter = ";";
   else
     delimiter = ",";
@@ -148,105 +138,110 @@ bool LessSelector::parseArguments(TokenList* selector) {
   if (!validateArguments(selector, delimiter))
     return false;
 
-  delete selector->shift();
+  selector.pop_front();
 
-  selector->ltrim();
+  selector.ltrim();
 
   while (parseParameter(selector, delimiter)) {
-    selector->ltrim();
+    selector.ltrim();
   }
 
-  if (selector->size() > 3  &&
-      selector->front()->str == "." &&
-      selector->at(1)->str == "." &&
-      selector->at(2)->str == ".") {
+  i = selector.begin();
+  
+  if (selector.size() > 3  &&
+      (*i).str == "." &&
+      (*++i).str == "." &&
+      (*++i).str == ".") {
     _unlimitedArguments = true;
-    delete selector->shift();
-    delete selector->shift();
-    delete selector->shift();
+    
+    selector.erase(selector.begin(), i);
   }
 
-  selector->ltrim();
+  selector.ltrim();
 
-  if (selector->front()->type != Token::PAREN_CLOSED) {
-    throw new ParseException(selector->toString(),
+  if (selector.front().type != Token::PAREN_CLOSED) {
+    throw new ParseException(selector.toString(),
                              "matching parentheses.", 0, 0, "");
   }
+  selector.pop_front();
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Done parsing parameters";
 #endif
   
-  delete selector->shift();
   return true;
 }
 
 
-bool LessSelector::validateArguments(TokenList* arguments, string delimiter) {
-  TokenListIterator* i = arguments->iterator();
+bool LessSelector::validateArguments(const TokenList &arguments,
+                                     const std::string &delimiter) {
+  TokenList::const_iterator i = arguments.begin();
 
-  if (i->next()->type != Token::PAREN_OPEN)
+  if ((*i).type != Token::PAREN_OPEN)
     return false;
 
-  while(i->hasNext() && i->next()->type == Token::WHITESPACE) {
+  i++;
+  
+  while(i != arguments.end() &&
+        (*i).type == Token::WHITESPACE) {
+    i++;
   }
 
-  while(i->hasNext()) {
-    if (i->current()->type == Token::IDENTIFIER) {
+  while(i != arguments.end()) {
+    if ((*i).type == Token::IDENTIFIER) {
       // switch
-      i->next();
+      i++;
       
-    } else if (i->current()->type == Token::ATKEYWORD) {
+    } else if ((*i).type == Token::ATKEYWORD) {
       // variable
-      i->next();
+      i++;
       
-      if (i->current()->type == Token::COLON) {
+      if ((*i).type == Token::COLON) {
         // default value
-        while (i->hasNext() &&
-               i->next()->type != Token::PAREN_CLOSED &&
-               i->current()->str != delimiter) {
+        i++;
+        while (i != arguments.end() &&
+               (*i).type != Token::PAREN_CLOSED &&
+               *i != delimiter) {
+          i++;
         }
       
-      } else if (i->current()->str == ".") {
+      } else if (*i == ".") {
+        i++;
         // rest
-        if (!i->hasNext() || i->next()->str != "." ||
-            !i->hasNext() || i->next()->str != ".") {
-          delete i;
+        if (i == arguments.end() || *i != "." ||
+            ++i == arguments.end()  || *i != ".") {
           return false;
         }
+        i++;
         break;
       }
-    } else {
+    } else 
       break;
-    }
-    
-    if (i->current()->str != delimiter)
+        
+    if (*i != delimiter)
       break;
-    i->next();
+    i++;
     
-    while(i->hasNext() && i->current()->type == Token::WHITESPACE) {
-      i->next();
+    while(i != arguments.end() && (*i).type == Token::WHITESPACE) {
+      i++;
     }
   }
   
-  while(i->hasNext() && i->current()->type == Token::WHITESPACE) {
-    i->next();
+  while(i != arguments.end() && (*i).type == Token::WHITESPACE) {
+    i++;
   }
 
   // rest
-  if (i->current()->str == ".") {
-    if (!i->hasNext() || i->next()->str != "." ||
-        !i->hasNext() || i->next()->str != ".") {
-      delete i;
+  if (*i == ".") {
+    i++;
+    if (i == arguments.end() || *i != "." ||
+        ++i == arguments.end() || *i != ".") {
       return false;
     }
-    if (i->hasNext())
-      i->next();
+    i++;
   }
-  if (i->current()->type != Token::PAREN_CLOSED) {
-    delete i;
+  if ((*i).type != Token::PAREN_CLOSED) 
     return false;
-  }
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Validated parameters";
@@ -255,34 +250,34 @@ bool LessSelector::validateArguments(TokenList* arguments, string delimiter) {
   return true;
 }
 
-bool LessSelector::parseParameter(TokenList* selector, string delimiter) {
+bool LessSelector::parseParameter(TokenList &selector, const std::string &delimiter) {
   string keyword;
-  TokenList* value = NULL;
+  TokenList value;
+  TokenList::iterator i;
 
-  if (selector->empty())
+  if (selector.empty())
     return false;
 
-  if (selector->front()->type == Token::IDENTIFIER) {
-    keyword = selector->front()->str;
-    delete selector->shift();
+  if (selector.front().type == Token::IDENTIFIER) {
+    keyword = selector.front();
+    selector.pop_front();
 
-  } else if (selector->front()->type == Token::ATKEYWORD) {
+  } else if (selector.front().type == Token::ATKEYWORD) {
 
-    keyword = selector->front()->str;
-    delete selector->shift();
+    keyword = selector.front();
+    selector.pop_front();
 
-
-    if ((value = parseDefaultValue(selector, delimiter)) != NULL) {
+    i = selector.begin();
+    
+    if (parseDefaultValue(selector, delimiter, value)) {
       // default value
       
-    } else if (selector->size() > 3 &&
-               selector->front()->str == "." &&
-               selector->at(1)->str == "." &&
-               selector->at(2)->str == ".") {
+    } else if (selector.size() > 3 &&
+               (*i).str == "." &&
+               (*++i).str == "." &&
+               (*++i).str == ".") {
       // rest argument
-      delete selector->shift();
-      delete selector->shift();
-      delete selector->shift();
+      selector.erase(selector.begin(), i);
       
       restIdentifier = keyword;
       _unlimitedArguments = true;
@@ -291,14 +286,14 @@ bool LessSelector::parseParameter(TokenList* selector, string delimiter) {
   } else
     return false;
 
-  selector->ltrim();
+  selector.ltrim();
   
-  if (!selector->empty() &&
-      selector->front()->str == delimiter)
-    delete selector->shift();
+  if (!selector.empty() &&
+      selector.front() == delimiter)
+    selector.pop_front();
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Parameeter: " << keyword;
+  VLOG(2) << "Parameter: " << keyword;
 #endif
   
   parameters.push_back(keyword);
@@ -306,66 +301,65 @@ bool LessSelector::parseParameter(TokenList* selector, string delimiter) {
   return true;
 }
 
-TokenList* LessSelector::parseDefaultValue(TokenList* arguments,
-                                     string delimiter) {
-  TokenList* value;
-  int parentheses = 0;
+bool LessSelector::parseDefaultValue(TokenList &arguments,
+                                     const std::string &delimiter,
+                                     TokenList &value) {
+  unsigned int parentheses = 0;
   
-  if (arguments->front()->type != Token::COLON)
-    return NULL;
+  if (arguments.front().type != Token::COLON)
+    return false;
   
-  delete arguments->shift();
-  value = new TokenList();
+  arguments.pop_front();
     
-  while (!arguments->empty() &&
+  while (!arguments.empty() &&
          (parentheses != 0 ||
-          arguments->front()->type != Token::PAREN_CLOSED) &&
-         arguments->front()->str != delimiter) {
-
-    if (arguments->front()->type == Token::PAREN_OPEN)
+          arguments.front().type != Token::PAREN_CLOSED) &&
+         arguments.front() != delimiter) {
+    
+    if (arguments.front().type == Token::PAREN_OPEN)
       parentheses++;
-    if (arguments->front()->type == Token::PAREN_CLOSED)
+    if (arguments.front().type == Token::PAREN_CLOSED)
       parentheses--;
 
-    value->push(arguments->shift());
+    value.push_back(arguments.front());
+    arguments.pop_front();
   }
 
-  value->trim();
+  value.trim();
 
-  if (value->empty()) {
+  if (value.empty()) {
     throw new ParseException("",
                              "default value following ':'",
                              0, 0, "");
   }
-  return value;
+  return true;
 }
 
-bool LessSelector::parseConditions (TokenList* selector) {
-  TokenList* condition;
+bool LessSelector::parseConditions (TokenList &selector) {
+  TokenList condition;
   
-  if (selector->empty() ||
-      selector->front()->str != "when")
+  if (selector.empty() ||
+      selector.front() != "when")
     return false;
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Parsing conditions";
 #endif
   
-  delete selector->shift();
-
-  selector->ltrim();
+  selector.pop_front();
+  selector.ltrim();
   
-  while (!selector->empty()) {
-    condition = new TokenList();
+  while (!selector.empty()) {
     
-    while(!selector->empty() && selector->front()->str != ",") {
-      condition->push(selector->shift());
+    while(!selector.empty() && selector.front() != ",") {
+      condition.push_back(selector.front());
+      selector.pop_front();
     }
-    if (!selector->empty() && selector->front()->str == ",")
-      delete selector->shift();
+    if (!selector.empty() && selector.front() == ",")
+      selector.pop_front();
 
 #ifdef WITH_LIBGLOG
-    VLOG(2) << "Condition: " << condition->toString();
+    VLOG(2) << "Condition: " << condition.toString();
 #endif
     
     conditions.push_back(condition);
@@ -374,42 +368,43 @@ bool LessSelector::parseConditions (TokenList* selector) {
 }
 
 
-TokenList* LessSelector::getDefault(string keyword) {
-  list<string>::iterator pit = parameters.begin();
-  list<TokenList*>::iterator dit = defaults.begin();
+TokenList* LessSelector::getDefault(const std::string &keyword) {
+  std::list<std::string>::iterator pit = parameters.begin();
+  std::list<TokenList>::iterator dit = defaults.begin();
+
   for (;pit != parameters.end(); pit++, dit++) {
     if ((*pit) == keyword)
-      return (*dit);
+      return &(*dit);
   }
   return NULL;
 }
 
-list<string>* LessSelector::getParameters() {
+std::list<std::string>* LessSelector::getParameters() {
   return &parameters;
 }
 
-list<TokenList*>* LessSelector::getConditions() {
+std::list<TokenList>* LessSelector::getConditions() {
   return &conditions;
 }
 
-map<string, TokenList*>* LessSelector::getExtensions() {
+std::list<Extension>* LessSelector::getExtensions() {
   return &extensions;
 }
 
-bool LessSelector::matchArguments(Mixin* mixin) {
-  list<string>::iterator p_it = parameters.begin();
-  list<TokenList*>::iterator d_it = defaults.begin();
+bool LessSelector::matchArguments(const Mixin &mixin) {
+  std::list<std::string>::iterator p_it = parameters.begin();
+  std::list<TokenList>::iterator d_it = defaults.begin();
   size_t pos = 0;
 
   for(; p_it != parameters.end(); p_it++, d_it++) {
     
-    if (mixin->getArgument(*p_it) == NULL &&
-        mixin->getArgument(pos++) == NULL &&
-        *d_it == NULL) {
+    if (mixin.getArgument(*p_it) == NULL &&
+        mixin.getArgument(pos++) == NULL &&
+        !(*d_it).empty()) {
           return false;
     }
   }
-  return (pos >= mixin->getArgumentCount() || unlimitedArguments());
+  return (pos >= mixin.getArgumentCount() || unlimitedArguments());
 }
 
 bool LessSelector::needsArguments() {

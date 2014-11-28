@@ -28,26 +28,26 @@ Value::Value() {
 Value::~Value() {
 }
 
-TokenList* Value::getTokens() {
+const TokenList* Value::getTokens() const{
   return &tokens;
 }
-Value* Value::equals(Value* v) {
+Value* Value::equals(const Value &v) {
   return new BooleanValue(this->compare(v) == 0);
 }
-Value* Value::lessThan(Value* v) {
+Value* Value::lessThan(const Value &v) {
   return new BooleanValue(this->compare(v) < 0);
 }
-Value* Value::greaterThan(Value* v) {
+Value* Value::greaterThan(const Value &v) {
   return new BooleanValue(this->compare(v) > 0);
 }
-Value* Value::lessThanEquals(Value* v) {
+Value* Value::lessThanEquals(const Value &v) {
   return new BooleanValue(this->compare(v) <= 0);
 }
-Value* Value::greaterThanEquals(Value* v) {
+Value* Value::greaterThanEquals(const Value &v) {
   return new BooleanValue(this->compare(v) >= 0);
 }
 
-const char* Value::typeToString(Type t) {
+const char* Value::typeToString(const Type &t) {
   switch (t) {
   case NUMBER:
     return "Number";
@@ -68,7 +68,7 @@ const char* Value::typeToString(Type t) {
   }
   return "Undefined";
 }
-Value::Type Value::codeToType(char code) {
+Value::Type Value::codeToType(const char code) {
   switch (code) {
   case 'N':
     return NUMBER;

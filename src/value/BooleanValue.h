@@ -36,14 +36,14 @@ public:
   BooleanValue(bool value);
   virtual ~BooleanValue();
 
-  bool getValue();
+  bool getValue() const;
   void setValue(bool value);
 
-  virtual Value* add(Value* v);
-  virtual Value* substract(Value* v);
-  virtual Value* multiply(Value* v);
-  virtual Value* divide(Value* v);
-  virtual int compare(Value* v);
+  virtual Value* add(const Value &v);
+  virtual Value* substract(const Value &v);
+  virtual Value* multiply(const Value &v);
+  virtual Value* divide(const Value &v);
+  virtual int compare(const Value &v);
 };
 #endif
   

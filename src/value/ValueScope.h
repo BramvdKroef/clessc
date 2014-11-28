@@ -19,33 +19,30 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ExtendCssWriter_h__
-#define __ExtendCssWriter_h__
+#ifndef __ValueScope_h__
+#define __ValueScope_h__
 
-#include "CssWriter.h"
-#include "TokenList.h"
-#include <string>
 #include <map>
+#include <string>
+#include <list>
 
-using namespace std;
+#include "../TokenList.h"
+#include "../Stylesheet.h"
 
-class ExtendCssWriter: public CssWriter {
+class ValueScope {
 private:
-  CssWriter* writer;
-  map<string,TokenList*>* extensions;
+  const ValueScope* parent;
+  const std::map<std::string, TokenList>* variables;
+
+  //void putVariable(const std::string &key, const TokenList &value);
   
 public:
-  ExtendCssWriter(CssWriter* writer,
-                    map<string,TokenList*>* extensions);
-  virtual ~ExtendCssWriter();
-
-  virtual void writeAtRule(string keyword, TokenList* rule);
-  virtual void writeRulesetStart(TokenList* selector);
-  virtual void writeRulesetEnd();
-  virtual void writeDeclaration(string property, TokenList* value);
-  virtual void writeDeclarationDeliminator();
-  virtual void writeMediaQueryStart(TokenList* selector);
-  virtual void writeMediaQueryEnd();
-};
+  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
+  ValueScope(const std::map<std::string, TokenList> &v);
   
+  const TokenList* getVariable(const std::string &key) const;
+  
+  const ValueScope* getParent() const;
+};
+
 #endif

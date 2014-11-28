@@ -38,28 +38,26 @@ class Color: public Value {
 private:
   unsigned int color[3];
   double alpha;
-  /**
-   * If set to true getTokens() will generate new tokens with the
-   * updated color data.
-   */
-  bool valueChanged;
   
-  double maxArray(double* array, int len);
-  double minArray(double* array, int len);
+  double maxArray(double* array, const size_t len);
+  double minArray(double* array, const size_t len);
+
+  void updateTokens();
+  
 public:
-  Color(Token* token);
+  Color(Token &token);
   Color(unsigned int red, unsigned int green, unsigned int blue);
   Color(unsigned int red, unsigned int green, unsigned int blue,
         double alpha);
+  Color(const Color &color);
+
   virtual ~Color();
 
-  virtual TokenList* getTokens();
-  
-  virtual Value* add(Value* v);
-  virtual Value* substract(Value* v);
-  virtual Value* multiply(Value* v);
-  virtual Value* divide(Value* v);
-  virtual int compare(Value* v);
+  virtual Value* add(const Value &v);
+  virtual Value* substract(const Value &v);
+  virtual Value* multiply(const Value &v);
+  virtual Value* divide(const Value &v);
+  virtual int compare(const Value &v);
 
   /**
    * The HSL to RGB conversion on
@@ -80,24 +78,24 @@ public:
    *
    * @return an int value between 0-255
    */
-  unsigned int getRed();
+  unsigned int getRed() const;
   /**
    * Returns the the amount of green in the color.
    *
    * @return an int value between 0-255
    */
-  unsigned int getGreen();
+  unsigned int getGreen() const;
   /**
    * Returns the the amount of blue in the color.
    *
    * @return an int value between 0-255
    */
-  unsigned int getBlue();
+  unsigned int getBlue() const;
 
   void setAlpha(double alpha);
-  double getAlpha();
+  double getAlpha() const;
   
-  static void loadFunctions(FunctionLibrary* lib);
+  static void loadFunctions(FunctionLibrary &lib);
   static Value* rgb(vector<Value*> arguments);
   static Value* rgba(vector<Value*> arguments);
   static Value* lighten(vector<Value*> arguments);

@@ -24,40 +24,43 @@
 
 #include "Selector.h"
 #include "Stylesheet.h"
-#include <list>
+#include "ProcessingContext.h"
+#include <vector>
 #include <map>
+#include <string>
 
 class LessStylesheet;
 class LessRuleset;
 
 class Mixin: public StylesheetStatement{
 private:
-  vector<TokenList*> arguments;
-  map<string, TokenList*> namedArguments;
+  vector<TokenList> arguments;
+  map<std::string, TokenList> namedArguments;
 
   LessStylesheet* lessStylesheet;
-  void parseArguments(TokenListIterator* tli);
+  void parseArguments(TokenList::const_iterator i, const Selector &s);
 
 public:
-  Selector* name;
+  Selector name;
 
   Mixin();
-  Mixin(Selector* name);
+  Mixin(const Selector &name);
   virtual ~Mixin() ;
-
-  TokenList* getArgument(size_t i);
-  size_t getArgumentCount();
   
-  TokenList* getArgument(string name);
+  const TokenList* getArgument(const size_t i) const;
+  size_t getArgumentCount() const;
+  
+  const TokenList* getArgument(const string &name) const;
 
-  bool insert(Stylesheet* s, Ruleset* ruleset, LessRuleset* parent);
-  bool parse(Selector* selector);
+  bool insert(Stylesheet &s, ProcessingContext &context,
+              Ruleset* ruleset, LessRuleset* parent);
+  bool parse(const Selector &selector);
 
-  virtual void setStylesheet(LessStylesheet* stylesheet);
+  virtual void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet* getLessStylesheet();
 
-  virtual void process(Stylesheet* s);
-  virtual void write(CssWriter* writer) {};
+  virtual void process(Stylesheet &s);
+  virtual void write(CssWriter &writer) {};
 };
 
 #endif

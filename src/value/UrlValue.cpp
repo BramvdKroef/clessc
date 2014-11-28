@@ -56,10 +56,8 @@ urlvalue_jpeg_error_exit (j_common_ptr cinfo)
 
 #endif
 
-using namespace std;
-
-UrlValue::UrlValue(Token* token, string path): Value() {
-  tokens.push(token);
+UrlValue::UrlValue(Token &token, std::string &path): Value() {
+  tokens.push_back(token);
   this->path = path;
   type = Value::URL;
   loaded = false;
@@ -72,24 +70,24 @@ UrlValue::~UrlValue() {
     delete background;
 }
 
-Value* UrlValue::add(Value* v) {
+Value* UrlValue::add(const Value &v) {
   (void)v;
-  throw new ValueException("You can not add images.");
+  throw new ValueException("You can not add urls.");
 }
-Value* UrlValue::substract(Value* v) {
+Value* UrlValue::substract(const Value &v) {
   (void)v;
-  throw new ValueException("You can not substract images.");
+  throw new ValueException("You can not substract urls.");
 }
-Value* UrlValue::multiply(Value* v) {
+Value* UrlValue::multiply(const Value &v) {
   (void)v;
-  throw new ValueException("You can not multiply images.");
+  throw new ValueException("You can not multiply urls.");
 }
-Value* UrlValue::divide(Value* v) {
+Value* UrlValue::divide(const Value &v) {
   (void)v;
-  throw new ValueException("You can not divide images.");
+  throw new ValueException("You can not divide urls.");
 }
-int UrlValue::compare(Value* v) {
-  if (v->type == URL) {
+int UrlValue::compare(const Value &v) {
+  if (v.type == URL) {
     return 0;
   } else {
     throw new ValueException("You can only compare images with images.");
@@ -350,29 +348,37 @@ Color* UrlValue::getImageBackground() {
 }
 
 
-void UrlValue::loadFunctions(FunctionLibrary* lib) {
-  lib->push("imgheight", "R", &UrlValue::imgheight);
-  lib->push("imgwidth", "R", &UrlValue::imgwidth);
-  lib->push("imgbackground", "R", &UrlValue::imgbackground);
+void UrlValue::loadFunctions(FunctionLibrary &lib) {
+  lib.push("imgheight", "R", &UrlValue::imgheight);
+  lib.push("imgwidth", "R", &UrlValue::imgwidth);
+  lib.push("imgbackground", "R", &UrlValue::imgbackground);
 }
 
 
 Value* UrlValue::imgheight(vector<Value*> arguments) {
-  NumberValue* val = new NumberValue(new Token("1", Token::NUMBER));
-  val->setValue(((UrlValue*)arguments[0])->getImageHeight());
+  UrlValue* u;
+  Token t("1", Token::NUMBER);
+  NumberValue* val = new NumberValue(t);
+
+  u = static_cast<UrlValue*>(arguments[0]);
+  val->setValue(u->getImageHeight());
   val->setUnit("px");
   return val;
 }
 Value* UrlValue::imgwidth(vector<Value*> arguments) {
-  NumberValue* val = new NumberValue(new Token("1", Token::NUMBER));
-  
+  UrlValue* u;
+  Token t("1", Token::NUMBER);
+  NumberValue* val = new NumberValue(t);
+
+  u = static_cast<UrlValue*>(arguments[0]);
   val->setUnit("px");
-  val->setValue((double)((UrlValue*)arguments[0])->getImageWidth());
+  val->setValue(u->getImageWidth());
   return val;
 }
  
 Value* UrlValue::imgbackground(vector<Value*> arguments) {
-  Color* color = ((UrlValue*)arguments[0])->getImageBackground();
+  UrlValue* u = static_cast<UrlValue*>(arguments[0]);
+  Color* color = u->getImageBackground();
   if (color == NULL)
     return new Color(0,0,0);
   else

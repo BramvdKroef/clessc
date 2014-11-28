@@ -41,24 +41,24 @@ public:
   enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT,
              BOOLEAN, URL} type;
   Value();
-  Value(Token* token);
+  Value(Token &token);
   virtual ~Value();
   
-  virtual TokenList* getTokens();
+  virtual const TokenList* getTokens() const;
   
-  virtual Value* add(Value* v) =0;
-  virtual Value* substract(Value* v) =0;
-  virtual Value* multiply(Value* v) =0;
-  virtual Value* divide(Value* v) =0;
-  virtual int compare(Value* v) =0;
+  virtual Value* add(const Value &v) =0;
+  virtual Value* substract(const Value &v) =0;
+  virtual Value* multiply(const Value &v) =0;
+  virtual Value* divide(const Value &v) =0;
+  virtual int compare(const Value &v) =0;
   
-  Value* equals(Value* v);
-  Value* lessThan(Value* v);
-  Value* greaterThan(Value* v);
-  Value* lessThanEquals(Value* v);
-  Value* greaterThanEquals(Value* v);
+  Value* equals(const Value &v);
+  Value* lessThan(const Value &v);
+  Value* greaterThan(const Value &v);
+  Value* lessThanEquals(const Value &v);
+  Value* greaterThanEquals(const Value &v);
 
-  static const char* typeToString(Type t);
+  static const char* typeToString(const Type &t);
   /**
    * return a type for a type code.
    * N - Number

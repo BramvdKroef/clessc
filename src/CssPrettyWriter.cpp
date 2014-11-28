@@ -29,29 +29,27 @@ void CssPrettyWriter::indent() {
     out->write("  ", 2);
 }
 
-void CssPrettyWriter::writeAtRule(string keyword, TokenList* rule) {
+void CssPrettyWriter::writeAtRule(const string &keyword, const TokenList &rule) {
   indent();
   
   CssWriter::writeAtRule(keyword, rule);
   out->write("\n", 1);
 }
 
-void CssPrettyWriter::writeRulesetStart(TokenList* selector) {
-  TokenListIterator* it;
-
+void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
+  TokenList::const_iterator it;
+  
   indent();
   
-  if (selector != NULL) {
-    for (it = selector->iterator(); it->hasNext();) {
-      Token* next = it->next();
-      out->write(next->str.c_str(), next->str.size());
+  for (it = selector.begin(); it != selector.end(); it++) {
+    out->write((*it).str.c_str(), (*it).str.size());
       
-      if (next->str == ",") {
-        out->write("\n", 1);
-        indent();
-      }
+    if ((*it).str == ",") {
+      out->write("\n", 1);
+      indent();
     }
   }
+  
   out->write(" {\n", 3);
   indent_size++;
 }
@@ -62,34 +60,37 @@ void CssPrettyWriter::writeRulesetEnd() {
   indent();
   out->write("}\n", 2);
 }
-void CssPrettyWriter::writeDeclaration(string property,
-                                       TokenList* value) {
-  TokenListIterator* it = value->iterator();
+void CssPrettyWriter::writeDeclaration(const string &property,
+                                       const TokenList &value) {
+  TokenList::const_iterator it;
 
   indent();
     
   out->write(property.c_str(), property.size());
   out->write(": ", 2);
 
-  value->ltrim();
-  while (it->hasNext()) {
-    Token* next = it->next();
-    out->write(next->str.c_str(), next->str.size());
+  it = value.begin();
+
+  while(it != value.end() &&
+        (*it).type == Token::WHITESPACE) {
+    it++;
+  }
+  
+  for (; it != value.end(); it++) {
+    out->write((*it).str.c_str(), (*it).str.size());
   }
 }
 void CssPrettyWriter::writeDeclarationDeliminator() {
   out->write(";\n", 2);  
 }
 
-void CssPrettyWriter::writeMediaQueryStart(TokenList* selector) {
-  TokenListIterator* it;
+void CssPrettyWriter::writeMediaQueryStart(const TokenList &selector) {
+  TokenList::const_iterator it;
   
-  if (selector != NULL) {
-    for (it = selector->iterator(); it->hasNext();) {
-      Token* next = it->next();
-      out->write(next->str.c_str(), next->str.size());
-    }
+  for (it = selector.begin(); it != selector.end(); it++) {
+    out->write((*it).str.c_str(), (*it).str.size());
   }
+  
   out->write(" {\n", 3);
   indent_size++;
 }

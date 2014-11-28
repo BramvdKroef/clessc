@@ -19,34 +19,33 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Selector_h__
-#define __Selector_h__
+#include "Extension.h"
 
-#include "TokenList.h"
-#include <list>
+Extension::Extension() {
+  all = false;
+}
 
-/**
- * 
- */
-class Selector: public TokenList {
-public:
-  virtual ~Selector();
+Extension::Extension(bool all) {
+  all = true;
+}
+Extension::~Extension() {
+}
 
-  void addPrefix(const Selector &prefix);
+Selector* Extension::getTarget() {
+  return &target;
+}
+Selector* Extension::getExtension() {
+  return &extension;
+}
 
-  /**
-   * If the selector contains commas then it is split up into multiple
-   * selectors.
-   * 
-   * For example <code>p .class, a:hover</code> is split up into
-   * <code>p .class</code> and <code>a:hover</code>.
-   */
-  void split(std::list<Selector> &l) const;
+void Extension::setExtension(Selector &selector) {
+  extension = selector;
+}
 
-  bool match(const TokenList &list) const;
-
-  const_iterator walk(const TokenList &list, const_iterator offset) const;
-  const_iterator find(const TokenList &list, const_iterator offset) const;
-};
-
-#endif
+void Extension::updateSelector(Selector &s) {
+  if (s.match(target)) {
+    // add comma and selector
+    s.push_back(Token(",",Token::OTHER));
+    s.insert(s.begin(), extension.begin(), extension.end());
+  }
+}

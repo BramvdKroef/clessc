@@ -24,52 +24,12 @@
 
 #include "Token.h"
 #include <list>
-using namespace std;
 
-class TokenListIterator {
-private:
-  list<Token*>::iterator it, begin, end;
-  
-public:
-  TokenListIterator(list<Token*>::iterator begin,
-                    list<Token*>::iterator end);
-  void toEnd ();
-  void toBegin ();
-  Token* previous ();
-  Token* next ();
-  Token* peek ();
-  Token* current ();
-  bool hasNext ();
-  bool hasPrevious ();
-};
-
-class TokenList {
-private:
-  list<Token*> tokens;
+class TokenList: public std::list<Token> {
   
 public:
   virtual ~TokenList();
   
-  void push (Token* token);
-  Token* pop ();
-
-  void unshift (Token* token);
-  Token* shift ();
-
-  bool empty ();
-  size_t size();
-
-  virtual bool equals(TokenList* list);
-
-  Token* back();
-  Token* front();
-  Token* at(unsigned int i);
-
-  TokenListIterator* iterator();
-  TokenListIterator* reverseIterator ();
-
-  void push(TokenList* list);
-  void unshift(TokenList* list);
 
   /**
    * Trim whitespace tokens from the front of the selector.
@@ -86,16 +46,10 @@ public:
    */
   void trim();
   
-  /**
-   * Delete all tokens in the list and remove them from the list.
-   */
-  void clear();
+  std::string toString() const;
 
-  virtual TokenList* clone();
-  
-  string toString();
-
-  bool contains(Token::Type t, string str);
+  bool contains(const Token &t) const;
+  bool contains(Token::Type t, const std::string &str) const;
 };
 
 #endif

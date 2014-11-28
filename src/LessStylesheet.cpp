@@ -13,51 +13,65 @@ LessStylesheet::LessStylesheet() {
 LessStylesheet::~LessStylesheet() {
 }
 
-void LessStylesheet::addStatement(AtRule* atrule) {
-  Stylesheet::addStatement(atrule);
-  atrule->setStylesheet(this);
-}
-
-void LessStylesheet::addStatement(LessRuleset* ruleset) {
+LessRuleset* LessStylesheet::createLessRuleset() {
+  LessRuleset* r = new LessRuleset();
+  
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Adding LessRuleset";
+  VLOG(3) << "Creating LessRuleset";
 #endif
   
-  Stylesheet::addStatement(ruleset);
-  lessrulesets.push_back(ruleset);
-  ruleset->setStylesheet(this);
-}
-void LessStylesheet::addStatement(Mixin* mixin) {
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Adding Parameter mixin";
-#endif
-  
-  Stylesheet::addStatement(mixin);
-  mixin->setStylesheet(this);
+  addRuleset(*r);
+  lessrulesets.push_back(r);
+  r->setLessStylesheet(*this);
+  return r;
 }
 
-void LessStylesheet::addStatement(LessMediaQuery* query) {
+Mixin* LessStylesheet::createMixin() {
+  Mixin* m = new Mixin();
+  
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Creating mixin";
+#endif
+  
+  addStatement(*m);
+  m->setLessStylesheet(*this);
+  return m;
+}
+
+LessMediaQuery* LessStylesheet::createLessMediaQuery() {
+  LessMediaQuery* q = new LessMediaQuery();
+  
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Adding Media Query";
 #endif
   
-  Stylesheet::addStatement(query);
-  query->setStylesheet(this);
+  addStatement(*q);
+  q->setLessStylesheet(*this);
+  return q;
+}
+
+void LessStylesheet::deleteLessRuleset(LessRuleset &ruleset) {
+  lessrulesets.remove(&ruleset);
+  deleteStatement(ruleset);
+}
+
+void LessStylesheet::deleteMixin(Mixin &mixin) {
+  deleteStatement(mixin);
 }
   
-void LessStylesheet::getLessRulesets(list<LessRuleset*>* rulesetList,
-                                     Mixin* mixin) {
-  vector<LessRuleset*>::iterator i;
+void LessStylesheet::getLessRulesets(list<LessRuleset*> &rulesetList,
+                                     const Mixin &mixin) {
+  list<LessRuleset*>::iterator i;
   
   for (i = lessrulesets.begin(); i != lessrulesets.end();
        i++) {
 
-    (*i)->getLessRulesets(rulesetList, mixin, 0);
+    (*i)->getLessRulesets(rulesetList, mixin, mixin.name.begin());
   }
 }
 
-void LessStylesheet::getExtensions(map<string,TokenList*>* extensions) {
-  vector<LessRuleset*>::iterator i;
+void LessStylesheet::getExtensions(std::list<Extension> &extensions) {
+  std::list<LessRuleset*>::iterator i;
   
   for (i = lessrulesets.begin(); i != lessrulesets.end();
        i++) {
@@ -66,32 +80,35 @@ void LessStylesheet::getExtensions(map<string,TokenList*>* extensions) {
   }
 }
 
-ValueProcessor* LessStylesheet::getValueProcessor() {
-  return &valueProcessor;
+void LessStylesheet::setContext(ProcessingContext* context) {
+  this->context = context;
+}
+ProcessingContext* LessStylesheet::getContext() {
+  return context;
 }
 
-void LessStylesheet::putVariable(string key, TokenList* value) {
-  variables.insert(pair<string, TokenList*>(key, value));  
-}
-
-void LessStylesheet::processVariables() {
-  map<string, TokenList*>::iterator it;
-
-  for (it = variables.begin(); it != variables.end(); ++it) {
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Variable: " << it->first << ": " << it->second->toString();
-#endif
-    getValueProcessor()->putVariable(it->first, it->second);
-  }
-}
-
-void LessStylesheet::process(Stylesheet* s) {
-  map<string,TokenList*> extensions;
-  vector<Ruleset>::iterator r_it;
+void LessStylesheet::putVariable(const std::string &key, const TokenList &value) {
+  map<std::string, TokenList>::iterator mit;
   
-  processVariables();
-  Stylesheet::process(s);
+  // check if variable is alread declared
+  mit = variables.find(key);
+  
+  if (mit != variables.end()) {
+    LOG(WARNING) << "Variable " << key << " defined twice in same stylesheet.";
+  }
+  
+  variables.insert(std::pair<std::string, TokenList>(key, value));  
+}
 
+
+void LessStylesheet::process(Stylesheet &s) {
+  map<string,TokenList> extensions;
+  list<Ruleset>::iterator r_it;
+  
+  getContext()->pushScope(variables);
+  Stylesheet::process(s);
+  getContext()->popScope();
+  
   /*extensions = getExtensions(&extensions);
 
   for (r_it = s->getRulesets()->begin();

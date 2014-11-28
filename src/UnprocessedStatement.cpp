@@ -38,43 +38,45 @@ Selector* UnprocessedStatement::getTokens(){
   return &tokens;
 }
 
-void UnprocessedStatement::getProperty(TokenList* tokens) {
-  for(size_t i=0; i < property_i; i++) {
-    tokens->push(this->tokens.at(i)->clone());
-  }
+void UnprocessedStatement::getProperty(TokenList &tokens) {
+  TokenList::iterator i = this->tokens.begin();
+  std::advance(i, property_i);
+
+  tokens.insert(tokens.begin(), this->tokens.begin(), i);
 }
 
-void UnprocessedStatement::getValue(TokenList* tokens) {
-  for(size_t i=property_i; i < this->tokens.size(); i++) {
-    tokens->push(this->tokens.at(i)->clone());
-  }
+void UnprocessedStatement::getValue(TokenList &tokens) {
+  TokenList::iterator i = this->tokens.begin();
+  std::advance(i, property_i);
+
+  tokens.insert(tokens.begin(), i, this->tokens.end());
 }
 
-void UnprocessedStatement::setRuleset(LessRuleset* r) {
+void UnprocessedStatement::setLessRuleset(LessRuleset &r) {
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Set LessRuleset";
 #endif
   
-  RulesetStatement::setRuleset(r);
-  lessRuleset = r;
+  lessRuleset = &r;
 }
 
 LessRuleset* UnprocessedStatement::getLessRuleset() {
   return lessRuleset;
 }
 
-void UnprocessedStatement::insert(Stylesheet* s) {
+void UnprocessedStatement::insert(Stylesheet &s) {
   Mixin mixin;
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
   
   // process mixin
-  if (mixin.parse(getTokens()))
-    mixin.insert(s, NULL, getLessRuleset());
+  if (mixin.parse(*getTokens()))
+    mixin.insert(s, *getLessRuleset()->getContext(),
+                 NULL, getLessRuleset());
 }
 
-void UnprocessedStatement::process(Ruleset* r) {
+void UnprocessedStatement::process(Ruleset &r) {
   Mixin mixin;
-  Declaration declaration;
+  Declaration* declaration;
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Statement: " << getTokens()->toString();
@@ -87,30 +89,33 @@ void UnprocessedStatement::process(Ruleset* r) {
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
   
   // process mixin
-  if (mixin.parse(getTokens()) &&
-      mixin.insert(r->getStylesheet(), r, getLessRuleset())) {
+  if (mixin.parse(*getTokens()) &&
+      mixin.insert(*r.getStylesheet(), *getLessRuleset()->getContext(),
+                   &r, getLessRuleset())) {
 
-  } else if (processDeclaration(&declaration)) {
-    
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Declaration: " <<
-      declaration.getProperty() << ": " << declaration.getValue()->toString();
-#endif
-    
-    getLessRuleset()->getLessStylesheet()->
-      getValueProcessor()->processValue(declaration.getValue());
-
-    r->addStatement(declaration.clone());
-
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Processed declaration: " <<
-      declaration.getProperty() << ": " << declaration.getValue()->toString();
-#endif
-    
   } else {
-    throw new ParseException(getTokens()->toString(),
-                             "variable, mixin or declaration.",
-                             line, column, source);
+    declaration = r.createDeclaration();
+    
+    if (processDeclaration(declaration)) {
+    
+#ifdef WITH_LIBGLOG
+      VLOG(2) << "Declaration: " <<
+        declaration->getProperty() << ": " << declaration->getValue()->toString();
+#endif
+    
+      getLessRuleset()->getContext()->processValue(*declaration->getValue());
+
+#ifdef WITH_LIBGLOG
+      VLOG(2) << "Processed declaration: " <<
+        declaration->getProperty() << ": " << declaration->getValue()->toString();
+#endif
+    
+    } else {
+      r.deleteDeclaration(*declaration);
+      throw new ParseException(getTokens()->toString(),
+                               "variable, mixin or declaration.",
+                               line, column, source);
+    }
   }
 
 #ifdef WITH_LIBGLOG
@@ -119,32 +124,30 @@ void UnprocessedStatement::process(Ruleset* r) {
 }
 
 bool UnprocessedStatement::isExtends() {
-  return (getTokens()->front()->str == "&" &&
-          getTokens()->at(1)->type == Token::COLON &&
-          getTokens()->at(2)->type == Token::IDENTIFIER &&
-          getTokens()->at(2)->str == "extend" &&
-          getTokens()->at(3)->type == Token::PAREN_OPEN);
+  TokenList::iterator i = getTokens()->begin();
+  
+  return ((*i).str == "&" &&
+          (*++i).type == Token::COLON &&
+          (*++i).type == Token::IDENTIFIER &&
+          (*i).str == "extend" &&
+          (*++i).type == Token::PAREN_OPEN);
 }
 
-TokenList* UnprocessedStatement::getExtension() {
-  TokenList* list;
-  TokenListIterator* it;
+bool UnprocessedStatement::getExtension(TokenList &extension) {
+  TokenList::iterator i;
   int parentheses = 1;
   
   if (!isExtends())
-    return NULL;
+    return false;
 
-  list = new TokenList();
-  it = getTokens()->iterator(); 
+  i = getTokens()->begin(); 
 
-  it->next(); // &
-  it->next(); // :
-  it->next(); // extends
-  it->next(); // (
-  
-  while (it->hasNext() && parentheses > 0) {
+  // &:extends(
+  std::advance(i, 4);
+
+  for (;i != getTokens()->end() && parentheses > 0; i++) {
     
-    switch (it->next()->type) {
+    switch ((*i).type) {
     case Token::PAREN_OPEN:
       parentheses++;
       break;
@@ -155,48 +158,35 @@ TokenList* UnprocessedStatement::getExtension() {
       break;
     }
     if (parentheses > 0)
-      list->push(it->current()->clone());
+      extension.push_back(*i);
   }
-  delete it;
 
   if (parentheses > 0) {
     throw new ParseException("end of statement", ")", line, column, source);
   }
-  return list;
+  return true;
 }
 
 bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   TokenList property;
-  TokenList* value = new TokenList();
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Declaration";
 #endif
   
-  getValue(value);
+  getValue(*declaration->getValue());
   
-  if (value->empty() ||
-      value->front()->type != Token::COLON) {
-    delete value;
+  if (declaration->getValue()->empty() ||
+      declaration->getValue()->front().type != Token::COLON) {
     return NULL;
   }
     
-  delete value->shift();
+  declaration->getValue()->pop_front();
   
-  getProperty(&property);
+  getProperty(property);
   
   declaration->setProperty(property.toString());
-  declaration->setValue(value);
   
-  return declaration;
+  return true;
 }
 
-
-UnprocessedStatement* UnprocessedStatement::clone() {
-  UnprocessedStatement* statement = new UnprocessedStatement();
-  statement->line = line;
-  statement->column = column;
-  statement->property_i = property_i;
-  statement->getTokens()->push(getTokens());
-  return statement;
-}

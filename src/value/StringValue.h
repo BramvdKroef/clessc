@@ -34,28 +34,29 @@ private:
   string stringvalue;
   bool quotes;
 
+  void updateTokens();
+
 public:
-  StringValue(Token* token);
-  StringValue(Token* token, bool quotes);
+  StringValue(Token &token);
+  StringValue(Token &token, bool quotes);
+  StringValue(const StringValue &s);
   virtual ~StringValue();
   
-  virtual TokenList* getTokens();
-
-  string getString();
+  string getString() const;
   void setString(string stringValue);
   
   void setQuotes(bool quotes);
-  bool getQuotes();
+  bool getQuotes() const;
   
-  virtual Value* add(Value* v);
-  virtual Value* substract(Value* v);
-  virtual Value* multiply(Value* v);
-  virtual Value* divide(Value* v);
-  virtual int compare(Value* v);
+  virtual Value* add(const Value &v);
+  virtual Value* substract(const Value &v);
+  virtual Value* multiply(const Value &v);
+  virtual Value* divide(const Value &v);
+  virtual int compare(const Value &v);
 
   static string escape(string rawstr, string extraUnreserved = "");
 
-  static void loadFunctions(FunctionLibrary* lib);
+  static void loadFunctions(FunctionLibrary &lib);
   static Value* escape(vector<Value*> arguments);
   static Value* e(vector<Value*> arguments);
   static Value* format(vector<Value*> arguments);

@@ -25,45 +25,46 @@
 
 #include "Selector.h"
 #include "Mixin.h"
+#include "Extension.h"
 
 #include <list>
+#include <map>
+#include <iterator>
 
 class LessSelector: public Selector {
 private:
-  Selector* original;
-
-  map<string, TokenList*> extensions;
-  list<string> parameters;
-  list<TokenList*> defaults;
-  list<TokenList*> conditions;
+  std::list<Extension> extensions;
+  std::list<string> parameters;
+  std::list<TokenList> defaults;
+  std::list<TokenList> conditions;
 
   bool _unlimitedArguments;
   bool _needsArguments;
-  string restIdentifier;
+  std::string restIdentifier;
 
-  TokenList* parseExtension(TokenList* selector);
-  bool parseArguments(TokenList* selector);
-  bool validateArguments(TokenList* arguments, string delimiter);
-  bool parseParameter(TokenList* selector, string delimiter);
-  TokenList* parseDefaultValue(TokenList* arguments,
-                               string delimiter);
-  bool parseConditions (TokenList* selector);
+  bool parseExtension(Selector &selector, Selector &extension);
+  bool parseArguments(TokenList &selector);
+  bool validateArguments(const TokenList &arguments, const std::string &delimiter);
+  bool parseParameter(TokenList &selector, const std::string &delimiter);
+  bool parseDefaultValue(TokenList &arguments,
+                         const std::string &delimiter,
+                         TokenList &value);
+  bool parseConditions (TokenList &selector);
   
 public:
-  LessSelector(Selector* original);
+  LessSelector(const Selector &original);
   virtual ~LessSelector();
-
   
-  map<string, TokenList*>* getExtensions();
-  list<string>* getParameters();
-  TokenList* getDefault(string parameter);
+  std::list<Extension>* getExtensions();
+  std::list<std::string>* getParameters();
+  TokenList* getDefault(const std::string &parameter);
 
-  list<TokenList*>* getConditions();
-  bool matchArguments(Mixin* arguments);
+  std::list<TokenList>* getConditions();
+  bool matchArguments(const Mixin &arguments);
 
   bool needsArguments();
   bool unlimitedArguments();
-  string getRestIdentifier();
+  std::string getRestIdentifier();
   
 };
 

@@ -23,10 +23,14 @@
 #define __LessMediaQuery_h__
 
 #include "LessStylesheet.h"
+#include "Selector.h"
+#include "LessRuleset.h"
+#include "Mixin.h"
+#include <list>
 
 class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
 private:
-  Selector* selector;
+  Selector selector;
   LessStylesheet* parent;
   
 public:
@@ -34,17 +38,17 @@ public:
   virtual ~LessMediaQuery();
   
   Selector* getSelector();
-  void setSelector(Selector* s);
+  void setSelector(const Selector &s);
 
-  virtual void setStylesheet(LessStylesheet* parent);
+  virtual void setLessStylesheet(LessStylesheet &parent);
   LessStylesheet* getLessStylesheet();
 
-  virtual void getLessRulesets(list<LessRuleset*>* rulesetList,
-                               Mixin* mixin);
+  virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
+                               const Mixin &mixin);
   
-  virtual ValueProcessor* getValueProcessor();
-  virtual void process(Stylesheet* s);
-  virtual void write(CssWriter* writer);
+  virtual ProcessingContext* getContext();
+  virtual void process(Stylesheet &s);
+  virtual void write(CssWriter &writer);
 };
 
 #endif

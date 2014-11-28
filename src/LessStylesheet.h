@@ -27,35 +27,44 @@
 #include "LessRuleset.h"
 #include "Mixin.h"
 #include "UnprocessedStatement.h"
+#include "ProcessingContext.h"
+
+#include <list>
+#include <map>
+#include <string>
 
 class LessMediaQuery;
 
 class LessStylesheet: public Stylesheet {
 private:
-  ValueProcessor valueProcessor;
-  vector<LessRuleset*> lessrulesets;
-  map<string, TokenList*> variables;
+  std::list<LessRuleset*> lessrulesets;
+  std::map<std::string, TokenList> variables;
+  ProcessingContext* context;
   
 public:
   LessStylesheet();
   virtual ~LessStylesheet();
 
-  virtual void addStatement(AtRule* atrule);
-  virtual void addStatement(LessRuleset* ruleset);
-  virtual void addStatement(Mixin* mixin);
-  virtual void addStatement(LessMediaQuery* query);
+  LessRuleset* createLessRuleset();
+  Mixin* createMixin();
+  LessMediaQuery* createLessMediaQuery();
 
-  virtual void getLessRulesets(list<LessRuleset*>* rulesetList,
-                               Mixin* mixin);
-
-  void getExtensions(map<string, TokenList*>* extensions);
+  void deleteLessRuleset(LessRuleset &ruleset);
+  void deleteMixin(Mixin &mixin);
   
-  virtual ValueProcessor* getValueProcessor();
-  void putVariable(string key, TokenList* value);
+  virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
+                               const Mixin &mixin);
 
-  virtual void process(Stylesheet* s);
+  void getExtensions(std::list<Extension> &extensions);
 
-  void processVariables();
+  void setContext(ProcessingContext* context);
+  virtual ProcessingContext* getContext();
+  
+  void putVariable(const std::string &key, const TokenList &value);
+
+  virtual void process(Stylesheet &s);
+
+  
 };
 
 #endif

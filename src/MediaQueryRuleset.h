@@ -22,11 +22,12 @@
 #ifndef __MediaQueryRuleset_h__
 #define __MediaQueryRuleset_h__
 
+#include "LessRuleset.h"
 #include "Stylesheet.h"
 #include "Selector.h"
-#include "LessRuleset.h"
 #include <map>
 #include <list>
+
 
 class MediaQueryRuleset: public LessRuleset {
   
@@ -35,7 +36,7 @@ public:
   virtual ~MediaQueryRuleset();
 
 
-  virtual void process(Stylesheet* s, Selector* prefix);
+  virtual void process(Stylesheet &s, Selector* prefix);
 };
 
 #endif

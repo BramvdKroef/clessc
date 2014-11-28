@@ -26,136 +26,122 @@ Selector::~Selector() {
   clear();
 }
 
-void Selector::addPrefix(Selector* prefix) {
-  list<Selector*>* prefixParts = prefix->split();
-  list<Selector*>* sepParts = split();
-  list<Selector*>::iterator prefixIt;
-  list<Selector*>::iterator sepIt;
+void Selector::addPrefix(const Selector &prefix) {
+  list<Selector> prefixParts;
+  list<Selector> sepParts;
+  list<Selector>::iterator prefixIt;
+  list<Selector>::iterator sepIt;
 
   Selector* tmp, *prefixPart;
-  TokenListIterator* i;
+  TokenList::iterator i;
   bool containsAmp;
+
+  Token space(" ", Token::WHITESPACE),
+    comma(",", Token::OTHER);
+
+  split(sepParts);
+  prefix.split(prefixParts);
   
   clear();
 
-  for (sepIt = sepParts->begin(); sepIt !=
-         sepParts->end(); sepIt++) {
+  for (sepIt = sepParts.begin();
+       sepIt != sepParts.end(); sepIt++) {
 
-    tmp = *sepIt;
+    tmp = &(*sepIt);
     tmp->ltrim();
     containsAmp = tmp->contains(Token::OTHER, "&");
 
-    for (prefixIt = prefixParts->begin(); prefixIt !=
-           prefixParts->end(); prefixIt++) {
+    for (prefixIt = prefixParts.begin();
+         prefixIt != prefixParts.end(); prefixIt++) {
 
-      prefixPart = *prefixIt;
+      prefixPart = &(*prefixIt);
       
-      if (!tmp->empty() && containsAmp) {
+      if (containsAmp) {
         
-        for (i = tmp->iterator();
-             i->hasNext();) {
-          
-          if (i->next()->str == "&") {
-            push(prefixPart);
-          } else
-            push(i->current()->clone());
+        for (i = tmp->begin(); i != tmp->end(); i++) {
+          if (*i == "&")
+            insert(end(), prefixPart->begin(), prefixPart->end());
+          else
+            push_back(*i);
         }
-        delete i;
+
       } else {
-        push(prefixPart);
-        push(new Token(" ", Token::WHITESPACE));
-        push(tmp);
+        insert(end(), prefixPart->begin(), prefixPart->end());
+        push_back(space);
+        insert(end(), tmp->begin(), tmp->end());
       }
-      push(new Token(",", Token::OTHER));
+      push_back(comma);
     }
   }
-  delete pop();
-  
-  while (prefixParts->size() > 0) {
-    tmp = prefixParts->back();
-    prefixParts->pop_back();
-    delete tmp;
-  }
-  while (sepParts->size() > 0) {
-    tmp = sepParts->back();
-    sepParts->pop_back();
-    delete tmp;
-  }
+  pop_back();
 }
 
-list<Selector*>* Selector::split() {
-  list<Selector*>* l = new list<Selector*>();
-  TokenListIterator* it = iterator();
-  Selector* current = new Selector();
-  Token* t;
+void Selector::split(std::list<Selector> &l) const {
+  TokenList::const_iterator it = begin();
+  Selector current;
+  const Token* t;
   unsigned int parentheses = 0;
   
-  l->push_back(current);
+  for (it = begin(); it != end(); it++) {
+    t = &(*it);
 
-  while (it->hasNext()) {
-    t = it->next();
-    
     if (parentheses == 0 &&
-        t->type == Token::OTHER && t->str == ",") {
-      current = new Selector();
-      l->push_back(current);
+        t->type == Token::OTHER &&
+        t->str == ",") {
+      l.push_back(current);
+      current.clear();
+      
     } else {
       if (t->str == "(")
         parentheses++;
       else if (t->str == ")")
         parentheses--;
-      current->push(t->clone());
+      current.push_back(*t);
     }
   }
   
-  return l;
-}
-Selector* Selector::clone() {
-  Selector* newtokens = new Selector();
-  TokenListIterator* it = iterator();
-    
-  while (it->hasNext())
-    newtokens->push(it->next()->clone());
-  
-  return newtokens;
+  l.push_back(current);
 }
 
-
-bool Selector::equals(TokenList* list) {
-  return (walk(list, 0) == size());
+bool Selector::match(const TokenList &list) const {
+  return (walk(list, begin()) == end());
 }
 
-size_t Selector::walk(TokenList* list, size_t offset) {
-  size_t i = 0;
-  
-  while (offset < size() && i < list->size()) {
-    if (!at(offset)->equals(list->at(i))) 
-      return 0;
+TokenList::const_iterator Selector::walk(const TokenList &list,
+                                         const_iterator offset) const {
+  TokenList::const_iterator li;
+  li = list.begin();
+
+  while (offset != end() && li != list.end()) {
+    if (*offset != *li)
+      return begin();
     
     offset++;
+    li++;
     
-    if (offset < size() && at(offset)->str == ">") {
+    if (offset != end() && *offset == ">") {
       offset++;
-      if (offset < size() && at(offset)->type == Token::WHITESPACE)
+      if (offset != end() && (*offset).type == Token::WHITESPACE)
         offset++;
     }
-    if (i < list->size() && list->at(i)->str == ">") {
-      i++;
-      if (i < list->size() && list->at(i)->type == Token::WHITESPACE) 
-        i++;
+    if (li != list.end() && *li == ">") {
+      li++;
+      if (li != list.end() && (*li).type == Token::WHITESPACE) 
+        li++;
     }
   }
   
-  if (i < list->size())
-    offset = Selector::npos;
+  if (li != list.end())
+    offset = begin();
   
   return offset;
 }
 
-size_t Selector::find(TokenList* list, size_t offset) {
-  for (; offset < size(); offset++) {
-    if (walk(list, offset) != Selector::npos)
+TokenList::const_iterator Selector::find(const TokenList &list,
+                                         const_iterator offset) const {
+  for (; offset != end(); offset++) {
+    if (walk(list, offset) != begin())
       return offset;
   }
-  return Selector::npos;
+  return begin();
 }

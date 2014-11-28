@@ -106,13 +106,13 @@ using namespace std;
 class CssTokenizer {
 public:
 	
-  CssTokenizer(istream* in, string source);
+  CssTokenizer(istream &in, const string &source);
 		
   ~CssTokenizer();
   
   Token::Type readNextToken();
   
-  Token* getToken();
+  Token getToken();
   Token::Type getTokenType();
 
   unsigned int getLineNumber();

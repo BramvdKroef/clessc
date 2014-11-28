@@ -59,9 +59,9 @@ void usage () {
 }
 
 
-bool parseInput(LessStylesheet* stylesheet, istream* in, string source){
+bool parseInput(LessStylesheet &stylesheet, istream &in, const std::string &source){
   LessTokenizer tokenizer(in, source);
-  LessParser parser(&tokenizer);
+  LessParser parser(tokenizer);
   
   try{
     parser.parseStylesheet(stylesheet);
@@ -89,17 +89,14 @@ bool parseInput(LessStylesheet* stylesheet, istream* in, string source){
   
   return true;
 }
-void writeOutput (ostream* out, LessStylesheet* stylesheet, bool format) {
+void writeOutput (ostream &out, LessStylesheet &stylesheet, bool format) {
   Stylesheet css;
-  map<string,TokenList*> extensions;
-  CssWriter *w1, *w2;
+  CssWriter *w1;
   w1 = format ? new CssPrettyWriter(out) : new CssWriter(out);
 
   try{
-    stylesheet->process(&css);
+    stylesheet.process(css);
 
-    stylesheet->getExtensions(&extensions);
-    
   } catch(ParseException* e) {
 #ifdef WITH_LIBGLOG
     LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
@@ -119,12 +116,9 @@ void writeOutput (ostream* out, LessStylesheet* stylesheet, bool format) {
     return;
   }
 
-  w2 = new ExtendCssWriter(w1, &extensions);
-  
-  css.write(w2);
-  *out << endl;
+  css.write(*w1);
+  out << endl;
   delete w1;
-  delete w2;
 }
 
 int main(int argc, char * argv[]){
@@ -174,8 +168,8 @@ int main(int argc, char * argv[]){
         throw new IOException("Error opening file");
     }
     
-    if (parseInput(&stylesheet, in, source)) {
-        writeOutput(out, &stylesheet, formatoutput);
+    if (parseInput(stylesheet, *in, source)) {
+        writeOutput(*out, stylesheet, formatoutput);
     } else
       return 1;
 

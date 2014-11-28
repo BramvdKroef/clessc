@@ -29,18 +29,18 @@ private:
   int indent_size;
   
 public:
-  CssPrettyWriter(ostream* out): CssWriter(out) {
+  CssPrettyWriter(ostream &out): CssWriter(out) {
     indent_size = 0;
   };
 
 protected:
   void indent();
-  virtual void writeAtRule(string keyword, TokenList* rule);
-  virtual void writeRulesetStart(TokenList* selector);
+  virtual void writeAtRule(const string &keyword, const TokenList &rule);
+  virtual void writeRulesetStart(const TokenList &selector);
   virtual void writeRulesetEnd();
-  virtual void writeDeclaration(string property, TokenList* value);
+  virtual void writeDeclaration(const string &property, const TokenList &value);
   virtual void writeDeclarationDeliminator();
-  virtual void writeMediaQueryStart(TokenList* selector);
+  virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();
 };
 

@@ -30,29 +30,29 @@
 class FunctionLibrary;
 
 class NumberValue: public Value {
-  static bool isNumber(Value* val);
+  static bool isNumber(const Value &val);
 
-  void verifyUnits(NumberValue* v);
+  void verifyUnits(const NumberValue &n);
   bool convert(string unit);
   
 public:
-  NumberValue(Token* token);
+  NumberValue(Token &token);
   virtual ~NumberValue();
   
-  virtual Value* add(Value* v);
-  virtual Value* substract(Value* v);
-  virtual Value* multiply(Value* v);
-  virtual Value* divide(Value* v);
-  virtual int compare(Value* v);
+  virtual Value* add(const Value &v);
+  virtual Value* substract(const Value &v);
+  virtual Value* multiply(const Value &v);
+  virtual Value* divide(const Value &v);
+  virtual int compare(const Value &v);
 
-  void setType(Value* v);
+  void setType(const NumberValue &n);
   
-  string getUnit();
+  string getUnit() const;
   void setUnit(string unit);
-  double getValue();
+  double getValue() const;
   void setValue(double d);
 
-  static void loadFunctions(FunctionLibrary* lib);
+  static void loadFunctions(FunctionLibrary &lib);
   static Value* unit(vector<Value*> args);
   static Value* ceil(vector<Value*> args);
   static Value* floor(vector<Value*> args);

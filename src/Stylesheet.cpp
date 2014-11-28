@@ -36,51 +36,41 @@ Ruleset* RulesetStatement::getRuleset() {
 
 Declaration::Declaration() {
   property = "";
-  value = NULL;
 }
 
-Declaration::Declaration(string property) {
+Declaration::Declaration(const string &property) {
   this->property = property;
-  value = NULL;
 }
 
 Declaration::~Declaration() {
-  if (value != NULL) {
-    while (!value->empty()) 
-      delete value->pop();
-    delete value;
-  }
 }
 
-void Declaration::setProperty(string property) {
+void Declaration::setProperty(const string &property) {
   this->property = property;
 }
-void Declaration::setValue(TokenList* value) {
+void Declaration::setValue(const TokenList &value) {
   this->value = value;
 }
 string Declaration::getProperty() {
   return property;
 }
 TokenList* Declaration::getValue() {
-  return value;
+  return &value;
 }
-Declaration* Declaration::clone() {
-  Declaration* clone =
-    new Declaration(this->getProperty());
-  
-  clone->setValue(value->clone());
-  return clone;
-}
-void Declaration::process(Ruleset* r) {
+
+void Declaration::process(Ruleset &r) {
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing declaration " << property << ": " <<
-    value->toString();
+    VLOG(2) << "Processing declaration " << property << ": " <<
+      value.toString();
 #endif
-  
-  r->addStatement(this->clone());
+    Declaration* d = r.createDeclaration();
+    d->setProperty(property);
+    d->setValue(value);
 }
-void Declaration::write(CssWriter* writer) {
-  writer->writeDeclaration(property, value);
+
+
+void Declaration::write(CssWriter &writer) {
+  writer.writeDeclaration(property, value);
 }
 
 void StylesheetStatement::setStylesheet(Stylesheet* s) {
@@ -93,254 +83,271 @@ Stylesheet* StylesheetStatement::getStylesheet() {
 
 Ruleset::Ruleset() {
 }
-Ruleset::Ruleset(Selector* selector){
+Ruleset::Ruleset(const Selector &selector){
   this->selector = selector;
 }
 
 Ruleset::~Ruleset() {
-  if (selector != NULL) {
-    delete selector;
-  }
   clearStatements();
 }
 
-void Ruleset::setSelector (Selector* selector) {
+void Ruleset::setSelector (const Selector &selector) {
   this->selector = selector;
 }
-void Ruleset::addStatement (RulesetStatement* statement) {
-  statements.push_back(statement);
-  statement->setRuleset(this);
+void Ruleset::addStatement (RulesetStatement &statement) {
+  statements.push_back(&statement);
+  statement.setRuleset(this);
 }
-void Ruleset::addStatement(Declaration* declaration) {
-  declarations.push_back(declaration);
-  statements.push_back(declaration);
-  declaration->setRuleset(this);
+Declaration* Ruleset::createDeclaration() {
+  Declaration* d = new Declaration();
+  declarations.push_back(d);
+  addStatement(*d);
+  return d;
+}
+Declaration* Ruleset::createDeclaration(const std::string &property) {
+  Declaration* d = new Declaration(property);
+  declarations.push_back(d);
+  addStatement(*d);
+  return d;
 }
 
-void Ruleset::addStatements (vector<RulesetStatement*>* statements) {
-  vector<RulesetStatement*>::iterator i;
-  for (i = statements->begin(); i < statements->end(); i++) {
-    addStatement(*i);
-  }
+void Ruleset::deleteStatement(RulesetStatement &statement) {
+  statements.remove(&statement);
+  delete &statement;
 }
-void Ruleset::addDeclarations (vector<Declaration*>* declarations) {
-  vector<Declaration*>::iterator i;
-  for (i = declarations->begin(); i < declarations->end(); i++) {
+
+void Ruleset::deleteDeclaration(Declaration &declaration) {
+  declarations.remove(&declaration);
+  deleteStatement(declaration);
+}
+
+void Ruleset::addDeclarations (std::list<Declaration> &declarations) {
+  std::list<Declaration>::iterator i = declarations.begin();
+  for (; i != declarations.end(); i++) {
+    this->declarations.push_back(&(*i));
     addStatement(*i);
   }
 }
 
 Selector* Ruleset::getSelector() {
-  return selector;
+  return &selector;
 }
-vector<RulesetStatement*>* Ruleset::getStatements() {
+list<RulesetStatement*>* Ruleset::getStatements() {
   return &statements;
 }
 
-vector<Declaration*>* Ruleset::getDeclarations() {
+list<Declaration*>* Ruleset::getDeclarations() {
   return &declarations;
 }
 
 void Ruleset::clearStatements() {
-  while (!statements.empty()) {
+  declarations.clear();
+  while(!statements.empty()) {
     delete statements.back();
     statements.pop_back();
   }
-  declarations.clear();
 }
 
-vector<Declaration*>* Ruleset::cloneDeclarations() {
-  vector<Declaration*>* declarations;
-  vector<Declaration*>::iterator i;
-  vector<Declaration*>* clone = new vector<Declaration*>();
-  
-  declarations = getDeclarations();  
-  for (i = declarations->begin(); i != declarations->end(); i++) {
-    clone->push_back((*i)->clone());
-  }
-  return clone;
-}
-
-Ruleset* Ruleset::clone() {
-  Ruleset* ruleset = new Ruleset(NULL);
-  vector<RulesetStatement*>* statements;
-  vector<RulesetStatement*>::iterator i;
-  
-  if (getSelector() != NULL)
-    ruleset->setSelector(getSelector()->clone());
-
-  statements = getStatements();  
-  for (i = statements->begin(); i != statements->end(); i++) {
-    ruleset->addStatement((*i)->clone());
-  }
-  return ruleset;
-}
-
-void Ruleset::swap(Ruleset* ruleset) {
-  Selector* selector = this->selector;
-  this->selector = ruleset->getSelector();
-  ruleset->setSelector(selector);
-  this->statements.swap(*ruleset->getStatements());
-  this->declarations.swap(*ruleset->getDeclarations());
-}
-
-void Ruleset::insert(Ruleset* target) {
-  vector<RulesetStatement*>* statements = getStatements();
-  vector<RulesetStatement*>::iterator i;
+void Ruleset::insert(Ruleset &target) {
+  list<RulesetStatement*>* statements = getStatements();
+  list<RulesetStatement*>::iterator i;
   for (i = statements->begin(); i != statements->end(); i++) {
     (*i)->process(target);
   }
 }
 
-void Ruleset::process(Stylesheet* s) {
-  Ruleset* target = new Ruleset();
-
+void Ruleset::process(Stylesheet &s) {
+  Ruleset* target = s.createRuleset();
+    
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Ruleset: " << getSelector()->toString();
 #endif
-  
-  target->setSelector(getSelector()->clone());
-  s->addStatement(target);
-  insert(target);
+        
+  target->setSelector(*getSelector());
+  insert(*target);
 }
 
-void Ruleset::write(CssWriter* writer) {
-  vector<RulesetStatement*>* statements;
-  vector<RulesetStatement*>::iterator i;
+void Ruleset::write(CssWriter &writer) {
+  list<RulesetStatement*>* statements;
+  list<RulesetStatement*>::iterator i;
 
   if (getStatements()->empty())
     return;
   
-  writer->writeRulesetStart(selector);
+  writer.writeRulesetStart(*getSelector());
     
-  statements = getStatements();  
+  statements = getStatements();
   for (i = statements->begin(); i != statements->end(); i++) {
+    if (i != statements->begin())
+      writer.writeDeclarationDeliminator();
+    
     (*i)->write(writer);
-    if (i + 1 != statements->end())
-      writer->writeDeclarationDeliminator();
   }
-  writer->writeRulesetEnd();
+  writer.writeRulesetEnd();
 }
 
-AtRule::AtRule (string* keyword) {
+AtRule::AtRule (const string &keyword) {
   this->keyword = keyword;
-  rule = NULL;
 }
 
 AtRule::~AtRule() {
-  if (keyword != NULL)
-    delete keyword;
-
-  if (rule != NULL) 
-    delete rule;
 }
 
-void AtRule::setKeyword (string* keyword) {
+void AtRule::setKeyword (const string &keyword) {
   this->keyword = keyword;
 }
-void AtRule::setRule(TokenList* rule) {
+void AtRule::setRule(const TokenList &rule) {
   this->rule = rule;
 }
 string* AtRule::getKeyword() {
-  return keyword;
+  return &keyword;
 }
 TokenList* AtRule::getRule() {
-  return rule;
+  return &rule;
 }
-void AtRule::process(Stylesheet* s) {
-  AtRule* target = new AtRule(new string(*keyword));
-  target->setRule(rule->clone());
 
+void AtRule::process(Stylesheet &s) {
+  AtRule* target = s.createAtRule(keyword);
+  target->setRule(rule);
+      
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing @rule " << *this->getKeyword() << ": " <<
     this->getRule()->toString();
 #endif
-  
-  s->addStatement(target);
 }
 
-void AtRule::write(CssWriter* writer) {
-  writer->writeAtRule(*keyword, rule);
+void AtRule::write(CssWriter &writer) {
+  writer.writeAtRule(keyword, rule);
 }
   
 Stylesheet::~Stylesheet() {
-  while (!statements.empty()) {
+  rulesets.clear();
+  atrules.clear();
+  while(!statements.empty()) {
     delete statements.back();
     statements.pop_back();
   }
 }
 
-void Stylesheet::addStatement(StylesheetStatement* statement) {
-  statements.push_back(statement);
-  statement->setStylesheet(this);
+void Stylesheet::addStatement(StylesheetStatement &statement) {
+  statements.push_back(&statement);
+  statement.setStylesheet(this);
   
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Adding statement";
 #endif
 }
-
-void Stylesheet::addStatement(Ruleset* ruleset) {
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Adding ruleset: " <<
-    ruleset->getSelector()->toString();
-#endif
-  
-  addStatement((StylesheetStatement*)ruleset);
-  rulesets.push_back(ruleset);
+void Stylesheet::addRuleset(Ruleset &ruleset) {
+  addStatement(ruleset);
+  rulesets.push_back(&ruleset);
 }
 
-void Stylesheet::addStatement(AtRule* atrule) {
+Ruleset* Stylesheet::createRuleset() {
+  Ruleset* r = new Ruleset();
+
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Adding @rule: " << 
-    *atrule->getKeyword() << ": " <<
-    atrule->getRule()->toString();
+  VLOG(3) << "Creating ruleset";
 #endif
+
+  addRuleset(*r);
   
-  addStatement((StylesheetStatement*)atrule);
-  atrules.push_back(atrule);
+  return r;
 }
 
-vector<AtRule*>* Stylesheet::getAtRules() {
+Ruleset* Stylesheet::createRuleset(const Selector &selector) {
+  Ruleset* r = new Ruleset(selector);
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Creating ruleset: " << selector.toString();
+#endif
+
+  addRuleset(*r);
+  
+  return r;
+}
+
+AtRule* Stylesheet::createAtRule(const std::string &keyword) {
+  AtRule* r = new AtRule(keyword);
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Creating @rule";
+#endif
+  
+  addStatement(*r);
+  atrules.push_back(r);
+  return r;
+}
+
+MediaQuery* Stylesheet::createMediaQuery() {
+  MediaQuery* q = new MediaQuery();
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Creating media query";
+#endif
+  
+  addStatement(*q);
+  return q;
+}
+
+void Stylesheet::deleteStatement(StylesheetStatement &statement) {
+  statements.remove(&statement);
+  delete &statement;
+}
+
+void Stylesheet::deleteRuleset(Ruleset &ruleset) {
+  rulesets.remove(&ruleset);
+  deleteStatement(ruleset);
+}
+void Stylesheet::deleteAtRule(AtRule &atrule) {
+  atrules.remove(&atrule);
+  deleteStatement(atrule);
+}
+void Stylesheet::deleteMediaQuery(MediaQuery &query) {
+  deleteStatement(query);
+}
+
+list<AtRule*>* Stylesheet::getAtRules() {
   return &atrules;
 }
-vector<Ruleset*>* Stylesheet::getRulesets() {
+list<Ruleset*>* Stylesheet::getRulesets() {
   return &rulesets;
 }
-vector<StylesheetStatement*>* Stylesheet::getStatements() {
+list<StylesheetStatement*>* Stylesheet::getStatements() {
   return &statements;
 }
 
-Ruleset* Stylesheet::getRuleset(Selector* selector) {
-  vector<Ruleset*>::iterator it;
+Ruleset* Stylesheet::getRuleset(const Selector &selector) {
+  list<Ruleset*>::iterator it;
 
   for (it = rulesets.begin(); it != rulesets.end(); it++) {
-    if ((*it)->getSelector()->equals(selector)) 
+    if ((*it)->getSelector()->match(selector))
       return *it;
   }
   return NULL;
 }
 
-void Stylesheet::process(Stylesheet* s) {
-  vector<StylesheetStatement*>* statements;
-  vector<StylesheetStatement*>::iterator i;
-
+void Stylesheet::process(Stylesheet &s) {
+  list<StylesheetStatement*>* statements;
+  list<StylesheetStatement*>::iterator i;
+  
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Processing stylesheet";
 #endif
-  
+        
   statements = getStatements();  
   for (i = statements->begin(); i != statements->end(); i++) {
     (*i)->process(s);
   }
-
+  
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Done processing stylesheet";
 #endif
 }
 
-void Stylesheet::write(CssWriter* writer) {
-  vector<StylesheetStatement*>* statements;
-  vector<StylesheetStatement*>::iterator i;
+
+void Stylesheet::write(CssWriter &writer) {
+  list<StylesheetStatement*>* statements;
+  list<StylesheetStatement*>::iterator i;
   
   statements = getStatements();  
   for (i = statements->begin(); i != statements->end(); i++) {
@@ -349,28 +356,39 @@ void Stylesheet::write(CssWriter* writer) {
 }
 
 Selector* MediaQuery::getSelector() {
-  return selector;
+  return &selector;
 }
-void MediaQuery::setSelector(Selector* s) {
+void MediaQuery::setSelector(const Selector &s) {
   selector = s;
 }
 
-void MediaQuery::process(Stylesheet* s) {
-  MediaQuery* query = new MediaQuery();
+MediaQuery* MediaQuery::createMediaQuery() {
+  MediaQuery* q = getStylesheet()->createMediaQuery();
 
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Creating media query";
+#endif
+
+  q->setSelector(*getSelector());
+  
+  return q;
+}
+
+void MediaQuery::process(Stylesheet &s) {
+  MediaQuery* query = s.createMediaQuery();
+    
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing media query " << getSelector()->toString();
 #endif
-  
-  query->setSelector(getSelector()->clone());
-  s->addStatement(query);
-  
-  Stylesheet::process(query);
+      
+  query->setSelector(*getSelector());
+    
+  Stylesheet::process(*query);
 }
 
-void MediaQuery::write(CssWriter* writer) {
-  writer->writeMediaQueryStart(selector);
+void MediaQuery::write(CssWriter &writer) {
+  writer.writeMediaQueryStart(selector);
   Stylesheet::write(writer);
   
-  writer->writeMediaQueryEnd();
+  writer.writeMediaQueryEnd();
 }

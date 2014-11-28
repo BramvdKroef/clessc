@@ -63,12 +63,12 @@
  */
 class LessParser: public CssParser {
 public:
-  LessParser(CssTokenizer* tokenizer): CssParser(tokenizer) {
+  LessParser(CssTokenizer &tokenizer): CssParser(tokenizer) {
   }
   virtual ~LessParser () {
   }
 
-  virtual void parseStylesheet(LessStylesheet* stylesheet);
+  virtual void parseStylesheet(LessStylesheet &stylesheet);
   
 protected:
   /**
@@ -76,44 +76,44 @@ protected:
    * variables and don't add it to the Stylesheet.
    * 
    */
-  bool parseStatement(Stylesheet* stylesheet);
+  bool parseStatement(Stylesheet &stylesheet);
   
   /**
    * If the first token for the rule is a COLON, parse a
    * value. Otherwise parse the usual at-rule.
    */
-  bool parseAtRuleOrVariable (LessStylesheet* stylesheet);
+  bool parseAtRuleOrVariable (LessStylesheet &stylesheet);
 
-  bool parseVariable (TokenList* value);
-  bool parseSelector(Selector* selector);
-  bool parseSelectorVariable(Selector* selector);
+  bool parseVariable (TokenList &value);
+  bool parseSelector(Selector &selector);
+  bool parseSelectorVariable(Selector &selector);
   
-  bool parseRuleset (LessStylesheet* stylesheet,
-                     Selector* selector = NULL,
+  bool parseRuleset (LessStylesheet &stylesheet,
+                     Selector &selector,
                      LessRuleset* parent = NULL);
 
-  void parseRulesetStatements (LessStylesheet* stylesheet,
-                               LessRuleset* ruleset);
+  void parseRulesetStatements (LessStylesheet &stylesheet,
+                               LessRuleset &ruleset);
 
-  void parseMediaQueryRuleset(LessStylesheet* stylesheet,
-                              LessRuleset* parent);
-  bool parseRulesetStatement (UnprocessedStatement* statement);
-
-  
-  Declaration* parseDeclaration(TokenList* property, TokenList* value);
-
-  bool parseVariable(string keyword, TokenList* value);
+  void parseMediaQueryRuleset(LessStylesheet &stylesheet,
+                              LessRuleset &parent);
+  UnprocessedStatement* parseRulesetStatement (LessRuleset &parent);
 
   
-  void parseList(list<TokenList*>* list, TokenList* tokens);
+  Declaration* parseDeclaration(TokenList &property, TokenList &value);
+
+  bool parseVariable(std::string &keyword, TokenList &value);
+
   
-  void importFile(string file, LessStylesheet* stylesheet);
-  void parseLessMediaQuery(LessStylesheet* stylesheet);
+  void parseList(std::list<TokenList*>* list, TokenList* tokens);
+  
+  void importFile(const std::string &file, LessStylesheet &stylesheet);
+  void parseLessMediaQuery(LessStylesheet &stylesheet);
 private:
     
   TokenList* processValue(TokenList* value);
   
-  list<TokenList*>* processArguments(TokenList* arguments);
+  std::list<TokenList*>* processArguments(TokenList* arguments);
 };
 
 #endif

@@ -22,18 +22,23 @@
 #include "StringValue.h"
 
 
-StringValue::StringValue(Token* token, bool quotes) {
-  this->tokens.push(token);
+StringValue::StringValue(Token &token, bool quotes) {
+  this->tokens.push_back(token);
   this->quotes = quotes;
-  stringvalue = tokens.front()->str;
+  stringvalue = tokens.front().str;
   type = Value::STRING;
+}
+
+StringValue::StringValue(const StringValue &s) {
+  Token t = s.getTokens()->front();
+  StringValue(t, s.getQuotes());
 }
 
 StringValue::~StringValue() {
 }
 
 
-TokenList* StringValue::getTokens() {
+void StringValue::updateTokens() {
   string::iterator i;
   string newstr;
 
@@ -46,70 +51,76 @@ TokenList* StringValue::getTokens() {
       newstr.push_back(*i);
     }
     newstr.push_back('"');
-    tokens.front()->str = newstr;
+    tokens.front().str = newstr;
   } else
-    tokens.front()->str = stringvalue;
-  return &tokens;
+    tokens.front().str = stringvalue;
 }
 
-string StringValue::getString() {
+string StringValue::getString() const {
   return stringvalue;
 }
 void StringValue::setString(string stringValue) {
   this->stringvalue = stringValue;
+  updateTokens();
 }
   
 void StringValue::setQuotes(bool quotes) {
   this->quotes = quotes;
+  updateTokens();
 }
-bool StringValue::getQuotes() {
+bool StringValue::getQuotes() const {
   return quotes;
 }
 
-Value* StringValue::add(Value* v) {
-  bool v_quotes;
-  string newstr;
+Value* StringValue::add(const Value &v) {
+  string newstr = stringvalue;
+  const StringValue* s;
   
-  if (v->type == Value::STRING) {
-    v_quotes = ((StringValue*)v)->getQuotes();
-    ((StringValue*)v)->setQuotes(false);
+  if (v.type == Value::STRING) {
+    s = static_cast<const StringValue*>(&v);
 
-    newstr = v->getTokens()->toString();
-    ((StringValue*)v)->setQuotes(v_quotes);
+    newstr.append(s->getString());
   } else
-    newstr = v->getTokens()->toString();
+    newstr.append(v.getTokens()->toString());
   
-  stringvalue.append(newstr);
+  setString(newstr);
+  
   return this;
 }
 
-Value* StringValue::substract(Value* v) {
+Value* StringValue::substract(const Value &v) {
   (void)v;
   throw new ValueException("Can't substract from strings.");
 }
-Value* StringValue::multiply(Value* v) {
+Value* StringValue::multiply(const Value &v) {
   string newstr;
   double i;
+  const NumberValue* n;
   
-  if (v->type != Value::NUMBER) {
+  if (v.type != Value::NUMBER) {
     throw new ValueException("Strings can only be multiplied by a number.");
   }
 
-  for (i = 0; i < ((NumberValue*)v)->getValue(); i++) {
+  n = static_cast<const NumberValue*>(&v);
+  
+  for (i = 0; i < n->getValue(); i++) {
     newstr.append(stringvalue);
   }
-  stringvalue = newstr;
+  setString(newstr);
   return this;
 }
 
-Value* StringValue::divide(Value* v) {
+Value* StringValue::divide(const Value &v) {
   (void)v;
   throw new ValueException("Can't divide strings.");
 }
 
-int StringValue::compare(Value* v) {
-  if (v->type == STRING) {
-    return getString().compare(((StringValue*)v)->getString());
+int StringValue::compare(const Value &v) {
+  const StringValue* s;
+  
+  if (v.type == STRING) {
+    s = static_cast<const StringValue*>(&v);
+    return getString().compare(s->getString());
   } else {
     throw new ValueException("You can only compare a string with a *string*.");
   }
@@ -133,12 +144,12 @@ string StringValue::escape(string rawstr, string extraUnreserved) {
   return newstr.str();
 }
 
-void StringValue::loadFunctions(FunctionLibrary* lib) {
-  lib->push("escape", "S", &StringValue::escape);
-  lib->push("e", "S", &StringValue::e);
-  lib->push("%", "S.+", &StringValue::format);
-  lib->push("color", "S", &StringValue::color);
-  lib->push("data-uri", "SS?", &StringValue::data_uri);
+void StringValue::loadFunctions(FunctionLibrary &lib) {
+  lib.push("escape", "S", &StringValue::escape);
+  lib.push("e", "S", &StringValue::e);
+  lib.push("%", "S.+", &StringValue::format);
+  lib.push("color", "S", &StringValue::color);
+  lib.push("data-uri", "SS?", &StringValue::data_uri);
 }
 
 Value* StringValue::escape(vector<Value*> arguments) {
@@ -203,10 +214,13 @@ placeholders for all given arguments.");
 }
 
 Value* StringValue::color(vector<Value*> arguments) {
-  Token* t;
-  ((StringValue*)arguments[0])->setQuotes(false);
-  t = arguments[0]->getTokens()->front();
-  return new Color(t->clone());
+  StringValue* s;
+  Token t;
+  
+  s = static_cast<StringValue*>(arguments[0]);
+
+  t = Token(s->getString(), Token::HASH);
+  return new Color(t);
 }
 Value* StringValue::data_uri(vector<Value*> arguments) {
   return arguments[0];

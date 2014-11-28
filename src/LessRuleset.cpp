@@ -21,6 +21,7 @@
 
 #include "LessRuleset.h"
 #include "LessStylesheet.h"
+#include "MediaQueryRuleset.h"
 
 #include <config.h>
 
@@ -33,7 +34,7 @@ LessRuleset::LessRuleset() : Ruleset() {
   lessStylesheet = NULL;
   selector = NULL;
 }
-LessRuleset::LessRuleset(Selector* selector) : Ruleset() {
+LessRuleset::LessRuleset(const Selector &selector) : Ruleset() {
   parent = NULL;
   lessStylesheet = NULL;
   setSelector(selector);
@@ -43,45 +44,87 @@ LessRuleset::~LessRuleset() {
     delete nestedRules.back();
     nestedRules.pop_back();
   }
+  unprocessedStatements.clear();
+  if (selector != NULL)
+    delete selector;
 }
 
-void LessRuleset::setSelector(Selector* selector) {
+void LessRuleset::setSelector(const Selector &selector) {
   this->selector = new LessSelector(selector);
-  Ruleset::setSelector(this->selector);
+  Ruleset::setSelector(*this->selector);
 }
 LessSelector* LessRuleset::getLessSelector() {
   return selector;
 }
 
-void LessRuleset::addStatement(UnprocessedStatement* statement) {
-  Ruleset::addStatement(statement);
-  statement->setRuleset(this);
-  unprocessedStatements.push_back(statement);
+UnprocessedStatement* LessRuleset::createUnprocessedStatement() {
+  UnprocessedStatement* s = new UnprocessedStatement();
+  
+  Ruleset::addStatement(*s);
+  s->setLessRuleset(*this);
+  unprocessedStatements.push_back(s);
+  return s;
 }
+
 list<UnprocessedStatement*>* LessRuleset::getUnprocessedStatements() {
   return &unprocessedStatements;
 }
 
-void LessRuleset::addNestedRule(LessRuleset* nestedRule) {
+LessRuleset* LessRuleset::createNestedRule() {
+  LessRuleset* r = new LessRuleset();
+  
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Adding nested rule: " <<
-    nestedRule->getSelector()->toString();
+  VLOG(2) << "Creating nested rule" ;
 #endif
   
-  nestedRules.push_back(nestedRule);
-  nestedRule->setParent(this);
-  nestedRule->setStylesheet(getLessStylesheet());
+  nestedRules.push_back(r);
+  r->setParent(this);
+  r->setLessStylesheet(*getLessStylesheet());
+  return r;
+}
+
+MediaQueryRuleset* LessRuleset::createMediaQuery() {
+  MediaQueryRuleset* r = new MediaQueryRuleset();
+  
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Creating nested media query";
+#endif
+  
+  nestedRules.push_back(r);
+  r->setParent(this);
+  r->setLessStylesheet(*getLessStylesheet());
+  return r;
+}
+
+void LessRuleset::deleteNestedRule(LessRuleset &ruleset) {
+  nestedRules.remove(&ruleset);
+  delete &ruleset;
+}
+
+void LessRuleset::deleteUnprocessedStatement(UnprocessedStatement
+                                             &statement) {
+  unprocessedStatements.remove(&statement);
+  deleteStatement(statement);
 }
 
 list<LessRuleset*>* LessRuleset::getNestedRules() {
   return &nestedRules;
 }
 
-void LessRuleset::putVariable(string key, TokenList* value) {
-  variables.insert(pair<string, TokenList*>(key, value));  
+void LessRuleset::putVariable(const std::string &key, const TokenList &value) {
+  map<std::string, TokenList>::iterator mit;
+  
+  // check if variable is alread declared
+  mit = variables.find(key);
+  
+  if (mit != variables.end()) {
+    LOG(WARNING) << "Variable " << key << " defined twice in same ruleset.";
+  }
+  
+  variables.insert(pair<string, TokenList>(key, value));  
 }
 
-map<string, TokenList*>* LessRuleset::getVariables() {
+map<string, TokenList>* LessRuleset::getVariables() {
   return &variables;
 }
  
@@ -92,106 +135,86 @@ LessRuleset* LessRuleset::getParent() {
   return parent;
 }
 
-void LessRuleset::setStylesheet(LessStylesheet* s) {
+void LessRuleset::setLessStylesheet(LessStylesheet &s) {
 #ifdef WITH_LIBGLOG
   VLOG(3) << "set LessStylesheet";
 #endif
-  lessStylesheet = s;
-  Ruleset::setStylesheet(s);
+  lessStylesheet = &s;
 }
 
 LessStylesheet* LessRuleset::getLessStylesheet() {
   return lessStylesheet;
 }
 
-void LessRuleset::getExtensions(map<string, TokenList*>* extensions,
+ProcessingContext* LessRuleset::getContext() {
+  return context;
+}
+
+void LessRuleset::getExtensions(std::list<Extension> &extensions,
                                 Selector* prefix) {
   
-  map<string, TokenList*>::iterator e_it;
-  
-  list<UnprocessedStatement*>::iterator s_it;
-  TokenList* extension;
-  Selector* selector;
+  std::list<Extension>* e;
+  std::list<Extension>::iterator e_it;
+  std::list<UnprocessedStatement*>::iterator s_it;
+  Extension extension;
 
-  list<LessRuleset*>* nestedRules = getNestedRules();
-  list<LessRuleset*>::iterator r_it;
+  std::list<LessRuleset*>* nestedRules = getNestedRules();
+  std::list<LessRuleset*>::iterator r_it;
 
-  map<string, TokenList*>::iterator e_find;
+  e = getLessSelector()->getExtensions();
+  extensions.insert(extensions.begin(), e->begin(), e->end());
 
-  for (e_it = getLessSelector()->getExtensions()->begin();
-       e_it != getLessSelector()->getExtensions()->end();
-       e_it++) {
-    selector = new Selector();
-    selector->push(e_it->second);
-    
-    if (prefix != NULL)
-      selector->addPrefix(prefix);
-
-    e_find = extensions->find(e_it->first);
-    if (e_find != extensions->end()) {
-      e_find->second->push(new Token(",", Token::OTHER));
-      e_find->second->push(selector);
-      delete selector;
-    } else {
-      extensions->insert(pair<string, TokenList*>
-                         (e_it->first,selector));
+  if (prefix != NULL) {
+    for (e_it = extensions.begin(); e_it != extensions.end();
+         e_it++) {
+      (*e_it).getExtension()->addPrefix(*prefix);
     }
   }
 
-  selector = new Selector();
-  selector->push(getSelector());
+  extension.setExtension(*getSelector());
   if (prefix != NULL)
-    selector->addPrefix(prefix);
+    extension.getExtension()->addPrefix(*prefix);
   
   // look through statements for extensions
   for(s_it = getUnprocessedStatements()->begin();
       s_it != getUnprocessedStatements()->end();
       s_it++) {
-    extension = (*s_it)->getExtension();
-    
-    if (extension != NULL) {
-      e_find = extensions->find(extension->toString());
-      
-      if (e_find != extensions->end()) {
-        e_find->second->push(new Token(",", Token::OTHER));
-        e_find->second->push(selector);
-      } else {
-        extensions->insert(pair<string, TokenList*>
-                           (extension->toString(),
-                            selector->clone()));
-      }
-      delete extension;
+
+    if ((*s_it)->getExtension(*extension.getTarget())) {
+      extensions.push_back(extension);
+      extension.getTarget()->clear();
     }
   }
 
   // look in nested rules
   for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
-    (*r_it)->getExtensions(extensions, selector);
+    (*r_it)->getExtensions(extensions, extension.getExtension());
   }
-  delete selector;
 }
 
-bool LessRuleset::insert(Mixin* mixin, Ruleset* target) {
-  map<string, TokenList*> scope;
+bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
+                         ProcessingContext &context) {
+  map<string, TokenList> scope;
   bool ret = false;
   
-  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+  context.pushScope(scope);
 
   if (((mixin == NULL && !selector->needsArguments()) ||
-       putArguments(mixin)) &&
-      matchConditions()) {
+       putArguments(*mixin, scope)) &&
+      matchConditions(context)) {
 
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Inserting variables";
 #endif
     
     // set local variables
-    processVariables();
+    context.pushScope(variables);
 
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Inserting statements";
 #endif
-    
+
+    this->context = &context;
     // process statements
     Ruleset::insert(target);
 
@@ -200,29 +223,33 @@ bool LessRuleset::insert(Mixin* mixin, Ruleset* target) {
 #endif
     
     // insert nested rules
-    insertNestedRules(target->getStylesheet(), target->getSelector());
+    insertNestedRules(*target.getStylesheet(), target.getSelector(), context);
 
+    context.popScope();
     ret = true;
   }
-  getLessStylesheet()->getValueProcessor()->popScope();
+  context.popScope();
   return ret;
 }
 
-bool LessRuleset::insert(Mixin* mixin, Stylesheet* s) {
-  map<string, TokenList*> scope;
+bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
+                         ProcessingContext &context) {
+  map<string, TokenList> scope;
   list<UnprocessedStatement*>* unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::iterator up_it;
   bool ret = false;
   
-  getLessStylesheet()->getValueProcessor()->pushScope(&scope);
+  context.pushScope(scope);
 
   if (((mixin == NULL && !selector->needsArguments()) ||
-       putArguments(mixin)) &&
-      matchConditions()) {
+       (mixin != NULL && putArguments(*mixin, scope))) &&
+      matchConditions(context)) {
 
     // set local variables
-    processVariables();
+    context.pushScope(variables);
 
+    this->context = &context;
+    
     // insert mixins
     for (up_it = unprocessedStatements->begin();
          up_it != unprocessedStatements->end();
@@ -230,82 +257,82 @@ bool LessRuleset::insert(Mixin* mixin, Stylesheet* s) {
       (*up_it)->insert(s);
     }
     // insert nested rules
-    insertNestedRules(s, NULL);
+    insertNestedRules(s, NULL, context);
+
+    context.popScope();
     ret = true;
   }
-  getLessStylesheet()->getValueProcessor()->popScope();
+  context.popScope();
   return ret;
 }
 
-void LessRuleset::process(Stylesheet* s) {
-  process(s, NULL);
+void LessRuleset::process(Stylesheet &s) {
+  process(s, NULL, *getLessStylesheet()->getContext());
 }
-void LessRuleset::process(Stylesheet* s, Selector* prefix) {
+void LessRuleset::process(Stylesheet &s, Selector* prefix,
+                          ProcessingContext& context) {
   Ruleset* target;
 
   if (selector->needsArguments())
     return;
   
-  target = new Ruleset();
-  target->setSelector(getSelector()->clone());
+  target = s.createRuleset();
+  target->setSelector(*getSelector());
+
   if (prefix != NULL)
-    target->getSelector()->addPrefix(prefix);
+    target->getSelector()->addPrefix(*prefix);
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Less Ruleset: " <<
     getSelector()->toString();
 #endif
 
-  getLessStylesheet()->getValueProcessor()->interpolateTokenList(target->getSelector());
+  context.interpolate(*target->getSelector());
 
-  s->addStatement(target);
-  insert(NULL, target);
+  insert(NULL, *target, context);
 }
 
-void LessRuleset::getLessRulesets(list<LessRuleset*>* rulesetList,
-                                  Mixin* mixin,
-                                  size_t selector_offset) {
+void LessRuleset::getLessRulesets(list<LessRuleset*> &rulesetList,
+                                  const Mixin &mixin,
+                                  TokenList::const_iterator offset) {
+
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
 
-  selector_offset = mixin->name->walk(getSelector(), selector_offset);
-
-  if (selector_offset == Selector::npos)
+  offset = mixin.name.walk(*getSelector(), offset);
+  
+  if (offset == mixin.name.begin())
     return;
 
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Matching mixin " << mixin->name->toString() <<
+  VLOG(3) << "Matching mixin " << mixin.name.toString() <<
     " against " << getSelector()->toString();
 #endif
   
-  while (selector_offset < mixin->name->size() &&
-         (mixin->name->at(selector_offset)->type ==
-          Token::WHITESPACE ||
-          mixin->name->at(selector_offset)->str == ">")) {
-    selector_offset++;
+  while (offset != mixin.name.end() &&
+         ((*offset).type == Token::WHITESPACE ||
+          *offset == ">")) {
+    offset++;
   }
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Selector offset:" << selector_offset;
-#endif
-
-  if (selector_offset == mixin->name->size()) {
+  
+  if (offset == mixin.name.end()) {
     if (selector->matchArguments(mixin))
-      rulesetList->push_back(this);
+      rulesetList.push_back(this);
 
   } else {   
     for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
-      (*r_it)->getLessRulesets(rulesetList, mixin, selector_offset);
+      (*r_it)->getLessRulesets(rulesetList, mixin, offset);
     }
   }
 }
 
-void LessRuleset::getLocalLessRulesets(list<LessRuleset*>* rulesetList,
-                                       Mixin* mixin) {
+void LessRuleset::getLocalLessRulesets(list<LessRuleset*> &rulesetList,
+                                       const Mixin &mixin) {
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
   
   for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
-    (*r_it)->getLessRulesets(rulesetList, mixin, 0);
+    (*r_it)->getLessRulesets(rulesetList, mixin, mixin.name.begin());
   }
 
   if (getParent() != NULL) {
@@ -315,96 +342,92 @@ void LessRuleset::getLocalLessRulesets(list<LessRuleset*>* rulesetList,
   }
 }
 
-void LessRuleset::processVariables() {
-  map<string, TokenList*>::iterator it;
 
-  for (it = variables.begin(); it != variables.end(); ++it) {
-    getLessStylesheet()->getValueProcessor()->putVariable(it->first, it->second);
-  }
-}
-
-void LessRuleset::insertNestedRules(Stylesheet* s, Selector* prefix) {
+void LessRuleset::insertNestedRules(Stylesheet &s, Selector *prefix,
+                                    ProcessingContext &context) {
   list<LessRuleset*>* nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
 
   for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
-    (*r_it)->process(s, prefix);
+    (*r_it)->process(s, prefix, context);
   }
 }
 
 
-bool LessRuleset::matchConditions(){
-  list<TokenList*>* conditions = selector->getConditions();
-  list<TokenList*>::iterator cit;
-  TokenList* condition;
+bool LessRuleset::matchConditions(ProcessingContext &context){
+  list<TokenList>* conditions = selector->getConditions();
+  list<TokenList>::iterator cit;
+  TokenList condition;
 
-  if (conditions->size() == 0)
+  if (conditions->empty())
     return true;
 
-
   for(cit = conditions->begin(); cit != conditions->end(); cit++) {
-    condition = (*cit)->clone();
+    condition = (*cit);
+    
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Checking condition: " << condition->toString();
+    VLOG(3) << "Checking condition: " << condition.toString();
 #endif
     
-    if (getLessStylesheet()->getValueProcessor()->validateCondition(condition)) {
+    if (context.validateCondition(condition)) {
       
 #ifdef WITH_LIBGLOG
-      VLOG(3) << "Found valid condition: " << condition->toString();
+      VLOG(3) << "Found valid condition: " << condition.toString();
 #endif
       
-      delete condition;
       return true;
-    } else
-      delete condition;
+    }
   }
   return false;
 }
   
-bool LessRuleset::putArguments(Mixin* mixin) {
-  list<string>* parameters = selector->getParameters();
-  list<string>::iterator pit = parameters->begin();
-  TokenList* argsCombined = new TokenList();
-  TokenList* restVar = NULL;
-  TokenList* variable;
+bool LessRuleset::putArguments(const Mixin &mixin,
+                               std::map<std::string, TokenList> &scope) {
+  std::list<std::string>* parameters = selector->getParameters();
+  std::list<std::string>::iterator pit;
+  TokenList argsCombined;
+  TokenList restVar;
+  const TokenList* variable;
   size_t pos = 0;
 
-  if (selector->unlimitedArguments() && selector->getRestIdentifier() != "")
-    restVar = new TokenList();
-  
+  Token space(" ", Token::WHITESPACE);
+
   // combine with parameter names and add to local scope
-  for(; pit != parameters->end(); pit++) {
-    variable = mixin->getArgument(*pit);
+  for(pit = parameters->begin(); pit != parameters->end(); pit++) {
+    variable = mixin.getArgument(*pit);
 
     if (variable == NULL) 
-      variable = mixin->getArgument(pos++);
+      variable = mixin.getArgument(pos++);
 
     if (variable == NULL)
       variable = selector->getDefault(*pit);
 
-    if (variable == NULL) {
-      delete argsCombined;
+    if (variable == NULL) 
       return false;
-    }
     
-    getLessStylesheet()->getValueProcessor()->putVariable(*pit, variable);
-    argsCombined->push(variable->clone());
-    argsCombined->push(new Token(" ", Token::WHITESPACE));
+    scope.insert(pair<std::string, TokenList>(*pit, *variable));
+
+    argsCombined.insert(argsCombined.end(),
+                        variable->begin(), variable->end());
+    argsCombined.push_back(space);
   }
 
-  argsCombined->trim();
+  argsCombined.trim();
 
-  if (restVar != NULL) {
-    while (pos < mixin->getArgumentCount()) {
-      restVar->push(mixin->getArgument(pos++));
-      restVar->push(new Token(" ", Token::WHITESPACE));
+  if (selector->unlimitedArguments() &&
+      selector->getRestIdentifier() != "") {
+
+    while (pos < mixin.getArgumentCount()) {
+      variable = mixin.getArgument(pos++);
+      restVar.insert(restVar.end(),
+                     variable->begin(), variable->end());
+      restVar.push_back(space);
     }
     
-    restVar->trim();
-    getLessStylesheet()->getValueProcessor()->putVariable(selector->getRestIdentifier(), restVar);
+    restVar.trim();
+    scope.insert(pair<std::string,TokenList>(selector->getRestIdentifier(), restVar));
   }
   
-  getLessStylesheet()->getValueProcessor()->putVariable("@arguments", argsCombined);
+  scope.insert(pair<std::string,TokenList>("@arguments", argsCombined));
   return true;
 }

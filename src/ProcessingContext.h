@@ -19,34 +19,41 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Selector_h__
-#define __Selector_h__
+#ifndef __ProcessingContext_h__
+#define __ProcessingContext_h__
 
-#include "TokenList.h"
+#include <map>
+#include <string>
 #include <list>
 
-/**
- * 
- */
-class Selector: public TokenList {
+#include "TokenList.h"
+#include "Stylesheet.h"
+#include "value/ValueScope.h"
+#include "value/ValueProcessor.h"
+
+class ProcessingContext {
+private:
+  const ValueScope* scopes;
+  std::list<const Ruleset*> rulesets;
+  ValueProcessor processor;
+  
 public:
-  virtual ~Selector();
+  ProcessingContext();
+  
+  const TokenList* getVariable(const std::string &key);
+  void pushScope(const std::map<std::string, TokenList> &scope);
+  void popScope();
+  
+  void pushRuleset(const Ruleset &ruleset);
+  void popRuleset();
+  bool isInStack(const Ruleset &ruleset);
 
-  void addPrefix(const Selector &prefix);
+  ValueProcessor* getValueProcessor();
 
-  /**
-   * If the selector contains commas then it is split up into multiple
-   * selectors.
-   * 
-   * For example <code>p .class, a:hover</code> is split up into
-   * <code>p .class</code> and <code>a:hover</code>.
-   */
-  void split(std::list<Selector> &l) const;
-
-  bool match(const TokenList &list) const;
-
-  const_iterator walk(const TokenList &list, const_iterator offset) const;
-  const_iterator find(const TokenList &list, const_iterator offset) const;
+  void interpolate(TokenList &tokens);
+  void interpolate(std::string &str);
+  void processValue(TokenList& value);
+  bool validateCondition(TokenList &value);
 };
 
 #endif

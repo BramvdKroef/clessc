@@ -28,10 +28,10 @@ bool LessTokenizer::readComment () {
   if (!lastReadEq('/'))
     return CssTokenizer::readComment();
 
-  currentToken.add(lastRead);
+  currentToken.append(lastRead);
   readChar();
   while (in != NULL && !lastReadEq('\n')) {
-    currentToken.add(lastRead);
+    currentToken.append(lastRead);
     readChar();
   }
   return true;

@@ -24,13 +24,12 @@
 
 #include "Value.h"
 #include "Color.h"
-
-using namespace std;
+#include <string>
 
 class UrlValue: public Value {
 private:
 
-  string path;
+  std::string path;
 
   // image resources
   bool loaded;
@@ -43,21 +42,21 @@ private:
   bool loadJpeg();
 
 public:
-  UrlValue(Token* token, string path);
+  UrlValue(Token &token, std::string &path);
 
   virtual ~UrlValue();
   
-  virtual Value* add(Value* v);
-  virtual Value* substract(Value* v);
-  virtual Value* multiply(Value* v);
-  virtual Value* divide(Value* v);
-  virtual int compare(Value* v);
+  virtual Value* add(const Value &v);
+  virtual Value* substract(const Value &v);
+  virtual Value* multiply(const Value &v);
+  virtual Value* divide(const Value &v);
+  virtual int compare(const Value &v);
 
   unsigned int getImageWidth();
   unsigned int getImageHeight();
   Color* getImageBackground();
 
-  static void loadFunctions(FunctionLibrary* lib);
+  static void loadFunctions(FunctionLibrary &lib);
 
   static Value* imgheight(vector<Value*> arguments);
   static Value* imgwidth(vector<Value*> arguments);

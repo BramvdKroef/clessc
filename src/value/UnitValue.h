@@ -33,26 +33,26 @@ class UnitValue: public Value {
 public:
   enum UnitGroup {NO_GROUP, LENGTH, TIME, ANGLE};
   
-  UnitValue(Token* token);
+  UnitValue(Token &token);
   virtual ~UnitValue();
 
-  const char* getUnit();
+  const char* getUnit() const;
   
-  virtual Value* add(Value* v);
-  virtual Value* substract(Value* v);
-  virtual Value* multiply(Value* v);
-  virtual Value* divide(Value* v);
-  virtual int compare(Value* v);
+  virtual Value* add(const Value &v);
+  virtual Value* substract(const Value &v);
+  virtual Value* multiply(const Value &v);
+  virtual Value* divide(const Value &v);
+  virtual int compare(const Value &v);
 
-  static UnitGroup getUnitGroup(string unit);
-  static double lengthToPx(double length, string unit);
-  static double pxToLength(double px, string unit);
+  static UnitGroup getUnitGroup(const std::string &unit);
+  static double lengthToPx(const double length, const std::string &unit);
+  static double pxToLength(double px, const std::string &unit);
   
-  static double timeToMs(double time, string unit);
-  static double msToTime(double ms, string unit);
+  static double timeToMs(double time, const std::string &unit);
+  static double msToTime(double ms, const std::string &unit);
   
-  static double angleToRad(double angle, string unit);
-  static double radToAngle(double rad, string unit);
+  static double angleToRad(double angle, const std::string &unit);
+  static double radToAngle(double rad, const std::string &unit);
 };
 
 #endif

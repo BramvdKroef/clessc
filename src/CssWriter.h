@@ -34,14 +34,14 @@ protected:
   
 public:
   CssWriter();
-  CssWriter(ostream* out);
+  CssWriter(ostream &out);
   virtual ~CssWriter();
-  virtual void writeAtRule(string keyword, TokenList* rule);
-  virtual void writeRulesetStart(TokenList* selector);
+  virtual void writeAtRule(const string &keyword, const TokenList &rule);
+  virtual void writeRulesetStart(const TokenList &selector);
   virtual void writeRulesetEnd();
-  virtual void writeDeclaration(string property, TokenList* value);
+  virtual void writeDeclaration(const string &property, const TokenList &value);
   virtual void writeDeclarationDeliminator();
-  virtual void writeMediaQueryStart(TokenList* selector);
+  virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();
 };
   
