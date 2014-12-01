@@ -27,10 +27,8 @@
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
-#include "value/ValueProcessor.h"
 #include "CssWriter.h"
 #include "CssPrettyWriter.h"
-#include "ExtendCssWriter.h"
 #include "Stylesheet.h"
 #include "IOException.h"
 #include "LessStylesheet.h"
@@ -91,11 +89,12 @@ bool parseInput(LessStylesheet &stylesheet, istream &in, const std::string &sour
 }
 void writeOutput (ostream &out, LessStylesheet &stylesheet, bool format) {
   Stylesheet css;
+  ProcessingContext context;
   CssWriter *w1;
   w1 = format ? new CssPrettyWriter(out) : new CssWriter(out);
 
   try{
-    stylesheet.process(css);
+    stylesheet.process(css, context);
 
   } catch(ParseException* e) {
 #ifdef WITH_LIBGLOG
