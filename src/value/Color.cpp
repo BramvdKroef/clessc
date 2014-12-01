@@ -108,16 +108,16 @@ Color::Color(Token &token): Value() {
     
   type = Value::COLOR;
   
-  if (token.str.size() == 4)
+  if (token.size() == 4)
     len = 1;
-  else if (token.str.size() == 7)
+  else if (token.size() == 7)
     len = 2;
   else {
     throw new ValueException("A color value requires either three or six hexadecimal characters.");
   }
   
   for (int i = 0; i < 3; i++) {
-    istringstream stm(token.str.substr(1 + (i * len), len));
+    istringstream stm(token.substr(1 + (i * len), len));
     stm >> hex >> color[i];
     if (len == 1)
       color[i] = color[i] * 0x11;

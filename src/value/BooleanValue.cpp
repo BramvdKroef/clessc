@@ -15,7 +15,7 @@ bool BooleanValue::getValue() const {
 }
 void BooleanValue::setValue(bool value) {
   this->value = value;
-  tokens.front().str = value ? "true" : "false";
+  tokens.front() = value ? "true" : "false";
 }
 
 Value* BooleanValue::add(const Value &v) {

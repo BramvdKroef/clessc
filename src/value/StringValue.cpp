@@ -25,7 +25,7 @@
 StringValue::StringValue(Token &token, bool quotes) {
   this->tokens.push_back(token);
   this->quotes = quotes;
-  stringvalue = tokens.front().str;
+  stringvalue = tokens.front();
   type = Value::STRING;
 }
 
@@ -51,9 +51,9 @@ void StringValue::updateTokens() {
       newstr.push_back(*i);
     }
     newstr.push_back('"');
-    tokens.front().str = newstr;
+    tokens.front() = newstr;
   } else
-    tokens.front().str = stringvalue;
+    tokens.front() = stringvalue;
 }
 
 string StringValue::getString() const {

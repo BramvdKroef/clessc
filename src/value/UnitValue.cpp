@@ -30,7 +30,7 @@ UnitValue::~UnitValue() {
 }
 
 const char* UnitValue::getUnit() const {
-  return tokens.front().str.c_str();
+  return tokens.front().c_str();
 }
 
 Value* UnitValue::add(const Value &v) {

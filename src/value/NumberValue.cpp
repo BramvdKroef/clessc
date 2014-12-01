@@ -211,15 +211,15 @@ double NumberValue::getValue() const {
   double ret;
   char c;
 
-  for (unsigned int i = 0; i < tokens.front().str.size(); i++) {
-    c = tokens.front().str[i];
+  for (unsigned int i = 0; i < tokens.front().size(); i++) {
+    c = tokens.front()[i];
     if (!isdigit(c) && c != '.' && c != '-') {
-      number = tokens.front().str.substr(0, i);
+      number = tokens.front().substr(0, i);
       break;
     }
   }
   if (number == "")
-    number = tokens.front().str;
+    number = tokens.front();
   stm.str(number);
   stm >>ret;
   return ret;
@@ -228,10 +228,10 @@ string NumberValue::getUnit () const {
   char c;
   unsigned int i;
   
-  for (i = 0; i < tokens.front().str.size(); i++) {
-    c = tokens.front().str[i];
+  for (i = 0; i < tokens.front().size(); i++) {
+    c = tokens.front()[i];
     if (!isdigit(c) && c != '.' && c != '-')
-      return tokens.front().str.substr(i);
+      return tokens.front().substr(i);
   }
   return string("");
 }
@@ -240,7 +240,7 @@ void NumberValue::setUnit(string unit) {
   ostringstream stm;
   stm << setprecision(10) << getValue();
   stm << unit;
-  tokens.front().str = stm.str();
+  tokens.front() = stm.str();
   
   if (unit.length() == 0) {
     type = NUMBER;
@@ -258,7 +258,7 @@ void NumberValue::setValue(double d) {
     stm << getUnit();
   else if (type == PERCENTAGE)
     stm << "%";
-  tokens.front().str = stm.str();
+  tokens.front() = stm.str();
 }
 
 bool NumberValue::isNumber(const Value &val) {

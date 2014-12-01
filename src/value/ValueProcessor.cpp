@@ -58,7 +58,7 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope) {
     // interpolate strings
     for(i = value.begin(); i != value.end(); i++) {
       if ((*i).type == Token::STRING)
-        interpolate((*i).str, scope);
+        interpolate((*i), scope);
     }
     return;
   }
@@ -86,7 +86,7 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope) {
     } else if (value.size() > 0) {
       // variable containing a non-value.
       if (value.front().type == Token::ATKEYWORD &&
-          (var = scope.getVariable(value.front().str)) != NULL) {
+          (var = scope.getVariable(value.front())) != NULL) {
         variable = *var;
         processValue(variable, scope);
         
@@ -133,7 +133,7 @@ bool ValueProcessor::needsProcessing(const TokenList &value) {
         // url
         (*i).type == Token::URL ||
         // operator
-        operators.find((*i).str) != string::npos) {
+        operators.find(*i) != string::npos) {
       return true;
 
     } else if (i != value.end()) {
@@ -141,12 +141,12 @@ bool ValueProcessor::needsProcessing(const TokenList &value) {
       if ((*i).type == Token::IDENTIFIER) {
         t = &(*i);
         if ((*++i).type == Token::PAREN_OPEN &&
-            functionExists(t->str)) {
+            functionExists(*t)) {
           return true;
         } else
           i--;
         
-      } else if ((*i).str == "~") {
+      } else if (*i == "~") {
         if ((*++i).type == Token::STRING)
           return true;
         else
@@ -165,7 +165,7 @@ bool ValueProcessor::validateCondition(TokenList &value, const ValueScope &scope
   
   while(ret == true &&
         !value.empty() &&
-        value.front().str == "and") {
+        value.front() == "and") {
     value.pop_front();
     value.ltrim();
     ret = validateValue(value, scope);
@@ -181,7 +181,7 @@ bool ValueProcessor::validateValue(TokenList &value, const ValueScope &scope) {
   bool ret;
 
   if (v == NULL) {
-    throw new ParseException(value.front().str,
+    throw new ParseException(value.front(),
                              "condition", 0, 0, "");
   }
   
@@ -225,11 +225,11 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
   size_t pos;
   
   if (value.size() == 0 ||
-      (pos = operators.find(value.front().str)) == string::npos)
+      (pos = operators.find(value.front())) == string::npos)
     return NULL;
   
   if (lastop != NULL &&
-      operators.find(lastop->str) >= pos) {
+      operators.find(*lastop) >= pos) {
     return NULL;
   }
   op = value.front();
@@ -237,8 +237,8 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
 
   // Check for 2 char operators ('>=' and '=<')
   if (value.size() > 0 &&
-      (pos = operators.find(value.front().str)) != string::npos) {
-    op.str.append(value.front().str);
+      (pos = operators.find(value.front())) != string::npos) {
+    op.append(value.front());
     value.pop_front();
   }
 
@@ -247,7 +247,7 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
   v2 = processConstant(value, scope);
   if (v2 == NULL) {
     if (value.size() > 0) 
-      throw new ParseException(value.front().str,
+      throw new ParseException(value.front(),
                                "Constant or @-variable", 0, 0, "");
     else
       throw new ParseException("end of line",
@@ -264,23 +264,23 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
     value.ltrim();
   }
   
-  if (op.str == "+") 
+  if (op == "+") 
     tmp = v1.add(*v2);
-  else if (op.str == "-")
+  else if (op == "-")
     tmp = v1.substract(*v2);
-  else if (op.str == "*")
+  else if (op == "*")
     tmp = v1.multiply(*v2);
-  else if (op.str == "/")
+  else if (op == "/")
     tmp = v1.divide(*v2);
-  else if (op.str == "=")
+  else if (op == "=")
     tmp = v1.equals(*v2);
-  else if (op.str == "<")
+  else if (op == "<")
     tmp = v1.lessThan(*v2);
-  else if (op.str == ">")
+  else if (op == ">")
     tmp = v1.greaterThan(*v2);
-  else if (op.str == "=<")
+  else if (op == "=<")
     tmp = v1.lessThanEquals(*v2);
-  else if (op.str == ">=") 
+  else if (op == ">=") 
     tmp = v1.greaterThanEquals(*v2);
   
   delete v2;
@@ -300,7 +300,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
   token = value.front();
   
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Constant: " << token.str;
+  VLOG(3) << "Constant: " << token;
 #endif
   
   switch(token.type) {
@@ -316,29 +316,29 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     return new NumberValue(token);
 
   case Token::ATKEYWORD:
-    if ((var = scope.getVariable(token.str)) != NULL) {
+    if ((var = scope.getVariable(token)) != NULL) {
       variable = *var;
 
       ret = processStatement(variable, scope);
       
-      if (ret != NULL) 
+      if (ret != NULL && variable.empty()) {
         value.pop_front();
-      return ret;
-      
-    } else
-      return NULL;
+        return ret;
+      }
+    } 
+    return NULL;
 
   case Token::STRING:
     value.pop_front();
-    hasQuotes = stringHasQuotes(token.str);
-    interpolate(token.str, scope);
-    removeQuotes(token.str);
+    hasQuotes = stringHasQuotes(token);
+    interpolate(token, scope);
+    removeQuotes(token);
     return new StringValue(token, hasQuotes);
 
   case Token::URL:
     value.pop_front();
-    interpolate(token.str, scope);
-    str = getUrlString(token.str);
+    interpolate(token, scope);
+    str = getUrlString(token);
     removeQuotes(str);
     return new UrlValue(token, str);
         
@@ -348,10 +348,10 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     if (value.size() > 1 &&
         value.front().type == Token::PAREN_OPEN) {
 
-      if (functionExists(token.str)) {
+      if (functionExists(token)) {
         value.pop_front();
       
-        return processFunction(token.str, value, scope);
+        return processFunction(token, value, scope);
       } else {
         value.push_front(token);
         return NULL;
@@ -359,7 +359,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
       
     } else if ((ret = processUnit(token)) != NULL) {
       return ret;  
-    } else if (token.str.compare("true") == 0) {
+    } else if (token.compare("true") == 0) {
       return new BooleanValue(true);
     } else  
       return new StringValue(token, false);
@@ -400,7 +400,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     }
     return ret;
 
-  } else if(token.str == "%" &&
+  } else if(token == "%" &&
             value.size() > 2) {
     value.pop_front();
     if (value.front().type == Token::PAREN_OPEN) {
@@ -430,13 +430,13 @@ const TokenList* ValueProcessor::processDeepVariable (TokenList &value,
     return NULL;
   
   if ((*i).type != Token::OTHER ||
-      (*i).str != "@")
+      (*i) != "@")
     return NULL;
 
   i++;
   
   if ((*i).type != Token::ATKEYWORD ||
-      (var = scope.getVariable((*i).str)) == NULL) 
+      (var = scope.getVariable((*i))) == NULL) 
     return NULL;
 
   variable = *var;
@@ -446,8 +446,8 @@ const TokenList* ValueProcessor::processDeepVariable (TokenList &value,
     return NULL;
   
   // generate key with '@' + var without quotes
-  removeQuotes(variable.front().str);
-  key.append(variable.front().str);
+  removeQuotes(variable.front());
+  key.append(variable.front());
   
   return scope.getVariable(key);
 }
@@ -524,8 +524,8 @@ vector<Value*> ValueProcessor::processArguments (TokenList &value,
   }
   
   while (value.size() > 0 &&
-         (value.front().str == "," ||
-          value.front().str == ";")) {
+         (value.front() == "," ||
+          value.front() == ";")) {
     value.pop_front();
 
     argument = processStatement(value, scope);
@@ -542,7 +542,7 @@ vector<Value*> ValueProcessor::processArguments (TokenList &value,
     throw new ParseException("end of value", ")", 0, 0, "");
   
   if (value.front().type != Token::PAREN_CLOSED) 
-    throw new ParseException(value.front().str, ")", 0, 0, "");
+    throw new ParseException(value.front(), ")", 0, 0, "");
     
   value.pop_front();
 
@@ -559,7 +559,7 @@ Value* ValueProcessor::processEscape (TokenList &value, const ValueScope &scope)
   Token t;
   
   if (value.size() < 2 ||
-      value.front().str != "~")
+      value.front() != "~")
     return NULL;
 
   t = value.front();
@@ -572,8 +572,8 @@ Value* ValueProcessor::processEscape (TokenList &value, const ValueScope &scope)
 
   t = value.front();
   value.pop_front();
-  interpolate(t.str, scope);
-  removeQuotes(t.str);
+  interpolate(t, scope);
+  removeQuotes(t);
   return new StringValue(t, false);
 }
 
@@ -602,16 +602,16 @@ UnitValue* ValueProcessor::processUnit(Token &t) {
   // em,ex,px,ch,in,mm,cm,pt,pc,ms
   string units("emexpxchinmmcmptpcms");
   size_t pos;
-  if (t.str.size() == 2 &&
-      (pos = units.find(t.str)) != string::npos &&
+  if (t.size() == 2 &&
+      (pos = units.find(t)) != string::npos &&
       pos % 2 == 0) {
     return new UnitValue(t);
-  } else if(t.str.compare("m") == 0 ||
-            t.str.compare("s") == 0 ||
-            t.str.compare("rad") == 0 ||
-            t.str.compare("deg") == 0 ||
-            t.str.compare("grad") == 0 ||
-            t.str.compare("turn") == 0) {
+  } else if(t.compare("m") == 0 ||
+            t.compare("s") == 0 ||
+            t.compare("rad") == 0 ||
+            t.compare("deg") == 0 ||
+            t.compare("grad") == 0 ||
+            t.compare("turn") == 0) {
     return new UnitValue(t);
   } else
     return NULL;
@@ -619,8 +619,8 @@ UnitValue* ValueProcessor::processUnit(Token &t) {
 
 bool ValueProcessor::needsSpace(const Token &t, bool before) {
   if (t.type == Token::OTHER &&
-      t.str.size() == 1 &&
-      string(",:=.").find(t.str[0]) != string::npos) {
+      t.size() == 1 &&
+      string(",:=.").find(t[0]) != string::npos) {
     return false;
   }
   if (t.type == Token::COLON)
@@ -636,7 +636,7 @@ NumberValue* ValueProcessor::processNegative(TokenList &value,
   NumberValue *zero;
   Token t_zero("0", Token::NUMBER);
     
-  if (value.front().str != "-")
+  if (value.front() != "-")
     return NULL;
   
   minus = value.front();
@@ -697,7 +697,7 @@ void ValueProcessor::interpolate(TokenList &tokens,
   TokenList::iterator i;
   
   for (i = tokens.begin(); i != tokens.end(); i++) {
-    interpolate((*i).str, scope);
+    interpolate((*i), scope);
   }
 }
 
