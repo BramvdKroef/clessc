@@ -141,7 +141,7 @@ void Mixin::parseArguments(TokenList::const_iterator i, const Selector &selector
     
   // if a ';' token occurs then that is the delimiter instead of the ','.
   for(j = i; j != selector.end(); j++) {
-    if ((*j).str == ";") {
+    if (*j == ";") {
       delimiter = ";";
       break;
     }
@@ -154,7 +154,7 @@ void Mixin::parseArguments(TokenList::const_iterator i, const Selector &selector
     }
 
     if ((*i).type == Token::ATKEYWORD) {
-      argName = (*i).str;
+      argName = (*i);
       i++;
       if (i != selector.end() &&
           (*i).type == Token::COLON) {
@@ -165,9 +165,10 @@ void Mixin::parseArguments(TokenList::const_iterator i, const Selector &selector
       }
     }
 
-    while (nestedParenthesis > 0 ||
-           ((*i).str != delimiter &&
-            (*i).type != Token::PAREN_CLOSED)) {
+    while (i != selector.end() &&
+           (nestedParenthesis > 0 ||
+            ((*i) != delimiter &&
+             (*i).type != Token::PAREN_CLOSED))) {
       
       if ((*i).type == Token::PAREN_OPEN)
         nestedParenthesis++;
@@ -176,11 +177,12 @@ void Mixin::parseArguments(TokenList::const_iterator i, const Selector &selector
         nestedParenthesis--;
       
       argument.push_back(*i);
-
+      
       i++;
-      if (i == selector.end())
-        break;
     }
+
+    if (*i == delimiter)
+      i++;
 
     if (argName == "")
       this->arguments.push_back(argument);
