@@ -33,7 +33,7 @@ MediaQueryRuleset::MediaQueryRuleset(): LessRuleset() {
 MediaQueryRuleset::~MediaQueryRuleset() {
 }
 
-void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix) {
+void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingContext &context) {
   MediaQuery* query;
   Ruleset* target;
   Selector selector;
@@ -45,7 +45,7 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix) {
   
   query = s.createMediaQuery();
   selector = *getSelector();
-  getLessStylesheet()->getContext()->interpolate(selector);
+  context.interpolate(selector);
 
   if (query->getSelector()->size() > 0) {
     selector.pop_front();
@@ -65,11 +65,11 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix) {
     VLOG(3) << "Interpolating selector " <<
     target->getSelector()->toString();
 #endif
-    getLessStylesheet()->getContext()->interpolate(*target->getSelector());
+    context.interpolate(*target->getSelector());
   
-    insert(NULL, *target, *getLessStylesheet()->getContext());
+    insert(NULL, *target, context);
   } else
-    insert(NULL, *query, *getLessStylesheet()->getContext());
+    insert(NULL, *query, context);
 }
 
 

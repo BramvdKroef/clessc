@@ -36,7 +36,8 @@ public:
   virtual ~MediaQueryRuleset();
 
 
-  virtual void process(Stylesheet &s, Selector* prefix);
+  virtual void process(Stylesheet &s, Selector* prefix,
+                       ProcessingContext &context);
 };
 
 #endif
