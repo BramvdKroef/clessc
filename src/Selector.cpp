@@ -22,6 +22,10 @@
 #include "Selector.h"
 #include <iostream>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 Selector::~Selector() {
   clear();
 }
@@ -77,7 +81,7 @@ void Selector::addPrefix(const Selector &prefix) {
 }
 
 void Selector::split(std::list<Selector> &l) const {
-  TokenList::const_iterator it = begin();
+  TokenList::const_iterator it;
   Selector current;
   const Token* t;
   unsigned int parentheses = 0;
@@ -88,6 +92,10 @@ void Selector::split(std::list<Selector> &l) const {
     if (parentheses == 0 &&
         t->type == Token::OTHER &&
         *t == ",") {
+
+#ifdef WITH_LIBGLOG
+      VLOG(3) << "Split: " << current.toString(); 
+#endif
       l.push_back(current);
       current.clear();
       
@@ -99,6 +107,9 @@ void Selector::split(std::list<Selector> &l) const {
       current.push_back(*t);
     }
   }
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Split: " << current.toString(); 
+#endif
   
   l.push_back(current);
 }

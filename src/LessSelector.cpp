@@ -69,6 +69,7 @@ LessSelector::LessSelector(const Selector &original) {
 
     new_selector.trim();
     insert(end(), new_selector.begin(), new_selector.end());
+    new_selector.clear();
   }
 
 #ifdef WITH_LIBGLOG
