@@ -200,7 +200,7 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
   context.pushScope(scope);
 
   if (((mixin == NULL && !selector->needsArguments()) ||
-       putArguments(*mixin, scope)) &&
+       (mixin != NULL && putArguments(*mixin, scope))) &&
       matchConditions(context)) {
 
 #ifdef WITH_LIBGLOG
@@ -402,7 +402,7 @@ bool LessRuleset::putArguments(const Mixin &mixin,
     if (variable == NULL)
       variable = selector->getDefault(*pit);
 
-    if (variable == NULL) 
+    if (variable == NULL || variable->empty()) 
       return false;
     
     scope.insert(pair<std::string, TokenList>(*pit, *variable));
@@ -413,6 +413,10 @@ bool LessRuleset::putArguments(const Mixin &mixin,
   }
 
   argsCombined.trim();
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "@arguments: " << argsCombined.toString();
+#endif
 
   if (selector->unlimitedArguments() &&
       selector->getRestIdentifier() != "") {
