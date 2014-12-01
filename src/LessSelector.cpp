@@ -90,7 +90,7 @@ bool LessSelector::parseExtension(Selector &selector, Selector &extension) {
   if (selector.size() < 3 ||
       (*i).type != Token::COLON ||
       (*++i).type != Token::IDENTIFIER ||
-      (*i).str != "extend" ||
+      (*i) != "extend" ||
       (*++i).type != Token::PAREN_OPEN)
     return false;
 
@@ -149,11 +149,11 @@ bool LessSelector::parseArguments(TokenList &selector) {
   i = selector.begin();
   
   if (selector.size() > 3  &&
-      (*i).str == "." &&
-      (*++i).str == "." &&
-      (*++i).str == ".") {
+      (*i) == "." &&
+      (*++i) == "." &&
+      (*++i) == ".") {
     _unlimitedArguments = true;
-    
+    i++;
     selector.erase(selector.begin(), i);
   }
 
@@ -273,9 +273,10 @@ bool LessSelector::parseParameter(TokenList &selector, const std::string &delimi
       // default value
       
     } else if (selector.size() > 3 &&
-               (*i).str == "." &&
-               (*++i).str == "." &&
-               (*++i).str == ".") {
+               (*i) == "." &&
+               (*++i) == "." &&
+               (*++i) == ".") {
+      i++;
       // rest argument
       selector.erase(selector.begin(), i);
       
@@ -293,7 +294,7 @@ bool LessSelector::parseParameter(TokenList &selector, const std::string &delimi
     selector.pop_front();
 
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Parameter: " << keyword;
+  VLOG(2) << "Parameter: " << keyword << " default: " << value.toString();
 #endif
   
   parameters.push_back(keyword);
@@ -312,9 +313,9 @@ bool LessSelector::parseDefaultValue(TokenList &arguments,
   arguments.pop_front();
     
   while (!arguments.empty() &&
-         (parentheses != 0 ||
-          arguments.front().type != Token::PAREN_CLOSED) &&
-         arguments.front() != delimiter) {
+         (parentheses > 0 ||
+          (arguments.front().type != Token::PAREN_CLOSED &&
+           arguments.front() != delimiter))) {
     
     if (arguments.front().type == Token::PAREN_OPEN)
       parentheses++;
@@ -400,7 +401,7 @@ bool LessSelector::matchArguments(const Mixin &mixin) {
     
     if (mixin.getArgument(*p_it) == NULL &&
         mixin.getArgument(pos++) == NULL &&
-        !(*d_it).empty()) {
+        (*d_it).empty()) {
           return false;
     }
   }
