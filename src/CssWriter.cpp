@@ -42,7 +42,7 @@ void CssWriter::writeAtRule(const string &keyword, const TokenList &rule) {
   
   for(; i != rule.end(); i++) {
     const Token next = *i;
-    out->write(next.str.c_str(), next.str.size());
+    out->write(next.c_str(), next.size());
   }
   out->write(";", 1);
 }
@@ -52,7 +52,7 @@ void CssWriter::writeRulesetStart(const TokenList &selector) {
   
   for (i = selector.begin(); i != selector.end(); i++) {
     const Token next = *i;
-    out->write(next.str.c_str(), next.str.size());
+    out->write(next.c_str(), next.size());
   }
   out->write("{", 1);
 }
@@ -69,7 +69,7 @@ void CssWriter::writeDeclaration(const string &property, const TokenList &value)
   
   for (i = value.begin(); i != value.end(); i++) {
     const Token next = *i;
-    out->write(next.str.c_str(), next.str.size());
+    out->write(next.c_str(), next.size());
   }
 }
 
@@ -82,7 +82,7 @@ void CssWriter::writeMediaQueryStart(const TokenList &selector) {
   
   for (i = selector.begin(); i != selector.end(); i++) {
     const Token next = *i;
-    out->write(next.str.c_str(), next.str.size());
+    out->write(next.c_str(), next.size());
   }
   out->write("{", 1);
 }

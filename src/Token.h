@@ -31,7 +31,7 @@ public:
             BRACKET_CLOSED, PAREN_OPEN, PAREN_CLOSED, BRACE_OPEN,
             BRACE_CLOSED, WHITESPACE, COMMENT, INCLUDES,
             DASHMATCH, OTHER, EOS} type; 
-  std::string str;
+  //  std::string str;
   
   Token ();
   
@@ -71,6 +71,11 @@ public:
   }
   inline bool operator >= (const Token &t) const {
     return !(*this < t);
+  }
+
+  inline Token& operator= (const std::string& str) {
+    std::string::assign(str);
+    return *this;
   }
 };
 

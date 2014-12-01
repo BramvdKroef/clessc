@@ -25,11 +25,11 @@ Token::Token () {
   type = OTHER;
 }
 Token::Token (const std::string &s, Type t) {
-  str = s;
   type = t;
+  append(s);
 }
   
 void Token::clear () {
-  str.clear();
+  std::string::clear();
   type = OTHER;
 }

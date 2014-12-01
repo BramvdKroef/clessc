@@ -21,6 +21,12 @@
 
 #include "CssTokenizer.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 CssTokenizer::CssTokenizer(istream &in, const string &source){
   this->in = &in;
   line = 1;
@@ -186,9 +192,9 @@ Token::Type CssTokenizer::readNextToken(){
     } else if (readIdent()) {
       currentToken.type = Token::IDENTIFIER;
 
-      if (currentToken.str == "url" && readUrl())
+      if (currentToken == "url" && readUrl())
         currentToken.type = Token::URL;
-      else if (currentToken.str == "u" && lastReadEq('+')) {
+      else if (currentToken == "u" && lastReadEq('+')) {
         currentToken.append(lastRead);
         readChar();
         currentToken.type = Token::UNICODE_RANGE;
@@ -203,6 +209,10 @@ Token::Type CssTokenizer::readNextToken(){
     }
     break;
   }
+#ifdef WITH_LIBGLOG
+  VLOG(4) << "Token: " << currentToken << "[" << currentToken.type
+          << "]";
+#endif
 
   return currentToken.type;
 }

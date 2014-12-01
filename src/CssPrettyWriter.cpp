@@ -42,9 +42,9 @@ void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
   indent();
   
   for (it = selector.begin(); it != selector.end(); it++) {
-    out->write((*it).str.c_str(), (*it).str.size());
+    out->write((*it).c_str(), (*it).size());
       
-    if ((*it).str == ",") {
+    if ((*it) == ",") {
       out->write("\n", 1);
       indent();
     }
@@ -77,7 +77,7 @@ void CssPrettyWriter::writeDeclaration(const string &property,
   }
   
   for (; it != value.end(); it++) {
-    out->write((*it).str.c_str(), (*it).str.size());
+    out->write((*it).c_str(), (*it).size());
   }
 }
 void CssPrettyWriter::writeDeclarationDeliminator() {
@@ -88,7 +88,7 @@ void CssPrettyWriter::writeMediaQueryStart(const TokenList &selector) {
   TokenList::const_iterator it;
   
   for (it = selector.begin(); it != selector.end(); it++) {
-    out->write((*it).str.c_str(), (*it).str.size());
+    out->write((*it).c_str(), (*it).size());
   }
   
   out->write(" {\n", 3);
