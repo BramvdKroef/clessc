@@ -66,7 +66,7 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
       return true;
     } else {
       ls->deleteMixin(*mixin);
-      throw new ParseException(tokenizer->getToken().str,
+      throw new ParseException(tokenizer->getToken(),
                                "a declaration block ('{...}') following selector",
                                tokenizer->getLineNumber(),
                                tokenizer->getColumn(),
@@ -110,7 +110,7 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
   
     if (!parseBlock(rule)) {
       if (tokenizer->getTokenType() != Token::DELIMITER) {
-        throw new ParseException(tokenizer->getToken().str,
+        throw new ParseException(tokenizer->getToken(),
                                  "delimiter (';') at end of @-rule",
                                  tokenizer->getLineNumber(),
                                  tokenizer->getColumn(),
@@ -156,14 +156,14 @@ bool LessParser::parseVariable (TokenList &value) {
   skipWhitespace();
     
   if (parseValue(value) == false || value.size() == 0) {
-    throw new ParseException(tokenizer->getToken().str,
+    throw new ParseException(tokenizer->getToken(),
                              "value for variable",
                              tokenizer->getLineNumber(),
                              tokenizer->getColumn(),
                              tokenizer->getSource());
   }
   if (tokenizer->getTokenType() != Token::DELIMITER) {
-    throw new ParseException(tokenizer->getToken().str,
+    throw new ParseException(tokenizer->getToken(),
                              "delimiter (';') at end of @-rule",
                              tokenizer->getLineNumber(),
                              tokenizer->getColumn(),
@@ -193,7 +193,7 @@ bool LessParser::parseSelectorVariable(Selector &selector) {
     back = &selector.back();
     
     if (back->at(back->length() - 1) == '@') {
-      back->append(tokenizer->getToken().str);
+      back->append(tokenizer->getToken());
       
       if (tokenizer->readNextToken() != Token::IDENTIFIER) 
         throw new ParseException(tokenizer->getToken(),

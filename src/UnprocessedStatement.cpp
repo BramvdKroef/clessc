@@ -126,10 +126,10 @@ void UnprocessedStatement::process(Ruleset &r) {
 bool UnprocessedStatement::isExtends() {
   TokenList::iterator i = getTokens()->begin();
   
-  return ((*i).str == "&" &&
+  return ((*i) == "&" &&
           (*++i).type == Token::COLON &&
           (*++i).type == Token::IDENTIFIER &&
-          (*i).str == "extend" &&
+          (*i) == "extend" &&
           (*++i).type == Token::PAREN_OPEN);
 }
 

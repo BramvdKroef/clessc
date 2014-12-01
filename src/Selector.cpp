@@ -87,14 +87,14 @@ void Selector::split(std::list<Selector> &l) const {
 
     if (parentheses == 0 &&
         t->type == Token::OTHER &&
-        t->str == ",") {
+        *t == ",") {
       l.push_back(current);
       current.clear();
       
     } else {
-      if (t->str == "(")
+      if (*t == "(")
         parentheses++;
-      else if (t->str == ")")
+      else if (*t == ")")
         parentheses--;
       current.push_back(*t);
     }
