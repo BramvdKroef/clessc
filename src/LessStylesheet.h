@@ -62,7 +62,7 @@ public:
   
   void putVariable(const std::string &key, const TokenList &value);
 
-  virtual void process(Stylesheet &s);
+  virtual void process(Stylesheet &s, ProcessingContext &context);
 
   
 };
