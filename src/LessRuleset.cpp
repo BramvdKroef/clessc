@@ -162,13 +162,11 @@ void LessRuleset::getExtensions(std::list<Extension> &extensions,
   std::list<LessRuleset*>::iterator r_it;
 
   e = getLessSelector()->getExtensions();
-  extensions.insert(extensions.begin(), e->begin(), e->end());
 
-  if (prefix != NULL) {
-    for (e_it = extensions.begin(); e_it != extensions.end();
-         e_it++) {
-      (*e_it).getExtension()->addPrefix(*prefix);
-    }
+  for (e_it = e->begin(); e_it != e->end(); e_it++) {
+    extensions.push_back(*e_it);
+    if (prefix != NULL) 
+      extensions.back().getExtension()->addPrefix(*prefix);
   }
 
   extension.setExtension(*getSelector());

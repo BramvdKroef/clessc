@@ -21,6 +21,12 @@
 
 #include "Extension.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 Extension::Extension() {
   all = false;
 }
@@ -44,8 +50,13 @@ void Extension::setExtension(Selector &selector) {
 
 void Extension::updateSelector(Selector &s) {
   if (s.match(target)) {
-    // add comma and selector
+
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Extending " << s.toString() << " with " << extension.toString() ;
+#endif
+
+    // add comma and selector    
     s.push_back(Token(",",Token::OTHER));
-    s.insert(s.begin(), extension.begin(), extension.end());
+    s.insert(s.end(), extension.begin(), extension.end());
   }
 }

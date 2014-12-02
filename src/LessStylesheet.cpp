@@ -102,8 +102,10 @@ void LessStylesheet::putVariable(const std::string &key, const TokenList &value)
 
 
 void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
-  map<string,TokenList> extensions;
-  list<Ruleset>::iterator r_it;
+  std::list<Extension> extensions;
+  
+  std::list<Ruleset*>::iterator r_it;
+  std::list<Extension>::iterator e_it;
 
   context.pushScope(variables);
 
@@ -112,13 +114,18 @@ void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
   Stylesheet::process(s);
 
   context.popScope();
-  
-  /*extensions = getExtensions(&extensions);
 
-  for (r_it = s->getRulesets()->begin();
-       r_it != s->getRulesets()->end();
+
+  // post processing
+  getExtensions(extensions);
+
+  for (r_it = s.getRulesets()->begin();
+       r_it != s.getRulesets()->end();
        r_it++) {
-    // (*r_it)->getSelector()
+    for (e_it = extensions.begin();
+         e_it != extensions.end();
+         e_it++) {
+      (*e_it).updateSelector(*(*r_it)->getSelector());
+    }
   }
-  */
 }
