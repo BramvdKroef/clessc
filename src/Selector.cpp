@@ -81,41 +81,55 @@ void Selector::addPrefix(const Selector &prefix) {
 }
 
 void Selector::split(std::list<Selector> &l) const {
-  TokenList::const_iterator it;
+  TokenList::const_iterator first, last;
   Selector current;
-  const Token* t;
-  unsigned int parentheses = 0;
-  
-  for (it = begin(); it != end(); it++) {
-    t = &(*it);
+    
+  for (first = begin(); first != end(); ) {
+    last = findComma(first);
 
-    if (parentheses == 0 &&
-        t->type == Token::OTHER &&
-        *t == ",") {
-
+    current.assign(first, last);
 #ifdef WITH_LIBGLOG
-      VLOG(3) << "Split: " << current.toString(); 
+    VLOG(3) << "Split: " << current.toString(); 
 #endif
-      l.push_back(current);
-      current.clear();
-      
+    l.push_back(current);
+    
+    first = last;
+    if (first != end())
+      first++;
+  }
+}
+
+TokenList::const_iterator Selector::findComma(const_iterator offset) const {
+  unsigned int parentheses = 0;
+
+  for (; offset != end(); offset++) {
+    if (parentheses == 0 &&
+        (*offset).type == Token::OTHER &&
+        *offset == ",") {
+      return offset;
+  
     } else {
-      if (*t == "(")
+      if (*offset == "(")
         parentheses++;
-      else if (*t == ")")
+      else if (*offset == ")")
         parentheses--;
-      current.push_back(*t);
     }
   }
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Split: " << current.toString(); 
-#endif
-  
-  l.push_back(current);
+  return offset;
 }
 
 bool Selector::match(const TokenList &list) const {
-  return (walk(list, begin()) == end());
+  TokenList::const_iterator first, last;
+
+  for (first = begin(); first != end(); ) {
+    last = findComma(first);
+    if (walk(list, first) == last)
+      return true;
+    first = last;
+    if (first != end())
+      first++;
+  }
+  return false;
 }
 
 TokenList::const_iterator Selector::walk(const TokenList &list,

@@ -47,6 +47,8 @@ public:
 
   const_iterator walk(const TokenList &list, const_iterator offset) const;
   const_iterator find(const TokenList &list, const_iterator offset) const;
+
+  const_iterator findComma(const_iterator offset) const;
 };
 
 #endif
