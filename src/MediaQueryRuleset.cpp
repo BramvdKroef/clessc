@@ -50,7 +50,8 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
   if (query->getSelector()->size() > 0) {
     selector.pop_front();
 
-    query->getSelector()->push_front(Token("and", Token::IDENTIFIER));
+    query->getSelector()->push_back(Token(" ", Token::WHITESPACE));
+    query->getSelector()->push_back(Token("and", Token::IDENTIFIER));
     query->getSelector()->insert(query->getSelector()->end(),
                                  selector.begin(),
                                  selector.end());
