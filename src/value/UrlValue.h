@@ -35,7 +35,7 @@ private:
   bool loaded;
   int width;
   int height;
-  Color* background;
+  Color background;
   
   bool loadImg();
   bool loadPng();
@@ -54,7 +54,7 @@ public:
 
   unsigned int getImageWidth();
   unsigned int getImageHeight();
-  Color* getImageBackground();
+  Color& getImageBackground();
 
   static void loadFunctions(FunctionLibrary &lib);
 

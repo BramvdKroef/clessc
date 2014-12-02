@@ -61,13 +61,10 @@ UrlValue::UrlValue(Token &token, std::string &path): Value() {
   this->path = path;
   type = Value::URL;
   loaded = false;
-  background = NULL;
 }
 
 
 UrlValue::~UrlValue() {
-  if (background != NULL)
-    delete background;
 }
 
 Value* UrlValue::add(const Value &v) {
@@ -170,10 +167,6 @@ bool UrlValue::loadPng() {
       png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGBA ||
       png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
 
-    if (background != NULL) {
-      delete background;
-      background = NULL;
-    }
     png_byte* color1 = row_pointers[0];
     png_byte* color2 = row_pointers[0] + (width - 1) * channels;
     png_byte* color3 = row_pointers[height - 1];
@@ -183,9 +176,11 @@ bool UrlValue::loadPng() {
         memcmp(color1, color3, channels) == 0 &&
         memcmp(color1, color4, channels) == 0) {
         
-      background = new Color(color1[0], color1[1], color1[2]);
+      background.setRGB(color1[0], color1[1], color1[2]);
       if (channels == 4)
-        background->setAlpha(color1[3]);
+        background.setAlpha(color1[3]);
+    } else {
+      background.setRGB(0,0,0);
     }
   }
     
@@ -292,21 +287,16 @@ bool UrlValue::loadJpeg() {
          cinfo.output_scanline == cinfo.output_height)) {
 
       if (cinfo.output_scanline == 1) {
-        if (background != NULL)
-          delete background;
-        background = new Color(buffer[0][0], buffer[0][1], buffer[0][2]);
+        background.setRGB(buffer[0][0], buffer[0][1], buffer[0][2]);
       }
-      if (background != NULL) {
-        if (background->getRed() != buffer[0][0] ||
-            background->getGreen() != buffer[0][1] ||
-            background->getBlue() != buffer[0][2] ||
+      if (background.getRed() != buffer[0][0] ||
+          background.getGreen() != buffer[0][1] ||
+          background.getBlue() != buffer[0][2] ||
 
-            background->getRed() != buffer[0][row_stride - cinfo.output_components] ||
-            background->getGreen() != buffer[0][row_stride - cinfo.output_components + 1] ||
-            background->getBlue() != buffer[0][row_stride - cinfo.output_components + 2]) {
-          delete background;
-          background = NULL;
-        }
+          background.getRed() != buffer[0][row_stride - cinfo.output_components] ||
+          background.getGreen() != buffer[0][row_stride - cinfo.output_components + 1] ||
+          background.getBlue() != buffer[0][row_stride - cinfo.output_components + 2]) {
+        background.setRGB(0,0,0);
       }
     }
   }
@@ -342,7 +332,7 @@ unsigned int UrlValue::getImageHeight() {
   return (loadImg() ? height : 0);
 }
 
-Color* UrlValue::getImageBackground() {
+Color& UrlValue::getImageBackground() {
   loadImg();
   return background;
 }
@@ -378,9 +368,6 @@ Value* UrlValue::imgwidth(vector<Value*> arguments) {
  
 Value* UrlValue::imgbackground(vector<Value*> arguments) {
   UrlValue* u = static_cast<UrlValue*>(arguments[0]);
-  Color* color = u->getImageBackground();
-  if (color == NULL)
-    return new Color(0,0,0);
-  else
-    return new Color(color->getRed(), color->getGreen(), color->getBlue());
+  Color& color = u->getImageBackground();
+  return new Color(color.getRed(), color.getGreen(), color.getBlue());
 }
