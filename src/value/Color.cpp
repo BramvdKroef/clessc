@@ -101,6 +101,15 @@ void Color::updateTokens() {
   }
 }
 
+Color::Color(): Value() {
+  type = Value::COLOR;
+  color[RGB_RED] = 0;
+  color[RGB_GREEN] = 0;
+  color[RGB_BLUE] = 0;
+  alpha = 1;
+  updateTokens();
+}
+
 Color::Color(Token &token): Value() {
   int len;
 
@@ -322,6 +331,12 @@ void Color::setHSL(double hue, double saturation, double lightness) {
   updateTokens();
 }
 
+void Color::setRGB(unsigned int red, unsigned int green, unsigned int blue) {
+  color[RGB_RED] = red;
+  color[RGB_GREEN] = green;
+  color[RGB_BLUE] = blue;
+  updateTokens();
+}
 void Color::setAlpha(double alpha) {
   this->alpha = min(max(alpha, 0.0), 1.0);
   updateTokens();

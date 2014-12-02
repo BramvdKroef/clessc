@@ -45,6 +45,7 @@ private:
   void updateTokens();
   
 public:
+  Color();
   Color(Token &token);
   Color(unsigned int red, unsigned int green, unsigned int blue);
   Color(unsigned int red, unsigned int green, unsigned int blue,
@@ -67,12 +68,19 @@ public:
    * source. 
    */
   void setHSL(double hue, double saturation, double lightness);
+
   /**
    * Converts the internal RGB value to HSL. The source of the
    * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
    * for the saturation value, which did not work.
    */
   double* getHSL();
+
+  /**
+   * Change the color to a new rgb value.
+   */
+  void setRGB(unsigned int red, unsigned int green, unsigned int blue);
+
   /**
    * Returns the the amount of red in the color.
    *
