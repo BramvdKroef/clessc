@@ -43,9 +43,13 @@ public:
    */
   void split(std::list<Selector> &l) const;
 
-  bool match(const TokenList &list) const;
+  bool match(const Selector &list) const;
 
   const_iterator walk(const TokenList &list, const_iterator offset) const;
+  const_iterator walk(const const_iterator &list_begin,
+                      const const_iterator &list_end,
+                      const_iterator offset) const;
+
   const_iterator find(const TokenList &list, const_iterator offset) const;
 
   const_iterator findComma(const_iterator offset) const;

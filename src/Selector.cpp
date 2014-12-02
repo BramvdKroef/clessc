@@ -118,26 +118,48 @@ TokenList::const_iterator Selector::findComma(const_iterator offset) const {
   return offset;
 }
 
-bool Selector::match(const TokenList &list) const {
+bool Selector::match(const Selector &list) const {
   TokenList::const_iterator first, last;
+  TokenList::const_iterator l_first, l_last;
 
   for (first = begin(); first != end(); ) {
     last = findComma(first);
-    if (walk(list, first) == last)
-      return true;
+
+    for (l_first = list.begin(); l_first != list.end(); ) {
+      l_last = list.findComma(l_first);
+      
+      if (walk(l_first, l_last, first) == last)
+        return true;
+
+      l_first = l_last;
+      if (l_first != list.end()) {
+        l_first++;
+        while (l_first != list.end() && (*l_first).type == Token::WHITESPACE)
+          l_first++;
+      }
+    }
+
     first = last;
-    if (first != end())
+    if (first != end()) {
       first++;
+      while (first != end() && (*first).type == Token::WHITESPACE)
+        first++;
+    }
   }
   return false;
 }
 
 TokenList::const_iterator Selector::walk(const TokenList &list,
                                          const_iterator offset) const {
-  TokenList::const_iterator li;
-  li = list.begin();
+  return walk(list.begin(), list.end(), offset);
+}
 
-  while (offset != end() && li != list.end()) {
+TokenList::const_iterator Selector::walk(const const_iterator &list_begin,
+                                         const const_iterator &list_end,
+                                         const_iterator offset) const {
+  TokenList::const_iterator li = list_begin;
+
+  while (offset != end() && li != list_end) {
     if (*offset != *li)
       return begin();
     
@@ -149,14 +171,14 @@ TokenList::const_iterator Selector::walk(const TokenList &list,
       if (offset != end() && (*offset).type == Token::WHITESPACE)
         offset++;
     }
-    if (li != list.end() && *li == ">") {
+    if (li != list_end && *li == ">") {
       li++;
-      if (li != list.end() && (*li).type == Token::WHITESPACE) 
+      if (li != list_end && (*li).type == Token::WHITESPACE) 
         li++;
     }
   }
   
-  if (li != list.end())
+  if (li != list_end)
     offset = begin();
   
   return offset;
