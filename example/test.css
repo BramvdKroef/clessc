@@ -433,11 +433,12 @@ div {
 .test9:extend(.test10) {
     color: #FFF;
 }
-.test10 {
+.test10,
+.test10a{
     background-color: #000;
 }
 .test11 {
-    &:extend(.test9);
+    &:extend(.test10a);
     width: 100px;
 }
 
