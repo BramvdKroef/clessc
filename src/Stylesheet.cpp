@@ -51,11 +51,11 @@ void Declaration::setProperty(const string &property) {
 void Declaration::setValue(const TokenList &value) {
   this->value = value;
 }
-string Declaration::getProperty() {
+std::string Declaration::getProperty() {
   return property;
 }
-TokenList* Declaration::getValue() {
-  return &value;
+TokenList& Declaration::getValue() {
+  return value;
 }
 
 void Declaration::process(Ruleset &r) {
@@ -129,15 +129,15 @@ void Ruleset::addDeclarations (std::list<Declaration> &declarations) {
   }
 }
 
-Selector* Ruleset::getSelector() {
-  return &selector;
+Selector& Ruleset::getSelector() {
+  return selector;
 }
-list<RulesetStatement*>* Ruleset::getStatements() {
-  return &statements;
+list<RulesetStatement*>& Ruleset::getStatements() {
+  return statements;
 }
 
-list<Declaration*>* Ruleset::getDeclarations() {
-  return &declarations;
+list<Declaration*>& Ruleset::getDeclarations() {
+  return declarations;
 }
 
 void Ruleset::clearStatements() {
@@ -149,9 +149,9 @@ void Ruleset::clearStatements() {
 }
 
 void Ruleset::insert(Ruleset &target) {
-  list<RulesetStatement*>* statements = getStatements();
+  list<RulesetStatement*> statements = getStatements();
   list<RulesetStatement*>::iterator i;
-  for (i = statements->begin(); i != statements->end(); i++) {
+  for (i = statements.begin(); i != statements.end(); i++) {
     (*i)->process(target);
   }
 }
@@ -160,25 +160,24 @@ void Ruleset::process(Stylesheet &s) {
   Ruleset* target = s.createRuleset();
     
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing Ruleset: " << getSelector()->toString();
+  VLOG(2) << "Processing Ruleset: " << getSelector().toString();
 #endif
         
-  target->setSelector(*getSelector());
+  target->setSelector(getSelector());
   insert(*target);
 }
 
 void Ruleset::write(CssWriter &writer) {
-  list<RulesetStatement*>* statements;
+  list<RulesetStatement*> statements = getStatements();
   list<RulesetStatement*>::iterator i;
 
-  if (getStatements()->empty())
+  if (getStatements().empty())
     return;
   
-  writer.writeRulesetStart(*getSelector());
-    
-  statements = getStatements();
-  for (i = statements->begin(); i != statements->end(); i++) {
-    if (i != statements->begin())
+  writer.writeRulesetStart(getSelector());
+
+  for (i = statements.begin(); i != statements.end(); i++) {
+    if (i != statements.begin())
       writer.writeDeclarationDeliminator();
     
     (*i)->write(writer);
@@ -199,11 +198,11 @@ void AtRule::setKeyword (const string &keyword) {
 void AtRule::setRule(const TokenList &rule) {
   this->rule = rule;
 }
-string* AtRule::getKeyword() {
-  return &keyword;
+std::string& AtRule::getKeyword() {
+  return keyword;
 }
-TokenList* AtRule::getRule() {
-  return &rule;
+TokenList& AtRule::getRule() {
+  return rule;
 }
 
 void AtRule::process(Stylesheet &s) {
@@ -211,8 +210,8 @@ void AtRule::process(Stylesheet &s) {
   target->setRule(rule);
       
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing @rule " << *this->getKeyword() << ": " <<
-    this->getRule()->toString();
+  VLOG(2) << "Processing @rule " << this->getKeyword() << ": " <<
+    this->getRule().toString();
 #endif
 }
 
@@ -306,36 +305,35 @@ void Stylesheet::deleteMediaQuery(MediaQuery &query) {
   deleteStatement(query);
 }
 
-list<AtRule*>* Stylesheet::getAtRules() {
-  return &atrules;
+list<AtRule*>& Stylesheet::getAtRules() {
+  return atrules;
 }
-list<Ruleset*>* Stylesheet::getRulesets() {
-  return &rulesets;
+list<Ruleset*>& Stylesheet::getRulesets() {
+  return rulesets;
 }
-list<StylesheetStatement*>* Stylesheet::getStatements() {
-  return &statements;
+list<StylesheetStatement*>& Stylesheet::getStatements() {
+  return statements;
 }
 
 Ruleset* Stylesheet::getRuleset(const Selector &selector) {
   list<Ruleset*>::iterator it;
 
   for (it = rulesets.begin(); it != rulesets.end(); it++) {
-    if ((*it)->getSelector()->match(selector))
+    if ((*it)->getSelector().match(selector))
       return *it;
   }
   return NULL;
 }
 
 void Stylesheet::process(Stylesheet &s) {
-  list<StylesheetStatement*>* statements;
+  list<StylesheetStatement*> statements = getStatements();
   list<StylesheetStatement*>::iterator i;
   
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Processing stylesheet";
 #endif
         
-  statements = getStatements();  
-  for (i = statements->begin(); i != statements->end(); i++) {
+  for (i = statements.begin(); i != statements.end(); i++) {
     (*i)->process(s);
   }
   
@@ -346,17 +344,16 @@ void Stylesheet::process(Stylesheet &s) {
 
 
 void Stylesheet::write(CssWriter &writer) {
-  list<StylesheetStatement*>* statements;
+  list<StylesheetStatement*> statements = getStatements();
   list<StylesheetStatement*>::iterator i;
   
-  statements = getStatements();  
-  for (i = statements->begin(); i != statements->end(); i++) {
+  for (i = statements.begin(); i != statements.end(); i++) {
     (*i)->write(writer);
   }
 }
 
-Selector* MediaQuery::getSelector() {
-  return &selector;
+Selector& MediaQuery::getSelector() {
+  return selector;
 }
 void MediaQuery::setSelector(const Selector &s) {
   selector = s;
@@ -369,7 +366,7 @@ MediaQuery* MediaQuery::createMediaQuery() {
   VLOG(3) << "Creating media query";
 #endif
 
-  q->setSelector(*getSelector());
+  q->setSelector(getSelector());
   
   return q;
 }
@@ -378,10 +375,10 @@ void MediaQuery::process(Stylesheet &s) {
   MediaQuery* query = s.createMediaQuery();
     
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing media query " << getSelector()->toString();
+  VLOG(2) << "Processing media query " << getSelector().toString();
 #endif
       
-  query->setSelector(*getSelector());
+  query->setSelector(getSelector());
     
   Stylesheet::process(*query);
 }

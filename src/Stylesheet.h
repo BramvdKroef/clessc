@@ -60,7 +60,7 @@ public:
   void setValue(const TokenList &value);
   
   std::string getProperty();
-  TokenList* getValue();
+  TokenList& getValue();
 
   virtual void process(Ruleset &r);
   virtual void write(CssWriter &writer);
@@ -103,9 +103,9 @@ public:
   
   void addDeclarations (std::list<Declaration> &declarations);
     
-  Selector* getSelector();
-  std::list<RulesetStatement*>* getStatements();
-  std::list<Declaration*>* getDeclarations();
+  Selector& getSelector();
+  std::list<RulesetStatement*>& getStatements();
+  std::list<Declaration*>& getDeclarations();
 
   void clearStatements();
   
@@ -125,8 +125,8 @@ public:
   void setKeyword (const std::string &keyword);
   void setRule(const TokenList &rule);
 
-  std::string* getKeyword();
-  TokenList* getRule();
+  std::string& getKeyword();
+  TokenList& getRule();
 
   virtual void process(Stylesheet &s);
   virtual void write(CssWriter &writer);
@@ -159,9 +159,9 @@ public:
   void deleteAtRule(AtRule &atrule);
   void deleteMediaQuery(MediaQuery &query);
   
-  std::list<AtRule*>* getAtRules();
-  std::list<Ruleset*>* getRulesets();
-  std::list<StylesheetStatement*>* getStatements();
+  std::list<AtRule*>& getAtRules();
+  std::list<Ruleset*>& getRulesets();
+  std::list<StylesheetStatement*>& getStatements();
   
   virtual Ruleset* getRuleset(const Selector& selector);
 
@@ -174,7 +174,7 @@ private:
   Selector selector;
 
 public:
-  Selector* getSelector();
+  Selector& getSelector();
   void setSelector(const Selector& s);
 
   virtual MediaQuery* createMediaQuery();

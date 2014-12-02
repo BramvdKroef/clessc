@@ -55,11 +55,11 @@ public:
   LessSelector(const Selector &original);
   virtual ~LessSelector();
   
-  std::list<Extension>* getExtensions();
-  std::list<std::string>* getParameters();
+  std::list<Extension>& getExtensions();
+  std::list<std::string>& getParameters();
   TokenList* getDefault(const std::string &parameter);
 
-  std::list<TokenList>* getConditions();
+  std::list<TokenList>& getConditions();
   bool matchArguments(const Mixin &arguments);
 
   bool needsArguments();

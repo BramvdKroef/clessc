@@ -40,19 +40,19 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Less Ruleset: " <<
-    getSelector()->toString();
+    getSelector().toString();
 #endif
   
   query = s.createMediaQuery();
-  selector = *getSelector();
+  selector = getSelector();
   context.interpolate(selector);
 
-  if (query->getSelector()->size() > 0) {
+  if (query->getSelector().size() > 0) {
     selector.pop_front();
 
-    query->getSelector()->push_back(Token(" ", Token::WHITESPACE));
-    query->getSelector()->push_back(Token("and", Token::IDENTIFIER));
-    query->getSelector()->insert(query->getSelector()->end(),
+    query->getSelector().push_back(Token(" ", Token::WHITESPACE));
+    query->getSelector().push_back(Token("and", Token::IDENTIFIER));
+    query->getSelector().insert(query->getSelector().end(),
                                  selector.begin(),
                                  selector.end());
   } else
@@ -64,9 +64,9 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
 
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Interpolating selector " <<
-    target->getSelector()->toString();
+    target->getSelector().toString();
 #endif
-    context.interpolate(*target->getSelector());
+    context.interpolate(target->getSelector());
   
     insert(NULL, *target, context);
   } else

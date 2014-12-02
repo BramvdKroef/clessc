@@ -100,14 +100,14 @@ void UnprocessedStatement::process(Ruleset &r) {
     
 #ifdef WITH_LIBGLOG
       VLOG(2) << "Declaration: " <<
-        declaration->getProperty() << ": " << declaration->getValue()->toString();
+        declaration->getProperty() << ": " << declaration->getValue().toString();
 #endif
     
-      getLessRuleset()->getContext()->processValue(*declaration->getValue());
+      getLessRuleset()->getContext()->processValue(declaration->getValue());
 
 #ifdef WITH_LIBGLOG
       VLOG(2) << "Processed declaration: " <<
-        declaration->getProperty() << ": " << declaration->getValue()->toString();
+        declaration->getProperty() << ": " << declaration->getValue().toString();
 #endif
     
     } else {
@@ -174,14 +174,14 @@ bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   VLOG(3) << "Declaration";
 #endif
   
-  getValue(*declaration->getValue());
+  getValue(declaration->getValue());
   
-  if (declaration->getValue()->empty() ||
-      declaration->getValue()->front().type != Token::COLON) {
+  if (declaration->getValue().empty() ||
+      declaration->getValue().front().type != Token::COLON) {
     return NULL;
   }
     
-  declaration->getValue()->pop_front();
+  declaration->getValue().pop_front();
   
   getProperty(property);
   

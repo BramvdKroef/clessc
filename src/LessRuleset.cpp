@@ -66,8 +66,8 @@ UnprocessedStatement* LessRuleset::createUnprocessedStatement() {
   return s;
 }
 
-list<UnprocessedStatement*>* LessRuleset::getUnprocessedStatements() {
-  return &unprocessedStatements;
+std::list<UnprocessedStatement*>& LessRuleset::getUnprocessedStatements() {
+  return unprocessedStatements;
 }
 
 LessRuleset* LessRuleset::createNestedRule() {
@@ -107,8 +107,8 @@ void LessRuleset::deleteUnprocessedStatement(UnprocessedStatement
   deleteStatement(statement);
 }
 
-list<LessRuleset*>* LessRuleset::getNestedRules() {
-  return &nestedRules;
+std::list<LessRuleset*>& LessRuleset::getNestedRules() {
+  return nestedRules;
 }
 
 void LessRuleset::putVariable(const std::string &key, const TokenList &value) {
@@ -124,8 +124,8 @@ void LessRuleset::putVariable(const std::string &key, const TokenList &value) {
   variables.insert(pair<string, TokenList>(key, value));  
 }
 
-map<string, TokenList>* LessRuleset::getVariables() {
-  return &variables;
+map<string, TokenList>& LessRuleset::getVariables() {
+  return variables;
 }
  
 void LessRuleset::setParent(LessRuleset* r) {
@@ -153,29 +153,27 @@ ProcessingContext* LessRuleset::getContext() {
 void LessRuleset::getExtensions(std::list<Extension> &extensions,
                                 Selector* prefix) {
   
-  std::list<Extension>* e;
+  std::list<Extension>& e = getLessSelector()->getExtensions();
   std::list<Extension>::iterator e_it;
   std::list<UnprocessedStatement*>::iterator s_it;
   Extension extension;
 
-  std::list<LessRuleset*>* nestedRules = getNestedRules();
+  std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::iterator r_it;
 
-  e = getLessSelector()->getExtensions();
-
-  for (e_it = e->begin(); e_it != e->end(); e_it++) {
+  for (e_it = e.begin(); e_it != e.end(); e_it++) {
     extensions.push_back(*e_it);
     if (prefix != NULL) 
       extensions.back().getExtension()->addPrefix(*prefix);
   }
 
-  extension.setExtension(*getSelector());
+  extension.setExtension(getSelector());
   if (prefix != NULL)
     extension.getExtension()->addPrefix(*prefix);
   
   // look through statements for extensions
-  for(s_it = getUnprocessedStatements()->begin();
-      s_it != getUnprocessedStatements()->end();
+  for(s_it = getUnprocessedStatements().begin();
+      s_it != getUnprocessedStatements().end();
       s_it++) {
 
     if ((*s_it)->getExtension(*extension.getTarget())) {
@@ -185,7 +183,7 @@ void LessRuleset::getExtensions(std::list<Extension> &extensions,
   }
 
   // look in nested rules
-  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     (*r_it)->getExtensions(extensions, extension.getExtension());
   }
 }
@@ -221,7 +219,7 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
 #endif
     
     // insert nested rules
-    insertNestedRules(*target.getStylesheet(), target.getSelector(), context);
+    insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
 
     context.popScope();
     ret = true;
@@ -233,7 +231,7 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
 bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
                          ProcessingContext &context) {
   map<string, TokenList> scope;
-  list<UnprocessedStatement*>* unprocessedStatements = getUnprocessedStatements();
+  list<UnprocessedStatement*>& unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::iterator up_it;
   bool ret = false;
   
@@ -249,8 +247,8 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
     this->context = &context;
     
     // insert mixins
-    for (up_it = unprocessedStatements->begin();
-         up_it != unprocessedStatements->end();
+    for (up_it = unprocessedStatements.begin();
+         up_it != unprocessedStatements.end();
          up_it++) {
       (*up_it)->insert(s);
     }
@@ -275,17 +273,17 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
     return;
   
   target = s.createRuleset();
-  target->setSelector(*getSelector());
+  target->setSelector(getSelector());
 
   if (prefix != NULL)
-    target->getSelector()->addPrefix(*prefix);
+    target->getSelector().addPrefix(*prefix);
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Processing Less Ruleset: " <<
-    getSelector()->toString();
+    getSelector().toString();
 #endif
 
-  context.interpolate(*target->getSelector());
+  context.interpolate(target->getSelector());
 
   insert(NULL, *target, context);
 }
@@ -294,17 +292,17 @@ void LessRuleset::getLessRulesets(list<LessRuleset*> &rulesetList,
                                   const Mixin &mixin,
                                   TokenList::const_iterator offset) {
 
-  list<LessRuleset*>* nestedRules = getNestedRules();
+  list<LessRuleset*>& nestedRules = getNestedRules();
   list<LessRuleset*>::iterator r_it;
 
-  offset = mixin.name.walk(*getSelector(), offset);
+  offset = mixin.name.walk(getSelector(), offset);
   
   if (offset == mixin.name.begin())
     return;
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Matching mixin " << mixin.name.toString() <<
-    " against " << getSelector()->toString();
+    " against " << getSelector().toString();
 #endif
   
   while (offset != mixin.name.end() &&
@@ -318,18 +316,18 @@ void LessRuleset::getLessRulesets(list<LessRuleset*> &rulesetList,
       rulesetList.push_back(this);
 
   } else {   
-    for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+    for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
       (*r_it)->getLessRulesets(rulesetList, mixin, offset);
     }
   }
 }
 
-void LessRuleset::getLocalLessRulesets(list<LessRuleset*> &rulesetList,
+void LessRuleset::getLocalLessRulesets(std::list<LessRuleset*> &rulesetList,
                                        const Mixin &mixin) {
-  list<LessRuleset*>* nestedRules = getNestedRules();
-  list<LessRuleset*>::iterator r_it;
+  std::list<LessRuleset*>& nestedRules = getNestedRules();
+  std::list<LessRuleset*>::iterator r_it;
   
-  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     (*r_it)->getLessRulesets(rulesetList, mixin, mixin.name.begin());
   }
 
@@ -343,24 +341,24 @@ void LessRuleset::getLocalLessRulesets(list<LessRuleset*> &rulesetList,
 
 void LessRuleset::insertNestedRules(Stylesheet &s, Selector *prefix,
                                     ProcessingContext &context) {
-  list<LessRuleset*>* nestedRules = getNestedRules();
-  list<LessRuleset*>::iterator r_it;
+  std::list<LessRuleset*>& nestedRules = getNestedRules();
+  std::list<LessRuleset*>::iterator r_it;
 
-  for (r_it = nestedRules->begin(); r_it != nestedRules->end(); r_it++) {
+  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     (*r_it)->process(s, prefix, context);
   }
 }
 
 
 bool LessRuleset::matchConditions(ProcessingContext &context){
-  list<TokenList>* conditions = selector->getConditions();
-  list<TokenList>::iterator cit;
+  std::list<TokenList>& conditions = selector->getConditions();
+  std::list<TokenList>::iterator cit;
   TokenList condition;
 
-  if (conditions->empty())
+  if (conditions.empty())
     return true;
 
-  for(cit = conditions->begin(); cit != conditions->end(); cit++) {
+  for(cit = conditions.begin(); cit != conditions.end(); cit++) {
     condition = (*cit);
     
 #ifdef WITH_LIBGLOG
@@ -381,7 +379,7 @@ bool LessRuleset::matchConditions(ProcessingContext &context){
   
 bool LessRuleset::putArguments(const Mixin &mixin,
                                std::map<std::string, TokenList> &scope) {
-  std::list<std::string>* parameters = selector->getParameters();
+  std::list<std::string>& parameters = selector->getParameters();
   std::list<std::string>::iterator pit;
   TokenList argsCombined;
   TokenList restVar;
@@ -391,7 +389,7 @@ bool LessRuleset::putArguments(const Mixin &mixin,
   Token space(" ", Token::WHITESPACE);
 
   // combine with parameter names and add to local scope
-  for(pit = parameters->begin(); pit != parameters->end(); pit++) {
+  for(pit = parameters.begin(); pit != parameters.end(); pit++) {
     variable = mixin.getArgument(*pit);
 
     if (variable == NULL) 

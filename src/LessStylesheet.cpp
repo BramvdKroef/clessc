@@ -119,13 +119,13 @@ void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
   // post processing
   getExtensions(extensions);
 
-  for (r_it = s.getRulesets()->begin();
-       r_it != s.getRulesets()->end();
+  for (r_it = s.getRulesets().begin();
+       r_it != s.getRulesets().end();
        r_it++) {
     for (e_it = extensions.begin();
          e_it != extensions.end();
          e_it++) {
-      (*e_it).updateSelector(*(*r_it)->getSelector());
+      (*e_it).updateSelector((*r_it)->getSelector());
     }
   }
 }

@@ -97,7 +97,7 @@ bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
     lessruleset = *i;
 
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin: " << lessruleset->getSelector()->toString();
+    VLOG(3) << "Mixin: " << lessruleset->getSelector().toString();
 #endif
 
     if (parent == NULL || parent != lessruleset ||

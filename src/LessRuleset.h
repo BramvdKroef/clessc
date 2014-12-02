@@ -70,11 +70,11 @@ public:
   void deleteUnprocessedStatement(UnprocessedStatement
                                   &statement);
   
-  list<UnprocessedStatement*>* getUnprocessedStatements();
-  list<LessRuleset*>* getNestedRules();
+  list<UnprocessedStatement*>& getUnprocessedStatements();
+  list<LessRuleset*>& getNestedRules();
 
   void putVariable(const std::string &key, const TokenList &value);
-  map<string, TokenList>* getVariables();
+  map<string, TokenList>& getVariables();
 
   void setParent(LessRuleset* r);
   LessRuleset* getParent();

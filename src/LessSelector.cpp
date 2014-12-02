@@ -381,16 +381,16 @@ TokenList* LessSelector::getDefault(const std::string &keyword) {
   return NULL;
 }
 
-std::list<std::string>* LessSelector::getParameters() {
-  return &parameters;
+std::list<std::string>& LessSelector::getParameters() {
+  return parameters;
 }
 
-std::list<TokenList>* LessSelector::getConditions() {
-  return &conditions;
+std::list<TokenList>& LessSelector::getConditions() {
+  return conditions;
 }
 
-std::list<Extension>* LessSelector::getExtensions() {
-  return &extensions;
+std::list<Extension>& LessSelector::getExtensions() {
+  return extensions;
 }
 
 bool LessSelector::matchArguments(const Mixin &mixin) {

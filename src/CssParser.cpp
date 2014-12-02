@@ -90,12 +90,12 @@ MediaQuery* CssParser::parseMediaQuery(Stylesheet &stylesheet) {
 
   query = stylesheet.createMediaQuery();
 
-  query->getSelector()->push_back(tokenizer->getToken());
+  query->getSelector().push_back(tokenizer->getToken());
 
   tokenizer->readNextToken();
   skipWhitespace();
   
-  parseSelector(*query->getSelector());
+  parseSelector(query->getSelector());
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(),
@@ -133,9 +133,9 @@ AtRule* CssParser::parseAtRule(Stylesheet& stylesheet) {
   tokenizer->readNextToken();
   skipWhitespace();
   
-  while(parseAny(*atrule->getRule())) {};
+  while(parseAny(atrule->getRule())) {};
   
-  if (!parseBlock(*atrule->getRule())) {
+  if (!parseBlock(atrule->getRule())) {
     if (tokenizer->getTokenType() != Token::DELIMITER) {
       throw new ParseException(tokenizer->getToken(),
                                "delimiter (';') at end of @-rule",
@@ -263,7 +263,7 @@ Declaration* CssParser::parseDeclaration (Ruleset &ruleset) {
   tokenizer->readNextToken();
   skipWhitespace();
 
-  if (!parseValue(*declaration->getValue())) {
+  if (!parseValue(declaration->getValue())) {
     throw new ParseException(tokenizer->getToken(),
                              "value for property",
                              tokenizer->getLineNumber(),
