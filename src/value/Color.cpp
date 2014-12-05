@@ -546,7 +546,7 @@ Value* Color::argb(vector<Value*> arguments) {
   int i;
   Token t;
 
-  color[0] = c->getAlpha();
+  color[0] = c->getAlpha() * 0xFF + 0.5;
   color[1] = c->getRed();
   color[2] = c->getGreen();
   color[3] = c->getBlue();
