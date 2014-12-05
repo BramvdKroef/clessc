@@ -45,7 +45,7 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
   
   query = s.createMediaQuery();
   selector = getSelector();
-  context.interpolate(selector);
+  context.processValue(selector);
 
   if (query->getSelector().size() > 0) {
     selector.pop_front();
