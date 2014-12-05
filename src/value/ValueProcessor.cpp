@@ -227,13 +227,20 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
   if (value.size() == 0 ||
       (pos = operators.find(value.front())) == string::npos)
     return NULL;
-  
+
   if (lastop != NULL &&
       operators.find(*lastop) >= pos) {
     return NULL;
   }
   op = value.front();
   value.pop_front();
+
+  // if a minus is not followed by a space we have to consider it
+  // part of a negative consonant.
+  if (op == "-" && value.front().type != Token::WHITESPACE) {
+    value.push_front(op);
+    return NULL;
+  }
 
   // Check for 2 char operators ('>=' and '=<')
   if (value.size() > 0 &&
@@ -620,13 +627,18 @@ UnitValue* ValueProcessor::processUnit(Token &t) {
 bool ValueProcessor::needsSpace(const Token &t, bool before) {
   if (t.type == Token::OTHER &&
       t.size() == 1 &&
-      string(",:=.").find(t[0]) != string::npos) {
+      string(":=.").find(t[0]) != string::npos) {
     return false;
   }
-  if (t.type == Token::COLON)
+  if (before && t.type == Token::COLON)
     return false;
-  return !(t.type == Token::PAREN_OPEN ||
-           (before && t.type == Token::PAREN_CLOSED));
+  if (!before && t.type == Token::PAREN_OPEN)
+    return false;
+  if (before && t.type == Token::PAREN_CLOSED)
+    return false;
+  if (before && t == ",")
+    return false;
+  return true;
 }
 
 NumberValue* ValueProcessor::processNegative(TokenList &value,
