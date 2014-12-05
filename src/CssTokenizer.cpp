@@ -219,6 +219,10 @@ Token::Type CssTokenizer::readNextToken(){
 
 
 bool CssTokenizer::readIdent () {
+  if (lastReadEq('-')) {
+    currentToken.append(lastRead);
+    readChar();
+  }
   if (!readNMStart())
     return false;
   else
