@@ -100,8 +100,8 @@ bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
     VLOG(3) << "Mixin: " << lessruleset->getSelector().toString();
 #endif
 
-    if (parent == NULL || parent != lessruleset ||
-        lessruleset->getLessSelector()->needsArguments()) {
+    if (lessruleset->getLessSelector()->needsArguments() ||
+        !context.isInStack(*lessruleset)) {
       if (target != NULL)
         lessruleset->insert(this, *target, context);
       else

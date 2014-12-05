@@ -20,6 +20,7 @@
  */
 
 #include "ProcessingContext.h"
+#include "LessRuleset.h"
 
 #include <config.h>
 
@@ -51,16 +52,24 @@ void ProcessingContext::popScope() {
   delete tmp;
 }
   
-void ProcessingContext::pushRuleset(const Ruleset &ruleset) {
+void ProcessingContext::pushRuleset(const LessRuleset &ruleset) {
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Push: " << ruleset.getSelector().toString();
+#endif
+  
   rulesets.push_back(&ruleset);
 }
 
 void ProcessingContext::popRuleset() {
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Pop: " << rulesets.back()->getSelector().toString();
+#endif
+
   rulesets.pop_back();
 }
 
-bool ProcessingContext::isInStack(const Ruleset &ruleset) {
-  std::list<const Ruleset*>::iterator i;
+bool ProcessingContext::isInStack(const LessRuleset &ruleset) {
+  std::list<const LessRuleset*>::iterator i;
 
   for(i = rulesets.begin(); i != rulesets.end(); i++) {
     if (*i == &ruleset)

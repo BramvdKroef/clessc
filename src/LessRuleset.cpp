@@ -192,9 +192,10 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
                          ProcessingContext &context) {
   map<string, TokenList> scope;
   bool ret = false;
+  context.pushRuleset(*this);
   
   context.pushScope(scope);
-
+  
   if (((mixin == NULL && !selector->needsArguments()) ||
        (mixin != NULL && putArguments(*mixin, scope))) &&
       matchConditions(context)) {
@@ -210,6 +211,7 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
     VLOG(2) << "Inserting statements";
 #endif
 
+   
     this->context = &context;
     // process statements
     Ruleset::insert(target);
@@ -217,7 +219,7 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Inserting nested rules";
 #endif
-    
+  
     // insert nested rules
     insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
 
@@ -225,6 +227,7 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
     ret = true;
   }
   context.popScope();
+  context.popRuleset();
   return ret;
 }
 
@@ -234,7 +237,8 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
   list<UnprocessedStatement*>& unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::iterator up_it;
   bool ret = false;
-  
+
+  context.pushRuleset(*this);
   context.pushScope(scope);
 
   if (((mixin == NULL && !selector->needsArguments()) ||
@@ -245,6 +249,7 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
     context.pushScope(variables);
 
     this->context = &context;
+
     
     // insert mixins
     for (up_it = unprocessedStatements.begin();
@@ -252,13 +257,16 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
          up_it++) {
       (*up_it)->insert(s);
     }
+    
     // insert nested rules
     insertNestedRules(s, NULL, context);
 
     context.popScope();
     ret = true;
   }
+
   context.popScope();
+  context.popRuleset();
   return ret;
 }
 

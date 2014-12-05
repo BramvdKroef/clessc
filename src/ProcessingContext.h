@@ -27,14 +27,15 @@
 #include <list>
 
 #include "TokenList.h"
-#include "Stylesheet.h"
 #include "value/ValueScope.h"
 #include "value/ValueProcessor.h"
+
+class LessRuleset;
 
 class ProcessingContext {
 private:
   const ValueScope* scopes;
-  std::list<const Ruleset*> rulesets;
+  std::list<const LessRuleset*> rulesets;
   ValueProcessor processor;
   
 public:
@@ -44,9 +45,9 @@ public:
   void pushScope(const std::map<std::string, TokenList> &scope);
   void popScope();
   
-  void pushRuleset(const Ruleset &ruleset);
+  void pushRuleset(const LessRuleset &ruleset);
   void popRuleset();
-  bool isInStack(const Ruleset &ruleset);
+  bool isInStack(const LessRuleset &ruleset);
 
   ValueProcessor* getValueProcessor();
 
