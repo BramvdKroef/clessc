@@ -50,9 +50,12 @@ public:
                       const const_iterator &list_end,
                       const_iterator offset) const;
 
-  const_iterator find(const TokenList &list, const_iterator offset) const;
+  const_iterator find(const TokenList &list,
+                      const_iterator offset,
+                      const_iterator limit) const;
 
   const_iterator findComma(const_iterator offset) const;
+  const_iterator findComma(const_iterator offset, const_iterator limit) const;
 };
 
 #endif

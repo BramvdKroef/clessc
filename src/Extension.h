@@ -44,6 +44,7 @@ public:
   void setExtension(Selector &selector);
 
   void updateSelector(Selector& s);
+  void replaceInSelector(Selector &s);
 };
 
 #endif

@@ -99,10 +99,15 @@ void Selector::split(std::list<Selector> &l) const {
   }
 }
 
-TokenList::const_iterator Selector::findComma(const_iterator offset) const {
+TokenList::const_iterator Selector::findComma(const_iterator offset)
+  const {
+  return findComma(offset, end());
+}
+TokenList::const_iterator Selector::findComma(const_iterator offset,
+                                              const_iterator limit) const {
   unsigned int parentheses = 0;
 
-  for (; offset != end(); offset++) {
+  for (; offset != limit; offset++) {
     if (parentheses == 0 &&
         (*offset).type == Token::OTHER &&
         *offset == ",") {
@@ -185,10 +190,11 @@ TokenList::const_iterator Selector::walk(const const_iterator &list_begin,
 }
 
 TokenList::const_iterator Selector::find(const TokenList &list,
-                                         const_iterator offset) const {
-  for (; offset != end(); offset++) {
+                                         TokenList::const_iterator offset,
+                                         TokenList::const_iterator limit) const {
+  for (; offset != limit; offset++) {
     if (walk(list, offset) != begin())
       return offset;
   }
-  return begin();
+  return limit;
 }
