@@ -132,6 +132,9 @@ void Ruleset::addDeclarations (std::list<Declaration> &declarations) {
 Selector& Ruleset::getSelector() {
   return selector;
 }
+const Selector& Ruleset::getSelector() const {
+  return selector;
+}
 list<RulesetStatement*>& Ruleset::getStatements() {
   return statements;
 }

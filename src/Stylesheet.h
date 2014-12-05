@@ -102,8 +102,9 @@ public:
   void deleteDeclaration(Declaration &declaration);
   
   void addDeclarations (std::list<Declaration> &declarations);
-    
+
   Selector& getSelector();
+  const Selector& getSelector() const;
   std::list<RulesetStatement*>& getStatements();
   std::list<Declaration*>& getDeclarations();
 
