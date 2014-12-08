@@ -313,9 +313,18 @@ void LessParser::parseMediaQueryRuleset(LessStylesheet &stylesheet,
   selector.push_back(media);
   selector.push_back(space);
 
-  parseSelector(selector);
-  query->setSelector(selector);
   skipWhitespace();
+
+  while (parseAny(selector) ||
+         tokenizer->getTokenType() == Token::ATKEYWORD) {
+    if (tokenizer->getTokenType() == Token::ATKEYWORD) {
+      selector.push_back(tokenizer->getToken());
+      tokenizer->readNextToken();
+      parseWhitespace(selector);
+    }
+  }
+
+  query->setSelector(selector);
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(),
@@ -421,7 +430,15 @@ void LessParser::parseLessMediaQuery(LessStylesheet &stylesheet) {
   query->getSelector()->push_back(space);
 
   skipWhitespace();
-  parseSelector(*query->getSelector());
+
+  while (parseAny(*query->getSelector()) ||
+         tokenizer->getTokenType() == Token::ATKEYWORD) {
+    if (tokenizer->getTokenType() == Token::ATKEYWORD) {
+      query->getSelector()->push_back(tokenizer->getToken());
+      tokenizer->readNextToken();
+      parseWhitespace(*query->getSelector());
+    }
+  }
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Media query: " << query->getSelector()->toString();
