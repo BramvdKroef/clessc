@@ -154,9 +154,26 @@ bool Selector::match(const Selector &list) const {
   return false;
 }
 
-TokenList::const_iterator Selector::walk(const TokenList &list,
+TokenList::const_iterator Selector::walk(const Selector &list,
                                          const_iterator offset) const {
-  return walk(list.begin(), list.end(), offset);
+  TokenList::const_iterator first, last, pos;
+
+  for (first = list.begin(); first != list.end(); ) {
+    last = list.findComma(first);
+
+    pos = walk(first, last, offset);
+
+    if (pos != begin())
+      return pos;
+      
+    first = last;
+    if (first != list.end()) {
+      first++;
+      while (first != list.end() && (*first).type == Token::WHITESPACE)
+        first++;
+    }
+  }
+  return begin();
 }
 
 TokenList::const_iterator Selector::walk(const const_iterator &list_begin,
@@ -193,7 +210,7 @@ TokenList::const_iterator Selector::find(const TokenList &list,
                                          TokenList::const_iterator offset,
                                          TokenList::const_iterator limit) const {
   for (; offset != limit; offset++) {
-    if (walk(list, offset) != begin())
+    if (walk(list.begin(), list.end(), offset) != begin())
       return offset;
   }
   return limit;
