@@ -91,7 +91,11 @@ void LessStylesheet::putVariable(const std::string &key, const TokenList &value)
   mit = variables.find(key);
   
   if (mit != variables.end()) {
+#ifdef WITH_LIBGLOG
     LOG(WARNING) << "Variable " << key << " defined twice in same stylesheet.";
+#else
+    std::cerr << "Variable " << key << " defined twice in same stylesheet.";
+#endif
   }
   
   variables.insert(std::pair<std::string, TokenList>(key, value));  
