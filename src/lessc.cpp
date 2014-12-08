@@ -151,7 +151,11 @@ int main(int argc, char * argv[]){
         formatoutput = true;
         break;
       case 'v':
+#ifdef WITH_LIBGLOG
         FLAGS_v = atoi(optarg);
+#else
+        std::cerr << "Warning: -v flag not supported: lessc has to be compiled with libglog.\n";
+#endif
         break;
       }
     }

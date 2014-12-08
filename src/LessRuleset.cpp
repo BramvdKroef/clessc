@@ -118,7 +118,11 @@ void LessRuleset::putVariable(const std::string &key, const TokenList &value) {
   mit = variables.find(key);
   
   if (mit != variables.end()) {
+#ifdef WITH_LIBGLOG
     LOG(WARNING) << "Variable " << key << " defined twice in same ruleset.";
+#else
+    std::cerr << "Variable " << key << " defined twice in same ruleset.\n";
+#endif
   }
   
   variables.insert(pair<string, TokenList>(key, value));  
