@@ -49,7 +49,7 @@ AS_IF([test "x$with_libglog" != "xno"], [
     [AC_DEFINE(WITH_LIBGLOG, 1, [Compile with libglog])],
     [AC_MSG_FAILURE(
         [libglog not found, use configure with --without-libglog to disable
-        glog support])]
+        glog support (glog is only needed for debugging)])]
   )
 ])
 
