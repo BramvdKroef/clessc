@@ -142,7 +142,7 @@ file path",
       }
     }
     
-    atrule = stylesheet.createAtRule(keyword);
+    atrule = stylesheet.createLessAtRule(keyword);
     atrule->setRule(rule);
   }
   return true;

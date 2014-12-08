@@ -28,6 +28,7 @@
 #include "Mixin.h"
 #include "UnprocessedStatement.h"
 #include "ProcessingContext.h"
+#include "LessAtRule.h"
 
 #include <list>
 #include <map>
@@ -47,6 +48,7 @@ public:
 
   LessRuleset* createLessRuleset();
   Mixin* createMixin();
+  LessAtRule* createLessAtRule(std::string &keyword);
   LessMediaQuery* createLessMediaQuery();
 
   void deleteLessRuleset(LessRuleset &ruleset);

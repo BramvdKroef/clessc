@@ -243,6 +243,11 @@ void Stylesheet::addRuleset(Ruleset &ruleset) {
   addStatement(ruleset);
   rulesets.push_back(&ruleset);
 }
+void Stylesheet::addAtRule(AtRule &rule) {
+  addStatement(rule);
+  atrules.push_back(&rule);
+}
+
 
 Ruleset* Stylesheet::createRuleset() {
   Ruleset* r = new Ruleset();

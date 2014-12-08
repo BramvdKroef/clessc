@@ -144,6 +144,7 @@ private:
 protected:
   virtual void addStatement(StylesheetStatement &statement);
   virtual void addRuleset(Ruleset &ruleset);
+  virtual void addAtRule(AtRule &rule);
   void deleteStatement(StylesheetStatement &statement);
   
 public:

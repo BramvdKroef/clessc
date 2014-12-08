@@ -38,6 +38,13 @@ Mixin* LessStylesheet::createMixin() {
   return m;
 }
 
+LessAtRule* LessStylesheet::createLessAtRule(std::string &keyword) {
+  LessAtRule* atrule = new LessAtRule(keyword);
+  addAtRule(*atrule);
+  atrule->setLessStylesheet(*this);
+  return atrule;
+}
+
 LessMediaQuery* LessStylesheet::createLessMediaQuery() {
   LessMediaQuery* q = new LessMediaQuery();
   
