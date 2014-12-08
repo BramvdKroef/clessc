@@ -1,188 +1,300 @@
+#header {
+  color: #6c94be;
+}
+.class {
+  content: "I am f'nord. I am f'nord. ";
+}
+.bordered {
+  border-top: dotted 1px black;
+  border-bottom: solid 2px black;
+}
+#menu a {
+  color: #111;
+  border-top: dotted 1px black;
+  border-bottom: solid 2px black;
+}
+.post a {
+  color: red;
+  border-top: dotted 1px black;
+  border-bottom: solid 2px black;
+}
+#header {
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+}
+.button {
+  border-radius: 6px;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+}
+pre {
+  text-wrap: wrap;
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  word-wrap: break-word;
+}
+.some .selector div {
+  color-1: #008000;
+  color-2: #008000;
+  padding-2: 2;
+}
+.test mixin2a {
+  color: #000;
+}
+.test mixin2b {
+  color: rgba(0,0,0,0.5);
+}
+.class {
+  box-shadow: 2px 5px 1px #000;
+  -moz-box-shadow: 2px 5px 1px #000;
+  -webkit-box-shadow: 2px 5px 1px #000;
+  box-shadow: 4px 10px 2px #000;
+  -moz-box-shadow: 4px 10px 2px #000;
+  -webkit-box-shadow: 4px 10px 2px #000;
+  box-shadow: 8px 20px 1px #000;
+  -moz-box-shadow: 8px 20px 1px #000;
+  -webkit-box-shadow: 8px 20px 1px #000;
+}
+.test mixin3 {
+  border1: 1px #000 solid;
+  border2: 4px #000 solid;
+  border3: 4px #456 dashed;
+}
+#header {
+  color: black;
+}
+#header .navigation {
+  font-size: 12px;
+}
+#header .logo {
+  width: 300px;
+}
+#header .logo:hover {
+  text-decoration: none;
+}
+#header .logo:hover,
+#header .logo:focus {
+  text-decoration: none;
+}
+#header .logo h2 a {
+  height: 10px;
+}
+#header .logo a:hover {
+  text-decoration: underline;
+}
+#header .logo div,
+#header .logo span {
+  color: #FFF;
+}
+#header .class1 a,
+#header .class2 a {
+  font-weight: bold;
+}
+.class {
+  background-color: rgba(5,5,5,0);
+  width: 28px;
+  border: 18px solid black;
+  height: 60%;
+  top: 14em;
+  transform: rotate(45deg);
+  left: -3.636363636px;
+}
+.class {
+  color: #ed2c2c;
+  color: #a50e0e;
+  color: #e00606;
+  color: #c91d1d;
+  color: #d41212;
+  color: rgba(212,18,18,0.9);
+  color: #d43212;
+  color: #d41232;
+  color: #f1dada;
+  clip: rect(1px, 1px, 1px, 1px);
+  color: #1a1a1a;
+}
+#header a {
+  color: orange;
+  display: block;
+  border: 1px solid black;
+  background-color: grey;
+}
+#header a:hover {
+  background-color: white;
+}
+#header a span a {
+  display: none;
+}
+#header2 a {
+  display: block;
+  border: 1px solid black;
+  background-color: grey;
+}
+#header2 a:hover {
+  background-color: white;
+}
+#header2 a span a {
+  display: none;
+}
+#page #header {
+  color: white;
+}
+#footer {
+  color: red;
+}
 @import "lib.css";
-@media (width: 400px) {.test6 {width: 400px;}};
-#header{
-    color:#6c94be;
+.lib-test {
+  color: #123;
 }
-.class{
-    content:"I am f'nord. I am f'nord. ";
+.class {
+  background-image: url("http://assets.fnord.com/images/bg.png");
 }
-.bordered{
-    border-top:dotted 1px black;
-    border-bottom:solid 2px black;
+.class {
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png');
 }
-#menu a{
-    color:#111;
-    border-top:dotted 1px black;
-    border-bottom:solid 2px black;
+body {
+  background-image: linear-gradient(bottom, #e83f19 0%, #ff825f 50%);
+  width: 10-1;
+  x: 4 = 1;
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled='false',startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);
 }
-.post a{
-    color:red;
-    border-top:dotted 1px black;
-    border-bottom:solid 2px black;
+video {
+  *zoom: 1;
 }
-#header{
-    border-radius:4px;
-    -moz-border-radius:4px;
-    -webkit-border-radius:4px;
+audio:not([controls]) {
+  display: none;
 }
-.button{
-    border-radius:6px;
-    -moz-border-radius:6px;
-    -webkit-border-radius:6px;
+.class1 {
+  background-color: black;
+  color: #ddd;
 }
-pre{
-    text-wrap:wrap;
-    white-space:pre-wrap;
-    white-space:-moz-pre-wrap;
-    word-wrap:break-word;
+.class2 {
+  background-color: white;
+  color: #555;
 }
-.some .selector div{
-    color-1:#008000;
-    color-2:#008000;
-    padding-2:2;
+.class1a {
+  width: 10px;
 }
-.test mixin2a{
-    color:#000;
+h1 {
+  color: white;
+  height: 20px;
 }
-.test mixin2b{
-    color:rgba(0,0,0,0.5);
+body {
+  test2: 1px;
+  test1: 1px;
 }
-.class{
-    box-shadow:2px 5px 1px #000;
-    -moz-box-shadow:2px 5px 1px #000;
-    -webkit-box-shadow:2px 5px 1px #000;
-    box-shadow:4px 10px 2px #000;
-    -moz-box-shadow:4px 10px 2px #000;
-    -webkit-box-shadow:4px 10px 2px #000;
-    box-shadow:8px 20px 1px #000;
-    -moz-box-shadow:8px 20px 1px #000;
-    -webkit-box-shadow:8px 20px 1px #000;
+body footer,
+body .push {
+  height: 60px;
 }
-.test mixin3{
-    border1:1px #000 solid;
-    border2:4px #000 solid;
-    border3:4px #456 dashed;
+body header {
+  height: 90px;
 }
-#header{
-    color:black;
+.test5 {
+  background: url(test.png) no-repeat;
+  width: 265px;
+  height: 314px;
+  background-color: #fff;
+  width-jpg: 265px;
+  height-jpg: 314px;
+  background-color-jpg: #fff;
 }
-#header .navigation{
-    font-size:12px;
+@media (width: 400px) {
+  .test6 {
+    width: 400px;
+    color: #5B83AD;
+    border-top: dotted 1px black;
+    border-bottom: solid 2px black;
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+  }
+  .test6 h1 {
+    color: white;
+    height: 1px;
+  }
+  .test6 .test7 {
+    width: 100px;
+  }
+  h1 {
+    color: white;
+    height: 10px;
+  }
 }
-#header .logo{
-    width:300px;
+.blocked {
+  color: #000;
 }
-#header .logo:hover{
-    text-decoration:none;
+.class .blocked {
+  color: #FFF;
 }
-#header .logo:hover,#header .logo:focus{
-    text-decoration:none;
+.mixin-test7 {
+  -x-mixin8: 15;
 }
-#header .logo h2 a{
-    height:10px;
+div {
+  width: 10px;
+  width: 20px;
+  width: 30px;
+  width: 40px;
+  width: 50px;
 }
-#header .logo a:hover{
-    text-decoration:underline;
+.nested-loop-abc-3-2 {
+  c: 1;
 }
-#header .logo div,#header .logo span{
-    color:#FFF;
+.nested-loop-abc-3 {
+  c: 2;
 }
-#header .class1 a,#header .class2 a{
-    font-weight:bold;
+.nested-loop-abc {
+  c: 3;
 }
-.class{
-    background-color:#161616;
-    width:30px;
-    border:20px solid black;
-    height:60%;
-    top:15em;
+@media screen {
+  .test8 {
+    width: 300px;
+  }
 }
-.class{
-    color:#ed2c2c;
-    color:#a50e0e;
-    color:#e00606;
-    color:#c91d1d;
-    color:#d41212;
-    color:rgba(212,18,18,0.9);
-    color:#d43212;
-    color:#d41232;
-    color:#f1dada;
-    clip:rect(1px,1px,1px,1px);
-    color:#1a1a1a;
+@media screen and print {
+  .test8 {
+    color: #000;
+  }
 }
-#header a{
-    color:orange;
-    display:block;
-    border:1px solid black;
-    background-color:grey;
+.test9 {
+  color: #FFF;
 }
-#header a:hover{
-    background-color:white;
+.test10,
+.test10a,
+.test9,
+.test11,
+.test11a {
+  background-color: #000;
 }
-#header a span a{
-    display:none;
+.test10b,
+.test11a {
+  background-color: #111;
 }
-#page #header{
-    color:white;
+.test11 {
+  width: 100px;
 }
-#footer{
-    color:red;
+.test11b:a,
+div.test11b,
+.extension11b:a,
+div.extension11b {
+  height: 1px;
 }
-.lib-test{
-    color:#123;
+.mixin12 {
+  color: #010203;
 }
-.class{
-    background-image:url("http://assets.fnord.com/images/bg.png");
+.mixin13 {
+  background-image: -webkit-linear-gradient(left, #FFF 0%, #000 100%);
 }
-.class{
-    filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png');
+.test14:hover {
+  color: #FFF;
 }
-body{
-    background-image:linear-gradient(bottom,#e83f19 0%,#ff825f 50%);
-    width:10 -1;
-    filter:progid:DXImageTransform.Microsoft.gradient(enabled="false",startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0);
+p .test14 {
+  color: #123;
 }
-video{
-    *zoom:1;
+.test14.class > .test14[checked] {
+  color: #432;
 }
-audio:not([controls]){
-    display:none;
-}
-.class1{
-    background-color:black;
-    color:#ddd;
-}
-.class2{
-    background-color:white;
-    color:#555;
-}
-h1{
-    color:white;
-    height:20px;
-}
-body{
-    test2:1px;
-    test1:1px;
-}
-body footer,body .push{
-    height:60px;
-}
-body header{
-    height:90px;
-}
-.test5{
-    background:url(test.png) no-repeat;
-    width:265px;
-    height:314px;
-    background-color:#fff;
-    width-jpg:265px;
-    height-jpg:314px;
-    background-color-jpg:#fff;
-}
-.blocked{
-    color:#000;
-}
-.class .blocked{
-    color:#FFF;
+.class15 {
+  width: 1px solid blue;
 }
 

@@ -437,9 +437,24 @@ div {
 .test10a{
     background-color: #000;
 }
+.test10b {
+    background-color: #111;
+}
 .test11 {
     &:extend(.test10a);
     width: 100px;
+}
+
+.test11a:extend(.test10, .test10b) {}
+
+
+.test11b:a,
+div.test11b {
+    height: 1px;
+}
+
+.extension11b {
+    &:extend(.test11b all);
 }
 
 .test12 (@c: rgb(1,2,3); @b: 4) {
