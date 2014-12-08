@@ -26,6 +26,8 @@
 #include <glog/logging.h>
 #endif
 
+#include <libgen.h>
+
 /**
  * Only allows LessStylesheets
  */
@@ -376,17 +378,29 @@ UnprocessedStatement* LessParser::parseRulesetStatement (LessRuleset &ruleset) {
 
 void LessParser::importFile(const std::string &filename,
                             LessStylesheet &stylesheet) {
-  ifstream in(filename.c_str());
+  size_t pos = tokenizer->getSource().find_last_of("/\\");
+
+  std::string relative_filename;
+
+  // if the current stylesheet is outside of the current working
+  //  directory then add the directory to the filename.
+  if (pos != std::string::npos) {
+    relative_filename.append(tokenizer->getSource().substr(0, pos + 1));
+    relative_filename.append(filename);
+  } else
+    relative_filename = filename;
+  
+  ifstream in(relative_filename.c_str());
   if (in.fail() || in.bad())
-    throw new ParseException(filename, "existing file",
+    throw new ParseException(relative_filename, "existing file",
                              tokenizer->getLineNumber(),
                              tokenizer->getColumn(),
                              tokenizer->getSource());
 #ifdef WITH_LIBGLOG
-  VLOG(1) << "Opening: " << filename;
+  VLOG(1) << "Opening: " << relative_filename;
 #endif
   
-  LessTokenizer tokenizer(in, filename);
+  LessTokenizer tokenizer(in, relative_filename);
   LessParser parser(tokenizer);
 
 #ifdef WITH_LIBGLOG
