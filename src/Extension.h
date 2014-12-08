@@ -38,13 +38,13 @@ public:
   Extension(bool all);
   virtual ~Extension();
 
-  Selector* getTarget();
-  Selector* getExtension();
+  Selector& getTarget();
+  Selector& getExtension();
 
   void setExtension(Selector &selector);
 
-  void updateSelector(Selector& s);
-  void replaceInSelector(Selector &s);
+  void updateSelector(Selector& s) const;
+  void replaceInSelector(Selector &s) const;
 };
 
 #endif

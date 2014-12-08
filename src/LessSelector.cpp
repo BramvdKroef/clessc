@@ -104,7 +104,7 @@ bool LessSelector::parseExtension(Selector &selector, Selector &extension) {
       parentheses--;
     
     if (parentheses > 0) {
-      e.getTarget()->push_back(*i);
+      e.getTarget().push_back(*i);
     }
   }
   
