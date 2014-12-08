@@ -84,8 +84,8 @@ public:
 
   ProcessingContext* getContext();
   
-  void getExtensions(std::list<Extension> &extensions,
-                     Selector* prefix);
+  void processExtensions(ProcessingContext &context,
+                         Selector* prefix);
   
   virtual bool insert(Mixin* mixin, Ruleset &target,
                       ProcessingContext& context);

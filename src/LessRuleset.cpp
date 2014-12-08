@@ -150,41 +150,18 @@ ProcessingContext* LessRuleset::getContext() {
   return context;
 }
 
-void LessRuleset::getExtensions(std::list<Extension> &extensions,
-                                Selector* prefix) {
+void LessRuleset::processExtensions(ProcessingContext& context,
+                                    Selector* prefix) {
   
   std::list<Extension>& e = getLessSelector()->getExtensions();
   std::list<Extension>::iterator e_it;
-  std::list<UnprocessedStatement*>::iterator s_it;
   Extension extension;
 
-  std::list<LessRuleset*>& nestedRules = getNestedRules();
-  std::list<LessRuleset*>::iterator r_it;
-
   for (e_it = e.begin(); e_it != e.end(); e_it++) {
-    extensions.push_back(*e_it);
+    extension = *e_it;
     if (prefix != NULL) 
-      extensions.back().getExtension()->addPrefix(*prefix);
-  }
-
-  extension.setExtension(getSelector());
-  if (prefix != NULL)
-    extension.getExtension()->addPrefix(*prefix);
-  
-  // look through statements for extensions
-  for(s_it = getUnprocessedStatements().begin();
-      s_it != getUnprocessedStatements().end();
-      s_it++) {
-
-    if ((*s_it)->getExtension(*extension.getTarget())) {
-      extensions.push_back(extension);
-      extension.getTarget()->clear();
-    }
-  }
-
-  // look in nested rules
-  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
-    (*r_it)->getExtensions(extensions, extension.getExtension());
+      extension.getExtension().addPrefix(*prefix);
+    context.addExtension(extension);
   }
 }
 
@@ -293,6 +270,8 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
 
   context.interpolate(target->getSelector());
 
+  processExtensions(context, prefix);
+  
   insert(NULL, *target, context);
 }
 

@@ -70,16 +70,6 @@ void LessStylesheet::getLessRulesets(list<LessRuleset*> &rulesetList,
   }
 }
 
-void LessStylesheet::getExtensions(std::list<Extension> &extensions) {
-  std::list<LessRuleset*>::iterator i;
-  
-  for (i = lessrulesets.begin(); i != lessrulesets.end();
-       i++) {
-
-    (*i)->getExtensions(extensions, NULL);
-  }
-}
-
 void LessStylesheet::setContext(ProcessingContext* context) {
   this->context = context;
 }
@@ -102,7 +92,7 @@ void LessStylesheet::putVariable(const std::string &key, const TokenList &value)
 
 
 void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
-  std::list<Extension> extensions;
+  std::list<Extension>* extensions;
   
   std::list<Ruleset*>::iterator r_it;
   std::list<Extension>::iterator e_it;
@@ -117,13 +107,13 @@ void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
 
 
   // post processing
-  getExtensions(extensions);
+  extensions = &context.getExtensions();
 
   for (r_it = s.getRulesets().begin();
        r_it != s.getRulesets().end();
        r_it++) {
-    for (e_it = extensions.begin();
-         e_it != extensions.end();
+    for (e_it = extensions->begin();
+         e_it != extensions->end();
          e_it++) {
       (*e_it).updateSelector((*r_it)->getSelector());
     }

@@ -29,6 +29,7 @@
 #include "TokenList.h"
 #include "value/ValueScope.h"
 #include "value/ValueProcessor.h"
+#include "Extension.h"
 
 class LessRuleset;
 
@@ -37,6 +38,7 @@ private:
   const ValueScope* scopes;
   std::list<const LessRuleset*> rulesets;
   ValueProcessor processor;
+  std::list<Extension> extensions;
   
 public:
   ProcessingContext();
@@ -48,6 +50,9 @@ public:
   void pushRuleset(const LessRuleset &ruleset);
   void popRuleset();
   bool isInStack(const LessRuleset &ruleset);
+
+  void addExtension(Extension& extension);
+  std::list<Extension>& getExtensions();
 
   ValueProcessor* getValueProcessor();
 

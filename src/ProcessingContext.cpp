@@ -78,6 +78,13 @@ bool ProcessingContext::isInStack(const LessRuleset &ruleset) {
   return false;
 }
 
+void ProcessingContext::addExtension(Extension& extension){
+  extensions.push_back(extension);
+}
+std::list<Extension>& ProcessingContext::getExtensions() {
+  return extensions;
+}
+
 ValueProcessor* ProcessingContext::getValueProcessor() {
   return &processor;
 }

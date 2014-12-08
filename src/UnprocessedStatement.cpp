@@ -75,6 +75,7 @@ void UnprocessedStatement::insert(Stylesheet &s) {
 }
 
 void UnprocessedStatement::process(Ruleset &r) {
+  Extension extension;
   Mixin mixin;
   Declaration* declaration;
 
@@ -82,9 +83,12 @@ void UnprocessedStatement::process(Ruleset &r) {
   VLOG(2) << "Statement: " << getTokens()->toString();
 #endif
   
-  // skip if this is an extends() statement
-  if (isExtends()) 
+  // process extends statement
+  if (getExtension(extension.getTarget())) {
+    extension.setExtension(r.getSelector());
+    getLessRuleset()->getContext()->addExtension(extension);
     return;
+  }
   
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
   

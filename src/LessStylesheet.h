@@ -55,8 +55,6 @@ public:
   virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
                                const Mixin &mixin);
 
-  void getExtensions(std::list<Extension> &extensions);
-
   void setContext(ProcessingContext* context);
   virtual ProcessingContext* getContext();
   
