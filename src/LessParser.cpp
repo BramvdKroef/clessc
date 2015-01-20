@@ -84,6 +84,7 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
   string keyword, import;
   TokenList value, rule;
   AtRule* atrule = NULL;
+  size_t pathend;
   
   if (tokenizer->getTokenType() != Token::ATKEYWORD) 
     return false;
@@ -134,12 +135,15 @@ file path",
 #ifdef WITH_LIBGLOG
       VLOG(2) << "Import filename: " << import;
 #endif
-      if (import.size() < 5 ||
-          import.substr(import.size() - 5, 4) != ".css") {
-        if (import.size() < 6 || import.substr(import.size() - 6, 5) != ".less")
-          import.insert(import.size() - 1, ".less");
+      pathend = import.rfind('?');
+      if (pathend == std::string::npos)
+        pathend = import.size() - 1;
+      if (pathend < 4 ||
+          import.substr(pathend - 4, 4) != ".css") {
+        if (pathend < 5 || import.substr(pathend - 5, 5) != ".less")
+          import.insert(pathend, ".less");
         
-        importFile(import.substr(1, import.size() - 2), stylesheet);
+        importFile(import.substr(1, pathend), stylesheet);
         return true;
       }
     }
