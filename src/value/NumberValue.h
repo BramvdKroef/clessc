@@ -33,22 +33,24 @@ class NumberValue: public Value {
   static bool isNumber(const Value &val);
 
   void verifyUnits(const NumberValue &n);
-  bool convert(string unit);
+  double convert(const std::string &unit) const;
   
 public:
   NumberValue(Token &token);
+  NumberValue(double value);
   virtual ~NumberValue();
   
-  virtual Value* add(const Value &v);
-  virtual Value* substract(const Value &v);
-  virtual Value* multiply(const Value &v);
-  virtual Value* divide(const Value &v);
-  virtual int compare(const Value &v);
+  virtual Value* add(const Value &v) const;
+  virtual Value* substract(const Value &v) const;
+  virtual Value* multiply(const Value &v) const;
+  virtual Value* divide(const Value &v) const;
+
+  virtual BooleanValue* lessThan(const Value &v) const;
 
   void setType(const NumberValue &n);
   
   string getUnit() const;
-  void setUnit(string unit);
+  void setUnit(std::string unit);
   double getValue() const;
   void setValue(double d);
 

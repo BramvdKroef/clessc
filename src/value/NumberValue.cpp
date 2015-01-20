@@ -38,7 +38,11 @@ NumberValue::NumberValue(Token &token) {
     throw new ValueException("Token used for Value that isn't a number, percentage or dimension");
   }
 }
-
+NumberValue::NumberValue(double value) {
+  tokens.push_back(Token("", Token::NUMBER));
+  type = NUMBER;
+  setValue(value);
+}
 NumberValue::~NumberValue() {
 }
 
@@ -47,148 +51,144 @@ void NumberValue::verifyUnits(const NumberValue &n) {
       n.type == Value::DIMENSION &&
       getUnit().compare(n.getUnit()) != 0) {
     
-    if (convert(n.getUnit())) {
-      return;
-    } else
-      throw new ValueException("Can't do math on dimensions with different units.");
+    setValue(convert(n.getUnit()));
+    setUnit(n.getUnit());
   }
 }
 
-bool NumberValue::convert(string unit) {
+double NumberValue::convert(const std::string &unit) const {
   UnitValue::UnitGroup group = UnitValue::getUnitGroup(unit);
   double value = getValue();
-  
+
   if (UnitValue::getUnitGroup(getUnit()) == group) {
     
     switch(group) {
     case UnitValue::LENGTH:
       value = UnitValue::lengthToPx(value, getUnit());
-      setValue(UnitValue::pxToLength(value, unit));
-      setUnit(unit);
-      return true;
+      return UnitValue::pxToLength(value, unit);
 
     case UnitValue::TIME:
       value = UnitValue::timeToMs(value, getUnit());
-      setValue(UnitValue::msToTime(value, unit));
-      setUnit(unit);
-      return true;
+      return UnitValue::msToTime(value, unit);
 
     case UnitValue::ANGLE:
       value = UnitValue::angleToRad(value, getUnit());
-      setValue(UnitValue::radToAngle(value, unit));
-      setUnit(unit);
-      return true;
+      return UnitValue::radToAngle(value, unit);
       
     default:
-      break;
+      return value;
     }
-  }
-  return false;
+  } else
+    throw new ValueException("Can't do math on dimensions with different units.");
+
 }
 
-Value* NumberValue::add(const Value &v) {
-  Token t;
+Value* NumberValue::add(const Value &v) const {
   const NumberValue* n;
   const StringValue* s;
-  const Color* c;
-  Color* cret;
+  NumberValue* nret;
   StringValue* sret;
   
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
+    nret = new NumberValue(getValue());
     if (type == NUMBER) 
-      setType(*n);
-    else
-      verifyUnits(*n);
+      nret->setType(*n);
+    else {
+      nret->setType(*this);
+      nret->verifyUnits(*n);
+    }
+    nret->setValue(nret->getValue() + n->getValue());
     
-    setValue(getValue() + n->getValue());
-    return this;
+    return nret;
     
   } else if (v.type == COLOR) {
-    c = static_cast<const Color*>(&v);
-    cret = new Color(*c);
-    return cret->add(*this);
+    return static_cast<const Color*>(&v)->add(*this);
     
   } else if (v.type == STRING) {
-    t = this->tokens.front();
-    t.type = Token::STRING;
     s = static_cast<const StringValue*>(&v);
-    
-    sret = new StringValue(t, s->getQuotes());
-    return sret->add(v);
+    sret = new StringValue(*this, s->getQuotes());
+    sret->append(v);
+    return sret;
+
   } else {
     throw new ValueException("Unsupported type.");
   }
 }
-Value* NumberValue::substract(const Value &v) {
+Value* NumberValue::substract(const Value &v) const {
   const NumberValue* n;
+  NumberValue* ret;
   
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
-    if (type == NUMBER) 
-      setType(*n);
-    else
-      verifyUnits(*n);
+    ret = new NumberValue(getValue());
     
-    setValue(getValue() - n->getValue());
-    return this;
+    if (type == NUMBER) 
+      ret->setType(*n);
+    else {
+      ret->setType(*this);
+      ret->verifyUnits(*n);
+    }
+    ret->setValue(ret->getValue() - n->getValue());
+    return ret;
   } else
     throw new ValueException("You can only substract a *number* from a number.");
 }
-Value* NumberValue::multiply(const Value &v) {
+Value* NumberValue::multiply(const Value &v) const {
   const NumberValue* n;
-  const Color* c;
-  const StringValue* s;
-  Color* cret;
-  StringValue* sret;
+  NumberValue* ret;
   
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
+    ret = new NumberValue(getValue());
+    
     if (type == NUMBER) 
-      setType(*n);
-    else
-      verifyUnits(*n);
-    setValue(getValue() * n->getValue());
-    return this;
+      ret->setType(*n);
+    else {
+      ret->setType(*this);
+      ret->verifyUnits(*n);
+    }
+    ret->setValue(ret->getValue() * n->getValue());
+    return ret;
 
   } else if (v.type == COLOR) {
-    c = static_cast<const Color*>(&v);
-    cret = new Color(*c);
-    return cret->multiply(*this);
+    return static_cast<const Color*>(&v)->multiply(*this);
     
   } else if(v.type == STRING) {
-    s = static_cast<const StringValue*>(&v);
-    sret = new StringValue(*s);
-    return sret->multiply(*this);
+    return static_cast<const StringValue*>(&v)->multiply(*this);
 
   } else {
     throw new ValueException("Unsupported type.");
   }
 }
 
-Value* NumberValue::divide(const Value &v) {
+Value* NumberValue::divide(const Value &v) const {
   const NumberValue* n;
-  
+  NumberValue* ret;
+
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
+    ret = new NumberValue(getValue());
     
     if (type == NUMBER) 
-      setType(*n);
-    else
-      verifyUnits(*n);
-    setValue(getValue() / n->getValue());
-    return this;
+      ret->setType(*n);
+    else {
+      ret->setType(*this);
+      ret->verifyUnits(*n);
+    }
+    ret->setValue(ret->getValue() / n->getValue());
+    
+    return ret;
   } else
     throw new ValueException("You can only divide a number by a *number*.");
 }
-int NumberValue::compare(const Value &v) {
+
+BooleanValue* NumberValue::lessThan(const Value &v) const {
   const NumberValue* n;
-  
+
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
-    
-    verifyUnits(*n);
-    return getValue() - n->getValue();
+    return new BooleanValue(convert(n->getUnit()) < n->getValue());
   } else {
     throw new ValueException("You can only compare a number with a *number*.");
   }
@@ -498,6 +498,7 @@ Value* NumberValue::convert(vector<Value*> args) {
   else
     unit.append(((UnitValue*)args[1])->getUnit());
 
-  val->convert(unit);
+  val->setValue(val->convert(unit));
+  val->setUnit(unit);
   return val;
 }

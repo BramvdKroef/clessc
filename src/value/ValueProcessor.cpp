@@ -217,9 +217,9 @@ Value* ValueProcessor::processStatement(TokenList &value, const ValueScope& scop
     return NULL;
 }
 
-Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
+Value* ValueProcessor::processOperator(TokenList &value, const Value &operand1,
                                        const ValueScope &scope, Token* lastop) {
-  Value* v2, *tmp;
+  Value* operand2, *result;
   Token op;
   std::string operators("+-*/=><");
   size_t pos;
@@ -251,8 +251,8 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
 
   value.ltrim();
   
-  v2 = processConstant(value, scope);
-  if (v2 == NULL) {
+  operand2 = processConstant(value, scope);
+  if (operand2 == NULL) {
     if (value.size() > 0) 
       throw new ParseException(value.front(),
                                "Constant or @-variable", 0, 0, "");
@@ -263,35 +263,34 @@ Value* ValueProcessor::processOperator(TokenList &value, Value &v1,
 
   value.ltrim();
   
-  while ((tmp = processOperator(value, *v2, scope, &op))) {
-    if (tmp != v2) {
-      delete v2;
-      v2 = tmp;
-    }
+  while ((result = processOperator(value, *operand2, scope, &op))) {
+    delete operand2;
+    operand2 = result;
+    
     value.ltrim();
   }
   
   if (op == "+") 
-    tmp = v1.add(*v2);
+    result = operand1.add(*operand2);
   else if (op == "-")
-    tmp = v1.substract(*v2);
+    result = operand1.substract(*operand2);
   else if (op == "*")
-    tmp = v1.multiply(*v2);
+    result = operand1.multiply(*operand2);
   else if (op == "/")
-    tmp = v1.divide(*v2);
+    result = operand1.divide(*operand2);
   else if (op == "=")
-    tmp = v1.equals(*v2);
+    result = operand1.equals(*operand2);
   else if (op == "<")
-    tmp = v1.lessThan(*v2);
+    result = operand1.lessThan(*operand2);
   else if (op == ">")
-    tmp = v1.greaterThan(*v2);
+    result = operand1.greaterThan(*operand2);
   else if (op == "=<")
-    tmp = v1.lessThanEquals(*v2);
+    result = operand1.lessThanEquals(*operand2);
   else if (op == ">=") 
-    tmp = v1.greaterThanEquals(*v2);
+    result = operand1.greaterThanEquals(*operand2);
   
-  delete v2;
-  return tmp;
+  delete operand2;
+  return result;
 }
 Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope) {
   Token token;

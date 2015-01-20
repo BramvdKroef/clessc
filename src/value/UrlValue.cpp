@@ -67,27 +67,44 @@ UrlValue::UrlValue(Token &token, std::string &path): Value() {
 UrlValue::~UrlValue() {
 }
 
-Value* UrlValue::add(const Value &v) {
+std::string UrlValue::getPath() const {
+  return path;
+}
+
+Value* UrlValue::add(const Value &v) const {
   (void)v;
   throw new ValueException("You can not add urls.");
 }
-Value* UrlValue::substract(const Value &v) {
+Value* UrlValue::substract(const Value &v) const {
   (void)v;
   throw new ValueException("You can not substract urls.");
 }
-Value* UrlValue::multiply(const Value &v) {
+Value* UrlValue::multiply(const Value &v) const {
   (void)v;
   throw new ValueException("You can not multiply urls.");
 }
-Value* UrlValue::divide(const Value &v) {
+Value* UrlValue::divide(const Value &v) const {
   (void)v;
   throw new ValueException("You can not divide urls.");
 }
-int UrlValue::compare(const Value &v) {
+
+BooleanValue* UrlValue::lessThan(const Value &v) const {
+  const UrlValue* u;
   if (v.type == URL) {
-    return 0;
+    u = static_cast<const UrlValue*>(&v);
+    return new BooleanValue(path < u->getPath());
   } else {
-    throw new ValueException("You can only compare images with images.");
+    throw new ValueException("You can only compare urls with urls.");
+  }
+}
+BooleanValue* UrlValue::equals(const Value &v) const {
+  const UrlValue* u;
+  
+  if (v.type == URL) {
+    u = static_cast<const UrlValue*>(&v);
+    return new BooleanValue(path == u->getPath());
+  } else {
+    throw new ValueException("You can only compare urls with urls.");
   }
 }
 

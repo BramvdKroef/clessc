@@ -33,7 +33,7 @@ const char* UnitValue::getUnit() const {
   return tokens.front().c_str();
 }
 
-Value* UnitValue::add(const Value &v) {
+Value* UnitValue::add(const Value &v) const {
   Token t;
   const StringValue* s;
   StringValue* ret;
@@ -48,27 +48,35 @@ Value* UnitValue::add(const Value &v) {
   }
   throw new ValueException("Can't do math on unit types.");
 }
-Value* UnitValue::substract(const Value &v) {
+Value* UnitValue::substract(const Value &v) const {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
-Value* UnitValue::multiply(const Value &v) {
+Value* UnitValue::multiply(const Value &v) const {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
-Value* UnitValue::divide(const Value &v) {
+Value* UnitValue::divide(const Value &v) const {
   (void)v;
   throw new ValueException("Can't do math on unit types.");
 }
-int UnitValue::compare(const Value &v) {
+
+BooleanValue* UnitValue::lessThan(const Value &v) const {
   const UnitValue* u;
-  string unit1, unit2;
   
   if (v.type == UNIT) {
     u = static_cast<const UnitValue*>(&v);
-    unit1.append(getUnit());
-    unit2.append(u->getUnit());
-    return unit1.compare(unit2);
+    return new BooleanValue(getUnit() < u->getUnit());
+  } else {
+    throw new ValueException("You can only compare a unit with a *unit*.");
+  }
+}
+BooleanValue* UnitValue::equals(const Value &v) const {
+  const UnitValue* u;
+  
+  if (v.type == UNIT) {
+    u = static_cast<const UnitValue*>(&v);
+    return new BooleanValue(getUnit() == u->getUnit());
   } else {
     throw new ValueException("You can only compare a unit with a *unit*.");
   }

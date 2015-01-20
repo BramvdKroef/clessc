@@ -29,9 +29,26 @@ StringValue::StringValue(Token &token, bool quotes) {
   type = Value::STRING;
 }
 
+StringValue::StringValue(std::string &str, bool quotes) {
+  Token t(str, Token::STRING);
+  StringValue(t, quotes);
+}
+
 StringValue::StringValue(const StringValue &s) {
   Token t = s.getTokens()->front();
   StringValue(t, s.getQuotes());
+}
+
+StringValue::StringValue(const Value &val, bool quotes) {
+  std::string s;
+  
+  if (val.type == STRING) {
+    StringValue(*static_cast<const StringValue*>(&val));
+    this->quotes = quotes;
+  } else {
+    s = val.getTokens()->toString();
+    StringValue(s, quotes);
+  }
 }
 
 StringValue::~StringValue() {
@@ -72,28 +89,31 @@ bool StringValue::getQuotes() const {
   return quotes;
 }
 
-Value* StringValue::add(const Value &v) {
-  string newstr = stringvalue;
+void StringValue::append(const Value &v) {
   const StringValue* s;
   
-  if (v.type == Value::STRING) {
+  if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
-
-    newstr.append(s->getString());
-  } else
-    newstr.append(v.getTokens()->toString());
-  
-  setString(newstr);
-  
-  return this;
+    stringvalue += s->getString();
+  } else {
+    stringvalue += v.getTokens()->toString();
+  }
+  updateTokens();
 }
 
-Value* StringValue::substract(const Value &v) {
+
+Value* StringValue::add(const Value &v) const {
+  StringValue* sv = new StringValue(*this);
+  sv->append(v);
+  return sv;
+}
+
+Value* StringValue::substract(const Value &v) const {
   (void)v;
   throw new ValueException("Can't substract from strings.");
 }
-Value* StringValue::multiply(const Value &v) {
-  string newstr;
+Value* StringValue::multiply(const Value &v) const {
+  std::string newstr;
   double i;
   const NumberValue* n;
   
@@ -106,26 +126,34 @@ Value* StringValue::multiply(const Value &v) {
   for (i = 0; i < n->getValue(); i++) {
     newstr.append(stringvalue);
   }
-  setString(newstr);
-  return this;
+  return new StringValue(newstr, getQuotes());
 }
 
-Value* StringValue::divide(const Value &v) {
+Value* StringValue::divide(const Value &v) const {
   (void)v;
   throw new ValueException("Can't divide strings.");
 }
 
-int StringValue::compare(const Value &v) {
+BooleanValue* StringValue::equals(const Value &v) const {
   const StringValue* s;
   
   if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
-    return getString().compare(s->getString());
+    return new BooleanValue(getString() == s->getString());
   } else {
     throw new ValueException("You can only compare a string with a *string*.");
   }
 }
-
+BooleanValue* StringValue::lessThan(const Value &v) const {
+  const StringValue* s;
+  
+  if (v.type == STRING) {
+    s = static_cast<const StringValue*>(&v);
+    return new BooleanValue(getString() < s->getString());
+  } else {
+    throw new ValueException("You can only compare a string with a *string*.");
+  }
+}
 
 string StringValue::escape(string rawstr, string extraUnreserved) {
   string unreservedChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");

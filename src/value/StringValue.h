@@ -39,7 +39,10 @@ private:
 public:
   StringValue(Token &token);
   StringValue(Token &token, bool quotes);
+  StringValue(std::string &str, bool quotes);
   StringValue(const StringValue &s);
+  StringValue(const Value &val, bool quotes);
+  
   virtual ~StringValue();
   
   string getString() const;
@@ -47,12 +50,16 @@ public:
   
   void setQuotes(bool quotes);
   bool getQuotes() const;
-  
-  virtual Value* add(const Value &v);
-  virtual Value* substract(const Value &v);
-  virtual Value* multiply(const Value &v);
-  virtual Value* divide(const Value &v);
-  virtual int compare(const Value &v);
+
+  void append(const Value &v);
+
+  virtual Value* add(const Value &v) const;
+  virtual Value* substract(const Value &v) const;
+  virtual Value* multiply(const Value &v) const;
+  virtual Value* divide(const Value &v) const;
+
+  virtual BooleanValue* equals(const Value &v) const;
+  virtual BooleanValue* lessThan(const Value &v) const;
 
   static string escape(string rawstr, string extraUnreserved = "");
 

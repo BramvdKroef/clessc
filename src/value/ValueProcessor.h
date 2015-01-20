@@ -46,7 +46,7 @@ private:
 
   Value* processStatement(TokenList& value, const ValueScope &scope);
 
-  Value* processOperator(TokenList& value, Value &v1,
+  Value* processOperator(TokenList& value, const Value &operand1,
                          const ValueScope &scope, Token* lastop = NULL);
 
   Value* processConstant(TokenList &value, const ValueScope& scope);

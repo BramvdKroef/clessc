@@ -24,6 +24,10 @@
 #include <sstream>
 #include <iostream>
 
+#define max(x,y) x > y ? x : y
+#define min(x,y) x < y ? x : y
+
+
 template <class T>
 inline std::string to_string (const T& t)
 {
@@ -157,126 +161,136 @@ Color::Color(const Color &color) {
 Color::~Color() {
 }
 
-Value* Color::add(const Value &v) {
+Value* Color::add(const Value &v) const {
   const Color* c;
   const NumberValue* n;
   const StringValue* s;
   StringValue* ret;
-  string str;
-  Token t;
   
-  if (v.type == COLOR) {
+  switch (v.type) {
+  case COLOR:
     c = static_cast<const Color*>(&v);
-    color[RGB_RED] += c->getRed();
-    color[RGB_GREEN] += c->getGreen();
-    color[RGB_BLUE] += c->getBlue();
-  } else if (v.type == NUMBER ||
-             v.type == PERCENTAGE ||
-             v.type == DIMENSION) {
+    return new Color(color[RGB_RED] + c->getRed(),
+                     color[RGB_GREEN] + c->getGreen(),
+                     color[RGB_BLUE] + c->getBlue());
+  case NUMBER:
+  case PERCENTAGE:
+  case DIMENSION:
     n = static_cast<const NumberValue*>(&v);
-    color[RGB_RED] += n->getValue();
-    color[RGB_GREEN] += n->getValue();
-    color[RGB_BLUE] += n->getValue();
-  } else if(v.type == STRING) {
+    return new Color(color[RGB_RED] + n->getValue(),
+                     color[RGB_GREEN] + n->getValue(),
+                     color[RGB_BLUE] + n->getValue());
+
+  case STRING:
     s = static_cast<const StringValue*>(&v);
-    str = this->getTokens()->toString();
-    t = Token(str, Token::STRING);
-    ret = new StringValue(t, s->getQuotes());
-    ret->add(v);
+    ret = new StringValue(*this, s->getQuotes());
+    ret->append(*s);
     return ret;
+    
+  default:
+    throw new ValueException("You can only add colors with other \
+colors, numbers or strings.");
   }
-  updateTokens();
-  return this;
 }
-Value* Color::substract(const Value &v) {
+Value* Color::substract(const Value &v) const {
   const Color* c;
   const NumberValue* n;
   
-  if (v.type == COLOR) {
+  switch (v.type) {
+  case COLOR:
     c = static_cast<const Color*>(&v);
-    color[RGB_RED] = color[RGB_RED] > c->getRed() ?
-      color[RGB_RED] - c->getRed() : 0;
-    color[RGB_GREEN] = color[RGB_GREEN] > c->getGreen() ?
-      color[RGB_GREEN] - c->getGreen() : 0;
-    color[RGB_BLUE] = color[RGB_BLUE] > c->getBlue() ?
-      color[RGB_BLUE] - c->getBlue() : 0;
-  } else if (v.type == Value::NUMBER ||
-             v.type == Value::PERCENTAGE ||
-             v.type == Value::DIMENSION) {
+    return new Color(max(color[RGB_RED] - c->getRed(), 0),
+                     max(color[RGB_GREEN] - c->getGreen(), 0),
+                     max(color[RGB_BLUE] - c->getBlue(), 0));
+
+  case NUMBER:
+  case PERCENTAGE:
+  case DIMENSION:
     n = static_cast<const NumberValue*>(&v);
-    color[RGB_RED] -= n->getValue();
-    color[RGB_GREEN] -= n->getValue();
-    color[RGB_BLUE] -= n->getValue();
-  } else {
+
+    return new Color(max(color[RGB_RED] - n->getValue(), 0),
+                     max(color[RGB_GREEN] - n->getValue(), 0),
+                     max(color[RGB_BLUE] - n->getValue(), 0));
+  default:
     throw new ValueException("You can only substract a color or \
 a number from a color.");
   }
-  updateTokens();
-  return this;
 }
 
-Value* Color::multiply(const Value &v) {
+Value* Color::multiply(const Value &v) const {
   const Color* c;
   const NumberValue* n;
-  int result;
   
-  if (v.type == COLOR) {
+  switch (v.type) {
+  case COLOR:
     c = static_cast<const Color*>(&v);
-    result = color[RGB_RED] * c->getRed();
-    color[RGB_RED] = max(min(result, 255), 0);
-    result = color[RGB_GREEN] * c->getGreen();
-    color[RGB_GREEN] = max(min(result, 255), 0);
-    result = color[RGB_BLUE] * c->getBlue();
-    color[RGB_BLUE] = max(min(result, 255), 0);
-  } else if (v.type == Value::NUMBER ||
-             v.type == Value::PERCENTAGE ||
-             v.type == Value::DIMENSION) {
+
+    return new Color(max(color[RGB_RED] * c->getRed(), 255),
+                     max(color[RGB_GREEN] * c->getGreen(), 255),
+                     max(color[RGB_BLUE] * c->getBlue(), 255));
+  case NUMBER:
+  case PERCENTAGE:
+  case DIMENSION:
     n = static_cast<const NumberValue*>(&v);
-    color[RGB_RED] *= n->getValue();
-    color[RGB_GREEN] *= n->getValue();
-    color[RGB_BLUE] *= n->getValue();
-  } else {
+    return new Color(max(color[RGB_RED] * n->getValue(), 255),
+                     max(color[RGB_GREEN] * n->getValue(), 255),
+                     max(color[RGB_BLUE] * n->getValue(), 255));
+
+  default:
     throw new ValueException("You can only multiply a color by a \
 color or a number.");
   }
-
-  updateTokens();
-  return this;
 }
-Value* Color::divide(const Value &v) {
+Value* Color::divide(const Value &v) const {
   const Color* c;
   const NumberValue* n;
   
-  if (v.type == COLOR) {
+  switch (v.type) {
+  case COLOR:
     c = static_cast<const Color*>(&v);
-    color[RGB_RED] /= c->getRed();
-    color[RGB_GREEN] /= c->getGreen();
-    color[RGB_BLUE] /= c->getBlue();
-  } else if (v.type == Value::NUMBER ||
-             v.type == Value::PERCENTAGE ||
-             v.type == Value::DIMENSION){
+    return new Color(color[RGB_RED] / c->getRed(),
+                     color[RGB_GREEN] / c->getGreen(),
+                     color[RGB_BLUE] / c->getBlue());
+  case NUMBER:
+  case PERCENTAGE:
+  case DIMENSION:
     n = static_cast<const NumberValue*>(&v);
-    color[RGB_RED] /= n->getValue();
-    color[RGB_GREEN] /= n->getValue();
-    color[RGB_BLUE] /= n->getValue();
-  } else {
+    return new Color(color[RGB_RED] / n->getValue(),
+                     color[RGB_GREEN] / n->getValue(),
+                     color[RGB_BLUE] / n->getValue());
+  default:
     throw new ValueException("You can only divide a color by a \
 color or a number.");
   }
-
-  updateTokens();
-  return this;
 }
 
-int Color::compare(const Value &v) {
+BooleanValue* Color::equals(const Value &v) const {
   const Color* c;
-  
-  if (v.type == COLOR) {
+
+  switch(v.type) {
+  case COLOR:
     c = static_cast<const Color*>(&v);
-    return (color[RGB_RED] + color[RGB_GREEN] + color[RGB_BLUE]) -
-      (c->getRed() + c->getGreen() + c->getBlue());
-  } else {
+    return new BooleanValue(color[RGB_RED] == c->getRed() &&
+                            color[RGB_GREEN] == c->getGreen() &&
+                            color[RGB_BLUE] == c->getBlue());
+  default:
     throw new ValueException("You can only compare a color with a *color*.");
+
+  }
+}
+
+BooleanValue* Color::lessThan(const Value &v) const {
+  const Color* c;
+
+  switch(v.type) {
+  case COLOR:
+    c = static_cast<const Color*>(&v);
+    return new BooleanValue(color[RGB_RED] < c->getRed() ||
+                            color[RGB_GREEN] < c->getGreen() ||
+                            color[RGB_BLUE] < c->getBlue());
+  default:
+    throw new ValueException("You can only compare a color with a *color*.");
+
   }
 }
     

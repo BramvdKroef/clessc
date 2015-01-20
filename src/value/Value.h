@@ -25,10 +25,8 @@
 #include "../Token.h"
 #include "../TokenList.h"
 #include "ValueException.h"
-#include <sstream>
 
-using namespace std;
-
+class BooleanValue;
 
 /**
  * 
@@ -46,17 +44,17 @@ public:
   
   virtual const TokenList* getTokens() const;
   
-  virtual Value* add(const Value &v) =0;
-  virtual Value* substract(const Value &v) =0;
-  virtual Value* multiply(const Value &v) =0;
-  virtual Value* divide(const Value &v) =0;
-  virtual int compare(const Value &v) =0;
-  
-  Value* equals(const Value &v);
-  Value* lessThan(const Value &v);
-  Value* greaterThan(const Value &v);
-  Value* lessThanEquals(const Value &v);
-  Value* greaterThanEquals(const Value &v);
+  virtual Value* add(const Value &v) const =0;
+  virtual Value* substract(const Value &v) const =0;
+  virtual Value* multiply(const Value &v) const =0;
+  virtual Value* divide(const Value &v) const =0;
+
+  virtual BooleanValue* lessThan(const Value &v) const;
+  virtual BooleanValue* equals(const Value &v) const;
+
+  BooleanValue* greaterThan(const Value &v) const;
+  BooleanValue* lessThanEquals(const Value &v) const;
+  BooleanValue* greaterThanEquals(const Value &v) const;
 
   static const char* typeToString(const Type &t);
   /**
