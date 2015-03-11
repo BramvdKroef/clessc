@@ -45,6 +45,7 @@ public:
   virtual Value* multiply(const Value &v) const;
   virtual Value* divide(const Value &v) const;
 
+  virtual BooleanValue* equals(const Value &v) const;
   virtual BooleanValue* lessThan(const Value &v) const;
 
   void setType(const NumberValue &n);

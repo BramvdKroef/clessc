@@ -122,14 +122,16 @@ Value* NumberValue::substract(const Value &v) const {
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
     ret = new NumberValue(getValue());
-    
+
     if (type == NUMBER) 
       ret->setType(*n);
     else {
       ret->setType(*this);
       ret->verifyUnits(*n);
     }
+
     ret->setValue(ret->getValue() - n->getValue());
+
     return ret;
   } else
     throw new ValueException("You can only substract a *number* from a number.");
@@ -181,6 +183,17 @@ Value* NumberValue::divide(const Value &v) const {
     return ret;
   } else
     throw new ValueException("You can only divide a number by a *number*.");
+}
+
+BooleanValue* NumberValue::equals(const Value &v) const {
+  const NumberValue* n;
+
+  if (isNumber(v)) {
+    n = static_cast<const NumberValue*>(&v);
+    return new BooleanValue(convert(n->getUnit()) == n->getValue());
+  } else {
+    throw new ValueException("You can only compare a number with a *number*.");
+  }
 }
 
 BooleanValue* NumberValue::lessThan(const Value &v) const {
