@@ -31,7 +31,7 @@
 
 class StringValue: public Value {
 private:
-  string stringvalue;
+  std::string strvalue;
   bool quotes;
 
   void updateTokens();
@@ -45,8 +45,8 @@ public:
   
   virtual ~StringValue();
   
-  string getString() const;
-  void setString(string stringValue);
+  std::string getString() const;
+  void setString(const std::string &stringValue);
   
   void setQuotes(bool quotes);
   bool getQuotes() const;

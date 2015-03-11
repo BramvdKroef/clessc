@@ -21,34 +21,53 @@
 
 #include "StringValue.h"
 
+#include <config.h>
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 
 StringValue::StringValue(Token &token, bool quotes) {
-  this->tokens.push_back(token);
-  this->quotes = quotes;
-  stringvalue = tokens.front();
   type = Value::STRING;
+  
+  tokens.push_back(token);
+  this->quotes = quotes;
+  setString(token);
 }
 
 StringValue::StringValue(std::string &str, bool quotes) {
-  Token t(str, Token::STRING);
-  StringValue(t, quotes);
+  Token token(str, Token::STRING);
+  
+  type = Value::STRING;
+  tokens.push_back(token);
+  this->quotes = quotes;
+  setString(token);
 }
 
 StringValue::StringValue(const StringValue &s) {
-  Token t = s.getTokens()->front();
-  StringValue(t, s.getQuotes());
+  Token token(s.getString(), Token::STRING);
+
+  type = Value::STRING;
+  tokens.push_back(token);
+  this->quotes = quotes;
+  setString(token);
 }
 
 StringValue::StringValue(const Value &val, bool quotes) {
-  std::string s;
+  const StringValue* sval;
+  Token token;
   
   if (val.type == STRING) {
-    StringValue(*static_cast<const StringValue*>(&val));
-    this->quotes = quotes;
+    sval = static_cast<const StringValue*>(&val);
+    token = Token(sval->getString(), Token::STRING);
   } else {
-    s = val.getTokens()->toString();
-    StringValue(s, quotes);
+    token = Token(val.getTokens()->toString(), Token::STRING);
   }
+
+  type = Value::STRING;
+  tokens.push_back(token);
+  this->quotes = quotes;
+  setString(token);
 }
 
 StringValue::~StringValue() {
@@ -56,13 +75,13 @@ StringValue::~StringValue() {
 
 
 void StringValue::updateTokens() {
-  string::iterator i;
-  string newstr;
+  std::string::iterator i;
+  std::string newstr;
 
   if (quotes) {
     // add quotes
     newstr.push_back('"');
-    for (i = stringvalue.begin(); i != stringvalue.end(); i++) {
+    for (i = strvalue.begin(); i != strvalue.end(); i++) {
       if (*i == '"') 
         newstr.push_back('\\');
       newstr.push_back(*i);
@@ -70,14 +89,15 @@ void StringValue::updateTokens() {
     newstr.push_back('"');
     tokens.front() = newstr;
   } else
-    tokens.front() = stringvalue;
+    tokens.front() = strvalue;
 }
 
-string StringValue::getString() const {
-  return stringvalue;
+std::string StringValue::getString() const {
+  return strvalue;
 }
-void StringValue::setString(string stringValue) {
-  this->stringvalue = stringValue;
+void StringValue::setString(const std::string &newValue) {
+  std::string s = newValue;
+  this->strvalue = s;
   updateTokens();
 }
   
@@ -91,13 +111,14 @@ bool StringValue::getQuotes() const {
 
 void StringValue::append(const Value &v) {
   const StringValue* s;
-  
+
   if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
-    stringvalue += s->getString();
+    strvalue.append(s->getString());
   } else {
-    stringvalue += v.getTokens()->toString();
+    strvalue.append(v.getTokens()->toString());
   }
+
   updateTokens();
 }
 
@@ -124,7 +145,7 @@ Value* StringValue::multiply(const Value &v) const {
   n = static_cast<const NumberValue*>(&v);
   
   for (i = 0; i < n->getValue(); i++) {
-    newstr.append(stringvalue);
+    newstr.append(strvalue);
   }
   return new StringValue(newstr, getQuotes());
 }
