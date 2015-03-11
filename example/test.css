@@ -491,6 +491,8 @@ div.test11b {
     .test15(~"1px solid blue");
 }
 
+@import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

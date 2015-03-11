@@ -92,7 +92,7 @@ pre {
   font-weight: bold;
 }
 .class {
-  background-color: rgba(5,5,5,0);
+  background-color: #161616;
   width: 28px;
   border: 18px solid black;
   height: 60%;
@@ -297,4 +297,4 @@ p .test14 {
 .class15 {
   width: 1px solid blue;
 }
-
+@import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
