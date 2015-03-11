@@ -81,7 +81,8 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
 }
 
 bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
-  string keyword, import;
+  string keyword;
+  Token import;
   TokenList value, rule;
   AtRule* atrule = NULL;
   size_t pathend;
@@ -123,27 +124,40 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
       skipWhitespace();
     }
     // parse import
-    if (keyword == "@import") {
-      if (rule.size() != 1 ||
-          rule.front().type != Token::STRING)
+    if (keyword == "@import" && rule.size() > 0) {
+
+      if (rule.front().type == Token::URL) {
+        import = rule.front().getUrlString();
+        
+      } else if (rule.front().type == Token::STRING) {
+        import = rule.front();
+        import.removeQuotes();
+        
+      } else {
         throw new ParseException(rule.toString(), "A string with the \
 file path",
                                  tokenizer->getLineNumber(),
                                  tokenizer->getColumn(),
                                  tokenizer->getSource());
-      import = rule.front();
+      }
+        
+
 #ifdef WITH_LIBGLOG
       VLOG(2) << "Import filename: " << import;
 #endif
+      
       pathend = import.rfind('?');
       if (pathend == std::string::npos)
-        pathend = import.size() - 1;
+        pathend = import.size();
       if (pathend < 4 ||
-          import.substr(pathend - 4, 4) != ".css") {
-        if (pathend < 5 || import.substr(pathend - 5, 5) != ".less")
+          (import.substr(pathend - 4, 4) != ".css" &&
+           import.substr(0, 7) != "http://")) {
+        if (pathend < 5 || import.substr(pathend - 5, 5) != ".less") {
           import.insert(pathend, ".less");
+          pathend += 5;
+        }
         
-        importFile(import.substr(1, pathend), stylesheet);
+        importFile(import.substr(0, pathend), stylesheet);
         return true;
       }
     }
