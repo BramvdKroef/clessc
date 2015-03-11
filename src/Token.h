@@ -42,6 +42,28 @@ public:
    */
   void clear ();
 
+  /**
+   * Returns true if the token string starts with a " or a '.
+   */
+  bool stringHasQuotes() const;
+  
+  /**
+   * Removes quotes from STRING tokens.
+   */
+  void removeQuotes();
+
+  /**
+   * Removes quotes from given parameter str.
+   */
+  void removeQuotes(std::string &str) const;
+
+  /**
+   * Returns the value from URL tokens with quotes removed.
+   *
+   * For example Token 'url("abc.css")' returns 'abc.css'
+   */
+  std::string getUrlString() const;
+  
   inline std::string& append(char c) {
     return std::string::append(1, c);
   }

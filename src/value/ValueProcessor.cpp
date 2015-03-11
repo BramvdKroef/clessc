@@ -219,7 +219,8 @@ Value* ValueProcessor::processStatement(TokenList &value, const ValueScope& scop
 
 Value* ValueProcessor::processOperator(TokenList &value, const Value &operand1,
                                        const ValueScope &scope, Token* lastop) {
-  Value* operand2, *result;
+  const Value* operand2;
+  Value* result;
   Token op;
   std::string operators("+-*/=><");
   size_t pos;
@@ -269,6 +270,13 @@ Value* ValueProcessor::processOperator(TokenList &value, const Value &operand1,
     
     value.ltrim();
   }
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Operation: " << operand1.getTokens()->toString() << 
+    "(" << Value::typeToString(operand1.type) <<  ") " << op << " " <<
+    operand2->getTokens()->toString() << "(" <<
+    Value::typeToString(operand2->type) << ")";
+#endif
   
   if (op == "+") 
     result = operand1.add(*operand2);
@@ -336,16 +344,15 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
 
   case Token::STRING:
     value.pop_front();
-    hasQuotes = stringHasQuotes(token);
+    hasQuotes = token.stringHasQuotes();
     interpolate(token, scope);
-    removeQuotes(token);
+    token.removeQuotes();
     return new StringValue(token, hasQuotes);
 
   case Token::URL:
     value.pop_front();
     interpolate(token, scope);
-    str = getUrlString(token);
-    removeQuotes(str);
+    str = token.getUrlString();
     return new UrlValue(token, str);
         
   case Token::IDENTIFIER:
@@ -452,7 +459,7 @@ const TokenList* ValueProcessor::processDeepVariable (TokenList &value,
     return NULL;
   
   // generate key with '@' + var without quotes
-  removeQuotes(variable.front());
+  variable.front().removeQuotes();
   key.append(variable.front());
   
   return scope.getVariable(key);
@@ -555,11 +562,6 @@ vector<Value*> ValueProcessor::processArguments (TokenList &value,
   return arguments;
 }
 
-bool ValueProcessor::stringHasQuotes(const std::string &str) {
-  return (str[0] == '"' ||
-          str[0] == '\'');
-}
-
 
 Value* ValueProcessor::processEscape (TokenList &value, const ValueScope &scope) {
   Token t;
@@ -579,29 +581,8 @@ Value* ValueProcessor::processEscape (TokenList &value, const ValueScope &scope)
   t = value.front();
   value.pop_front();
   interpolate(t, scope);
-  removeQuotes(t);
+  t.removeQuotes();
   return new StringValue(t, false);
-}
-
-void ValueProcessor::removeQuotes(std::string &str) {
-  char quote;
-  string::iterator i;
-  string ret;
-
-  if (str.size() == 0 || !stringHasQuotes(str))
-    return;
-
-  quote = str[0];
-  str = str.substr(1, str.size() - 2);
-
-  for (i = str.begin(); i != str.end(); i++) {
-    if (*i == '\\' && *(i + 1) == quote) 
-      str.erase(i);
-  }
-}
-
-std::string ValueProcessor::getUrlString(const std::string &url) {
-  return url.substr(4, url.length() - 5);
 }
 
 UnitValue* ValueProcessor::processUnit(Token &t) {
@@ -640,11 +621,11 @@ bool ValueProcessor::needsSpace(const Token &t, bool before) {
   return true;
 }
 
-NumberValue* ValueProcessor::processNegative(TokenList &value,
+Value* ValueProcessor::processNegative(TokenList &value,
                                              const ValueScope &scope) {
   Token minus;
   Value* constant;
-  NumberValue *zero;
+  Value *zero, *ret;
   Token t_zero("0", Token::NUMBER);
     
   if (value.front() != "-")
@@ -659,13 +640,17 @@ NumberValue* ValueProcessor::processNegative(TokenList &value,
     value.push_front(minus);
     return NULL;
   }
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Negate: " << constant->getTokens()->toString();
+#endif
 
   zero = new NumberValue(t_zero);
-  zero->substract(*constant);
+  ret = zero->substract(*constant);
 
   delete constant;
+  delete zero;
   
-  return zero;
+  return ret;
 }
 
 void ValueProcessor::interpolate(std::string &str, const ValueScope &scope) {
@@ -689,14 +674,15 @@ void ValueProcessor::interpolate(std::string &str, const ValueScope &scope) {
       variable = *var;
 
       processValue(variable, scope);
-      value = variable.toString();
-      
+
       // Remove quotes off strings.
       if (variable.size() == 1 &&
           variable.front().type == Token::STRING) {
-        removeQuotes(value);
+        variable.front().removeQuotes();
       }
-  
+
+      value = variable.toString();
+      
       str.replace(start, (end + 1) - start, value);
       end = start + value.length();
     }

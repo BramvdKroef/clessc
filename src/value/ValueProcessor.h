@@ -65,11 +65,7 @@ private:
   
   bool needsSpace(const Token &t, bool before);
 
-  bool stringHasQuotes(const std::string &str);
-  void removeQuotes(std::string &str);
-  std::string getUrlString(const std::string &url);
-
-  NumberValue* processNegative(TokenList &value,
+  Value* processNegative(TokenList &value,
                                const ValueScope &scope);
   
 public:
