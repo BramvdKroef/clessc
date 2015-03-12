@@ -35,7 +35,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-
+#include <list>
   
 /**
  * Extends the css spec with these parts:
@@ -63,7 +63,9 @@
  */
 class LessParser: public CssParser {
 public:
-  LessParser(CssTokenizer &tokenizer): CssParser(tokenizer) {
+  LessParser(CssTokenizer &tokenizer,
+             std::list<std::string> &source_files):
+    CssParser(tokenizer), sources(source_files) {
   }
   virtual ~LessParser () {
   }
@@ -71,6 +73,8 @@ public:
   virtual void parseStylesheet(LessStylesheet &stylesheet);
   
 protected:
+  std::list<std::string> &sources;
+  
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to
    * variables and don't add it to the Stylesheet.

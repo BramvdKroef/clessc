@@ -58,8 +58,12 @@ void usage () {
 
 
 bool parseInput(LessStylesheet &stylesheet, istream &in, const std::string &source){
+  std::list<std::string> sources;
+  std::list<std::string>::iterator i;
+  
   LessTokenizer tokenizer(in, source);
-  LessParser parser(tokenizer);
+  LessParser parser(tokenizer, sources);
+  sources.push_back(source);
   
   try{
     parser.parseStylesheet(stylesheet);
@@ -84,7 +88,12 @@ bool parseInput(LessStylesheet &stylesheet, istream &in, const std::string &sour
 #endif
     return false;
   }
-  
+#ifdef WITH_LIBGLOG
+  VLOG(1) << "Source files: ";
+  for(i = sources.begin(); i != sources.end(); i++) {
+    VLOG(1) << (*i);
+  }
+#endif
   return true;
 }
 void writeOutput (ostream &out, LessStylesheet &stylesheet, bool format) {

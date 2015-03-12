@@ -408,7 +408,8 @@ void LessParser::importFile(const std::string &filename,
   size_t pos = tokenizer->getSource().find_last_of("/\\");
 
   std::string relative_filename;
-
+  std::list<std::string>::iterator i;
+    
   // if the current stylesheet is outside of the current working
   //  directory then add the directory to the filename.
   if (pos != std::string::npos) {
@@ -416,6 +417,11 @@ void LessParser::importFile(const std::string &filename,
     relative_filename.append(filename);
   } else
     relative_filename = filename;
+
+  for (i = sources.begin(); i != sources.end(); i++) {
+    if ((*i) == relative_filename)
+      return;
+  }
   
   ifstream in(relative_filename.c_str());
   if (in.fail() || in.bad())
@@ -426,9 +432,10 @@ void LessParser::importFile(const std::string &filename,
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Opening: " << relative_filename;
 #endif
-  
+
+  sources.push_back(relative_filename);
   LessTokenizer tokenizer(in, relative_filename);
-  LessParser parser(tokenizer);
+  LessParser parser(tokenizer, sources);
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Parsing";
