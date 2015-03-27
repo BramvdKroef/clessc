@@ -29,7 +29,7 @@
 
 typedef struct FuncInfo {
   const char* parameterTypes;
-Value* (*func)(vector<Value*> arguments);
+  Value* (*func)(const vector<const Value*> &arguments);
 } FuncInfo;
 
 class FunctionLibrary {
@@ -41,11 +41,11 @@ public:
   FuncInfo* getFunction(const char* functionName);
 
   void push(string name, const char* parameterTypes,
-            Value* (*func)(vector<Value*> arguments));
+            Value* (*func)(const vector<const Value*> &arguments));
   
-  bool checkArguments(FuncInfo* fi, vector<Value*> arguments);
+  bool checkArguments(FuncInfo* fi, const vector<const Value*> &arguments);
   const char* functionDefToString(const char* functionName,
-                                         FuncInfo* fi = NULL);
+                                  FuncInfo* fi = NULL);
 };
 
 #endif

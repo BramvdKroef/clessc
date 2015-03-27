@@ -26,20 +26,20 @@
 #include "Color.h"
 #include <string>
 
+typedef struct UrlValue_Img {
+  int width;
+  int height;
+  Color background;
+} UrlValue_Img;
+
 class UrlValue: public Value {
 private:
 
   std::string path;
 
-  // image resources
-  bool loaded;
-  int width;
-  int height;
-  Color background;
-  
-  bool loadImg();
-  bool loadPng();
-  bool loadJpeg();
+  bool loadImg(UrlValue_Img &img) const;
+  bool loadPng(UrlValue_Img &img) const;
+  bool loadJpeg(UrlValue_Img &img) const;
 
 public:
   UrlValue(Token &token, std::string &path);
@@ -56,15 +56,15 @@ public:
   virtual BooleanValue* lessThan(const Value &v) const;
   virtual BooleanValue* equals(const Value &v) const;
 
-  unsigned int getImageWidth();
-  unsigned int getImageHeight();
-  Color& getImageBackground();
+  unsigned int getImageWidth() const;
+  unsigned int getImageHeight() const;
+  Color getImageBackground() const;
 
   static void loadFunctions(FunctionLibrary &lib);
 
-  static Value* imgheight(vector<Value*> arguments);
-  static Value* imgwidth(vector<Value*> arguments);
-  static Value* imgbackground(vector<Value*> arguments);
+  static Value* imgheight(const vector<const Value*> &arguments);
+  static Value* imgwidth(const vector<const Value*> &arguments);
+  static Value* imgbackground(const vector<const Value*> &arguments);
 };
   
 #endif

@@ -34,6 +34,7 @@ private:
   bool value;
 public:
   BooleanValue(bool value);
+  BooleanValue(const Token &t, bool value);
   virtual ~BooleanValue();
 
   bool getValue() const;

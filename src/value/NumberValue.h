@@ -36,8 +36,11 @@ class NumberValue: public Value {
   double convert(const std::string &unit) const;
   
 public:
-  NumberValue(Token &token);
+  NumberValue(const Token &token);
   NumberValue(double value);
+  NumberValue(double value, Token::Type type,
+              const std::string* unit);
+  NumberValue(const NumberValue &n);
   virtual ~NumberValue();
   
   virtual Value* add(const Value &v) const;
@@ -50,29 +53,29 @@ public:
 
   void setType(const NumberValue &n);
   
-  string getUnit() const;
+  std::string getUnit() const;
   void setUnit(std::string unit);
   double getValue() const;
   void setValue(double d);
 
   static void loadFunctions(FunctionLibrary &lib);
-  static Value* unit(vector<Value*> args);
-  static Value* ceil(vector<Value*> args);
-  static Value* floor(vector<Value*> args);
-  static Value* percentage(vector<Value*> args);
-  static Value* round(vector<Value*> args);
-  static Value* sqrt(vector<Value*> args);
-  static Value* abs(vector<Value*> args);
-  static Value* sin(vector<Value*> args);
-  static Value* asin(vector<Value*> args);
-  static Value* cos(vector<Value*> args);
-  static Value* acos(vector<Value*> args);
-  static Value* tan(vector<Value*> args);
-  static Value* atan(vector<Value*> args);
-  static Value* pi(vector<Value*> args);
-  static Value* pow(vector<Value*> args);
-  static Value* mod(vector<Value*> args);
-  static Value* convert(vector<Value*> args);
+  static Value* unit(const vector<const Value*> &args);
+  static Value* ceil(const vector<const Value*> &args);
+  static Value* floor(const vector<const Value*> &args);
+  static Value* percentage(const vector<const Value*> &args);
+  static Value* round(const vector<const Value*> &args);
+  static Value* sqrt(const vector<const Value*> &args);
+  static Value* abs(const vector<const Value*> &args);
+  static Value* sin(const vector<const Value*> &args);
+  static Value* asin(const vector<const Value*> &args);
+  static Value* cos(const vector<const Value*> &args);
+  static Value* acos(const vector<const Value*> &args);
+  static Value* tan(const vector<const Value*> &args);
+  static Value* atan(const vector<const Value*> &args);
+  static Value* pi(const vector<const Value*> &args);
+  static Value* pow(const vector<const Value*> &args);
+  static Value* mod(const vector<const Value*> &args);
+  static Value* convert(const vector<const Value*> &args);
 };
 
 #endif

@@ -64,10 +64,10 @@ public:
   static string escape(string rawstr, string extraUnreserved = "");
 
   static void loadFunctions(FunctionLibrary &lib);
-  static Value* escape(vector<Value*> arguments);
-  static Value* e(vector<Value*> arguments);
-  static Value* format(vector<Value*> arguments);
-  static Value* color(vector<Value*> arguments);
-  static Value* data_uri(vector<Value*> arguments);
+  static Value* escape(const vector<const Value*> &arguments);
+  static Value* e(const vector<const Value*> &arguments);
+  static Value* format(const vector<const Value*> &arguments);
+  static Value* color(const vector<const Value*> &arguments);
+  static Value* data_uri(const vector<const Value*> &arguments);
 };
 #endif

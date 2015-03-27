@@ -1,7 +1,12 @@
 #include "BooleanValue.h"
 
 BooleanValue::BooleanValue(bool value) {
-  Token t("true", Token::IDENTIFIER);
+  Token t("true", Token::IDENTIFIER, 0,0,"generated");
+  tokens.push_back(t);
+  setValue(value);
+  type = Value::BOOLEAN;
+}
+BooleanValue::BooleanValue(const Token &t, bool value) {
   tokens.push_back(t);
   setValue(value);
   type = Value::BOOLEAN;

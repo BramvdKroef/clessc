@@ -26,7 +26,7 @@ FuncInfo* FunctionLibrary::getFunction(const char* functionName) {
 }
 
 void FunctionLibrary::push(string name, const char* parameterTypes,
-                           Value* (*func)(vector<Value*> arguments))
+                           Value* (*func)(const vector<const Value*> &arguments))
 {
   FuncInfo* fi = new FuncInfo();
   fi->parameterTypes = parameterTypes;
@@ -35,9 +35,9 @@ void FunctionLibrary::push(string name, const char* parameterTypes,
 }
 
 bool FunctionLibrary::checkArguments(FuncInfo* fi,
-                                     vector<Value*> arguments) {
+                                     const vector<const Value*> &arguments) {
   const char* types = fi->parameterTypes;
-  vector<Value*>::iterator it = arguments.begin();
+  vector<const Value*>::const_iterator it = arguments.begin();
   unsigned int i, len = strlen(types);
   
   for (i = 0; i < len; i++) {

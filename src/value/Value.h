@@ -39,8 +39,10 @@ public:
   enum Type {NUMBER, PERCENTAGE, DIMENSION, COLOR, STRING, UNIT,
              BOOLEAN, URL} type;
   Value();
-  Value(Token &token);
+  Value(const Token &token);
   virtual ~Value();
+
+  void setLocation(const Token& ref);
   
   virtual const TokenList* getTokens() const;
   

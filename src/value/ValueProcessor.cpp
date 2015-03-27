@@ -74,7 +74,7 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope) {
            !needsSpace(value.front(), true))) {
         
       } else {
-        newvalue.push_back(Token(" ", Token::WHITESPACE));
+        newvalue.push_back(Token::BUILTIN_SPACE);
       }
     }
     
@@ -298,6 +298,7 @@ Value* ValueProcessor::processOperator(TokenList &value, const Value &operand1,
     result = operand1.greaterThanEquals(*operand2);
   
   delete operand2;
+  result->setLocation(op);
   return result;
 }
 Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope) {
@@ -337,6 +338,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
       
       if (ret != NULL && variable.empty()) {
         value.pop_front();
+        ret->setLocation(token);
         return ret;
       }
     } 
@@ -373,7 +375,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     } else if ((ret = processUnit(token)) != NULL) {
       return ret;  
     } else if (token.compare("true") == 0) {
-      return new BooleanValue(true);
+      return new BooleanValue(token, true);
     } else  
       return new StringValue(token, false);
     
@@ -389,6 +391,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     if (ret != NULL) {
       if (value.front().type == Token::PAREN_CLOSED) {
         value.pop_front();
+        ret->setLocation(token);
         return ret;
       } else {
         value.insert(value.begin(),
@@ -408,6 +411,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     variable = *var;
     ret = processStatement(variable, scope);
     if (ret != NULL) {
+      ret->setLocation(value.front());
       value.pop_front();
       value.pop_front();
     }
@@ -418,7 +422,7 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
     value.pop_front();
     if (value.front().type == Token::PAREN_OPEN) {
       value.pop_front();
-      return processFunction("%", value, scope);
+      return processFunction(token, value, scope);
       
     } else {
       value.push_front(token);
@@ -470,14 +474,14 @@ bool ValueProcessor::functionExists(const std::string &function) {
   return (functionLibrary.getFunction(function.c_str()) != NULL);
 }
 
-Value* ValueProcessor::processFunction(const std::string &function,
+Value* ValueProcessor::processFunction(const Token &function,
                                        TokenList &value,
                                        const ValueScope &scope) {
   string percentage;
-  vector<Value*> arguments;
+  vector<const Value*> arguments;
   FuncInfo* fi;
   Value* ret;
-  vector<Value*>::iterator it;
+  vector<const Value*>::iterator it;
   string arg_str;
 
 #ifdef WITH_LIBGLOG
@@ -489,7 +493,7 @@ Value* ValueProcessor::processFunction(const std::string &function,
   if (fi == NULL)
     return NULL;
 
-  arguments = processArguments(value, scope);
+  processArguments(value, scope, arguments);
 
   if (functionLibrary.checkArguments(fi, arguments)) {
     ret = fi->func(arguments);
@@ -511,16 +515,16 @@ Value* ValueProcessor::processFunction(const std::string &function,
   
   // delete arguments
   for (it = arguments.begin(); it != arguments.end(); it++) {
-    if (*it != ret)
       delete (*it);
   }
+  ret->setLocation(function);
   
   return ret;
 }
 
-vector<Value*> ValueProcessor::processArguments (TokenList &value,
-                                                 const ValueScope &scope) {
-  vector<Value*> arguments;
+void ValueProcessor::processArguments (TokenList &value,
+                                       const ValueScope &scope,
+                                       vector<const Value*> &arguments) {
   Value* argument;
 
   if (value.size() == 0) 
@@ -558,8 +562,6 @@ vector<Value*> ValueProcessor::processArguments (TokenList &value,
     throw new ParseException(value.front(), ")", 0, 0, "");
     
   value.pop_front();
-
-  return arguments;
 }
 
 
@@ -626,7 +628,7 @@ Value* ValueProcessor::processNegative(TokenList &value,
   Token minus;
   Value* constant;
   Value *zero, *ret;
-  Token t_zero("0", Token::NUMBER);
+  Token t_zero("0", Token::NUMBER, 0,0,"generated");
     
   if (value.front() != "-")
     return NULL;
@@ -647,6 +649,8 @@ Value* ValueProcessor::processNegative(TokenList &value,
   zero = new NumberValue(t_zero);
   ret = zero->substract(*constant);
 
+  ret->setLocation(minus);
+  
   delete constant;
   delete zero;
   

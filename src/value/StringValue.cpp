@@ -36,7 +36,7 @@ StringValue::StringValue(Token &token, bool quotes) {
 }
 
 StringValue::StringValue(std::string &str, bool quotes) {
-  Token token(str, Token::STRING);
+  Token token(str, Token::STRING, 0,0,"generated");
   
   type = Value::STRING;
   tokens.push_back(token);
@@ -45,7 +45,7 @@ StringValue::StringValue(std::string &str, bool quotes) {
 }
 
 StringValue::StringValue(const StringValue &s) {
-  Token token(s.getString(), Token::STRING);
+  Token token(s.getString(), Token::STRING, 0,0,"generated");
 
   type = Value::STRING;
   tokens.push_back(token);
@@ -55,13 +55,14 @@ StringValue::StringValue(const StringValue &s) {
 
 StringValue::StringValue(const Value &val, bool quotes) {
   const StringValue* sval;
-  Token token;
+  Token token = val.getTokens()->front();
+  token.type = Token::STRING;
   
   if (val.type == STRING) {
     sval = static_cast<const StringValue*>(&val);
-    token = Token(sval->getString(), Token::STRING);
+    token = sval->getString();
   } else {
-    token = Token(val.getTokens()->toString(), Token::STRING);
+    token = val.getTokens()->toString();
   }
 
   type = Value::STRING;
@@ -201,30 +202,30 @@ void StringValue::loadFunctions(FunctionLibrary &lib) {
   lib.push("data-uri", "SS?", &StringValue::data_uri);
 }
 
-Value* StringValue::escape(vector<Value*> arguments) {
+Value* StringValue::escape(const vector<const Value*> &arguments) {
   string unreservedChars("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~,/?@&+'!$");
 
-  string oldstr = ((StringValue*)arguments[0])->getString();
-
-  ((StringValue*)arguments[0])
-    ->setString(StringValue::escape(oldstr, ",/?@&+'!$"));
-
-  return arguments[0];
+  StringValue* s = new StringValue(*(const StringValue*)arguments[0]);
+  s->setString(StringValue::escape(s->getString(), ",/?@&+'!$"));
+  return s;
 }
 
 
-Value* StringValue::e(vector<Value*> arguments) {
-  ((StringValue*)arguments[0])->setQuotes(false);
-  return arguments[0];
+Value* StringValue::e(const vector<const Value*> &arguments) {
+  StringValue* s = new StringValue(*(const StringValue*)arguments[0]);
+  s->setQuotes(false);
+  return s;
 }
 
-Value* StringValue::format(vector<Value*> arguments) {
-  string escapeChars("adsADS");
-  
-  string oldstr = ((StringValue*)arguments[0])->getString();
+Value* StringValue::format(const vector<const Value*> &arguments) {
+  std::string escapeChars("adsADS");
+
+  StringValue* s = new StringValue(*(const StringValue*)arguments[0]);
+
+  std::string oldstr = s->getString();
   std::ostringstream newstr;
   unsigned int i, argc = 1;
-  string argStr;
+  std::string argStr;
 
   for (i = 0; i < oldstr.size(); i++) {
     if (oldstr[i] == '%') {
@@ -237,7 +238,7 @@ arguments than provided.");
 
         if ((oldstr[i] == 's' || oldstr[i] == 'S') &&
             arguments[argc]->type == STRING) {
-          argStr = ((StringValue*)arguments[argc])->getString();
+          argStr = ((const StringValue*)arguments[argc])->getString();
         } else
           argStr = arguments[argc]->getTokens()->toString(); 
 
@@ -258,19 +259,19 @@ arguments than provided.");
 placeholders for all given arguments.");
   }
   
-  ((StringValue*)arguments[0])->setString(newstr.str());
-  return arguments[0];
+  s->setString(newstr.str());
+  return s;
 }
 
-Value* StringValue::color(vector<Value*> arguments) {
-  StringValue* s;
+Value* StringValue::color(const vector<const Value*> &arguments) {
+  const StringValue* s;
   Token t;
   
-  s = static_cast<StringValue*>(arguments[0]);
+  s = static_cast<const StringValue*>(arguments[0]);
 
-  t = Token(s->getString(), Token::HASH);
+  t = Token(s->getString(), Token::HASH ,0,0,"generated");
   return new Color(t);
 }
-Value* StringValue::data_uri(vector<Value*> arguments) {
-  return arguments[0];
+Value* StringValue::data_uri(const vector<const Value*> &arguments) {
+  return new StringValue(*(const StringValue*)arguments[0]);
 }

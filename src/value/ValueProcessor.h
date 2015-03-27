@@ -53,12 +53,14 @@ private:
 
   const TokenList* processDeepVariable (TokenList &value, const ValueScope& scope);
   
-  Value* processFunction(const std::string &function,
+  Value* processFunction(const Token &function,
                          TokenList &value,
                          const ValueScope &scope);
   
-  vector<Value*> processArguments (TokenList &value,
-                                   const ValueScope &scope);
+  void processArguments (TokenList &value,
+                         const ValueScope &scope,
+                         vector<const Value*> &arguments);
+  
   Value* processEscape (TokenList &value,
                         const ValueScope &scope);
   UnitValue* processUnit(Token &t);

@@ -60,7 +60,6 @@ UrlValue::UrlValue(Token &token, std::string &path): Value() {
   tokens.push_back(token);
   this->path = path;
   type = Value::URL;
-  loaded = false;
 }
 
 
@@ -108,15 +107,11 @@ BooleanValue* UrlValue::equals(const Value &v) const {
   }
 }
 
-bool UrlValue::loadImg() {
-  loaded = loadPng() || loadJpeg();
-   
-  return loaded;
+bool UrlValue::loadImg(UrlValue_Img &img) const {
+  return loadPng(img) || loadJpeg(img);
 }
 
-bool UrlValue::loadPng() {
-  if (loaded != false)
-    return true;
+bool UrlValue::loadPng(UrlValue_Img &img) const {
 
 #ifdef WITH_LIBPNG
   unsigned char header[8];    // 8 is the maximum size that can be checked
@@ -154,8 +149,8 @@ bool UrlValue::loadPng() {
 
   png_read_info(png_ptr, info_ptr);
 
-  width = png_get_image_width(png_ptr, info_ptr);
-  height = png_get_image_height(png_ptr, info_ptr);
+  img.width = png_get_image_width(png_ptr, info_ptr);
+  img.height = png_get_image_height(png_ptr, info_ptr);
   int channels = png_get_channels(png_ptr, info_ptr);
   
   if(png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
@@ -173,9 +168,9 @@ bool UrlValue::loadPng() {
 
   rowbytes = png_get_rowbytes(png_ptr,info_ptr);
   
-  row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * height);
+  row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * img.height);
 
-  for (y = 0; y < height; y++)
+  for (y = 0; y < img.height; y++)
     row_pointers[y] = (png_byte*)malloc(rowbytes);
 
   png_read_image(png_ptr, row_pointers);
@@ -185,19 +180,19 @@ bool UrlValue::loadPng() {
       png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
 
     png_byte* color1 = row_pointers[0];
-    png_byte* color2 = row_pointers[0] + (width - 1) * channels;
-    png_byte* color3 = row_pointers[height - 1];
-    png_byte* color4 = row_pointers[height - 1] + (width - 1) * channels;
+    png_byte* color2 = row_pointers[0] + (img.width - 1) * channels;
+    png_byte* color3 = row_pointers[img.height - 1];
+    png_byte* color4 = row_pointers[img.height - 1] + (img.width - 1) * channels;
 
     if (memcmp(color1, color2, channels) == 0 &&
         memcmp(color1, color3, channels) == 0 &&
         memcmp(color1, color4, channels) == 0) {
         
-      background.setRGB(color1[0], color1[1], color1[2]);
+      img.background.setRGB(color1[0], color1[1], color1[2]);
       if (channels == 4)
-        background.setAlpha(color1[3]);
+        img.background.setAlpha(color1[3]);
     } else {
-      background.setRGB(0,0,0);
+      img.background.setRGB(0,0,0);
     }
   }
     
@@ -210,10 +205,7 @@ bool UrlValue::loadPng() {
 }
 
 
-bool UrlValue::loadJpeg() {
-  if (loaded != false)
-    return true;
-  
+bool UrlValue::loadJpeg(UrlValue_Img &img) const {
 #ifdef WITH_LIBJPEG
   struct jpeg_decompress_struct cinfo;
   
@@ -270,8 +262,8 @@ bool UrlValue::loadJpeg() {
    * with the stdio data source.
    */
 
-  width = cinfo.output_width;
-  height = cinfo.output_height;
+  img.width = cinfo.output_width;
+  img.height = cinfo.output_height;
   
   /* We may need to do some setup of our own at this point before reading
    * the data. After jpeg_start_decompress() we have the correct scaled
@@ -304,16 +296,16 @@ bool UrlValue::loadJpeg() {
          cinfo.output_scanline == cinfo.output_height)) {
 
       if (cinfo.output_scanline == 1) {
-        background.setRGB(buffer[0][0], buffer[0][1], buffer[0][2]);
+        img.background.setRGB(buffer[0][0], buffer[0][1], buffer[0][2]);
       }
-      if (background.getRed() != buffer[0][0] ||
-          background.getGreen() != buffer[0][1] ||
-          background.getBlue() != buffer[0][2] ||
+      if (img.background.getRed() != buffer[0][0] ||
+          img.background.getGreen() != buffer[0][1] ||
+          img.background.getBlue() != buffer[0][2] ||
 
-          background.getRed() != buffer[0][row_stride - cinfo.output_components] ||
-          background.getGreen() != buffer[0][row_stride - cinfo.output_components + 1] ||
-          background.getBlue() != buffer[0][row_stride - cinfo.output_components + 2]) {
-        background.setRGB(0,0,0);
+          img.background.getRed() != buffer[0][row_stride - cinfo.output_components] ||
+          img.background.getGreen() != buffer[0][row_stride - cinfo.output_components + 1] ||
+          img.background.getBlue() != buffer[0][row_stride - cinfo.output_components + 2]) {
+        img.background.setRGB(0,0,0);
       }
     }
   }
@@ -342,16 +334,19 @@ bool UrlValue::loadJpeg() {
 #endif
 }
 
-unsigned int UrlValue::getImageWidth() {
-  return (loadImg() ? width : 0);
+unsigned int UrlValue::getImageWidth() const {
+  UrlValue_Img img;
+  return (loadImg(img) ? img.width : 0);
 }
-unsigned int UrlValue::getImageHeight() {
-  return (loadImg() ? height : 0);
+unsigned int UrlValue::getImageHeight() const {
+  UrlValue_Img img;
+  return (loadImg(img) ? img.height : 0);
 }
 
-Color& UrlValue::getImageBackground() {
-  loadImg();
-  return background;
+Color UrlValue::getImageBackground() const {
+  UrlValue_Img img;
+  loadImg(img);
+  return img.background;
 }
 
 
@@ -362,29 +357,31 @@ void UrlValue::loadFunctions(FunctionLibrary &lib) {
 }
 
 
-Value* UrlValue::imgheight(vector<Value*> arguments) {
-  UrlValue* u;
-  Token t("1", Token::NUMBER);
-  NumberValue* val = new NumberValue(t);
+Value* UrlValue::imgheight(const vector<const Value*> &arguments) {
+  const UrlValue* u;
+  NumberValue* val;
+  std::string px = "px";
 
-  u = static_cast<UrlValue*>(arguments[0]);
-  val->setValue(u->getImageHeight());
-  val->setUnit("px");
+  u = static_cast<const UrlValue*>(arguments[0]);
+  val = new NumberValue(u->getImageHeight(), Token::DIMENSION, &px);
   return val;
 }
-Value* UrlValue::imgwidth(vector<Value*> arguments) {
-  UrlValue* u;
-  Token t("1", Token::NUMBER);
-  NumberValue* val = new NumberValue(t);
+Value* UrlValue::imgwidth(const vector<const Value*> &arguments) {
+  const UrlValue* u;
+  NumberValue* val;
+  std::string px = "px";
 
-  u = static_cast<UrlValue*>(arguments[0]);
-  val->setUnit("px");
-  val->setValue(u->getImageWidth());
+  u = static_cast<const UrlValue*>(arguments[0]);
+  val = new NumberValue(u->getImageWidth(), Token::DIMENSION, &px);
   return val;
 }
  
-Value* UrlValue::imgbackground(vector<Value*> arguments) {
-  UrlValue* u = static_cast<UrlValue*>(arguments[0]);
-  Color& color = u->getImageBackground();
-  return new Color(color.getRed(), color.getGreen(), color.getBlue());
+Value* UrlValue::imgbackground(const vector<const Value*> &arguments) {
+  const UrlValue* u = static_cast<const UrlValue*>(arguments[0]);
+  Color color = u->getImageBackground();
+
+  return new Color(color.getRed(),
+                   color.getGreen(),
+                   color.getBlue(),
+                   color.getAlpha());
 }

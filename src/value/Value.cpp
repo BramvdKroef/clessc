@@ -28,6 +28,10 @@ Value::Value() {
 Value::~Value() {
 }
 
+void Value::setLocation(const Token& ref) {
+  tokens.front().setLocation(ref);
+}
+  
 const TokenList* Value::getTokens() const{
   return &tokens;
 }
