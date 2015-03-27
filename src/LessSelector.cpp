@@ -65,7 +65,7 @@ LessSelector::LessSelector(const Selector &original) {
       
     }
     if (!empty()) 
-      push_back(Token(",", Token::OTHER));
+      push_back(Token::BUILTIN_COMMA);
 
     new_selector.trim();
     insert(end(), new_selector.begin(), new_selector.end());

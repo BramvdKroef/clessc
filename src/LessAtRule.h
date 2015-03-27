@@ -24,7 +24,7 @@
 
 #include "Stylesheet.h"
 
-#include <string>
+#include "Token.h"
 
 class LessStylesheet;
 
@@ -33,7 +33,7 @@ private:
   LessStylesheet *lessStylesheet;
 
 public:
-  LessAtRule(const std::string& keyword);
+  LessAtRule(const Token& keyword);
   virtual ~LessAtRule();
 
   void setLessStylesheet(LessStylesheet &stylesheet);

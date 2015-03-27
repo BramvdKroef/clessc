@@ -32,7 +32,7 @@
  */
 class LessTokenizer: public CssTokenizer {
 public:
-  LessTokenizer(istream &in, const std::string &source) : CssTokenizer(in, source) {};
+  LessTokenizer(istream &in, const char* source) : CssTokenizer(in, source) {};
   virtual ~LessTokenizer();
 protected:
   bool readComment();

@@ -57,7 +57,7 @@ void usage () {
 }
 
 
-bool parseInput(LessStylesheet &stylesheet, istream &in, const std::string &source){
+bool parseInput(LessStylesheet &stylesheet, istream &in, const char* source){
   std::list<std::string> sources;
   std::list<std::string>::iterator i;
   
@@ -80,11 +80,9 @@ bool parseInput(LessStylesheet &stylesheet, istream &in, const std::string &sour
     
   } catch(exception* e) {
 #ifdef WITH_LIBGLOG
-    LOG(ERROR) << "Line " << tokenizer.getLineNumber() << ", Column " <<
-      tokenizer.getColumn() << " Error: " << e->what();
+    LOG(ERROR) << " Error: " << e->what();
 #else
-    cerr << "Line " << tokenizer.getLineNumber() << ", Column " <<
-      tokenizer.getColumn() << " Error: " << e->what();
+    cerr << " Error: " << e->what();
 #endif
     return false;
   }
@@ -133,7 +131,7 @@ int main(int argc, char * argv[]){
   istream* in = &cin;
   ostream* out = &cout;
   bool formatoutput = false;
-  string source = "-";
+  const char* source = "-";
   LessStylesheet stylesheet;
 
 #ifdef WITH_LIBGLOG

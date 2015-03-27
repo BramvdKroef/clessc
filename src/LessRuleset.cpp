@@ -377,8 +377,6 @@ bool LessRuleset::putArguments(const Mixin &mixin,
   const TokenList* variable;
   size_t pos = 0;
 
-  Token space(" ", Token::WHITESPACE);
-
   // combine with parameter names and add to local scope
   for(pit = parameters.begin(); pit != parameters.end(); pit++) {
     variable = mixin.getArgument(*pit);
@@ -396,7 +394,7 @@ bool LessRuleset::putArguments(const Mixin &mixin,
 
     argsCombined.insert(argsCombined.end(),
                         variable->begin(), variable->end());
-    argsCombined.push_back(space);
+    argsCombined.push_back(Token::BUILTIN_SPACE);
   }
 
   argsCombined.trim();
@@ -412,7 +410,7 @@ bool LessRuleset::putArguments(const Mixin &mixin,
       variable = mixin.getArgument(pos++);
       restVar.insert(restVar.end(),
                      variable->begin(), variable->end());
-      restVar.push_back(space);
+      restVar.push_back(Token::BUILTIN_SPACE);
     }
     
     restVar.trim();

@@ -30,6 +30,8 @@
 
 
 class MediaQueryRuleset: public LessRuleset {
+private:
+  static const Token BUILTIN_AND;
   
 public:
   MediaQueryRuleset();

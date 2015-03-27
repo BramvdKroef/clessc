@@ -64,5 +64,11 @@ bool TokenList::contains(const Token &t) const {
 
 bool TokenList::contains(Token::Type type, const std::string &str)
   const {
-  return contains(Token(str, type));
+  std::list<Token>::const_iterator it;
+
+  for (it = begin(); it != end(); it++) {
+    if ((*it).type == type && *it == str)
+      return true;
+  }
+  return false;
 }

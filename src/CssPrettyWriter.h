@@ -33,7 +33,6 @@ public:
     indent_size = 0;
   };
 
-protected:
   void indent();
   virtual void writeAtRule(const string &keyword, const TokenList &rule);
   virtual void writeRulesetStart(const TokenList &selector);

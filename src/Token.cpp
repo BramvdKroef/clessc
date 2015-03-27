@@ -21,14 +21,38 @@
 
 #include "Token.h"
 
-Token::Token () {
-  type = OTHER;
+char Token::BUILTIN_SOURCE[8] = "builtin";
+
+const Token Token::BUILTIN_SPACE(" ", Token::WHITESPACE, 0,0, BUILTIN_SOURCE);
+const Token Token::BUILTIN_COMMA(",", Token::OTHER, 0,0, BUILTIN_SOURCE);
+const Token Token::BUILTIN_PAREN_OPEN("(", Token::PAREN_OPEN, 0,0, BUILTIN_SOURCE);
+const Token Token::BUILTIN_PAREN_CLOSED(")", Token::PAREN_CLOSED, 0,0, BUILTIN_SOURCE);
+
+Token::Token ():
+  line(0), column(0), source(BUILTIN_SOURCE), type(OTHER) {
 }
-Token::Token (const std::string &s, Type t) {
+
+Token::Token (unsigned int line,
+              unsigned int column,
+              const char* source):
+  line(line), column(column), source(source), type(OTHER) {
+}
+
+Token::Token (const std::string &s, Type t,
+              unsigned int line,
+              unsigned int column,
+              const char* source):
+  line(line), column(column), source(source) {
   type = t;
   append(s);
 }
-  
+
+void Token::setLocation(const Token &ref)  {
+  line = ref.line;
+  column = ref.column;
+  source = ref.source;
+}
+
 void Token::clear () {
   std::string::clear();
   type = OTHER;

@@ -25,6 +25,9 @@
 #include <exception>
 #include <string>
 
+#include "Token.h"
+#include "TokenList.h"
+
 using namespace std;
 
 class ParseException: public exception{
@@ -44,6 +47,9 @@ public:
                  unsigned int line, unsigned int column,
                  string source);
 
+  ParseException(Token &found, const char* expected);
+  ParseException(TokenList &found, const char* expected);
+  
   ~ParseException() throw () {};
 
   void setLocation(unsigned int line, unsigned int column);

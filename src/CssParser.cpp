@@ -37,10 +37,7 @@ void CssParser::parseStylesheet(Stylesheet &stylesheet){
   // stream should end here
   if (tokenizer->getTokenType() != Token::EOS) {
     throw new ParseException(tokenizer->getToken(),
-                             "end of input",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "end of input");
   }
 }
 
@@ -51,13 +48,11 @@ void CssParser::skipWhitespace () {
   }
 }
 bool CssParser::parseWhitespace(TokenList &tokens) {
-  Token space(" ", Token::WHITESPACE);
-  
   while (tokenizer->getTokenType() == Token::WHITESPACE ||
          tokenizer->getTokenType() == Token::COMMENT) {
     
     if (tokenizer->getTokenType() == Token::WHITESPACE) {
-      tokens.push_back(space);
+      tokens.push_back(Token::BUILTIN_SPACE);
     }
     
     tokenizer->readNextToken();
@@ -99,10 +94,7 @@ MediaQuery* CssParser::parseMediaQuery(Stylesheet &stylesheet) {
   
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(),
-                             "{",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "{");
   }
   tokenizer->readNextToken();
   
@@ -113,10 +105,7 @@ MediaQuery* CssParser::parseMediaQuery(Stylesheet &stylesheet) {
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken(),
-                             "end of media query block ('}')",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "end of media query block ('}')");
   }
   tokenizer->readNextToken();
   skipWhitespace();
@@ -138,10 +127,7 @@ AtRule* CssParser::parseAtRule(Stylesheet& stylesheet) {
   if (!parseBlock(atrule->getRule())) {
     if (tokenizer->getTokenType() != Token::DELIMITER) {
       throw new ParseException(tokenizer->getToken(),
-                               "delimiter (';') at end of @-rule",
-                               tokenizer->getLineNumber(),
-                               tokenizer->getColumn(),
-                               tokenizer->getSource());
+                               "delimiter (';') at end of @-rule");
     }
     tokenizer->readNextToken();
     skipWhitespace();
@@ -178,10 +164,7 @@ bool CssParser::parseBlock (TokenList &tokens) {
 
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken(),
-                             "end of block ('}')",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "end of block ('}')");
   }
   tokens.push_back(tokenizer->getToken());
   tokenizer->readNextToken();
@@ -200,10 +183,7 @@ Ruleset* CssParser::parseRuleset (Stylesheet &stylesheet) {
     } 
   } else if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(),
-                             "a declaration block ('{...}')",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "a declaration block ('{...}')");
   }
   tokenizer->readNextToken();
 
@@ -220,10 +200,7 @@ Ruleset* CssParser::parseRuleset (Stylesheet &stylesheet) {
   
   if (tokenizer->getTokenType() != Token::BRACKET_CLOSED) {
     throw new ParseException(tokenizer->getToken(),
-                             "end of declaration block ('}')",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "end of declaration block ('}')");
   } 
   tokenizer->readNextToken();
   skipWhitespace();
@@ -245,30 +222,28 @@ bool CssParser::parseSelector(Selector &selector) {
 Declaration* CssParser::parseDeclaration (Ruleset &ruleset) {
   Declaration* declaration = NULL;
   TokenList property;
-
+  Token keyword;
+  
   if (!parseProperty(property))
     return NULL;
   
   skipWhitespace();
-
-  declaration = ruleset.createDeclaration(property.toString());
+  
+  keyword = property.front();
+  keyword.assign(property.toString());
+  
+  declaration = ruleset.createDeclaration(keyword);
   
   if (tokenizer->getTokenType() != Token::COLON) {
     throw new ParseException(tokenizer->getToken(),
-                             "colon following property(':')",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "colon following property(':')");
   }
   tokenizer->readNextToken();
   skipWhitespace();
 
   if (!parseValue(declaration->getValue())) {
     throw new ParseException(tokenizer->getToken(),
-                             "value for property",
-                             tokenizer->getLineNumber(),
-                             tokenizer->getColumn(),
-                             tokenizer->getSource());
+                             "value for property");
   }
   return declaration;
 }
@@ -345,10 +320,7 @@ bool CssParser::parseAny (TokenList &tokens) {
     while (parseAny(tokens) || parseUnused(tokens)) {}
     if (tokenizer->getTokenType() != Token::PAREN_CLOSED) {
       throw new ParseException(tokenizer->getToken(),
-                               "closing parenthesis (')')",
-                               tokenizer->getLineNumber(),
-                               tokenizer->getColumn(),
-                               tokenizer->getSource());
+                               "closing parenthesis (')')");
     }
     tokens.push_back(tokenizer->getToken());
     tokenizer->readNextToken();
@@ -366,10 +338,7 @@ bool CssParser::parseAny (TokenList &tokens) {
     while (parseAny(tokens) || parseUnused(tokens)) {}
     if (tokenizer->getTokenType() != Token::BRACE_CLOSED) {
       throw new ParseException(tokenizer->getToken(),
-                               "closing brace (']')",
-                               tokenizer->getLineNumber(),
-                               tokenizer->getColumn(),
-                               tokenizer->getSource());
+                               "closing brace (']')");
     }
     tokens.push_back(tokenizer->getToken());
     tokenizer->readNextToken();

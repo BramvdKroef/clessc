@@ -23,7 +23,7 @@
 
 #include "LessStylesheet.h"
 
-LessAtRule::LessAtRule(const std::string& keyword): AtRule(keyword) {
+LessAtRule::LessAtRule(const Token &keyword): AtRule(keyword) {
 }
 LessAtRule::~LessAtRule() {
 }

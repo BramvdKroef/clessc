@@ -40,9 +40,6 @@ void Selector::addPrefix(const Selector &prefix) {
   TokenList::iterator i;
   bool containsAmp;
 
-  Token space(" ", Token::WHITESPACE),
-    comma(",", Token::OTHER);
-
   split(sepParts);
   prefix.split(prefixParts);
   
@@ -71,10 +68,10 @@ void Selector::addPrefix(const Selector &prefix) {
 
       } else {
         insert(end(), prefixPart->begin(), prefixPart->end());
-        push_back(space);
+        push_back(Token::BUILTIN_SPACE);
         insert(end(), tmp->begin(), tmp->end());
       }
-      push_back(comma);
+      push_back(Token::BUILTIN_COMMA);
     }
   }
   pop_back();
@@ -109,14 +106,13 @@ TokenList::const_iterator Selector::findComma(const_iterator offset,
 
   for (; offset != limit; offset++) {
     if (parentheses == 0 &&
-        (*offset).type == Token::OTHER &&
-        *offset == ",") {
+        (*offset) == Token::BUILTIN_COMMA) {
       return offset;
   
     } else {
-      if (*offset == "(")
+      if (*offset == Token::BUILTIN_PAREN_OPEN)
         parentheses++;
-      else if (*offset == ")")
+      else if (*offset == Token::BUILTIN_PAREN_CLOSED)
         parentheses--;
     }
   }

@@ -26,7 +26,6 @@
 #include "TokenList.h"
 #include "Selector.h"
 #include "CssWriter.h"
-#include <string>
 #include <list>
 
 class CssWritable {
@@ -49,17 +48,17 @@ public:
 
 class Declaration: public RulesetStatement {
 private:
-  std::string property;
+  Token property;
   TokenList value;
   
 public:
   Declaration();
-  Declaration(const std::string &property);
+  Declaration(const Token &property);
   virtual ~Declaration();
-  void setProperty(const std::string &property);
+  void setProperty(const Token &property);
   void setValue(const TokenList &value);
   
-  std::string getProperty();
+  Token& getProperty();
   TokenList& getValue();
 
   virtual void process(Ruleset &r);
@@ -97,7 +96,7 @@ public:
   virtual void setSelector (const Selector &selector);
 
   Declaration* createDeclaration();
-  Declaration* createDeclaration(const std::string &property);
+  Declaration* createDeclaration(const Token &property);
 
   void deleteDeclaration(Declaration &declaration);
   
@@ -117,16 +116,16 @@ public:
 
 class AtRule: public StylesheetStatement {
 private:
-  std::string keyword;
+  Token keyword;
   TokenList rule;
 
 public:
-  AtRule(const std::string& keyword);
+  AtRule(const Token& keyword);
   virtual ~AtRule();
-  void setKeyword (const std::string &keyword);
+  void setKeyword (const Token &keyword);
   void setRule(const TokenList &rule);
 
-  std::string& getKeyword();
+  Token& getKeyword();
   TokenList& getRule();
 
   virtual void process(Stylesheet &s);
@@ -154,7 +153,7 @@ public:
   Ruleset* createRuleset();
   Ruleset* createRuleset(const Selector &selector);
 
-  AtRule* createAtRule(const std::string &keyword);
+  AtRule* createAtRule(const Token &keyword);
   virtual MediaQuery* createMediaQuery();
 
   void deleteRuleset(Ruleset &ruleset);

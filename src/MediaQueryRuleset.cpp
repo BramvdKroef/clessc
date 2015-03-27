@@ -28,6 +28,8 @@
 #include <glog/logging.h>
 #endif
 
+const Token MediaQueryRuleset::BUILTIN_AND("and", Token::IDENTIFIER, 0,0, Token::BUILTIN_SOURCE);
+
 MediaQueryRuleset::MediaQueryRuleset(): LessRuleset() {
 }
 MediaQueryRuleset::~MediaQueryRuleset() {
@@ -50,8 +52,8 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
   if (query->getSelector().size() > 0) {
     selector.pop_front();
 
-    query->getSelector().push_back(Token(" ", Token::WHITESPACE));
-    query->getSelector().push_back(Token("and", Token::IDENTIFIER));
+    query->getSelector().push_back(Token::BUILTIN_SPACE);
+    query->getSelector().push_back(BUILTIN_AND);
     query->getSelector().insert(query->getSelector().end(),
                                  selector.begin(),
                                  selector.end());

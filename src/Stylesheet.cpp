@@ -38,20 +38,20 @@ Declaration::Declaration() {
   property = "";
 }
 
-Declaration::Declaration(const string &property) {
+Declaration::Declaration(const Token &property) {
   this->property = property;
 }
 
 Declaration::~Declaration() {
 }
 
-void Declaration::setProperty(const string &property) {
+void Declaration::setProperty(const Token &property) {
   this->property = property;
 }
 void Declaration::setValue(const TokenList &value) {
   this->value = value;
 }
-std::string Declaration::getProperty() {
+Token& Declaration::getProperty() {
   return property;
 }
 TokenList& Declaration::getValue() {
@@ -104,7 +104,7 @@ Declaration* Ruleset::createDeclaration() {
   addStatement(*d);
   return d;
 }
-Declaration* Ruleset::createDeclaration(const std::string &property) {
+Declaration* Ruleset::createDeclaration(const Token &property) {
   Declaration* d = new Declaration(property);
   declarations.push_back(d);
   addStatement(*d);
@@ -188,20 +188,20 @@ void Ruleset::write(CssWriter &writer) {
   writer.writeRulesetEnd();
 }
 
-AtRule::AtRule (const string &keyword) {
+AtRule::AtRule (const Token &keyword) {
   this->keyword = keyword;
 }
 
 AtRule::~AtRule() {
 }
 
-void AtRule::setKeyword (const string &keyword) {
+void AtRule::setKeyword (const Token &keyword) {
   this->keyword = keyword;
 }
 void AtRule::setRule(const TokenList &rule) {
   this->rule = rule;
 }
-std::string& AtRule::getKeyword() {
+Token& AtRule::getKeyword() {
   return keyword;
 }
 TokenList& AtRule::getRule() {
@@ -273,7 +273,7 @@ Ruleset* Stylesheet::createRuleset(const Selector &selector) {
   return r;
 }
 
-AtRule* Stylesheet::createAtRule(const std::string &keyword) {
+AtRule* Stylesheet::createAtRule(const Token &keyword) {
   AtRule* r = new AtRule(keyword);
 
 #ifdef WITH_LIBGLOG

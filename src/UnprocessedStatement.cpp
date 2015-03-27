@@ -118,7 +118,9 @@ void UnprocessedStatement::process(Ruleset &r) {
       r.deleteDeclaration(*declaration);
       throw new ParseException(getTokens()->toString(),
                                "variable, mixin or declaration.",
-                               line, column, source);
+                               getTokens()->front().line,
+                               getTokens()->front().column,
+                               getTokens()->front().source);
     }
   }
 
@@ -166,13 +168,17 @@ bool UnprocessedStatement::getExtension(TokenList &extension) {
   }
 
   if (parentheses > 0) {
-    throw new ParseException("end of statement", ")", line, column, source);
+    throw new ParseException("end of statement", ")",
+                             getTokens()->front().line,
+                             getTokens()->front().column,
+                             getTokens()->front().source);
   }
   return true;
 }
 
 bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   TokenList property;
+  Token keyword;
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Declaration";
@@ -188,8 +194,10 @@ bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   declaration->getValue().pop_front();
   
   getProperty(property);
+  keyword = property.front();
+  keyword.assign(property.toString());
   
-  declaration->setProperty(property.toString());
+  declaration->setProperty(keyword);
   
   return true;
 }

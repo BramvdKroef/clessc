@@ -56,7 +56,23 @@ ParseException::ParseException(const char* found, const char* expected,
   setLocation(line, column);
   this->source = source;
 }
+ParseException::ParseException(Token &found, const char* expected) {
+  err.append("Found \"");
+  err.append(translate(found));
+  err.append("\" when expecting ");
+  err.append(expected);
+  setLocation(found.line, found.column);
+  this->source = found.source;
+}
+ParseException::ParseException(TokenList &found, const char* expected) {
+  err.append("Found \"");
+  err.append(translate(found.toString()));
+  err.append("\" when expecting ");
+  err.append(expected);
+  setLocation(found.front().line, found.front().column);
+  this->source = found.front().source;
 
+}
 void ParseException::setLocation(unsigned int line, unsigned int column) {
   this->line = line;
   this->column = column;

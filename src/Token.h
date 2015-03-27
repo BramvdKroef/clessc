@@ -25,18 +25,41 @@
 #include <string>
 
 class Token: public std::string {
+
+protected:
+ 
 public:
+  unsigned int line, column;
+  const char* source;
+
   enum Type{IDENTIFIER, ATKEYWORD, STRING, HASH, NUMBER, PERCENTAGE,
             DIMENSION, URL, UNICODE_RANGE, COLON, DELIMITER, BRACKET_OPEN,
             BRACKET_CLOSED, PAREN_OPEN, PAREN_CLOSED, BRACE_OPEN,
             BRACE_CLOSED, WHITESPACE, COMMENT, INCLUDES,
             DASHMATCH, OTHER, EOS} type; 
   //  std::string str;
-  
+
+  static char BUILTIN_SOURCE[8];
+  static const Token BUILTIN_SPACE, BUILTIN_COMMA, BUILTIN_PAREN_OPEN,
+    BUILTIN_PAREN_CLOSED;
+
   Token ();
   
-  Token (const std::string &s, Type t);
+  Token (unsigned int line,
+         unsigned int column,
+         const char* source);
+  
+  Token (const std::string &s, Type t,
+         unsigned int line,
+         unsigned int column,
+         const char* source);
 
+
+  /**
+   * Copy line, column and source from the reference token.
+   */
+  void setLocation(const Token &ref);
+  
   /**
    * Clear the characters in the token and set the type to OTHER.
    */

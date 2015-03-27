@@ -27,15 +27,17 @@
 #include <glog/logging.h>
 #endif
 
-CssTokenizer::CssTokenizer(istream &in, const string &source){
-  this->in = &in;
-  line = 1;
-  column = 0;
-  this->source = source;
+CssTokenizer::CssTokenizer(istream &in, const char* source):
+  in(&in), line(1), column(0), source(source) {
+  currentToken.source = source;
   readChar();
 }
 
 CssTokenizer::~CssTokenizer(){
+}
+
+const char* CssTokenizer::getSource() {
+  return source;
 }
 
 void CssTokenizer::readChar(){
@@ -67,6 +69,9 @@ Token::Type CssTokenizer::readNextToken(){
   }
 
   currentToken.clear();
+  currentToken.line = line;
+  currentToken.column = column;
+  
   switch (lastRead) {
   case '@':
     currentToken.type = Token::ATKEYWORD;
@@ -84,8 +89,7 @@ Token::Type CssTokenizer::readNextToken(){
     if (!readName()) {
       throw new ParseException(&lastRead,
                                "name following '#'",
-                               getLineNumber(), getColumn(),
-                               getSource());
+                               line, column, source);
     }
     break;
     
@@ -358,9 +362,7 @@ bool CssTokenizer::readString() {
                lastReadEq('\f')) {
       throw new ParseException("end of line",
                                "end of string",
-                               getLineNumber(),
-                               getColumn(),
-                               getSource());
+                               line, column, source);
     } else if (lastReadEq('\\'))
       // note that even though readEscape() returns false it still
       // eats the '\'.
@@ -372,9 +374,9 @@ bool CssTokenizer::readString() {
   }
   throw new ParseException("end of input",
                            "end of string",
-                           getLineNumber(),
-                           getColumn(),
-                           getSource());
+                           line,
+                           column,
+                           source);
   return false;
 }
 
@@ -426,9 +428,7 @@ bool CssTokenizer::readUrl() {
     } else {
       throw new ParseException(&lastRead,
                                "end of url (')')",
-                               getLineNumber(),
-                               getColumn(),
-                               getSource());
+                               line,column,source);
     }
   }
 
@@ -442,9 +442,7 @@ bool CssTokenizer::readUrl() {
       } else {
         throw new ParseException(&lastRead,
                                  "end of url (')')",
-                                 getLineNumber(),
-                                 getColumn(),
-                                 getSource());
+                                 line,column,source);
       }
     } else if (in != NULL && urlchars.find(lastRead)) {
       currentToken.append(lastRead);
@@ -453,16 +451,12 @@ bool CssTokenizer::readUrl() {
                !readEscape()) {
       throw new ParseException(&lastRead,
                                "end of url (')')",
-                               getLineNumber(),
-                               getColumn(),
-                               getSource());
+                               line,column,source);
     }
   }
   throw new ParseException(&lastRead,
                            "end of url (')')",
-                           getLineNumber(),
-                           getColumn(),
-                           getSource());
+                           line,column,source);
   return false;
 }
 
@@ -489,9 +483,7 @@ bool CssTokenizer::readComment () {
   }
   throw new ParseException(&lastRead,
                            "end of comment (*/)",
-                           getLineNumber(),
-                           getColumn(),
-                           getSource());
+                           line,column,source);
   return false;
 }
 
@@ -516,21 +508,11 @@ bool CssTokenizer::readUnicodeRange () {
   return true;
 }
 
-Token CssTokenizer::getToken(){
+Token& CssTokenizer::getToken(){
   return currentToken;
 }
 Token::Type CssTokenizer::getTokenType() {
   return currentToken.type;
-}
-
-unsigned int CssTokenizer::getLineNumber(){
-  return line;
-}
-unsigned int CssTokenizer::getColumn(){
-  return column;
-}
-string CssTokenizer::getSource() {
-  return source;
 }
 
 bool CssTokenizer::lastReadEq(char c) {

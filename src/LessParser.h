@@ -99,7 +99,8 @@ protected:
   void parseRulesetStatements (LessStylesheet &stylesheet,
                                LessRuleset &ruleset);
 
-  void parseMediaQueryRuleset(LessStylesheet &stylesheet,
+  void parseMediaQueryRuleset(Token &mediatoken,
+                              LessStylesheet &stylesheet,
                               LessRuleset &parent);
   UnprocessedStatement* parseRulesetStatement (LessRuleset &parent);
 
@@ -111,8 +112,9 @@ protected:
   
   void parseList(std::list<TokenList*>* list, TokenList* tokens);
   
-  void importFile(const std::string &file, LessStylesheet &stylesheet);
-  void parseLessMediaQuery(LessStylesheet &stylesheet);
+  bool importFile(Token &uri, LessStylesheet &stylesheet);
+  void parseLessMediaQuery(Token &mediatoken,
+                           LessStylesheet &stylesheet);
 private:
     
   TokenList* processValue(TokenList* value);

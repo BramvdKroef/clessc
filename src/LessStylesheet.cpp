@@ -38,7 +38,7 @@ Mixin* LessStylesheet::createMixin() {
   return m;
 }
 
-LessAtRule* LessStylesheet::createLessAtRule(std::string &keyword) {
+LessAtRule* LessStylesheet::createLessAtRule(const Token &keyword) {
   LessAtRule* atrule = new LessAtRule(keyword);
   addAtRule(*atrule);
   atrule->setLessStylesheet(*this);

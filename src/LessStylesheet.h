@@ -48,7 +48,7 @@ public:
 
   LessRuleset* createLessRuleset();
   Mixin* createMixin();
-  LessAtRule* createLessAtRule(std::string &keyword);
+  LessAtRule* createLessAtRule(const Token &keyword);
   LessMediaQuery* createLessMediaQuery();
 
   void deleteLessRuleset(LessRuleset &ruleset);
