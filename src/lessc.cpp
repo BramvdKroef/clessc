@@ -60,7 +60,7 @@ void usage () {
 bool parseInput(LessStylesheet &stylesheet,
                 istream &in,
                 const char* source,
-                std::list<const char*> sources){
+                std::list<const char*> &sources){
   std::list<const char*>::iterator i;
   
   LessTokenizer tokenizer(in, source);
