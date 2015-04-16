@@ -59,7 +59,7 @@ void SourceMapWriter::writePreamble(const char* out_filename) {
 
   sourcemap_h << "],";
 
-  sourcemap_h << "names: [bla],";
+  sourcemap_h << "names: [],";
   sourcemap_h << "mappings: \"";
 }
 
