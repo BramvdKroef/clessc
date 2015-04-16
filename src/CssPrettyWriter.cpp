@@ -26,76 +26,94 @@ void CssPrettyWriter::indent() {
   if (indent_size == 0)
     return;
   for (i = 0; i < indent_size; i++)
-    out->write("  ", 2);
+    writeStr("  ", 2);
 }
 
-void CssPrettyWriter::writeAtRule(const string &keyword, const TokenList &rule) {
-  indent();
-  
-  CssWriter::writeAtRule(keyword, rule);
+void CssPrettyWriter::newline() {
   out->write("\n", 1);
+  column = 0;
+  
+  if (sourcemap != NULL)
+    sourcemap->writeNewline();
 }
 
-void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
+void CssPrettyWriter::writeSelector(const TokenList &selector) {
   TokenList::const_iterator it;
-  
-  indent();
+
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, selector.front());
   
   for (it = selector.begin(); it != selector.end(); it++) {
-    out->write((*it).c_str(), (*it).size());
+    writeToken(*it);
       
     if ((*it) == ",") {
-      out->write("\n", 1);
+      if (sourcemap != NULL)
+        sourcemap->writeMapping(column, selector.front());
+
+      newline();
       indent();
     }
   }
+}
+
+void CssPrettyWriter::writeAtRule(const Token &keyword, const TokenList &rule) {
+  indent();
   
-  out->write(" {\n", 3);
+  CssWriter::writeAtRule(keyword, rule);
+  newline();
+}
+
+void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
+  indent();
+  
+  writeSelector(selector);
+  
+  writeStr(" {", 2);
+  newline();
   indent_size++;
 }
 
 void CssPrettyWriter::writeRulesetEnd() {
-  out->write(";\n", 2);
+  writeStr(";", 1);
+  newline();
+  
   indent_size--;
   indent();
-  out->write("}\n", 2);
+
+  writeStr("}", 1);
+  newline();
 }
-void CssPrettyWriter::writeDeclaration(const string &property,
+void CssPrettyWriter::writeDeclaration(const Token &property,
                                        const TokenList &value) {
-  TokenList::const_iterator it;
 
   indent();
-    
-  out->write(property.c_str(), property.size());
-  out->write(": ", 2);
-
-  it = value.begin();
-
-  while(it != value.end() &&
-        (*it).type == Token::WHITESPACE) {
-    it++;
-  }
   
-  for (; it != value.end(); it++) {
-    out->write((*it).c_str(), (*it).size());
-  }
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, property);
+
+  writeToken(property);
+  writeStr(": ", 2);
+
+  writeValue(value);
 }
+
 void CssPrettyWriter::writeDeclarationDeliminator() {
-  out->write(";\n", 2);  
+  writeStr(";", 1);
+  newline();
 }
 
 void CssPrettyWriter::writeMediaQueryStart(const TokenList &selector) {
-  TokenList::const_iterator it;
+  indent();
   
-  for (it = selector.begin(); it != selector.end(); it++) {
-    out->write((*it).c_str(), (*it).size());
-  }
+  writeSelector(selector);
   
-  out->write(" {\n", 3);
+  writeStr(" {", 2);
+  newline();
   indent_size++;
 }
 
 void CssPrettyWriter::writeMediaQueryEnd() {
+  writeStr("}", 1);
   indent_size--;
-  out->write("}\n", 2);
+  newline();
 }

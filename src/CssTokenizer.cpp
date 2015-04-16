@@ -28,9 +28,10 @@
 #endif
 
 CssTokenizer::CssTokenizer(istream &in, const char* source):
-  in(&in), line(1), column(0), source(source) {
+  in(&in), line(0),  source(source) {
   currentToken.source = source;
   readChar();
+  column = 0;
 }
 
 CssTokenizer::~CssTokenizer(){
@@ -48,8 +49,9 @@ void CssTokenizer::readChar(){
   if (lastReadEq('\n')) {
     line++;
     column = 0;
-  }
-    
+  } else
+    column++;
+  
   in->get(lastRead);
 
   // check for end of file or escape key
@@ -58,8 +60,8 @@ void CssTokenizer::readChar(){
   else if (in->fail() || in->bad())
     throw new IOException("Error reading input");
 
-  if (!lastReadEq('\n')) // count chars that aren't newlines
-    column++; 
+  if (lastReadEq('\n') && column > 0) // don't count newlines as chars
+    column--;
 }
 
 Token::Type CssTokenizer::readNextToken(){

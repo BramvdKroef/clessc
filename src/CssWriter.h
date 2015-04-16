@@ -23,23 +23,35 @@
 #define __CssWriter_h__
 
 #include "TokenList.h"
-#include <string>
+#include "SourceMapWriter.h"
 #include <iostream>
-
-using namespace std;
 
 class CssWriter {
 protected:
-  ostream* out;
+  std::ostream* out;
+  unsigned int column;
+  SourceMapWriter* sourcemap;
+
+  void writeStr(const char* str, size_t len);
+  void writeToken(const Token &token);
+  void writeTokenList(const TokenList &tokens);
+  
+  virtual void writeSelector(const TokenList &selector);
+  virtual void writeValue(const TokenList &value);
   
 public:
   CssWriter();
-  CssWriter(ostream &out);
+  CssWriter(std::ostream &out);
+  CssWriter(std::ostream &out,
+            SourceMapWriter &sourcemap);
+
+  unsigned int getColumn();
+  
   virtual ~CssWriter();
-  virtual void writeAtRule(const string &keyword, const TokenList &rule);
+  virtual void writeAtRule(const Token &keyword, const TokenList &rule);
   virtual void writeRulesetStart(const TokenList &selector);
   virtual void writeRulesetEnd();
-  virtual void writeDeclaration(const string &property, const TokenList &value);
+  virtual void writeDeclaration(const Token &property, const TokenList &value);
   virtual void writeDeclarationDeliminator();
   virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();

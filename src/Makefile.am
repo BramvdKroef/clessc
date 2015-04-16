@@ -15,6 +15,7 @@ LessStylesheet.h LessRuleset.cpp LessRuleset.h LessMediaQuery.h		\
 LessMediaQuery.cpp MediaQueryRuleset.h MediaQueryRuleset.cpp		\
 LessSelector.h LessSelector.cpp Extension.h Extension.cpp		\
 ProcessingContext.h ProcessingContext.cpp LessAtRule.h LessAtRule.cpp	\
+SourceMapWriter.h SourceMapWriter.cpp					\
 									\
 value/Value.cpp value/Color.cpp value/StringValue.cpp			\
 value/NumberValue.cpp value/UnitValue.cpp value/BooleanValue.cpp	\

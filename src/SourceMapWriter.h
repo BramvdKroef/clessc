@@ -19,38 +19,41 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __CssPrettyWriter_h__
-#define __CssPrettyWriter_h__
+#ifndef __SourceMapWriter_h__
+#define __SourceMapWriter_h__
 
-#include "CssWriter.h"
+#include "Token.h"
+
+#include <list>
 #include <iostream>
+#include <stdlib.h>
 
-class CssPrettyWriter: public CssWriter {
+class SourceMapWriter {
 private:
-  int indent_size;
+  std::ostream &sourcemap_h;
+  std::list<const char*> &sources;
 
-protected:
-  void indent();
-  void newline();
+  unsigned int lastDstColumn;
+  unsigned int lastSrcFile, lastSrcLine, lastSrcColumn;
 
-  virtual void writeSelector(const TokenList &selector);
-    
+  size_t sourceFileIndex(const char* file) ;
+  size_t encodeMapping(unsigned int column,
+                       const Token &source, char* buffer);
+  size_t encodeField(int field, char* buffer);
+
+  void writePreamble(const char* out_filename);
 public:
-  CssPrettyWriter(std::ostream &out): CssWriter(out) {
-    indent_size = 0;
-  };
-  CssPrettyWriter(std::ostream &out, SourceMapWriter &sourcemap):
-    CssWriter(out, sourcemap) {
-    indent_size = 0;
-  }
+  static const char* base64;
+  
+  SourceMapWriter(std::ostream &sourcemap,
+                  std::list<const char*> &sources,
+                  const char* out_filename);
+  virtual ~SourceMapWriter();
 
-  virtual void writeAtRule(const Token &keyword, const TokenList &rule);
-  virtual void writeRulesetStart(const TokenList &selector);
-  virtual void writeRulesetEnd();
-  virtual void writeDeclaration(const Token &property, const TokenList &value);
-  virtual void writeDeclarationDeliminator();
-  virtual void writeMediaQueryStart(const TokenList &selector);
-  virtual void writeMediaQueryEnd();
+  void writeMapping(unsigned int column, const Token& source) ;
+  void writeNewline();
+
+  void close();
 };
-
+  
 #endif

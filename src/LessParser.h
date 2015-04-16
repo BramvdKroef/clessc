@@ -64,7 +64,7 @@
 class LessParser: public CssParser {
 public:
   LessParser(CssTokenizer &tokenizer,
-             std::list<std::string> &source_files):
+             std::list<const char*> &source_files):
     CssParser(tokenizer), sources(source_files) {
   }
   virtual ~LessParser () {
@@ -73,7 +73,7 @@ public:
   virtual void parseStylesheet(LessStylesheet &stylesheet);
   
 protected:
-  std::list<std::string> &sources;
+  std::list<const char*> &sources;
   
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to

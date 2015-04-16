@@ -372,7 +372,7 @@ bool LessParser::importFile(Token& uri,
   size_t pos = source.find_last_of("/\\");
 
   std::string relative_filename;
-  std::list<std::string>::iterator i;
+  std::list<const char*>::iterator i;
     
   // if the current stylesheet is outside of the current working
   //  directory then add the directory to the filename.
@@ -383,7 +383,7 @@ bool LessParser::importFile(Token& uri,
     relative_filename = uri;
 
   for (i = sources.begin(); i != sources.end(); i++) {
-    if ((*i) == relative_filename)
+    if (relative_filename == (*i))
       return true;
   }
   
@@ -396,7 +396,7 @@ bool LessParser::importFile(Token& uri,
   VLOG(1) << "Opening: " << relative_filename;
 #endif
 
-  sources.push_back(relative_filename);
+  sources.push_back(relative_filename.c_str());
   LessTokenizer tokenizer(in, relative_filename.c_str());
   LessParser parser(tokenizer, sources);
 

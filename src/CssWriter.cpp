@@ -23,70 +23,122 @@
 
 CssWriter::CssWriter() {
   out = NULL;
+  column = 0;
+  sourcemap = NULL;
 }
 
-CssWriter::CssWriter(ostream &out) {
-  this->out = &out;
+CssWriter::CssWriter(std::ostream &out): out(&out), column(0) {
+  sourcemap = NULL;
+}
+CssWriter::CssWriter(std::ostream &out, SourceMapWriter &sourcemap):
+  out(&out), column(0), sourcemap(&sourcemap) {
 }
 
 CssWriter::~CssWriter() {
 }
 
+unsigned int CssWriter::getColumn() {
+  return column;
+}
 
-void CssWriter::writeAtRule(const string &keyword, const TokenList &rule) {
-  TokenList::const_iterator i = rule.begin();
+void CssWriter::writeStr(const char* str, size_t len) {
+  out->write(str, len);
+  column += len;
+}
+void CssWriter::writeToken(const Token &token) {
+  writeStr(token.c_str(),
+           token.size());
+}
+void CssWriter::writeTokenList(const TokenList &tokens) {
+  TokenList::const_iterator i = tokens.begin();
   
-  out->write(keyword.c_str(),
-             keyword.size());
-  out->write(" ", 1);
-  
-  for(; i != rule.end(); i++) {
-    const Token next = *i;
-    out->write(next.c_str(), next.size());
+  for(; i != tokens.end(); i++) {
+    writeToken(*i);
   }
-  out->write(";", 1);
+}
+
+void CssWriter::writeSelector(const TokenList &selector) {
+  TokenList::const_iterator it;
+
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, selector.front());
+  
+  for (it = selector.begin(); it != selector.end(); it++) {
+    writeToken(*it);
+      
+    if ((*it) == ",") {
+      if (sourcemap != NULL)
+        sourcemap->writeMapping(column, selector.front());
+    }
+  }
+}
+
+void CssWriter::writeValue(const TokenList &value) {
+  TokenList::const_iterator it;
+  const Token* t;
+
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, value.front());
+  t = &value.front();
+  
+  for (it = value.begin(); it != value.end(); it++) {
+     
+    if ((*it).source != t->source ||
+        (*it).line != t->line) {
+      if (sourcemap != NULL)
+        sourcemap->writeMapping(column, (*it));
+      t = &(*it);
+    }
+
+    writeToken(*it);
+  }
+}
+
+void CssWriter::writeAtRule(const Token &keyword, const TokenList &rule) {
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, keyword);
+  
+  writeToken(keyword);
+  writeStr(" ", 1);
+
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, rule.front());
+  
+  writeTokenList(rule);
+  
+  writeStr(";", 1);
 }
 
 void CssWriter::writeRulesetStart(const TokenList &selector) {
-  TokenList::const_iterator i;
   
-  for (i = selector.begin(); i != selector.end(); i++) {
-    const Token next = *i;
-    out->write(next.c_str(), next.size());
-  }
-  out->write("{", 1);
+  writeSelector(selector);
+
+  writeStr("{", 1);
 }
 
 void CssWriter::writeRulesetEnd() {
-  out->write("}", 1);
+  writeStr("}", 1);
 }
 
-void CssWriter::writeDeclaration(const string &property, const TokenList &value) {
-  TokenList::const_iterator i;
-    
-  out->write(property.c_str(), property.size());
-  out->write(":", 1);
-  
-  for (i = value.begin(); i != value.end(); i++) {
-    const Token next = *i;
-    out->write(next.c_str(), next.size());
-  }
+void CssWriter::writeDeclaration(const Token &property, const TokenList &value) {
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, property);
+
+  writeToken(property);
+  writeStr(":", 1);
+
+  writeValue(value);
 }
 
 void CssWriter::writeDeclarationDeliminator() {
-  out->write(";", 1);
+  writeStr(";", 1);
 }
 
 void CssWriter::writeMediaQueryStart(const TokenList &selector) {
-  TokenList::const_iterator i;
-  
-  for (i = selector.begin(); i != selector.end(); i++) {
-    const Token next = *i;
-    out->write(next.c_str(), next.size());
-  }
-  out->write("{", 1);
+  writeSelector(selector);
+  writeStr("{", 1);
 }
 
 void CssWriter::writeMediaQueryEnd() {
-  out->write("}", 1);
+  writeStr("}", 1);
 }

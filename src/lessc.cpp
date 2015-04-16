@@ -23,7 +23,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
-#include <unistd.h>
+#include <getopt.h>
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
@@ -57,13 +57,14 @@ void usage () {
 }
 
 
-bool parseInput(LessStylesheet &stylesheet, istream &in, const char* source){
-  std::list<std::string> sources;
-  std::list<std::string>::iterator i;
+bool parseInput(LessStylesheet &stylesheet,
+                istream &in,
+                const char* source,
+                std::list<const char*> sources){
+  std::list<const char*>::iterator i;
   
   LessTokenizer tokenizer(in, source);
   LessParser parser(tokenizer, sources);
-  sources.push_back(source);
   
   try{
     parser.parseStylesheet(stylesheet);
@@ -94,11 +95,10 @@ bool parseInput(LessStylesheet &stylesheet, istream &in, const char* source){
 #endif
   return true;
 }
-void writeOutput (ostream &out, LessStylesheet &stylesheet, bool format) {
+void writeOutput (LessStylesheet &stylesheet,
+                  CssWriter &writer) {
   Stylesheet css;
   ProcessingContext context;
-  CssWriter *w1;
-  w1 = format ? new CssPrettyWriter(out) : new CssWriter(out);
 
   try{
     stylesheet.process(css, context);
@@ -122,9 +122,7 @@ void writeOutput (ostream &out, LessStylesheet &stylesheet, bool format) {
     return;
   }
 
-  css.write(*w1);
-  out << endl;
-  delete w1;
+  css.write(writer);
 }
 
 int main(int argc, char * argv[]){
@@ -132,8 +130,24 @@ int main(int argc, char * argv[]){
   ostream* out = &cout;
   bool formatoutput = false;
   const char* source = "-";
+  string output = "-";
   LessStylesheet stylesheet;
+  std::list<const char*> sources;
+  CssWriter* writer;
 
+  std::string sourcemap_file = "";
+  ostream* sourcemap_s;
+  SourceMapWriter* sourcemap = NULL;
+
+  static struct option long_options[] = {
+    {"help",       no_argument,       0, 'h'},
+    {"output",     required_argument, 0, 'o'},
+    {"format",     no_argument,       0, 'f'},
+    {"verbose",    required_argument, 0, 'v'},
+    {"source-map", optional_argument, 0, 'm'},
+    {0,0,0,0}
+  };
+  
 #ifdef WITH_LIBGLOG
   FLAGS_logtostderr = 1;
   google::InitGoogleLogging(argv[0]);
@@ -141,17 +155,18 @@ int main(int argc, char * argv[]){
 #endif
   
   try {
-    int c;
+    int c, option_index;
 #ifdef WITH_LIBGLOG
     VLOG(3) << "argc: " << argc;
 #endif
 
-    while((c = getopt(argc, argv, ":o:hfv:")) != EOF) {
+    while((c = getopt_long(argc, argv, ":o:hfv:m::", long_options, &option_index)) != EOF) {
       switch (c) {
       case 'h':
         usage();
         return 0;
       case 'o':
+        output = optarg;
         out = new ofstream(optarg);
         break;
       case 'f':
@@ -164,6 +179,11 @@ int main(int argc, char * argv[]){
         std::cerr << "Warning: -v flag not supported: lessc has to be compiled with libglog.\n";
 #endif
         break;
+      case 'm':
+        if (optarg)
+          sourcemap_file = optarg;
+        else
+          sourcemap_file = "-";
       }
     }
     
@@ -176,10 +196,48 @@ int main(int argc, char * argv[]){
       source = argv[optind];
       if (in->fail() || in->bad())
         throw new IOException("Error opening file");
+
+      if (sourcemap_file == "-") {
+        sourcemap_file = argv[optind];
+        if (sourcemap_file.substr(sourcemap_file.size() - 5) == ".less") {
+          sourcemap_file = sourcemap_file.substr(0, sourcemap_file.size() - 5) +
+            ".map";
+        } else {
+          sourcemap_file += ".map";
+        }
+      }
+    } else if (sourcemap_file == "-") {
+      throw new IOException("source-map option requires a file name.");
     }
+
+    sources.push_back(source);
     
-    if (parseInput(stylesheet, *in, source)) {
-        writeOutput(*out, stylesheet, formatoutput);
+    if (parseInput(stylesheet, *in, source, sources)) {
+      if (sourcemap_file != "") {
+#ifdef WITH_LIBGLOG
+        VLOG(1) << "sourcemap: " << sourcemap_file;
+#endif
+        
+        sourcemap_s = new ofstream(sourcemap_file.c_str());
+        sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str());
+
+        writer = formatoutput ? new CssPrettyWriter(*out, *sourcemap) :
+          new CssWriter(*out, *sourcemap);
+      } else {
+        writer = formatoutput ? new CssPrettyWriter(*out) :
+          new CssWriter(*out);
+      }
+
+      writeOutput(stylesheet, *writer);
+
+      if (sourcemap != NULL) {
+        sourcemap->close();
+        delete sourcemap;
+        delete sourcemap_s;
+      }
+      
+      delete writer;
+      *out << endl;
     } else
       return 1;
 
