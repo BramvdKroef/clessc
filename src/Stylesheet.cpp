@@ -135,11 +135,11 @@ Selector& Ruleset::getSelector() {
 const Selector& Ruleset::getSelector() const {
   return selector;
 }
-list<RulesetStatement*>& Ruleset::getStatements() {
+std::list<RulesetStatement*>& Ruleset::getStatements() {
   return statements;
 }
 
-list<Declaration*>& Ruleset::getDeclarations() {
+std::list<Declaration*>& Ruleset::getDeclarations() {
   return declarations;
 }
 
@@ -152,8 +152,8 @@ void Ruleset::clearStatements() {
 }
 
 void Ruleset::insert(Ruleset &target) {
-  list<RulesetStatement*> statements = getStatements();
-  list<RulesetStatement*>::iterator i;
+  std::list<RulesetStatement*> statements = getStatements();
+  std::list<RulesetStatement*>::iterator i;
   for (i = statements.begin(); i != statements.end(); i++) {
     (*i)->process(target);
   }
@@ -171,8 +171,8 @@ void Ruleset::process(Stylesheet &s) {
 }
 
 void Ruleset::write(CssWriter &writer) {
-  list<RulesetStatement*> statements = getStatements();
-  list<RulesetStatement*>::iterator i;
+  std::list<RulesetStatement*> statements = getStatements();
+  std::list<RulesetStatement*>::iterator i;
 
   if (getStatements().empty())
     return;
@@ -313,18 +313,18 @@ void Stylesheet::deleteMediaQuery(MediaQuery &query) {
   deleteStatement(query);
 }
 
-list<AtRule*>& Stylesheet::getAtRules() {
+std::list<AtRule*>& Stylesheet::getAtRules() {
   return atrules;
 }
-list<Ruleset*>& Stylesheet::getRulesets() {
+std::list<Ruleset*>& Stylesheet::getRulesets() {
   return rulesets;
 }
-list<StylesheetStatement*>& Stylesheet::getStatements() {
+std::list<StylesheetStatement*>& Stylesheet::getStatements() {
   return statements;
 }
 
 Ruleset* Stylesheet::getRuleset(const Selector &selector) {
-  list<Ruleset*>::iterator it;
+  std::list<Ruleset*>::iterator it;
 
   for (it = rulesets.begin(); it != rulesets.end(); it++) {
     if ((*it)->getSelector().match(selector))
@@ -334,8 +334,8 @@ Ruleset* Stylesheet::getRuleset(const Selector &selector) {
 }
 
 void Stylesheet::process(Stylesheet &s) {
-  list<StylesheetStatement*> statements = getStatements();
-  list<StylesheetStatement*>::iterator i;
+  std::list<StylesheetStatement*> statements = getStatements();
+  std::list<StylesheetStatement*>::iterator i;
   
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Processing stylesheet";
@@ -352,8 +352,8 @@ void Stylesheet::process(Stylesheet &s) {
 
 
 void Stylesheet::write(CssWriter &writer) {
-  list<StylesheetStatement*> statements = getStatements();
-  list<StylesheetStatement*>::iterator i;
+  std::list<StylesheetStatement*> statements = getStatements();
+  std::list<StylesheetStatement*>::iterator i;
   
   for (i = statements.begin(); i != statements.end(); i++) {
     (*i)->write(writer);
