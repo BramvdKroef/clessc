@@ -69,10 +69,11 @@ NumberValue::NumberValue(double value, Token::Type type, const
     break;
   }
 
+  ostringstream stm;
+  stm << setprecision(10) << value;
   if (type == Token::DIMENSION)
-    setUnit(*unit);
-  
-  setValue(value);
+    stm << *unit;
+  tokens.front() = stm.str();
 }
 
 NumberValue::NumberValue(const NumberValue &n) {
@@ -82,6 +83,7 @@ NumberValue::NumberValue(const NumberValue &n) {
 
 NumberValue::~NumberValue() {
 }
+
 
 void NumberValue::verifyUnits(const NumberValue &n) {
   if (type == Value::DIMENSION &&
