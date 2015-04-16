@@ -27,8 +27,8 @@
 #include <string>
 
 typedef struct UrlValue_Img {
-  int width;
-  int height;
+  unsigned int width;
+  unsigned int height;
   Color background;
 } UrlValue_Img;
 

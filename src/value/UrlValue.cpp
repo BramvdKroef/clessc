@@ -121,7 +121,7 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   png_infop info_ptr;
   png_bytep* row_pointers;
   png_uint_32 rowbytes;
-  int y;
+  unsigned int y;
     
   FILE *fp = fopen(path.c_str(), "rb");
   if (!fp)
@@ -378,10 +378,5 @@ Value* UrlValue::imgwidth(const vector<const Value*> &arguments) {
  
 Value* UrlValue::imgbackground(const vector<const Value*> &arguments) {
   const UrlValue* u = static_cast<const UrlValue*>(arguments[0]);
-  Color color = u->getImageBackground();
-
-  return new Color(color.getRed(),
-                   color.getGreen(),
-                   color.getBlue(),
-                   color.getAlpha());
+  return new Color(u->getImageBackground());
 }
