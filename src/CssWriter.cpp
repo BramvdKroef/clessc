@@ -74,15 +74,19 @@ void CssWriter::writeSelector(const TokenList &selector) {
 }
 
 void CssWriter::writeValue(const TokenList &value) {
-  TokenList::const_iterator it;
+  TokenList::const_iterator it = value.begin();
   const Token* t;
 
-  if (sourcemap != NULL)
-    sourcemap->writeMapping(column, value.front());
-  t = &value.front();
+  while(it != value.end() && (*it).type == Token::WHITESPACE) {
+    it++;
+  }
   
-  for (it = value.begin(); it != value.end(); it++) {
-     
+  if (sourcemap != NULL)
+    sourcemap->writeMapping(column, *it);
+  t = &(*it);
+  
+  for (; it != value.end(); it++) {
+    
     if ((*it).source != t->source ||
         (*it).line != t->line) {
       if (sourcemap != NULL)
