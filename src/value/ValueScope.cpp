@@ -41,7 +41,7 @@ void ValueScope::putVariable(const std::string &key, const TokenList &value) {
 }
 */
 const TokenList* ValueScope::getVariable(const std::string &key) const {
-  map<string, TokenList>::const_iterator mit;
+  std::map<std::string, TokenList>::const_iterator mit;
   
   mit = variables->find(key);
   
