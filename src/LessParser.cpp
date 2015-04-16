@@ -341,7 +341,12 @@ UnprocessedStatement* LessParser::parseRulesetStatement (LessRuleset &ruleset) {
 bool LessParser::importFile(Token& uri,
                             LessStylesheet &stylesheet) {
   size_t pathend;
-  
+  size_t pos;
+  std::string source;
+  std::string relative_filename;
+  std::list<const char*>::iterator i;
+  char* relative_filename_cpy;
+    
   if (uri.type == Token::URL) {
     uri = uri.getUrlString();
         
@@ -367,13 +372,11 @@ bool LessParser::importFile(Token& uri,
     uri.insert(pathend, ".less");
     pathend += 5;
   }
-        
-  std::string source = uri.source;
-  size_t pos = source.find_last_of("/\\");
 
-  std::string relative_filename;
-  std::list<const char*>::iterator i;
-    
+  // uri.source is the sourcefile that is currently parsed.
+  source = uri.source;
+  pos = source.find_last_of("/\\");
+  
   // if the current stylesheet is outside of the current working
   //  directory then add the directory to the filename.
   if (pos != std::string::npos) {
@@ -382,6 +385,7 @@ bool LessParser::importFile(Token& uri,
   } else
     relative_filename = uri;
 
+  // check if the file has already been imported.
   for (i = sources.begin(); i != sources.end(); i++) {
     if (relative_filename == (*i))
       return true;
@@ -396,7 +400,10 @@ bool LessParser::importFile(Token& uri,
   VLOG(1) << "Opening: " << relative_filename;
 #endif
 
-  sources.push_back(relative_filename.c_str());
+  relative_filename_cpy = new char[relative_filename.length() + 1];
+  std::strcpy(relative_filename_cpy, relative_filename.c_str());
+              
+  sources.push_back(relative_filename_cpy);
   LessTokenizer tokenizer(in, relative_filename.c_str());
   LessParser parser(tokenizer, sources);
 
