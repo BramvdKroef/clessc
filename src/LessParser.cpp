@@ -338,7 +338,7 @@ UnprocessedStatement* LessParser::parseRulesetStatement (LessRuleset &ruleset) {
 }
 
 
-bool LessParser::importFile(Token& uri,
+bool LessParser::importFile(Token uri,
                             LessStylesheet &stylesheet) {
   size_t pathend;
   size_t pos;

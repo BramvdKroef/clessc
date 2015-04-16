@@ -112,7 +112,7 @@ protected:
   
   void parseList(std::list<TokenList*>* list, TokenList* tokens);
   
-  bool importFile(Token &uri, LessStylesheet &stylesheet);
+  bool importFile(Token uri, LessStylesheet &stylesheet);
   void parseLessMediaQuery(Token &mediatoken,
                            LessStylesheet &stylesheet);
 private:
