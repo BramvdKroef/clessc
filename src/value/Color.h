@@ -60,7 +60,7 @@ public:
    * http://130.113.54.154/~monger/hsl-rgb.html, which does not list a
    * source. 
    */
-  Color(double hue, double saturation, double lightness);
+  static Color* fromHSL(double hue, double saturation, double lightness);
 
   virtual ~Color();
 

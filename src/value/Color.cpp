@@ -110,7 +110,7 @@ Color::Color(): Value() {
   color[RGB_RED] = 0;
   color[RGB_GREEN] = 0;
   color[RGB_BLUE] = 0;
-  alpha = 1;
+  alpha = 1.0;
   updateTokens();
 }
 
@@ -155,7 +155,7 @@ Color::Color(unsigned int red, unsigned int green, unsigned int blue,
   updateTokens();
 }
 
-Color::Color(double hue, double saturation, double lightness) {
+Color* Color::fromHSL(double hue, double saturation, double lightness) {
   double c, x, rgb[3];
   int i;
   
@@ -198,20 +198,23 @@ Color::Color(double hue, double saturation, double lightness) {
   } else
     rgb[RGB_RED] = rgb[RGB_GREEN] = rgb[RGB_BLUE] = lightness;
   
-  for (i = 0; i < 3; i++) {
-    // convert to 0-255 range.
-    // add the .5 and truncate to round to int.
-    color[i] = rgb[i] * 255 + 0.5;
-  }
+  // convert to 0-255 range.
+  // add the .5 and truncate to round to int.
 
-  type = Value::COLOR;
-  alpha = 1;
-  updateTokens();
+  return new Color(rgb[RGB_RED] * 255 + 0.5,
+                   rgb[RGB_GREEN] * 255 + 0.5,
+                   rgb[RGB_BLUE] * 255 + 0.5);
 }
 
 Color::Color(const Color &color) {
-  Color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+  type = Value::COLOR;
+  this->color[RGB_RED] = color.getRed();
+  this->color[RGB_GREEN] = color.getGreen();
+  this->color[RGB_BLUE] = color.getBlue();
+  alpha = color.getAlpha();
+  updateTokens();
 }
+
 Color::~Color() {
 }
 
@@ -224,16 +227,16 @@ Value* Color::add(const Value &v) const {
   switch (v.type) {
   case COLOR:
     c = static_cast<const Color*>(&v);
-    return new Color(color[RGB_RED] + c->getRed(),
-                     color[RGB_GREEN] + c->getGreen(),
-                     color[RGB_BLUE] + c->getBlue());
+    return new Color(min(color[RGB_RED] + c->getRed(), 255),
+                     min(color[RGB_GREEN] + c->getGreen(), 255),
+                     min(color[RGB_BLUE] + c->getBlue(), 255));
   case NUMBER:
   case PERCENTAGE:
   case DIMENSION:
     n = static_cast<const NumberValue*>(&v);
-    return new Color(color[RGB_RED] + n->getValue(),
-                     color[RGB_GREEN] + n->getValue(),
-                     color[RGB_BLUE] + n->getValue());
+    return new Color(min(color[RGB_RED] + n->getValue(), 255),
+                     min(color[RGB_GREEN] + n->getValue(), 255),
+                     min(color[RGB_BLUE] + n->getValue(), 255));
 
   case STRING:
     s = static_cast<const StringValue*>(&v);
@@ -458,35 +461,31 @@ Value* Color::lighten(const vector<const Value*> &arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color* ret = new Color(hsl[0], hsl[1] * 100,
-                         min(hsl[2] * 100 + value, 100.00));
-  return ret;
+  return Color::fromHSL(hsl[0], hsl[1] * 100,
+                        min(hsl[2] * 100 + value, 100.00));
 }
 Value* Color::darken(const vector<const Value*> &arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
   
-  Color* ret = new Color(hsl[0], hsl[1] * 100,
+  return Color::fromHSL(hsl[0], hsl[1] * 100,
                          max(hsl[2] * 100 - value, 0.00));
-  return ret;
 }
 Value* Color::saturate(const vector<const Value*> &arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color* ret = new Color(hsl[0],
-                         min(hsl[1] * 100 + value, 100.00),
-                         hsl[2] * 100);
-  return ret;
+  return Color::fromHSL(hsl[0],
+                        min(hsl[1] * 100 + value, 100.00),
+                        hsl[2] * 100);
 }
 Value* Color::desaturate(const vector<const Value*> &arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
   
-  Color* ret = new Color(hsl[0],
-                         max(hsl[1] * 100 - value, 0.00),
-                         hsl[2] * 100);
-  return ret;
+  return Color::fromHSL(hsl[0],
+                        max(hsl[1] * 100 - value, 0.00),
+                        hsl[2] * 100);
 }
 
 Value* Color::fadein(const vector<const Value*> &arguments) {
@@ -515,17 +514,15 @@ Value* Color::spin(const vector<const Value*> &arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double degrees = ((const NumberValue*)arguments[1])->getValue();
 
-  Color* ret = new Color(std::floor(hsl[0] + degrees),
+  return Color::fromHSL(std::floor(hsl[0] + degrees),
                          hsl[1] * 100,
                          hsl[2] * 100);
-  return ret;
 }
 
 Value* Color::hsl(const vector<const Value*> &arguments) {
-  Color* color = new Color(((const NumberValue*)arguments[0])->getValue(),
-                           ((const NumberValue*)arguments[1])->getValue(),
-                           ((const NumberValue*)arguments[2])->getValue());
-  return color;
+  return Color::fromHSL(((const NumberValue*)arguments[0])->getValue(),
+                        ((const NumberValue*)arguments[1])->getValue(),
+                        ((const NumberValue*)arguments[2])->getValue());
 }
 
 Value* Color::hue(const vector<const Value*> &arguments) {
