@@ -194,7 +194,7 @@ body header {
   background: url(test.png) no-repeat;
   width: 265px;
   height: 314px;
-  background-color: #fff;
+  background-color: rgba(255,255,255,0);
   width-jpg: 265px;
   height-jpg: 314px;
   background-color-jpg: #fff;
@@ -298,3 +298,4 @@ p .test14 {
   width: 1px solid blue;
 }
 @import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
+
