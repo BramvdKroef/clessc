@@ -229,8 +229,9 @@ int main(int argc, char * argv[]){
       }
 
       writeOutput(stylesheet, *writer);
-
+      
       if (sourcemap != NULL) {
+        writer->writeSourceMapUrl(sourcemap_file.c_str());
         sourcemap->close();
         delete sourcemap;
         delete sourcemap_s;

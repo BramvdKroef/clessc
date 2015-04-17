@@ -146,3 +146,8 @@ void CssWriter::writeMediaQueryStart(const TokenList &selector) {
 void CssWriter::writeMediaQueryEnd() {
   writeStr("}", 1);
 }
+
+void CssWriter::writeSourceMapUrl(const char* sourcemap_url) {
+  *out << std::endl << "/*# sourceMappingURL=" <<
+    sourcemap_url << "*/" << std::endl;
+}

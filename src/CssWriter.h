@@ -55,6 +55,8 @@ public:
   virtual void writeDeclarationDeliminator();
   virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();
+
+  void writeSourceMapUrl(const char* sourcemap_url);
 };
   
 #endif
