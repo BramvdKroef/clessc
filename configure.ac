@@ -1,4 +1,4 @@
-AC_INIT([clessc], [1.0], [bram@vanderkroef.net])
+AC_INIT([LESS CSS Compiler], [1.0], [bram@vanderkroef.net], [clessc], [https://github.com/BramvdKroef/clessc])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_HEADERS([config.h])
 

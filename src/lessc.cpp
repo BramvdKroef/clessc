@@ -47,15 +47,38 @@ using namespace std;
  */
 
 void usage () {
-  cout << "Usage: lessc [OPTION] FILE" << endl;
-  cout << endl;
-  cout << "   -o FILE	Send output to FILE" << endl;
-  cout << "   -f    	Format output." << endl;
-  cout << endl;
-  cout << "Example:" << endl;
-  cout << "   lessc in.less -o out.css" << endl;
+  cout <<
+    "Usage: lessc [OPTION]... [FILE]\n"
+    "\n"
+    "   FILE				Less source file. If not given, source \
+is read from stdin.\n"
+    "   -h, --help			Show this message and exit.\n"
+    "       --version		Print the program name and version.\n"
+    "\n"
+    "   -o, --output=<FILE>		Send output to FILE\n"
+    "   -f, --format			Format output CSS with newlines and \
+indentation. By default the output is unformatted.\n"
+    "   -m, --source-map=[FILE]	Generate a source map.\n"
+    "\n"
+    "   -v, --verbose=<LEVEL>	Output log data for debugging. LEVEL is \
+a number in the range 1-3 that defines granularity.\n" 
+    "\n"
+    "Example:\n"
+    "   lessc in.less -o out.css\n"
+    "\n"
+    "Report bugs to: " PACKAGE_BUGREPORT "\n"
+    PACKAGE_NAME " home page: <" PACKAGE_URL ">\n";
 }
 
+void version () {
+  cout <<
+    PACKAGE_STRING "\n"
+    "Copyright 2012 Bram van der Kroef\n"
+    "License GPLv3+: GNU GPL version 3 or later \
+<http://gnu.org/licenses/gpl.html>\n"
+    "This is free software: you are free to change and redistribute it.\n"
+    "There is NO WARRANTY, to the extent permitted by law.\n";
+}
 
 bool parseInput(LessStylesheet &stylesheet,
                 istream &in,
@@ -140,6 +163,7 @@ int main(int argc, char * argv[]){
   SourceMapWriter* sourcemap = NULL;
 
   static struct option long_options[] = {
+    {"version",    no_argument,       0, 'z'},
     {"help",       no_argument,       0, 'h'},
     {"output",     required_argument, 0, 'o'},
     {"format",     no_argument,       0, 'f'},
@@ -162,6 +186,9 @@ int main(int argc, char * argv[]){
 
     while((c = getopt_long(argc, argv, ":o:hfv:m::", long_options, &option_index)) != EOF) {
       switch (c) {
+      case 'z':
+        version();
+        return 0;
       case 'h':
         usage();
         return 0;
@@ -207,7 +234,9 @@ int main(int argc, char * argv[]){
         }
       }
     } else if (sourcemap_file == "-") {
-      throw new IOException("source-map option requires a file name.");
+      throw new IOException("source-map option requires that \
+a file name is specified for either the source map or the less \
+source.");
     }
 
     sources.push_back(source);
