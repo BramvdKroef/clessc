@@ -82,3 +82,9 @@ or:
 ```
 lessc stylesheet.less -o stylesheet.css
 ```
+
+To also generate a source map:
+
+```
+lessc stylesheet.less -o stylesheet.css --source-map=stylesheet.map
+```
