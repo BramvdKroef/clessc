@@ -1,15 +1,15 @@
-* Introduction
+# Introduction
 
 This is a LESS CSS compiler written in C++.
 
 A LESS CSS compiler compiles stylesheets in the LESS format to
 CSS. Read more on http://lesscss.org/ 
 
-* Differences from the original compiler
+# Differences from the original compiler
 
 By default, this compiler does not apply formatting to the code. The
 CSS in the output contains no whitespace except where necessary. You
-can use the -f option to indent the output. If you need it to be more
+can use the `-f` option to indent the output. If you need it to be more
 user-readable you can use a CSS formatter. Try CSSTidy:
 http://csstidy.sourceforge.net/
 
@@ -18,50 +18,67 @@ compiler is to produce the smallest amount of output as possible.
 
 Parentheses are not required in compound values:
 
+```
 border: @width * 2 solid black;
+```
 
-The spin() function produces slightly different results.
+The `spin()` function produces slightly different results.
 
-There is an imgwidth() and a imgheight() function which can be used
+There is an `imgwidth()` and a `imgheight()` function which can be used
 with image variables to access their dimensions. e.g.
 
+```
     img.thumbup {
        content: url(browser/path/to/thumbup.png);
        @image: url('compile/time/path/to/thumbup.png');
        width: imgwidth(@image);
        height: imgheight(@image);
     }
+```
 
-* Installation
+# Installation
 
 If compiling from the source checked out with git you first have to
-run ./autogen.sh to generate the 'configure' script. This requires
-autotools. The tarball distribution will already have the 'configure'
-script.
+run
+
+```
+./autogen.sh
+```
+
+to generate the `configure` script. This requires autotools. The
+tarball distribution will already have the `configure` script.
 
 To build the compiler just run
 
+```
 ./configure
 make
+```
 
 This requires a c++ compiler and the libpng and libjpeg libraries. To
 build without the libraries run configure with these arguments:
 
+```
 ./configure --without-libpng --without-libjpeg
 make
+```
 
-After compiling you will have the binary lessc. You can run 'make
-install' as root to install the binary.
+After compiling you will have the binary `lessc`. You can run `make
+install` as root to install the binary.
 
-Note that the original compiler is also named lessc. 
+Note that the original compiler is also named `lessc`. 
 
-* Usage
+# Usage
 
 To compile the LESS stylesheet stylesheet.less and write the resulting
 CSS to stylsheet.css run:
 
+```
 lessc stylesheet.less > stylesheet.css
+```
 
 or:
 
+```
 lessc stylesheet.less -o stylesheet.css
+```
