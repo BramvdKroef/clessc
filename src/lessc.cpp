@@ -24,7 +24,6 @@
 #include <string>
 #include <sstream>
 #include <getopt.h>
-#include <string.h>
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
@@ -155,44 +154,6 @@ void writeOutput (LessStylesheet &stylesheet,
   css.write(writer);
 }
 
-char* updatePath(const char* path, const char* rootpath = NULL,
-                const char* basepath = NULL) {
-  char* ret;
-
-  size_t path_l = std::strlen(path);
-  size_t bp_l = 0;
-  size_t rp_l = 0;
-  
-  
-  if (basepath != NULL) {
-    bp_l = std::strlen(basepath);
-    if (std::strncmp(basepath, path, bp_l) != 0) 
-      bp_l = 0;
-  }
-  
-  if (rootpath != NULL)
-    rp_l = std::strlen(rootpath);
-  
-  ret = new char[rp_l + (path_l - bp_l) + 1];
-  
-  std::strncpy(ret, rootpath, rp_l);
-  std::strcpy(ret + rp_l, path + bp_l);
-  return ret;
-}
-
-void updateSources(std::list<const char*> &sources,
-                   const char* rootpath = NULL,
-                   const char* basepath = NULL) {
-  std::list<const char*>::iterator i;
-  const char* oldpath;
-  
-  for (i = sources.begin(); i != sources.end(); i++) {
-    oldpath = *i;
-    *i = updatePath(*i, rootpath, basepath);
-    delete oldpath;
-  }
-}
-
 int main(int argc, char * argv[]){
   istream* in = &cin;
   ostream* out = &cout;
@@ -204,7 +165,7 @@ int main(int argc, char * argv[]){
   CssWriter* writer;
 
   std::string sourcemap_file = "";
-  ostream* sourcemap_s;
+  ostream* sourcemap_s = NULL;
   SourceMapWriter* sourcemap = NULL;
   const char* sourcemap_rootpath = NULL;
   const char* sourcemap_basepath = NULL;
@@ -294,12 +255,7 @@ source.");
     
     if (sourcemap_file == "-") {
       sourcemap_file = source;
-      if (sourcemap_file.compare(sourcemap_file.size() - 5, 5, ".less") == 0) {
-        sourcemap_file = sourcemap_file.substr(0, sourcemap_file.size() - 5) +
-          ".map";
-      } else {
-        sourcemap_file += ".map";
-      }
+      sourcemap_file += ".map";
     }
 
     sources.push_back(source);
@@ -309,9 +265,10 @@ source.");
 #ifdef WITH_LIBGLOG
         VLOG(1) << "sourcemap: " << sourcemap_file;
 #endif
-        updateSources(sources, sourcemap_rootpath, sourcemap_basepath);
         sourcemap_s = new ofstream(sourcemap_file.c_str());
-        sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str());
+        sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str(),
+                                        sourcemap_rootpath,
+                                        sourcemap_basepath);
 
         writer = formatoutput ? new CssPrettyWriter(*out, *sourcemap) :
           new CssWriter(*out, *sourcemap);
@@ -323,12 +280,19 @@ source.");
       writeOutput(stylesheet, *writer);
       
       if (sourcemap != NULL) {
-        writer->writeSourceMapUrl(updatePath(sourcemap_file.c_str(),
-                                             sourcemap_rootpath,
-                                             sourcemap_basepath));
+        if (sourcemap_basepath != NULL &&
+            sourcemap_file.compare(0, std::strlen(sourcemap_basepath),
+                                   sourcemap_basepath) == 0) {
+          sourcemap_file.erase(0, std::strlen(sourcemap_basepath));
+        }
+        if (sourcemap_rootpath != NULL)
+          sourcemap_file.insert(0, sourcemap_rootpath);
+        
+        writer->writeSourceMapUrl(sourcemap_file.c_str());
         sourcemap->close();
         delete sourcemap;
-        delete sourcemap_s;
+        if (sourcemap_s != NULL)
+          delete sourcemap_s;
       }
       
       delete writer;

@@ -25,13 +25,15 @@ const char* SourceMapWriter::base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno
 
 SourceMapWriter::SourceMapWriter(std::ostream &sourcemap,
                                  std::list<const char*> &sources,
-                                 const char* out_filename):
+                                 const char* out_filename,
+                                 const char* rootpath,
+                                 const char* basepath):
   sourcemap_h(sourcemap), sources(sources) {
   lastDstColumn = 0;
   lastSrcFile = 0;
   lastSrcLine = 0;
   lastSrcColumn = 0;
-  writePreamble(out_filename);
+  writePreamble(out_filename, rootpath, basepath);
 }
 
 SourceMapWriter::~SourceMapWriter() {
@@ -39,28 +41,47 @@ SourceMapWriter::~SourceMapWriter() {
 }
 
 
-void SourceMapWriter::writePreamble(const char* out_filename) {
+void SourceMapWriter::writePreamble(const char* out_filename,
+                                    const char* rootpath,
+                                    const char* basepath) {
   std::list<const char*>::iterator it;
+  const char* source;
+  size_t bp_l = 0;
+  
+  if (basepath != NULL)
+    bp_l = strlen(basepath);
   
   sourcemap_h << "{";
 
-  sourcemap_h << "version : 3,";
-  sourcemap_h << "file: ";
+  sourcemap_h << "\"version\" : 3,";
+
+  if (rootpath != NULL) {
+    sourcemap_h << "\"sourceRoot\": \"" <<
+      rootpath << "\",";
+  }
+  
+  sourcemap_h << "\"file\": ";
 
   sourcemap_h << "\"" << out_filename << "\",";
   
-  sourcemap_h << "sources: [";
+  sourcemap_h << "\"sources\": [";
 
   for (it = sources.begin(); it != sources.end(); it++) {
     if (it != sources.begin())
       sourcemap_h << ",";
-    sourcemap_h << "\"" << *it << "\"";
+    source = *it;
+
+    if (basepath != NULL &&
+        strncmp(source, basepath, bp_l) == 0) {
+      source += bp_l;
+    }
+    sourcemap_h << "\"" << source << "\"";
   }
 
   sourcemap_h << "],";
 
-  sourcemap_h << "names: [],";
-  sourcemap_h << "mappings: \"";
+  sourcemap_h << "\"names\": [],";
+  sourcemap_h << "\"mappings\": \"";
 }
 
 void SourceMapWriter::close() {

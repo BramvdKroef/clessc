@@ -27,6 +27,7 @@
 #include <list>
 #include <iostream>
 #include <stdlib.h>
+#include <string.h>
 
 class SourceMapWriter {
 private:
@@ -41,13 +42,17 @@ private:
                        const Token &source, char* buffer);
   size_t encodeField(int field, char* buffer);
 
-  void writePreamble(const char* out_filename);
+  void writePreamble(const char* out_filename,
+                     const char* rootpath = NULL,
+                     const char* basepath = NULL);
 public:
   static const char* base64;
   
   SourceMapWriter(std::ostream &sourcemap,
                   std::list<const char*> &sources,
-                  const char* out_filename);
+                  const char* out_filename,
+                  const char* rootpath = NULL,
+                  const char* basepath = NULL);
   virtual ~SourceMapWriter();
 
   void writeMapping(unsigned int column, const Token& source) ;
