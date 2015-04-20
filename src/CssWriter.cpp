@@ -149,5 +149,5 @@ void CssWriter::writeMediaQueryEnd() {
 
 void CssWriter::writeSourceMapUrl(const char* sourcemap_url) {
   *out << std::endl << "/*# sourceMappingURL=" <<
-    sourcemap_url << "*/" << std::endl;
+    sourcemap_url << " */" << std::endl;
 }
