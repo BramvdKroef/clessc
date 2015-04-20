@@ -73,6 +73,8 @@ NumberValue::NumberValue(double value, Token::Type type, const
   stm << setprecision(10) << value;
   if (type == Token::DIMENSION)
     stm << *unit;
+  else if (type == Token::PERCENTAGE)
+    stm << "%";
   tokens.front() = stm.str();
 }
 
