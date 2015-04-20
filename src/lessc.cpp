@@ -24,6 +24,7 @@
 #include <string>
 #include <sstream>
 #include <getopt.h>
+#include <string.h>
 
 #include "LessTokenizer.h"
 #include "LessParser.h"
@@ -59,6 +60,12 @@ is read from stdin.\n"
     "   -f, --format			Format output CSS with newlines and \
 indentation. By default the output is unformatted.\n"
     "   -m, --source-map=[FILE]	Generate a source map.\n"
+    "       --source-map-rootpath=<PATH>   PATH is prepended to the \
+source file references in the source map, and also to the source map \
+reference in the css output. \n"
+    "       --source-map-basepath=<PATH>   PATH is removed from the \
+source file references in the source map, and also from the source \
+map reference in the css output.\n"
     "\n"
     "   -v, --verbose=<LEVEL>	Output log data for debugging. LEVEL is \
 a number in the range 1-3 that defines granularity.\n" 
@@ -148,11 +155,49 @@ void writeOutput (LessStylesheet &stylesheet,
   css.write(writer);
 }
 
+char* updatePath(const char* path, const char* rootpath = NULL,
+                const char* basepath = NULL) {
+  char* ret;
+
+  size_t path_l = std::strlen(path);
+  size_t bp_l = 0;
+  size_t rp_l = 0;
+  
+  
+  if (basepath != NULL) {
+    bp_l = std::strlen(basepath);
+    if (std::strncmp(basepath, path, bp_l) != 0) 
+      bp_l = 0;
+  }
+  
+  if (rootpath != NULL)
+    rp_l = std::strlen(rootpath);
+  
+  ret = new char[rp_l + (path_l - bp_l) + 1];
+  
+  std::strncpy(ret, rootpath, rp_l);
+  std::strcpy(ret + rp_l, path + bp_l);
+  return ret;
+}
+
+void updateSources(std::list<const char*> &sources,
+                   const char* rootpath = NULL,
+                   const char* basepath = NULL) {
+  std::list<const char*>::iterator i;
+  const char* oldpath;
+  
+  for (i = sources.begin(); i != sources.end(); i++) {
+    oldpath = *i;
+    *i = updatePath(*i, rootpath, basepath);
+    delete oldpath;
+  }
+}
+
 int main(int argc, char * argv[]){
   istream* in = &cin;
   ostream* out = &cout;
   bool formatoutput = false;
-  const char* source = "-";
+  char* source = NULL;
   string output = "-";
   LessStylesheet stylesheet;
   std::list<const char*> sources;
@@ -161,14 +206,18 @@ int main(int argc, char * argv[]){
   std::string sourcemap_file = "";
   ostream* sourcemap_s;
   SourceMapWriter* sourcemap = NULL;
+  const char* sourcemap_rootpath = NULL;
+  const char* sourcemap_basepath = NULL;
 
   static struct option long_options[] = {
-    {"version",    no_argument,       0, 'z'},
+    {"version",    no_argument,       0, 1},
     {"help",       no_argument,       0, 'h'},
     {"output",     required_argument, 0, 'o'},
     {"format",     no_argument,       0, 'f'},
     {"verbose",    required_argument, 0, 'v'},
     {"source-map", optional_argument, 0, 'm'},
+    {"source-map-rootpath", required_argument, 0, 2},
+    {"source-map-basepath", required_argument, 0, 3},
     {0,0,0,0}
   };
   
@@ -184,9 +233,9 @@ int main(int argc, char * argv[]){
     VLOG(3) << "argc: " << argc;
 #endif
 
-    while((c = getopt_long(argc, argv, ":o:hfv:m::", long_options, &option_index)) != EOF) {
+    while((c = getopt_long(argc, argv, ":o:hfv:m::", long_options, &option_index)) != -1) {
       switch (c) {
-      case 'z':
+      case 1:
         version();
         return 0;
       case 'h':
@@ -211,6 +260,14 @@ int main(int argc, char * argv[]){
           sourcemap_file = optarg;
         else
           sourcemap_file = "-";
+        break;
+        
+      case 2:
+        sourcemap_rootpath = optarg;
+        break;
+      case 3:
+        sourcemap_basepath = optarg;
+        break;
       }
     }
     
@@ -219,24 +276,30 @@ int main(int argc, char * argv[]){
       VLOG(1) << argv[optind];
 #endif
       
-      in = new ifstream(argv[optind]);
-      source = argv[optind];
+      source = new char[std::strlen(argv[optind]) + 1];
+      std::strcpy(source, argv[optind]);
+      
+      in = new ifstream(source);
       if (in->fail() || in->bad())
         throw new IOException("Error opening file");
 
-      if (sourcemap_file == "-") {
-        sourcemap_file = argv[optind];
-        if (sourcemap_file.substr(sourcemap_file.size() - 5) == ".less") {
-          sourcemap_file = sourcemap_file.substr(0, sourcemap_file.size() - 5) +
-            ".map";
-        } else {
-          sourcemap_file += ".map";
-        }
-      }
     } else if (sourcemap_file == "-") {
       throw new IOException("source-map option requires that \
 a file name is specified for either the source map or the less \
 source.");
+    } else {
+      source = new char[2];
+      std::strcpy(source, "-");
+    }
+    
+    if (sourcemap_file == "-") {
+      sourcemap_file = source;
+      if (sourcemap_file.compare(sourcemap_file.size() - 5, 5, ".less") == 0) {
+        sourcemap_file = sourcemap_file.substr(0, sourcemap_file.size() - 5) +
+          ".map";
+      } else {
+        sourcemap_file += ".map";
+      }
     }
 
     sources.push_back(source);
@@ -246,7 +309,7 @@ source.");
 #ifdef WITH_LIBGLOG
         VLOG(1) << "sourcemap: " << sourcemap_file;
 #endif
-        
+        updateSources(sources, sourcemap_rootpath, sourcemap_basepath);
         sourcemap_s = new ofstream(sourcemap_file.c_str());
         sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str());
 
@@ -260,7 +323,9 @@ source.");
       writeOutput(stylesheet, *writer);
       
       if (sourcemap != NULL) {
-        writer->writeSourceMapUrl(sourcemap_file.c_str());
+        writer->writeSourceMapUrl(updatePath(sourcemap_file.c_str(),
+                                             sourcemap_rootpath,
+                                             sourcemap_basepath));
         sourcemap->close();
         delete sourcemap;
         delete sourcemap_s;
@@ -270,7 +335,8 @@ source.");
       *out << endl;
     } else
       return 1;
-
+    delete source;
+    
   } catch (IOException* e) {
 #ifdef WITH_LIBGLOG
     LOG(ERROR) << " Error: " << e->what();
