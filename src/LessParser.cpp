@@ -404,7 +404,7 @@ bool LessParser::importFile(Token uri,
   std::strcpy(relative_filename_cpy, relative_filename.c_str());
               
   sources.push_back(relative_filename_cpy);
-  LessTokenizer tokenizer(in, relative_filename.c_str());
+  LessTokenizer tokenizer(in, relative_filename_cpy);
   LessParser parser(tokenizer, sources);
 
 #ifdef WITH_LIBGLOG
