@@ -47,6 +47,8 @@ public:
   virtual ~UrlValue();
 
   std::string getPath() const;
+
+  std::string getRelativePath() const;
   
   virtual Value* add(const Value &v) const;
   virtual Value* substract(const Value &v) const;

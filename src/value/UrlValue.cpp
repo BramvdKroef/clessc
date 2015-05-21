@@ -70,6 +70,21 @@ std::string UrlValue::getPath() const {
   return path;
 }
 
+std::string UrlValue::getRelativePath() const {
+  std::string source = tokens.front().source;
+  size_t pos = source.find_last_of("/\\");
+  std::string relative_path;
+  
+  // if the source stylesheet is not in the current working directory
+  //  then add its directory to the path.
+  if (pos != std::string::npos) {
+    relative_path.append(source.substr(0, pos + 1));
+    relative_path.append(this->path);
+  } else
+    relative_path = this->path;
+  return relative_path;
+}
+
 Value* UrlValue::add(const Value &v) const {
   (void)v;
   throw new ValueException("You can not add urls.");
@@ -122,6 +137,8 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   png_bytep* row_pointers;
   png_uint_32 rowbytes;
   unsigned int y;
+  std::string path = getRelativePath();
+  
     
   FILE *fp = fopen(path.c_str(), "rb");
   if (!fp)
@@ -214,6 +231,7 @@ bool UrlValue::loadJpeg(UrlValue_Img &img) const {
   FILE * infile;
   JSAMPARRAY buffer;	/* Output row buffer */
   int row_stride;	/* physical row width in output buffer */
+  std::string path = getRelativePath();
   
   if ((infile = fopen(path.c_str(), "rb")) == NULL) {
     return false;
