@@ -59,17 +59,19 @@ void CssWriter::writeTokenList(const TokenList &tokens) {
 
 void CssWriter::writeSelector(const TokenList &selector) {
   TokenList::const_iterator it;
+  bool newselector = true;
 
-  if (sourcemap != NULL)
-    sourcemap->writeMapping(column, selector.front());
-  
   for (it = selector.begin(); it != selector.end(); it++) {
-    writeToken(*it);
-      
-    if ((*it) == ",") {
-      if (sourcemap != NULL)
-        sourcemap->writeMapping(column, selector.front());
+
+    if (newselector && sourcemap != NULL) {
+      sourcemap->writeMapping(column, *it);
+      newselector = false;
     }
+
+    writeToken(*it);
+
+    if ((*it) == ",") 
+      newselector = true;
   }
 }
 
