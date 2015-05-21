@@ -35,6 +35,7 @@ void Selector::addPrefix(const Selector &prefix) {
   list<Selector> sepParts;
   list<Selector>::iterator prefixIt;
   list<Selector>::iterator sepIt;
+  Selector::iterator prefixPartIt;
 
   Selector* tmp, *prefixPart;
   TokenList::iterator i;
@@ -56,6 +57,12 @@ void Selector::addPrefix(const Selector &prefix) {
          prefixIt != prefixParts.end(); prefixIt++) {
 
       prefixPart = &(*prefixIt);
+
+      for (prefixPartIt = prefixPart->begin();
+           prefixPartIt != prefixPart->end();
+           prefixPartIt++) {
+        (*prefixPartIt).setLocation(tmp->front());
+      }
       
       if (containsAmp) {
         
