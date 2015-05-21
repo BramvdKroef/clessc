@@ -58,6 +58,7 @@ is read from stdin.\n"
     "   -o, --output=<FILE>		Send output to FILE\n"
     "   -f, --format			Format output CSS with newlines and \
 indentation. By default the output is unformatted.\n"
+    "\n"
     "   -m, --source-map=[FILE]	Generate a source map.\n"
     "       --source-map-rootpath=<PATH>   PATH is prepended to the \
 source file references in the source map, and also to the source map \
