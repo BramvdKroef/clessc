@@ -55,7 +55,7 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
   const TokenList* var;
   TokenList variable;
   const TokenList* oldvalue = &value;
-  TokenList::const_iterator i2, end;
+  TokenList::const_iterator i2, itmp, end;
   
   if (!needsProcessing(value)) {
     // interpolate strings
@@ -68,9 +68,14 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
 
   end = oldvalue->end();
   for(i2 = oldvalue->begin(); i2 != end; ) {
+    try {
+      itmp = i2;
+      v = processStatement(itmp, end, scope);
+      i2 = itmp;
+    } catch(ValueException *e) {
+      v = NULL;
+    }
 
-    v = processStatement(itmp, end, scope);
-    
     // add spaces between values
     if (v != NULL || i2 == end) {
       if (newvalue.size() == 0 ||

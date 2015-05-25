@@ -199,7 +199,7 @@ body header {
   height-jpg: 314px;
   background-color-jpg: #fff;
 }
-@media (width: 400px) {
+@media(width: 400px)  {
   .test6 {
     width: 400px;
     color: #5B83AD;
@@ -298,6 +298,10 @@ p .test14 {
   width: 1px solid blue;
 }
 @import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
+.icon.dim {
+  opacity: 0.3;
+  filter: alpha(opacity=30);
+}
 
-/*# sourceMappingURL=test.css.map*/
+/*# sourceMappingURL=test.css.map */
 

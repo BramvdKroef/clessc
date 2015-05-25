@@ -493,6 +493,8 @@ div.test11b {
 
 @import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
 
+.icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
