@@ -182,7 +182,8 @@ bool ValueProcessor::validateValue(TokenList &value, const ValueScope &scope) {
 
   if (v == NULL) {
     throw new ParseException(value.front(),
-                             "condition", 0, 0, "");
+                             "condition", value.front().line,
+                             value.front().column, value.front().source);
   }
   
   v2 = v->equals(trueVal);
@@ -376,8 +377,9 @@ Value* ValueProcessor::processConstant(TokenList &value, const ValueScope &scope
       return ret;  
     } else if (token.compare("true") == 0) {
       return new BooleanValue(token, true);
-    } else  
+    } else {
       return new StringValue(token, false);
+    }
     
   case Token::PAREN_OPEN:
     value.pop_front();

@@ -35,7 +35,8 @@ NumberValue::NumberValue(const Token &token) {
     type = DIMENSION;
     break;
   default:
-    throw new ValueException("Token used for Value that isn't a number, percentage or dimension");
+    throw new ValueException("Token used for Value that isn't a "
+                             "number, percentage or dimension", *this->getTokens());
   }
 }
 NumberValue::NumberValue(double value) {
@@ -48,10 +49,11 @@ NumberValue::NumberValue(double value, Token::Type type, const
   if (type != Token::NUMBER &&
       type != Token::PERCENTAGE &&
       type != Token::DIMENSION) {
-    throw new ValueException("Type can only be number, percentage or dimension.");
+    throw new ValueException("Type can only be number, "
+                             "percentage or dimension.", *this->getTokens());
   }
   if (type == Token::DIMENSION && unit == NULL)
-    throw new ValueException("Dimension requires a unit.");
+    throw new ValueException("Dimension requires a unit.", *this->getTokens());
   
   tokens.push_back(Token("", type, 0,0,"generated"));
   
@@ -120,7 +122,8 @@ double NumberValue::convert(const std::string &unit) const {
       return value;
     }
   } else
-    throw new ValueException("Can't do math on dimensions with different units.");
+    throw new ValueException("Can't do math on dimensions with "
+                             "different units.", *this->getTokens());
 
 }
 
@@ -153,7 +156,7 @@ Value* NumberValue::add(const Value &v) const {
     return sret;
 
   } else {
-    throw new ValueException("Unsupported type.");
+    throw new ValueException("Unsupported type.", *this->getTokens());
   }
 }
 Value* NumberValue::substract(const Value &v) const {
@@ -175,7 +178,8 @@ Value* NumberValue::substract(const Value &v) const {
 
     return ret;
   } else
-    throw new ValueException("You can only substract a *number* from a number.");
+    throw new ValueException("You can only substract a "
+                             "*number* from a number.", *this->getTokens());
 }
 Value* NumberValue::multiply(const Value &v) const {
   const NumberValue* n;
@@ -201,7 +205,7 @@ Value* NumberValue::multiply(const Value &v) const {
     return static_cast<const StringValue*>(&v)->multiply(*this);
 
   } else {
-    throw new ValueException("Unsupported type.");
+    throw new ValueException("Unsupported type.", *this->getTokens());
   }
 }
 
@@ -223,7 +227,8 @@ Value* NumberValue::divide(const Value &v) const {
     
     return ret;
   } else
-    throw new ValueException("You can only divide a number by a *number*.");
+    throw new ValueException("You can only divide a number "
+                             "by a *number*.", *this->getTokens());
 }
 
 BooleanValue* NumberValue::equals(const Value &v) const {
@@ -233,7 +238,8 @@ BooleanValue* NumberValue::equals(const Value &v) const {
     n = static_cast<const NumberValue*>(&v);
     return new BooleanValue(convert(n->getUnit()) == n->getValue());
   } else {
-    throw new ValueException("You can only compare a number with a *number*.");
+    throw new ValueException("You can only compare a number "
+                             "with a *number*.", *this->getTokens());
   }
 }
 
@@ -244,7 +250,8 @@ BooleanValue* NumberValue::lessThan(const Value &v) const {
     n = static_cast<const NumberValue*>(&v);
     return new BooleanValue(convert(n->getUnit()) < n->getValue());
   } else {
-    throw new ValueException("You can only compare a number with a *number*.");
+    throw new ValueException("You can only compare a number "
+                             "with a *number*.", *this->getTokens());
   }
 }
 
@@ -355,13 +362,15 @@ Value* NumberValue::unit(const vector<const Value*> &arguments) {
       ret->setUnit("");
     return ret;
   } else 
-    throw new ValueException("argument 1 has to be a number or dimension");
+    throw new ValueException("argument 1 has to be a number "
+                             "or dimension", *arguments[0]->getTokens());
 }
 Value* NumberValue::ceil(const vector<const Value*> &args) {
   NumberValue *n;
   
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("ceil() only works on numeric values");
+    throw new ValueException("ceil() only works on numeric "
+                             "values", *args[0]->getTokens());
 
   n = new NumberValue(*static_cast<const NumberValue*>(args[0]));
 
@@ -374,7 +383,8 @@ Value* NumberValue::floor(const vector<const Value*> &args) {
   NumberValue *n;
   
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("floor() only works on numeric values");
+    throw new ValueException("floor() only works on numeric "
+                             "values", *args[0]->getTokens());
 
   n = new NumberValue(*static_cast<const NumberValue*>(args[0]));
 
@@ -390,7 +400,8 @@ Value* NumberValue::percentage(const vector<const Value*> &args) {
 
 Value* NumberValue::round(const vector<const Value*> &args) {
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("round() only works on numeric values");
+    throw new ValueException("round() only works on numeric "
+                             "values", *args[0]->getTokens());
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   double val = n->getValue();
@@ -407,7 +418,8 @@ Value* NumberValue::round(const vector<const Value*> &args) {
 }  
 Value* NumberValue::sqrt(const vector<const Value*> &args) {
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("sqrt() only works on numeric values");
+    throw new ValueException("sqrt() only works on numeric "
+                             "values", *args[0]->getTokens());
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   n->setValue(std::sqrt(n->getValue()));
@@ -415,7 +427,8 @@ Value* NumberValue::sqrt(const vector<const Value*> &args) {
 }   
 Value* NumberValue::abs(const vector<const Value*> &args) {
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("abs() only works on numeric values");
+    throw new ValueException("abs() only works on numeric "
+                             "values", *args[0]->getTokens());
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   n->setValue(fabs(n->getValue()));
@@ -425,7 +438,8 @@ Value* NumberValue::abs(const vector<const Value*> &args) {
 Value* NumberValue::sin(const vector<const Value*> &args) {
   if (args[0]->type != Value::NUMBER &&
       args[0]->type != Value::DIMENSION) {
-    throw new ValueException("sin() only works on numbers or dimensions");
+    throw new ValueException("sin() only works on numbers "
+                             "or dimensions", *args[0]->getTokens());
   }
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
@@ -439,7 +453,8 @@ Value* NumberValue::sin(const vector<const Value*> &args) {
        unit.compare("deg") != 0 &&
        unit.compare("grad") != 0 &&
        unit.compare("turn") != 0) {
-      throw new ValueException("sin() requires rad, deg, grad or turn units.");
+      throw new ValueException("sin() requires rad, deg, "
+                               "grad or turn units.", *args[0]->getTokens());
     }
     val = UnitValue::angleToRad(val, unit);
   }
@@ -460,7 +475,8 @@ Value* NumberValue::asin(const vector<const Value*> &args) {
 Value* NumberValue::cos(const vector<const Value*> &args) {
   if (args[0]->type != Value::NUMBER &&
       args[0]->type != Value::DIMENSION) {
-    throw new ValueException("cos() only works on numbers or dimensions");
+    throw new ValueException("cos() only works on numbers "
+                             "or dimensions", *args[0]->getTokens());
   }
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   double val = n->getValue();
@@ -472,7 +488,8 @@ Value* NumberValue::cos(const vector<const Value*> &args) {
        unit.compare("deg") != 0 &&
        unit.compare("grad") != 0 &&
        unit.compare("turn") != 0) {
-      throw new ValueException("cos() requires rad, deg, grad or turn units.");
+      throw new ValueException("cos() requires rad, deg, "
+                               "grad or turn units.", *args[0]->getTokens());
     }
     val = UnitValue::angleToRad(val, unit);
   }
@@ -493,7 +510,8 @@ Value* NumberValue::acos(const vector<const Value*> &args) {
 Value* NumberValue::tan(const vector<const Value*> &args) {
   if (args[0]->type != Value::NUMBER &&
       args[0]->type != Value::DIMENSION) {
-    throw new ValueException("tan() only works on numbers or dimensions");
+    throw new ValueException("tan() only works on numbers "
+                             "or dimensions", *args[0]->getTokens());
   }
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   double val = n->getValue();
@@ -505,7 +523,8 @@ Value* NumberValue::tan(const vector<const Value*> &args) {
        unit.compare("deg") != 0 &&
        unit.compare("grad") != 0 &&
        unit.compare("turn") != 0) {
-      throw new ValueException("ta() requires rad, deg, grad or turn units.");
+      throw new ValueException("ta() requires rad, deg, "
+                               "grad or turn units.", *args[0]->getTokens());
     }
     val = UnitValue::angleToRad(val, unit);
   }
@@ -529,7 +548,8 @@ Value* NumberValue::pi(const vector<const Value*> &args) {
 }
 Value* NumberValue::pow(const vector<const Value*> &args) {
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("pow() only works on numeric values");
+    throw new ValueException("pow() only works on numeric values",
+                             *args[0]->getTokens());
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   double exp = ((const NumberValue*)args[1])->getValue();
@@ -540,7 +560,8 @@ Value* NumberValue::pow(const vector<const Value*> &args) {
 Value* NumberValue::mod(const vector<const Value*> &args) {
   if (!NumberValue::isNumber(*args[0]) ||
       !NumberValue::isNumber(*args[1]))
-    throw new ValueException("mod() only works on numeric values");
+    throw new ValueException("mod() only works on numeric values",
+                             *args[0]->getTokens());
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);
   double val2 = ((NumberValue*)args[1])->getValue();
@@ -550,11 +571,13 @@ Value* NumberValue::mod(const vector<const Value*> &args) {
 }    
 Value* NumberValue::convert(const vector<const Value*> &args) {
   if (!NumberValue::isNumber(*args[0]))
-    throw new ValueException("convert() only works on numeric values");  
+    throw new ValueException("convert() only works on numeric values",
+                             *args[0]->getTokens());  
   if (args[1]->type != Value::STRING &&
       args[1]->type != Value::UNIT) {
     throw new ValueException("convert() requires a unit \
-(or unit as a string)");
+(or unit as a string)",
+                             *args[1]->getTokens());
   }
 
   NumberValue* n = new NumberValue(*(const NumberValue*)args[0]);

@@ -46,19 +46,23 @@ Value* UnitValue::add(const Value &v) const {
     ret->add(v);
     return ret;
   }
-  throw new ValueException("Can't do math on unit types.");
+  throw new ValueException("Can't do math on unit types.",
+                           *this->getTokens());
 }
 Value* UnitValue::substract(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't do math on unit types.");
+  throw new ValueException("Can't do math on unit types.",
+                           *this->getTokens());
 }
 Value* UnitValue::multiply(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't do math on unit types.");
+  throw new ValueException("Can't do math on unit types.",
+                           *this->getTokens());
 }
 Value* UnitValue::divide(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't do math on unit types.");
+  throw new ValueException("Can't do math on unit types.",
+                           *this->getTokens());
 }
 
 BooleanValue* UnitValue::lessThan(const Value &v) const {
@@ -68,7 +72,8 @@ BooleanValue* UnitValue::lessThan(const Value &v) const {
     u = static_cast<const UnitValue*>(&v);
     return new BooleanValue(getUnit() < u->getUnit());
   } else {
-    throw new ValueException("You can only compare a unit with a *unit*.");
+    throw new ValueException("You can only compare a unit with a *unit*.",
+                             *this->getTokens());
   }
 }
 BooleanValue* UnitValue::equals(const Value &v) const {
@@ -78,7 +83,8 @@ BooleanValue* UnitValue::equals(const Value &v) const {
     u = static_cast<const UnitValue*>(&v);
     return new BooleanValue(getUnit() == u->getUnit());
   } else {
-    throw new ValueException("You can only compare a unit with a *unit*.");
+    throw new ValueException("You can only compare a unit with a *unit*.",
+                             *this->getTokens());
   }
 }
 

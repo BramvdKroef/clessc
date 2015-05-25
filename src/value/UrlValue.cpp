@@ -87,19 +87,23 @@ std::string UrlValue::getRelativePath() const {
 
 Value* UrlValue::add(const Value &v) const {
   (void)v;
-  throw new ValueException("You can not add urls.");
+  throw new ValueException("You can not add urls.",
+                           *this->getTokens());
 }
 Value* UrlValue::substract(const Value &v) const {
   (void)v;
-  throw new ValueException("You can not substract urls.");
+  throw new ValueException("You can not substract urls.",
+                           *this->getTokens());
 }
 Value* UrlValue::multiply(const Value &v) const {
   (void)v;
-  throw new ValueException("You can not multiply urls.");
+  throw new ValueException("You can not multiply urls.",
+                           *this->getTokens());
 }
 Value* UrlValue::divide(const Value &v) const {
   (void)v;
-  throw new ValueException("You can not divide urls.");
+  throw new ValueException("You can not divide urls.",
+                           *this->getTokens());
 }
 
 BooleanValue* UrlValue::lessThan(const Value &v) const {
@@ -108,7 +112,8 @@ BooleanValue* UrlValue::lessThan(const Value &v) const {
     u = static_cast<const UrlValue*>(&v);
     return new BooleanValue(path < u->getPath());
   } else {
-    throw new ValueException("You can only compare urls with urls.");
+    throw new ValueException("You can only compare urls with urls.",
+                             *this->getTokens());
   }
 }
 BooleanValue* UrlValue::equals(const Value &v) const {
@@ -118,7 +123,8 @@ BooleanValue* UrlValue::equals(const Value &v) const {
     u = static_cast<const UrlValue*>(&v);
     return new BooleanValue(path == u->getPath());
   } else {
-    throw new ValueException("You can only compare urls with urls.");
+    throw new ValueException("You can only compare urls with urls.",
+                             *this->getTokens());
   }
 }
 
@@ -152,14 +158,17 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
   if (!png_ptr)
-    throw new ValueException("png_create_read_struct failed");
+    throw new ValueException("png_create_read_struct failed",
+                             *this->getTokens());
 
   info_ptr = png_create_info_struct(png_ptr);
   if (!info_ptr)
-    throw new ValueException("png_create_info_struct failed");
+    throw new ValueException("png_create_info_struct failed",
+                             *this->getTokens());
 
   if (setjmp(png_jmpbuf(png_ptr)))
-    throw new ValueException("Error during init_io");
+    throw new ValueException("Error during init_io",
+                             *this->getTokens());
 
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
@@ -181,7 +190,8 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
 
   /* read file */
   if (setjmp(png_jmpbuf(png_ptr)))
-    throw new ValueException("Error during read_image");
+    throw new ValueException("Error during read_image",
+                             *this->getTokens());
 
   rowbytes = png_get_rowbytes(png_ptr,info_ptr);
   

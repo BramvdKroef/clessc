@@ -132,7 +132,7 @@ Value* StringValue::add(const Value &v) const {
 
 Value* StringValue::substract(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't substract from strings.");
+  throw new ValueException("Can't substract from strings.", *this->getTokens());
 }
 Value* StringValue::multiply(const Value &v) const {
   std::string newstr;
@@ -140,7 +140,7 @@ Value* StringValue::multiply(const Value &v) const {
   const NumberValue* n;
   
   if (v.type != Value::NUMBER) {
-    throw new ValueException("Strings can only be multiplied by a number.");
+    throw new ValueException("Strings can only be multiplied by a number.", *this->getTokens());
   }
 
   n = static_cast<const NumberValue*>(&v);
@@ -153,7 +153,7 @@ Value* StringValue::multiply(const Value &v) const {
 
 Value* StringValue::divide(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't divide strings.");
+  throw new ValueException("Can't divide strings.", *this->getTokens());
 }
 
 BooleanValue* StringValue::equals(const Value &v) const {
@@ -163,7 +163,7 @@ BooleanValue* StringValue::equals(const Value &v) const {
     s = static_cast<const StringValue*>(&v);
     return new BooleanValue(getString() == s->getString());
   } else {
-    throw new ValueException("You can only compare a string with a *string*.");
+    throw new ValueException("You can only compare a string with a *string*.", *this->getTokens());
   }
 }
 BooleanValue* StringValue::lessThan(const Value &v) const {
@@ -173,7 +173,7 @@ BooleanValue* StringValue::lessThan(const Value &v) const {
     s = static_cast<const StringValue*>(&v);
     return new BooleanValue(getString() < s->getString());
   } else {
-    throw new ValueException("You can only compare a string with a *string*.");
+    throw new ValueException("You can only compare a string with a *string*.", *this->getTokens());
   }
 }
 
@@ -234,7 +234,7 @@ Value* StringValue::format(const vector<const Value*> &arguments) {
       if (escapeChars.find(oldstr[i]) != string::npos) {
         if (argc == arguments.size())
           throw new ValueException("Format template expects more \
-arguments than provided.");
+arguments than provided.", *arguments[0]->getTokens());
 
         if ((oldstr[i] == 's' || oldstr[i] == 'S') &&
             arguments[argc]->type == STRING) {
@@ -256,7 +256,7 @@ arguments than provided.");
   
   if (argc != arguments.size()) {
     throw new ValueException("Format template does not supply \
-placeholders for all given arguments.");
+placeholders for all given arguments.", *arguments[0]->getTokens());
   }
   
   s->setString(newstr.str());

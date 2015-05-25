@@ -35,19 +35,20 @@ Value* BooleanValue::add(const Value &v) const {
     return ret;
   }
   
-  throw new ValueException("Can't add boolean types.");
+  throw new ValueException("Can't add boolean types.", *this->getTokens());
 }
 Value* BooleanValue::substract(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't substract boolean types.");
+  throw new ValueException("Can't substract boolean types.", *this->getTokens());
 }
 Value* BooleanValue::multiply(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't multiply boolean types.");
+  throw new ValueException("Can't multiply boolean types.", *this->getTokens());
 }
 Value* BooleanValue::divide(const Value &v) const {
   (void)v;
-  throw new ValueException("Can't divide boolean types.");
+  throw new ValueException("Can't divide boolean types.",
+                           *this->getTokens());
 }
 BooleanValue* BooleanValue::equals(const Value &v) const {
   const BooleanValue *b;
