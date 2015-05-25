@@ -108,15 +108,6 @@ bool parseInput(LessStylesheet &stylesheet,
 #endif
     
     return false;
-  } catch(ValueException* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Error: " << e->what();
-#else
-    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Error: " << e->what();
-#endif
-    
   } catch(exception* e) {
 #ifdef WITH_LIBGLOG
     LOG(ERROR) << " Error: " << e->what();
@@ -150,6 +141,17 @@ void writeOutput (LessStylesheet &stylesheet,
       e->getColumn() << " Parse Error: " << e->what();
 #endif
 
+    return;
+
+  } catch(ValueException* e) {
+#ifdef WITH_LIBGLOG
+    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Error: " << e->what();
+#else
+    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Error: " << e->what();
+#endif
+    
     return;
   } catch(exception* e) {
 #ifdef WITH_LIBGLOG
