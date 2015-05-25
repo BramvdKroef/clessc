@@ -27,7 +27,7 @@
 #endif
 
 
-StringValue::StringValue(Token &token, bool quotes) {
+StringValue::StringValue(const Token &token, bool quotes) {
   type = Value::STRING;
   
   tokens.push_back(token);

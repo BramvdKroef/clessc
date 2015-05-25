@@ -38,14 +38,15 @@ private:
 
 
 public:
-  FuncInfo* getFunction(const char* functionName);
+  const FuncInfo* getFunction(const char* functionName) const;
 
   void push(string name, const char* parameterTypes,
             Value* (*func)(const vector<const Value*> &arguments));
   
-  bool checkArguments(FuncInfo* fi, const vector<const Value*> &arguments);
+  bool checkArguments(const FuncInfo* fi,
+                      const vector<const Value*> &arguments) const;
   const char* functionDefToString(const char* functionName,
-                                  FuncInfo* fi = NULL);
+                                  const FuncInfo* fi = NULL);
 };
 
 #endif

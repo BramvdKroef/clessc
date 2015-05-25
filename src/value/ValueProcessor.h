@@ -44,32 +44,54 @@ class ValueProcessor {
 private:
   FunctionLibrary functionLibrary;
 
-  Value* processStatement(TokenList& value, const ValueScope &scope);
+  Value* processStatement(const TokenList& tokens,
+                          const ValueScope& scope) const;
 
-  Value* processOperator(TokenList& value, const Value &operand1,
-                         const ValueScope &scope, Token* lastop = NULL);
+  Value* processStatement(TokenList::const_iterator &it,
+                          TokenList::const_iterator &end,
+                          const ValueScope &scope) const;
 
-  Value* processConstant(TokenList &value, const ValueScope& scope);
+  Value* processOperator(TokenList::const_iterator &it,
+                         TokenList::const_iterator &end,
+                         const Value &operand1,
+                         const ValueScope &scope,
+                         Token* lastop = NULL) const;
 
-  const TokenList* processDeepVariable (TokenList &value, const ValueScope& scope);
+  Value* processConstant(TokenList::const_iterator &it,
+                         TokenList::const_iterator &end,
+                         const ValueScope& scope) const;
+
+  Value* processSubstatement(TokenList::const_iterator &i,
+                             TokenList::const_iterator &end,
+                             const ValueScope &scope) const;
+    
+  const TokenList* processDeepVariable (TokenList::const_iterator &it,
+                                        TokenList::const_iterator &end,
+                                        const ValueScope& scope) const;
   
   Value* processFunction(const Token &function,
-                         TokenList &value,
-                         const ValueScope &scope);
+                         TokenList::const_iterator &it,
+                         TokenList::const_iterator &end,
+                         const ValueScope &scope) const;
   
-  void processArguments (TokenList &value,
+  bool processArguments (TokenList::const_iterator &it,
+                         TokenList::const_iterator &end,
                          const ValueScope &scope,
-                         vector<const Value*> &arguments);
+                         vector<const Value*> &arguments) const;
   
-  Value* processEscape (TokenList &value,
-                        const ValueScope &scope);
-  UnitValue* processUnit(Token &t);
+  Value* processEscape (TokenList::const_iterator &it,
+                        TokenList::const_iterator &end,
+                        const ValueScope &scope) const;
+  UnitValue* processUnit(Token &t) const;
   
-  bool needsSpace(const Token &t, bool before);
+  bool needsSpace(const Token &t, bool before) const;
 
-  Value* processNegative(TokenList &value,
-                               const ValueScope &scope);
-  
+  Value* processNegative(TokenList::const_iterator &it,
+                         TokenList::const_iterator &end,
+                         const ValueScope &scope) const;
+
+  void skipWhitespace(TokenList::const_iterator &i,
+                      TokenList::const_iterator &end) const;
 public:
   ValueProcessor();
   virtual ~ValueProcessor();
@@ -81,17 +103,19 @@ public:
    * @return  true if value contains an @-keyword, an operator (+-* or
    *          /), a LESS function, an escaped value or a url.
    */
-  bool needsProcessing(const TokenList &value);
+  bool needsProcessing(const TokenList &value) const;
 
-  void processValue(TokenList &value, const ValueScope &scope);
+  void processValue(TokenList &value, const ValueScope &scope) const;
 
-  bool validateCondition(TokenList &value, const ValueScope &scope);
-  bool validateValue(TokenList &value, const ValueScope &scope);
+  bool validateCondition(const TokenList &value, const ValueScope &scope);
+  bool validateValue(TokenList::const_iterator &i,
+                     TokenList::const_iterator &end,
+                     const ValueScope &scope);
   
-  bool functionExists(const string &function);
+  bool functionExists(const char* function) const;
 
-  void interpolate(string &str, const ValueScope &scope);
-  void interpolate(TokenList &tokens, const ValueScope &scope);
+  void interpolate(string &str, const ValueScope &scope) const;
+  void interpolate(TokenList &tokens, const ValueScope &scope) const;
 };
 
 #endif

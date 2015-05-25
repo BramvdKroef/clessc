@@ -37,8 +37,7 @@ private:
   void updateTokens();
 
 public:
-  StringValue(Token &token);
-  StringValue(Token &token, bool quotes);
+  StringValue(const Token &token, bool quotes);
   StringValue(std::string &str, bool quotes);
   StringValue(const StringValue &s);
   StringValue(const Value &val, bool quotes);

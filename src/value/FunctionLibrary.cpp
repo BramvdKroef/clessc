@@ -21,8 +21,14 @@
 
 #include "FunctionLibrary.h"
 
-FuncInfo* FunctionLibrary::getFunction(const char* functionName) {
-  return map[functionName];
+const FuncInfo* FunctionLibrary::getFunction(const char* functionName) const {
+  std::map<std::string, FuncInfo*>::const_iterator i =
+    map.find(functionName);
+
+  if (i != map.end())
+    return i->second;
+  else
+    return NULL;
 }
 
 void FunctionLibrary::push(string name, const char* parameterTypes,
@@ -34,8 +40,9 @@ void FunctionLibrary::push(string name, const char* parameterTypes,
   map[name] = fi;
 }
 
-bool FunctionLibrary::checkArguments(FuncInfo* fi,
-                                     const vector<const Value*> &arguments) {
+bool FunctionLibrary::checkArguments(const FuncInfo* fi,
+                                     const vector<const Value*>
+                                     &arguments) const {
   const char* types = fi->parameterTypes;
   vector<const Value*>::const_iterator it = arguments.begin();
   unsigned int i, len = strlen(types);
@@ -76,11 +83,12 @@ bool FunctionLibrary::checkArguments(FuncInfo* fi,
   return true;
 }
 
-const char* FunctionLibrary::functionDefToString
-(const char* functionName, FuncInfo* fi) {
+const char* FunctionLibrary::functionDefToString (const char* functionName, const FuncInfo* fi) {
   
   if (fi == NULL)
     fi = getFunction(functionName);
+  if (fi == NULL)
+    return "";
   
   string str(functionName);
   const char* types = fi->parameterTypes;
