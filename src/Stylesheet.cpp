@@ -80,6 +80,13 @@ Stylesheet* StylesheetStatement::getStylesheet() {
   return stylesheet;
 }
 
+void StylesheetStatement::setReference(bool ref) {
+  reference = ref;
+}
+bool StylesheetStatement::isReference() {
+  return reference;
+}
+  
 
 Ruleset::Ruleset() {
 }
@@ -342,7 +349,8 @@ void Stylesheet::process(Stylesheet &s) {
 #endif
         
   for (i = statements.begin(); i != statements.end(); i++) {
-    (*i)->process(s);
+    if ((*i)->isReference() == false)
+      (*i)->process(s);
   }
   
 #ifdef WITH_LIBGLOG

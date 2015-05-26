@@ -63,9 +63,26 @@
  */
 class LessParser: public CssParser {
 public:
+  static const unsigned int IMPORT_REFERENCE = 1,
+    IMPORT_INLINE = 2,
+    IMPORT_LESS = 4,
+    IMPORT_CSS = 6,
+    IMPORT_ONCE = 12,
+    IMPORT_MULTIPLE = 24,
+    IMPORT_OPTIONAL = 48;
+
   LessParser(CssTokenizer &tokenizer,
              std::list<const char*> &source_files):
-    CssParser(tokenizer), sources(source_files) {
+    CssParser(tokenizer),
+    sources(source_files),
+    reference(false) {
+  }
+  LessParser(CssTokenizer &tokenizer,
+             std::list<const char*> &source_files,
+             bool isreference):
+    CssParser(tokenizer),
+    sources(source_files),
+    reference(isreference) {
   }
   virtual ~LessParser () {
   }
@@ -74,6 +91,7 @@ public:
   
 protected:
   std::list<const char*> &sources;
+  bool reference;
   
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to
@@ -111,8 +129,11 @@ protected:
 
   
   void parseList(std::list<TokenList*>* list, TokenList* tokens);
-  
-  bool importFile(Token uri, LessStylesheet &stylesheet);
+
+  bool parseImportStatement(TokenList &statement, LessStylesheet &stylesheet);
+  unsigned int parseImportDirective(Token &t);
+  bool importFile(Token uri, LessStylesheet &stylesheet, unsigned int directive);
+
   void parseLessMediaQuery(Token &mediatoken,
                            LessStylesheet &stylesheet);
 private:

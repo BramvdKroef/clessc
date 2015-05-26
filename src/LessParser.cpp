@@ -59,6 +59,7 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
     // Parameter mixin in the root. Inserts nested rules but no
     // declarations.
     mixin = ls->createMixin();
+    mixin->setReference(reference);
     
     if (mixin->parse(selector)) {
       if (tokenizer->getTokenType() == Token::DELIMITER) {
@@ -117,15 +118,12 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
     }
     // parse import
     if (token == "@import" && rule.size() > 0) {
-      if (rule.front().type == Token::URL ||
-          rule.front().type == Token::STRING) {
-        if (importFile(rule.front(), stylesheet))
-          return true;
-      } else
-        throw new ParseException(rule, "A string with the file path");
+      if (parseImportStatement(rule, stylesheet))
+        return true;
     }
     
     atrule = stylesheet.createLessAtRule(token);
+    atrule->setReference(reference);
     atrule->setRule(rule);
   }
   return true;
@@ -213,7 +211,7 @@ bool LessParser::parseRuleset (LessStylesheet &stylesheet,
     ruleset = stylesheet.createLessRuleset();
   else
     ruleset = parent->createNestedRule();
-  
+  ruleset->setReference(reference);
   ruleset->setSelector(selector);
   
   parseRulesetStatements(stylesheet, *ruleset);
@@ -271,6 +269,8 @@ void LessParser::parseMediaQueryRuleset(Token &mediatoken,
 
   MediaQueryRuleset* query = parent.createMediaQuery();
   Selector selector;
+
+  query->setReference(reference);
   
   selector.push_back(mediatoken);
   selector.push_back(Token::BUILTIN_SPACE);
@@ -337,15 +337,77 @@ UnprocessedStatement* LessParser::parseRulesetStatement (LessRuleset &ruleset) {
   return statement;
 }
 
+bool LessParser::parseImportStatement(TokenList &statement, LessStylesheet &stylesheet) {
+  unsigned int directive = 0;
+
+  // parse directives and strip from statement (the statement becomes a valid
+  // css import statement.)
+  if (statement.size() >= 4 &&
+      statement.front().type == Token::PAREN_OPEN) {
+    statement.pop_front();
+    statement.ltrim();
+    
+    directive = parseImportDirective(statement.front());
+    statement.pop_front();
+    statement.ltrim();
+    
+    while (statement.size() > 0 && statement.front() == ",") {
+      statement.pop_front();
+      statement.ltrim();
+      
+      directive |= parseImportDirective(statement.front());
+      statement.pop_front();
+      statement.ltrim();
+    }
+
+    if (statement.size() > 0 &&
+        statement.front().type != Token::PAREN_CLOSED) 
+      throw new ParseException(statement, ")");
+  }
+
+  if (statement.size() > 0 &&
+      (statement.front().type == Token::URL ||
+       statement.front().type == Token::STRING)) {
+    return importFile(statement.front(), stylesheet, directive);
+        
+  } else
+    throw new ParseException(statement, "A string with the file path, "
+                             "or an import directive.");
+}
+
+unsigned int LessParser::parseImportDirective(Token &t) {
+  if (t.type != Token::IDENTIFIER) 
+    throw new ParseException(t, "an import directive.");
+  if (t == "reference")
+    return IMPORT_REFERENCE;
+  else if (t == "inline")
+    return IMPORT_INLINE;
+  else if (t == "less")
+    return IMPORT_LESS;
+  else if (t == "css")
+    return IMPORT_CSS;
+  else if (t == "once")
+    return IMPORT_ONCE;
+  else if (t == "multiple")
+    return IMPORT_MULTIPLE;
+  else if (t == "optional")
+    return IMPORT_OPTIONAL;
+  else
+    throw new ParseException(t, "valid import directive: reference, "
+                             "inline, less, css, once, multiple or optional");
+}
 
 bool LessParser::importFile(Token uri,
-                            LessStylesheet &stylesheet) {
+                            LessStylesheet &stylesheet,
+                            unsigned int directive) {
   size_t pathend;
   size_t pos;
+  size_t extension_pos;
   std::string source;
   std::string relative_filename;
   std::list<const char*>::iterator i;
   char* relative_filename_cpy;
+  std::string extension;
     
   if (uri.type == Token::URL) {
     uri = uri.getUrlString();
@@ -357,22 +419,32 @@ bool LessParser::importFile(Token uri,
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Import filename: " << uri;
 #endif
-      
+
+  // no remote includes
+  if (uri.substr(0, 7) == "http://")
+    return false;
+
   pathend = uri.rfind('?');
   if (pathend == std::string::npos)
     pathend = uri.size();
 
-  if (pathend > 4 &&
-      (uri.substr(pathend - 4, 4) == ".css" ||
-       uri.substr(0, 7) == "http://")) {
+  extension_pos = uri.rfind('.', pathend);
+  if (extension_pos == std::string::npos) {
+    uri.insert(pathend, ".less");
+    pathend += 5;
+    extension = "less";
+  } else
+    extension = uri.substr(extension_pos + 1, pathend);
+  
+  // don't import css, unless specified with directive
+  // don't import if css directive is given
+  if ((extension == "css" &&
+       !(directive & IMPORT_LESS)) ||
+      
+      (directive & IMPORT_CSS)) {
     return false;
   }
   
-  if (pathend < 5 || uri.substr(pathend - 5, 5) != ".less") {
-    uri.insert(pathend, ".less");
-    pathend += 5;
-  }
-
   // uri.source is the sourcefile that is currently parsed.
   source = uri.source;
   pos = source.find_last_of("/\\");
@@ -385,16 +457,23 @@ bool LessParser::importFile(Token uri,
   } else
     relative_filename = uri;
 
-  // check if the file has already been imported.
-  for (i = sources.begin(); i != sources.end(); i++) {
-    if (relative_filename == (*i))
-      return true;
+  if (!(directive & IMPORT_MULTIPLE)) {
+    // check if the file has already been imported.
+    for (i = sources.begin(); i != sources.end(); i++) {
+      if (relative_filename == (*i))
+        return true;
+    }
   }
   
   ifstream in(relative_filename.c_str());
-  if (in.fail() || in.bad())
-    throw new ParseException(relative_filename, "existing file",
-                             uri.line, uri.column, uri.source);
+  if (in.fail() || in.bad()) {
+    if (directive & IMPORT_OPTIONAL)
+      return true;
+    else {
+      throw new ParseException(relative_filename, "existing file",
+                               uri.line, uri.column, uri.source);
+    }
+  }
 
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Opening: " << relative_filename;
@@ -405,7 +484,7 @@ bool LessParser::importFile(Token uri,
               
   sources.push_back(relative_filename_cpy);
   LessTokenizer tokenizer(in, relative_filename_cpy);
-  LessParser parser(tokenizer, sources);
+  LessParser parser(tokenizer, sources, (directive & IMPORT_REFERENCE));
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Parsing";
@@ -419,7 +498,8 @@ bool LessParser::importFile(Token uri,
 void LessParser::parseLessMediaQuery(Token &mediatoken,
                                      LessStylesheet &stylesheet) { 
   LessMediaQuery* query = stylesheet.createLessMediaQuery();
-
+  query->setReference(reference);
+  
   query->getSelector()->push_back(mediatoken);
   query->getSelector()->push_back(Token::BUILTIN_SPACE);
 

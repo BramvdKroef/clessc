@@ -66,6 +66,10 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
     return;
   }
 
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing: " << value.toString();
+#endif
+
   end = oldvalue->end();
   for(i2 = oldvalue->begin(); i2 != end; ) {
     try {
@@ -77,7 +81,7 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
     }
 
     // add spaces between values
-    if (v != NULL || i2 == end) {
+    if (v != NULL || i2 != end) {
       if (newvalue.size() == 0 ||
           !needsSpace(newvalue.back(), false) ||
           (v == NULL &&
@@ -125,6 +129,10 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
       }
     }
   }
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processed: " << newvalue.toString();
+#endif
+  
   value = newvalue;
   return;
 }
