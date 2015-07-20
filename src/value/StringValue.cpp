@@ -35,7 +35,7 @@ StringValue::StringValue(const Token &token, bool quotes) {
   setString(token);
 }
 
-StringValue::StringValue(std::string &str, bool quotes) {
+StringValue::StringValue(const std::string &str, bool quotes) {
   Token token(str, Token::STRING, 0,0,"generated");
   
   type = Value::STRING;
@@ -49,7 +49,7 @@ StringValue::StringValue(const StringValue &s) {
 
   type = Value::STRING;
   tokens.push_back(token);
-  this->quotes = quotes;
+  this->quotes = s.getQuotes();
   setString(token);
 }
 
@@ -146,7 +146,7 @@ Value* StringValue::multiply(const Value &v) const {
   n = static_cast<const NumberValue*>(&v);
   
   for (i = 0; i < n->getValue(); i++) {
-    newstr.append(strvalue);
+    newstr.append(getString());
   }
   return new StringValue(newstr, getQuotes());
 }

@@ -38,7 +38,7 @@ private:
 
 public:
   StringValue(const Token &token, bool quotes);
-  StringValue(std::string &str, bool quotes);
+  StringValue(const std::string &str, bool quotes);
   StringValue(const StringValue &s);
   StringValue(const Value &val, bool quotes);
   
