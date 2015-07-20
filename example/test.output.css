@@ -199,7 +199,7 @@ body header {
   height-jpg: 314px;
   background-color-jpg: #fff;
 }
-@media(width: 400px)  {
+@media (width: 400px) {
   .test6 {
     width: 400px;
     color: #5B83AD;
