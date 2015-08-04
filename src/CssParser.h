@@ -77,6 +77,13 @@ protected:
    */
   virtual bool parseStatement(Stylesheet &stylesheet);
 
+
+  /**
+   * Parse a semicolon. Prevent errors when encountering a semicolon
+   * by itself.
+   */
+  bool parseEmptyStatement();
+  
   /**
    * Parse a media query, starting with the @media keyword.
    *

@@ -30,7 +30,7 @@ void CssParser::parseStylesheet(Stylesheet &stylesheet){
   tokenizer->readNextToken();
   
   skipWhitespace();
-  while (parseStatement(stylesheet)) {
+  while (parseStatement(stylesheet) || parseEmptyStatement()) {
     skipWhitespace();
   }
   
@@ -58,6 +58,28 @@ bool CssParser::parseWhitespace(TokenList &tokens) {
     tokenizer->readNextToken();
   }
   return true;
+}
+
+bool CssParser::parseEmptyStatement() {
+  Token* t;
+  
+  // empty statement 
+  if (tokenizer->getTokenType() == Token::DELIMITER) {
+    t = &tokenizer->getToken();
+
+#ifdef WITH_LIBGLOG
+    LOG(WARNING) << t->source << ": Line " << t->line << ", Column" <<
+      t->column << " Warning: Semicolon without statement.";
+#else
+    std::cerr << t->source << ": Line " << t->line << ", Column" <<
+      t->column << " Warning: Semicolon without statement.\n";
+#endif
+
+    tokenizer->readNextToken();
+    
+    return true;
+  } else
+    return false;
 }
 
 bool CssParser::parseStatement(Stylesheet &stylesheet) {

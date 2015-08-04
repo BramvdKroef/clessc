@@ -495,6 +495,9 @@ div.test11b {
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
 
+/* semi colon without statement */
+;
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
