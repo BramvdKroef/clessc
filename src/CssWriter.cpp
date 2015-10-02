@@ -111,8 +111,8 @@ void CssWriter::writeAtRule(const Token &keyword, const TokenList &rule) {
     sourcemap->writeMapping(column, rule.front());
   
   writeTokenList(rule);
-  
-  writeStr(";", 1);
+  if (rule.back() != "}")
+    writeStr(";", 1);
 }
 
 void CssWriter::writeRulesetStart(const TokenList &selector) {
