@@ -85,20 +85,7 @@ ProcessingContext* LessStylesheet::getContext() {
 }
 
 void LessStylesheet::putVariable(const std::string &key, const TokenList &value) {
-  map<std::string, TokenList>::iterator mit;
-  
-  // check if variable is alread declared
-  mit = variables.find(key);
-  
-  if (mit != variables.end()) {
-#ifdef WITH_LIBGLOG
-    LOG(WARNING) << "Variable " << key << " defined twice in same stylesheet.";
-#else
-    std::cerr << "Variable " << key << " defined twice in same stylesheet.\n";
-#endif
-  }
-  
-  variables.insert(std::pair<std::string, TokenList>(key, value));  
+  variables[key] = value;
 }
 
 
