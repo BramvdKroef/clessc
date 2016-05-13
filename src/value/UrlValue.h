@@ -26,11 +26,14 @@
 #include "Color.h"
 #include <string>
 
-typedef struct UrlValue_Img {
+class UrlValue_Img {
+public:
   unsigned int width;
   unsigned int height;
   Color background;
-} UrlValue_Img;
+
+  UrlValue_Img();
+};
 
 class UrlValue: public Value {
 private:

@@ -23,6 +23,11 @@
 
 #include <config.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
+
 #ifdef WITH_LIBPNG
 #include <png.h>
 #endif
@@ -55,6 +60,9 @@ urlvalue_jpeg_error_exit (j_common_ptr cinfo)
 }
 
 #endif
+
+UrlValue_Img::UrlValue_Img() {
+}
 
 UrlValue::UrlValue(Token &token, std::string &path): Value() {
   tokens.push_back(token);
@@ -140,20 +148,24 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   
   png_structp png_ptr;
   png_infop info_ptr;
-  png_bytep* row_pointers;
-  png_uint_32 rowbytes;
-  unsigned int y;
+  png_byte color_type;
+  int channels;
+  
   std::string path = getRelativePath();
   
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "PNG path: " << path;
+#endif
     
   FILE *fp = fopen(path.c_str(), "rb");
   if (!fp)
     return false; //"Image file could not be opened"
 
   fread(header, 1, 8, fp);
+  
   if (png_sig_cmp(header, 0, 8))
     return false; //"Image is not a PNG file"
-  
+
   /* initialize stuff */
   png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
@@ -177,9 +189,10 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
 
   img.width = png_get_image_width(png_ptr, info_ptr);
   img.height = png_get_image_height(png_ptr, info_ptr);
-  int channels = png_get_channels(png_ptr, info_ptr);
+  channels = png_get_channels(png_ptr, info_ptr);
+  color_type = png_get_color_type(png_ptr, info_ptr);
   
-  if(png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
+  if(color_type == PNG_COLOR_TYPE_PALETTE) {
     png_set_palette_to_rgb(png_ptr);
     channels = 3;
   }
@@ -188,42 +201,30 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
     channels += 1;
   }
 
-  /* read file */
-  if (setjmp(png_jmpbuf(png_ptr)))
-    throw new ValueException("Error during read_image",
-                             *this->getTokens());
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Width: " << img.width << ", Height: " << img.height <<
+    ", Channels: " << channels;
+#endif
 
-  rowbytes = png_get_rowbytes(png_ptr,info_ptr);
-  
-  row_pointers = (png_bytep*)malloc(sizeof(png_bytep) * img.height);
-
-  for (y = 0; y < img.height; y++)
-    row_pointers[y] = (png_byte*)malloc(rowbytes);
-
-  png_read_image(png_ptr, row_pointers);
-
-  if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGB ||
-      png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_RGBA ||
-      png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE) {
-
-    png_byte* color1 = row_pointers[0];
-    png_byte* color2 = row_pointers[0] + (img.width - 1) * channels;
-    png_byte* color3 = row_pointers[img.height - 1];
-    png_byte* color4 = row_pointers[img.height - 1] + (img.width - 1) * channels;
-
-    if (memcmp(color1, color2, channels) == 0 &&
-        memcmp(color1, color3, channels) == 0 &&
-        memcmp(color1, color4, channels) == 0) {
-        
-      img.background.setRGB(color1[0], color1[1], color1[2]);
-      if (channels == 4)
-        img.background.setAlpha(color1[3]);
-    } else {
-      img.background.setRGB(0,0,0);
-    }
+  png_color_16p pBackground;
+  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
+    png_get_bKGD(png_ptr, info_ptr, &pBackground);
+    img.background.setRGB(pBackground->red,
+                          pBackground->green,
+                          pBackground->blue);
+  }else {
+    img.background.setRGB(255,255,255);
   }
-    
+
+  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+  png_ptr = NULL;
+  info_ptr = NULL;
   fclose(fp);
+  
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Read successful";
+#endif
+
   return true;
   
 #else
@@ -391,6 +392,11 @@ Value* UrlValue::imgheight(const vector<const Value*> &arguments) {
   std::string px = "px";
 
   u = static_cast<const UrlValue*>(arguments[0]);
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Height: " << u->getImageHeight();
+#endif
+
   val = new NumberValue(u->getImageHeight(), Token::DIMENSION, &px);
   return val;
 }
