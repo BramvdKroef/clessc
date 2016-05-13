@@ -370,7 +370,7 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
   token = *i;
   
 #ifdef WITH_LIBGLOG
-  VLOG(3) << "Constant: " << token;
+  VLOG(3) << "Constant: " << token << "[type " << token.type << "]";
 #endif
   
   switch(token.type) {
@@ -394,6 +394,11 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
       if (ret != NULL) {
         i++;
         ret->setLocation(token);
+
+#ifdef WITH_LIBGLOG
+        VLOG(3) << "Variable value: " << ret->getTokens()->toString();
+#endif
+        
         return ret;
       }
     } 
@@ -410,6 +415,10 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
     i++;
     interpolate(token, scope);
     str = token.getUrlString();
+#ifdef WITH_LIBGLOG
+    VLOG(3) << "url: " << str;
+#endif
+
     return new UrlValue(token, str);
         
   case Token::IDENTIFIER:
@@ -766,7 +775,11 @@ void ValueProcessor::interpolate(std::string &str, const ValueScope &scope)
   string key , value;
   const TokenList* var;
   TokenList variable;
-  
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Interpolate: " << str;
+#endif
+
   while ((start = str.find("@{", end)) != string::npos &&
          (end = str.find("}", start)) != string::npos) {
     key = "@";
