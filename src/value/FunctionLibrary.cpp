@@ -93,6 +93,7 @@ const char* FunctionLibrary::functionDefToString (const char* functionName, cons
   string str(functionName);
   const char* types = fi->parameterTypes;
   unsigned int i, len = strlen(types);
+  char* retstr;
 
   str.append("(");
   for (i = 0; i < len; i++) {
@@ -115,5 +116,9 @@ const char* FunctionLibrary::functionDefToString (const char* functionName, cons
       str.append(", ");
   }
   str.append(")");
-  return str.c_str();
+
+  retstr = new char[str.length() + 1];
+  std::strcpy (retstr, str.c_str());
+  
+  return retstr;
 }
