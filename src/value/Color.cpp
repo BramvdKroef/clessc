@@ -21,6 +21,12 @@
 
 #include "Color.h"
 
+#include <config.h>
+
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 #include <sstream>
 #include <iostream>
 
@@ -56,7 +62,11 @@ void Color::updateTokens() {
   int i;
 
   tokens.clear();
-  
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Update tokens";
+#endif
+
   // If the color is not opaque the rgba() function needs to be used.
   if (alpha < 1) {
     tokens.push_back(Token("rgba", Token::IDENTIFIER, 0, 0, "generated"));
@@ -103,6 +113,10 @@ void Color::updateTokens() {
 
     tokens.push_back(Token(hash, Token::HASH, 0,0,"generated"));
   }
+#ifdef WITH_LIBGLOG
+  VLOG(3) << tokens.toString();
+#endif
+
 }
 
 Color::Color(): Value() {
