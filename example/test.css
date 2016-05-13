@@ -11,9 +11,6 @@
     content: @@var;
 }
 
-// Causes a warning
-@var: 'defined twice';
-
 /* Mixins */
 
 .bordered {
