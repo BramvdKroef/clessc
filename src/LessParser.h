@@ -120,6 +120,8 @@ protected:
   void parseMediaQueryRuleset(Token &mediatoken,
                               LessStylesheet &stylesheet,
                               LessRuleset &parent);
+
+  bool parsePropertyVariable(Selector &selector);
   UnprocessedStatement* parseRulesetStatement (LessRuleset &parent);
 
   

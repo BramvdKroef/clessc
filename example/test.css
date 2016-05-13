@@ -374,6 +374,7 @@ body {
 
 .@{name}{
     color: #000;
+    property-@{name}: 10px;
 }
 .mixin6(@name2, @color) {
     .@{name2} {

@@ -106,7 +106,8 @@ void UnprocessedStatement::process(Ruleset &r) {
       VLOG(2) << "Declaration: " <<
         declaration->getProperty() << ": " << declaration->getValue().toString();
 #endif
-    
+
+      getLessRuleset()->getContext()->interpolate(declaration->getProperty());
       getLessRuleset()->getContext()->processValue(declaration->getValue());
 
 #ifdef WITH_LIBGLOG

@@ -305,12 +305,47 @@ void LessParser::parseMediaQueryRuleset(Token &mediatoken,
   skipWhitespace();
 }
 
+
+bool LessParser::parsePropertyVariable(Selector &selector) {
+  Token variable = tokenizer->getToken();
+
+  if (tokenizer->getTokenType() != Token::OTHER ||
+      variable != "@")
+    return false;
+  
+  if (tokenizer->readNextToken() != Token::BRACKET_OPEN) 
+    throw new ParseException(tokenizer->getToken(),
+                             "Opening bracket following @");
+  variable.append(tokenizer->getToken());
+  
+  if (tokenizer->readNextToken() != Token::IDENTIFIER) 
+    throw new ParseException(tokenizer->getToken(),
+                             "Variable inside selector (e.g.: \
+@{identifier})");
+
+  variable.append(tokenizer->getToken());
+      
+  if (tokenizer->readNextToken() != Token::BRACKET_CLOSED)
+    throw new ParseException(tokenizer->getToken(),
+                               "Closing bracket after variable.");
+
+  variable.append(tokenizer->getToken());
+  tokenizer->readNextToken();
+
+  selector.push_back(variable);
+  parseWhitespace(selector);
+    
+  return true;
+}
+
+
 UnprocessedStatement* LessParser::parseRulesetStatement (LessRuleset &ruleset) {
   UnprocessedStatement* statement;
   Selector tokens;
   size_t property_i;
   
-  parseProperty(tokens);
+  while (parseProperty(tokens) || parsePropertyVariable(tokens)) {}
+  
   property_i = tokens.size();
 
   parseWhitespace(tokens);
