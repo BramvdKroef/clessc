@@ -194,7 +194,7 @@ body header {
   background: url(test.png) no-repeat;
   width: 265px;
   height: 314px;
-  background-color: rgba(255,255,255,0);
+  background-color: #fff;
   width-jpg: 265px;
   height-jpg: 314px;
   background-color-jpg: #fff;
@@ -223,6 +223,7 @@ body header {
 }
 .blocked {
   color: #000;
+  property-blocked: 10px;
 }
 .class .blocked {
   color: #FFF;
