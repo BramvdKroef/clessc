@@ -156,7 +156,9 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
       // function
       if ((*i).type == Token::IDENTIFIER) {
         t = &(*i);
-        if ((*++i).type == Token::PAREN_OPEN &&
+        i++;
+        if (i != value.end() &&
+            (*i).type == Token::PAREN_OPEN &&
             functionExists((*t).c_str())) {
           return true;
         } else
