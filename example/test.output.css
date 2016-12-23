@@ -1,9 +1,11 @@
+/* Variables */
 #header {
   color: #6c94be;
 }
 .class {
   content: "I am f'nord. I am f'nord. ";
 }
+/* Mixins */
 .bordered {
   border-top: dotted 1px black;
   border-bottom: solid 2px black;
@@ -18,6 +20,7 @@
   border-top: dotted 1px black;
   border-bottom: solid 2px black;
 }
+/* Parametric Mixins */
 #header {
   border-radius: 4px;
   -moz-border-radius: 4px;
@@ -45,6 +48,7 @@ pre {
 .test mixin2b {
   color: rgba(0,0,0,0.5);
 }
+/* The @arguments variable */
 .class {
   box-shadow: 2px 5px 1px #000;
   -moz-box-shadow: 2px 5px 1px #000;
@@ -56,11 +60,13 @@ pre {
   -moz-box-shadow: 8px 20px 1px #000;
   -webkit-box-shadow: 8px 20px 1px #000;
 }
+/* Rest arguments */
 .test mixin3 {
   border1: 1px #000 solid;
   border2: 4px #000 solid;
   border3: 4px #456 dashed;
 }
+/* Nested rules */
 #header {
   color: black;
 }
@@ -91,6 +97,7 @@ pre {
 #header .class2 a {
   font-weight: bold;
 }
+/* Operations */
 .class {
   background-color: #161616;
   width: 28px;
@@ -100,6 +107,7 @@ pre {
   transform: rotate(45deg);
   left: -3.636363636px;
 }
+/* Color Functions */
 .class {
   color: #ed2c2c;
   color: #a50e0e;
@@ -113,6 +121,7 @@ pre {
   clip: rect(1px, 1px, 1px, 1px);
   color: #1a1a1a;
 }
+/* Namespaces */
 #header a {
   color: orange;
   display: block;
@@ -136,16 +145,20 @@ pre {
 #header2 a span a {
   display: none;
 }
+/* Scope */
 #page #header {
   color: white;
 }
 #footer {
   color: red;
 }
+/* comments */
+/* Importing */
 @import "lib.css";
 .lib-test {
   color: #123;
 }
+/* String interpolation */
 .class {
   background-image: url("http://assets.fnord.com/images/bg.png");
 }
@@ -228,6 +241,7 @@ body header {
 .class .blocked {
   color: #FFF;
 }
+/* Reference a mixin before it is declared. */
 .mixin-test7 {
   -x-mixin8: 15;
 }
@@ -303,6 +317,13 @@ p .test14 {
   opacity: 0.3;
   filter: alpha(opacity=30);
 }
+div  .class {
+  color: #fff;
+}
+/* semi colon without statement */
+/* Multiline comment ending with * at the end of the file */
+/*
+**/
 
 /*# sourceMappingURL=test.css.map */
 
