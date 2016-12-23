@@ -103,7 +103,7 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
 
   token = tokenizer->getToken();
   tokenizer->readNextToken();
-  skipWhitespace();
+  CssParser::skipWhitespace();
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Parse: keyword: " << token;
@@ -149,7 +149,7 @@ bool LessParser::parseVariable (TokenList &value) {
     return false;
   
   tokenizer->readNextToken();
-  skipWhitespace();
+  CssParser::skipWhitespace();
     
   if (parseValue(value) == false || value.size() == 0) {
     throw new ParseException(tokenizer->getToken(),
@@ -296,7 +296,7 @@ void LessParser::parseMediaQueryRuleset(Token &mediatoken,
   selector.push_back(mediatoken);
   selector.push_back(Token::BUILTIN_SPACE);
 
-  skipWhitespace();
+  CssParser::skipWhitespace();
 
   while (parseAny(selector) ||
          tokenizer->getTokenType() == Token::ATKEYWORD) {
@@ -559,7 +559,7 @@ void LessParser::parseLessMediaQuery(Token &mediatoken,
   query->getSelector()->push_back(mediatoken);
   query->getSelector()->push_back(Token::BUILTIN_SPACE);
 
-  skipWhitespace();
+  CssParser::skipWhitespace();
 
   while (parseAny(*query->getSelector()) ||
          tokenizer->getTokenType() == Token::ATKEYWORD) {
