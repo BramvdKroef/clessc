@@ -102,6 +102,11 @@ void CssPrettyWriter::writeDeclarationDeliminator() {
   newline();
 }
 
+void CssPrettyWriter::writeComment(const Token &comment) {
+  writeToken(comment);
+  newline();
+}
+
 void CssPrettyWriter::writeMediaQueryStart(const TokenList &selector) {
   indent();
   
