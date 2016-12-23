@@ -493,6 +493,8 @@ div.test11b {
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
 
+// LESS Comment
+
 /* semi colon without statement */
 ;
 

@@ -61,7 +61,7 @@ protected:
   /**
    * Parse whitespace tokens and comments and skip them.
    */
-  void skipWhitespace();
+  virtual void skipWhitespace();
 
   /**
    * Parse whitespace tokens and add them to the tokens

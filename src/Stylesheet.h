@@ -46,25 +46,6 @@ public:
   virtual void process(Ruleset &r) = 0;
 };
 
-class Declaration: public RulesetStatement {
-private:
-  Token property;
-  TokenList value;
-  
-public:
-  Declaration();
-  Declaration(const Token &property);
-  virtual ~Declaration();
-  void setProperty(const Token &property);
-  void setValue(const TokenList &value);
-  
-  Token& getProperty();
-  TokenList& getValue();
-
-  virtual void process(Ruleset &r);
-  virtual void write(CssWriter &writer);
-};
-
 class Stylesheet;
 
 class StylesheetStatement : public CssWritable  {
@@ -84,6 +65,28 @@ public:
   virtual void process(Stylesheet &s) = 0;
 };
 
+class CssComment;
+
+class Declaration: public RulesetStatement {
+private:
+  Token property;
+  TokenList value;
+  
+public:
+  Declaration();
+  Declaration(const Token &property);
+  virtual ~Declaration();
+  void setProperty(const Token &property);
+  void setValue(const TokenList &value);
+  
+  Token& getProperty();
+  TokenList& getValue();
+
+  virtual void process(Ruleset &r);
+  virtual void write(CssWriter &writer);
+};
+
+
 class Ruleset: public StylesheetStatement {
 private:
   std::list<RulesetStatement*> statements;
@@ -102,7 +105,8 @@ public:
 
   Declaration* createDeclaration();
   Declaration* createDeclaration(const Token &property);
-
+  CssComment* createComment();
+  
   void deleteDeclaration(Declaration &declaration);
   
   void addDeclarations (std::list<Declaration> &declarations);
@@ -161,6 +165,8 @@ public:
   AtRule* createAtRule(const Token &keyword);
   virtual MediaQuery* createMediaQuery();
 
+  CssComment* createComment();
+  
   void deleteRuleset(Ruleset &ruleset);
   void deleteAtRule(AtRule &atrule);
   void deleteMediaQuery(MediaQuery &query);
@@ -188,5 +194,7 @@ public:
   virtual void process(Stylesheet& s);
   virtual void write(CssWriter &writer);
 };
+
+#include "CssComment.h"
 
 #endif

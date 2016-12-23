@@ -140,6 +140,10 @@ void CssWriter::writeDeclarationDeliminator() {
   writeStr(";", 1);
 }
 
+void CssWriter::writeComment(const Token &comment) {
+  writeToken(comment);
+}
+
 void CssWriter::writeMediaQueryStart(const TokenList &selector) {
   writeSelector(selector);
   writeStr("{", 1);

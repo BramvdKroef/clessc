@@ -4,8 +4,8 @@ AM_CPPFLAGS = -Wall $(LIBPNG_CFLAGS)
 noinst_LIBRARIES = liblessc.a
 
 liblessc_a_SOURCES = Token.cpp TokenList.cpp CssTokenizer.cpp		\
-CssParser.cpp Stylesheet.cpp CssWriter.cpp LessTokenizer.cpp		\
-LessParser.cpp Selector.cpp CssPrettyWriter.cpp				\
+CssParser.cpp Stylesheet.cpp CssComment.cpp CssWriter.cpp		\
+LessTokenizer.cpp LessParser.cpp Selector.cpp CssPrettyWriter.cpp	\
 CssParser.h CssPrettyWriter.h CssTokenizer.h CssWriter.h		\
 IOException.h LessParser.h LessTokenizer.h 				\
 ParseException.cpp ParseException.h Selector.h Stylesheet.h Token.h	\

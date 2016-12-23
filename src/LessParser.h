@@ -92,6 +92,11 @@ public:
 protected:
   std::list<const char*> &sources;
   bool reference;
+
+  /**
+   * Skip comments only if they are LESS comments, not CSS comments.
+   */ 
+  virtual void skipWhitespace();
   
   /**
    * If an AtRule->getRule() starts with a COLON, add the variable to

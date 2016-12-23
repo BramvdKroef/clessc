@@ -53,6 +53,7 @@ public:
   virtual void writeRulesetEnd();
   virtual void writeDeclaration(const Token &property, const TokenList &value);
   virtual void writeDeclarationDeliminator();
+  virtual void writeComment(const Token &comment);
   virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();
 

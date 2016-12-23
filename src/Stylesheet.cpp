@@ -118,6 +118,12 @@ Declaration* Ruleset::createDeclaration(const Token &property) {
   return d;
 }
 
+CssComment* Ruleset::createComment() {
+  CssComment* c = new CssComment();
+  addStatement(*c);
+  return c;
+}
+
 void Ruleset::deleteStatement(RulesetStatement &statement) {
   statements.remove(&statement);
   delete &statement;
@@ -290,6 +296,12 @@ AtRule* Stylesheet::createAtRule(const Token &keyword) {
   addStatement(*r);
   atrules.push_back(r);
   return r;
+}
+
+CssComment* Stylesheet::createComment() {
+  CssComment* c = new CssComment();
+  addStatement(*c);
+  return c;
 }
 
 MediaQuery* Stylesheet::createMediaQuery() {

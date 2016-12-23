@@ -43,12 +43,27 @@ void LessParser::parseStylesheet(LessStylesheet &stylesheet) {
 #endif
 }
 
+void LessParser::skipWhitespace () {
+  while (tokenizer->getTokenType() == Token::WHITESPACE ||
+         (tokenizer->getTokenType() == Token::COMMENT && 
+          tokenizer->getToken().compare(0, 2, "//") == 0)) {
+    tokenizer->readNextToken();
+  }
+}
+
 bool LessParser::parseStatement(Stylesheet &stylesheet) {
   Selector selector;
   Mixin* mixin;
+  CssComment* comment;
   LessStylesheet* ls = (LessStylesheet*)&stylesheet;
-  
-  if (parseSelector(selector) && !selector.empty()) {
+
+  if (tokenizer->getTokenType() == Token::COMMENT) {
+    comment = ls->createComment();
+    comment->setComment(tokenizer->getToken());
+    tokenizer->readNextToken();
+    skipWhitespace();
+    return true;
+  } else if (parseSelector(selector) && !selector.empty()) {
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Parse: Selector: " << selector.toString();
 #endif
@@ -231,9 +246,15 @@ void LessParser::parseRulesetStatements (LessStylesheet &stylesheet,
   Token token;
   TokenList value;
   UnprocessedStatement* statement;
+  CssComment* comment;
   
   while (true) {
-    if (tokenizer->getTokenType() == Token::ATKEYWORD) {
+    if (tokenizer->getTokenType() == Token::COMMENT) {
+      comment = ruleset.createComment();
+      comment->setComment(tokenizer->getToken());
+      tokenizer->readNextToken();
+      skipWhitespace();
+    } else if (tokenizer->getTokenType() == Token::ATKEYWORD) {
       token = tokenizer->getToken();
       tokenizer->readNextToken();
       skipWhitespace();
