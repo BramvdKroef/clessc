@@ -263,11 +263,15 @@ div {
 }
 @media screen {
   .test8 {
+/* comment */
+;
     width: 300px;
   }
 }
 @media screen and print {
   .test8 {
+/* comment */
+;
     color: #000;
   }
 }
@@ -318,6 +322,8 @@ p .test14 {
   filter: alpha(opacity=30);
 }
 div  .class {
+/* comment */
+;
   color: #fff;
 }
 /* semi colon without statement */
@@ -325,5 +331,5 @@ div  .class {
 /*
 **/
 
-/*# sourceMappingURL=test.css.map */
+/*# sourceMappingURL=test.less.map */
 
