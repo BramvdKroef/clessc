@@ -19,52 +19,42 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __LessStylesheet_h__
-#define __LessStylesheet_h__
+#ifndef __LessMediaQuery_h__
+#define __LessMediaQuery_h__
 
-#include "Stylesheet.h"
-#include "TokenList.h"
+
+#include "../stylesheet/Stylesheet.h"
+#include "../stylesheet/StylesheetStatement.h"
+#include "../stylesheet/Selector.h"
+
+#include "../css/CssWriter.h"
+#include "LessStylesheet.h"
 #include "LessRuleset.h"
 #include "Mixin.h"
-#include "UnprocessedStatement.h"
 #include "ProcessingContext.h"
-#include "LessAtRule.h"
-
 #include <list>
-#include <map>
-#include <string>
 
-class LessMediaQuery;
-
-class LessStylesheet: public Stylesheet {
+class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
 private:
-  std::list<LessRuleset*> lessrulesets;
-  std::map<std::string, TokenList> variables;
-  ProcessingContext* context;
+  Selector selector;
+  LessStylesheet* parent;
   
 public:
-  LessStylesheet();
-  virtual ~LessStylesheet();
-
-  LessRuleset* createLessRuleset();
-  Mixin* createMixin();
-  LessAtRule* createLessAtRule(const Token &keyword);
-  LessMediaQuery* createLessMediaQuery();
-
-  void deleteLessRuleset(LessRuleset &ruleset);
-  void deleteMixin(Mixin &mixin);
+  LessMediaQuery();
+  virtual ~LessMediaQuery();
   
+  Selector* getSelector();
+  void setSelector(const Selector &s);
+
+  virtual void setLessStylesheet(LessStylesheet &parent);
+  LessStylesheet* getLessStylesheet();
+
   virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
                                const Mixin &mixin);
-
-  void setContext(ProcessingContext* context);
+  
   virtual ProcessingContext* getContext();
-  
-  void putVariable(const std::string &key, const TokenList &value);
-
-  virtual void process(Stylesheet &s, ProcessingContext &context);
-
-  
+  virtual void process(Stylesheet &s);
+  virtual void write(CssWriter &writer);
 };
 
 #endif

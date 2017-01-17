@@ -19,29 +19,14 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __CssWritable_h__
+#define __CssWritable_h__
 
-#include <map>
-#include <string>
-#include <list>
+#include "../css/CssWriter.h"
 
-#include "../TokenList.h"
-
-class ValueScope {
-private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
-
-  //void putVariable(const std::string &key, const TokenList &value);
-  
+class CssWritable {
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  virtual void write(CssWriter &css) = 0; 
 };
 
 #endif

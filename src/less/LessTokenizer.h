@@ -19,32 +19,23 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __Extension_h__
-#define __Extension_h__
+#ifndef __LessTokenizer_h__
+#define __LessTokenizer_h__
 
-#include "Selector.h"
+#include "../css/CssTokenizer.h"
+#include <iostream>
 
 /**
- * 
+ * Extends CssTokenizer:
+ *  - Add support for c++ style comments
+ *  
  */
-class Extension {
-private:
-  Selector target;
-  Selector extension;
-  bool all;
-  
+class LessTokenizer: public CssTokenizer {
 public:
-  Extension();
-  Extension(bool all);
-  virtual ~Extension();
-
-  Selector& getTarget();
-  Selector& getExtension();
-
-  void setExtension(Selector &selector);
-
-  void updateSelector(Selector& s) const;
-  void replaceInSelector(Selector &s) const;
+  LessTokenizer(istream &in, const char* source) : CssTokenizer(in, source) {};
+  virtual ~LessTokenizer();
+protected:
+  bool readComment();
 };
-
+  
 #endif

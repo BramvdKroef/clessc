@@ -19,23 +19,27 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __LessTokenizer_h__
-#define __LessTokenizer_h__
+#ifndef __StylesheetStatement_h__
+#define __StylesheetStatement_h__
 
-#include "CssTokenizer.h"
-#include <iostream>
+#include "CssWritable.h"
+#include "Stylesheet.h"
 
-/**
- * Extends CssTokenizer:
- *  - Add support for c++ style comments
- *  
- */
-class LessTokenizer: public CssTokenizer {
-public:
-  LessTokenizer(istream &in, const char* source) : CssTokenizer(in, source) {};
-  virtual ~LessTokenizer();
+class StylesheetStatement : public CssWritable  {
 protected:
-  bool readComment();
-};
+  Stylesheet* stylesheet;
+  bool reference;
   
+public:
+  StylesheetStatement(): reference(false) {};
+  virtual ~StylesheetStatement() {};
+  virtual void setStylesheet(Stylesheet* s);
+  Stylesheet* getStylesheet();
+
+  void setReference(bool ref);
+  bool isReference();
+  
+  virtual void process(Stylesheet &s) = 0;
+};
+
 #endif

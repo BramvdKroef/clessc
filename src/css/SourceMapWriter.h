@@ -22,7 +22,7 @@
 #ifndef __SourceMapWriter_h__
 #define __SourceMapWriter_h__
 
-#include "Token.h"
+#include "../Token.h"
 
 #include <list>
 #include <iostream>

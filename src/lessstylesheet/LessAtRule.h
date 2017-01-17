@@ -19,29 +19,28 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __LessAtRule_h__
+#define __LessAtRule_h__
 
-#include <map>
-#include <string>
-#include <list>
+#include "../stylesheet/AtRule.h"
+#include "../stylesheet/Stylesheet.h"
 
-#include "../TokenList.h"
+#include "../Token.h"
 
-class ValueScope {
+class LessStylesheet;
+
+class LessAtRule: public AtRule {
 private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
+  LessStylesheet *lessStylesheet;
 
-  //void putVariable(const std::string &key, const TokenList &value);
-  
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  LessAtRule(const Token& keyword);
+  virtual ~LessAtRule();
+
+  void setLessStylesheet(LessStylesheet &stylesheet);
+  LessStylesheet* getLessStylesheet();
+
+  virtual void process(Stylesheet &s);
 };
 
 #endif

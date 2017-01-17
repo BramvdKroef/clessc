@@ -26,10 +26,10 @@
 #include <string>
 #include <list>
 
-#include "TokenList.h"
-#include "value/ValueScope.h"
-#include "value/ValueProcessor.h"
-#include "Extension.h"
+#include "../TokenList.h"
+#include "../value/ValueScope.h"
+#include "../value/ValueProcessor.h"
+#include "../lessstylesheet/Extension.h"
 
 class LessRuleset;
 

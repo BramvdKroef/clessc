@@ -22,8 +22,15 @@
 #ifndef __Mixin_h__
 #define __Mixin_h__
 
-#include "Selector.h"
-#include "Stylesheet.h"
+#include "../stylesheet/Selector.h"
+#include "../stylesheet/Stylesheet.h"
+#include "../stylesheet/StylesheetStatement.h"
+#include "../stylesheet/Ruleset.h"
+
+#include "../css/CssWriter.h"
+
+#include "../TokenList.h"
+
 #include "ProcessingContext.h"
 #include <vector>
 #include <map>

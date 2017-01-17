@@ -22,15 +22,18 @@
 #ifndef __LessParser_h__
 #define __LessParser_h__
 
-#include "CssParser.h"
-#include "Stylesheet.h"
-#include "LessRuleset.h"
-#include "Token.h"
-#include "TokenList.h"
+#include "../css/CssParser.h"
+#include "../css/CssTokenizer.h"
+#include "../stylesheet/Stylesheet.h"
+#include "../lessstylesheet/LessRuleset.h"
+#include "../lessstylesheet/LessStylesheet.h"
+#include "../lessstylesheet/LessMediaQuery.h"
+#include "../lessstylesheet/MediaQueryRuleset.h"
+
+#include "../Token.h"
+#include "../TokenList.h"
+
 #include "LessTokenizer.h"
-#include "LessStylesheet.h"
-#include "LessMediaQuery.h"
-#include "MediaQueryRuleset.h"
 
 #include <iostream>
 #include <fstream>

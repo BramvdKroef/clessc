@@ -19,29 +19,30 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __CssComment_h__
+#define __CssComment_h__
 
-#include <map>
-#include <string>
-#include <list>
+#include "Stylesheet.h"
+#include "StylesheetStatement.h"
+#include "RulesetStatement.h"
+#include "../css/CssWriter.h"
+#include "../Token.h"
 
-#include "../TokenList.h"
+class CssComment: public StylesheetStatement, public RulesetStatement {
+protected:
+  Token comment;
 
-class ValueScope {
-private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
-
-  //void putVariable(const std::string &key, const TokenList &value);
-  
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
+  CssComment();
+  CssComment(const Token &comment);
   
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  void setComment(const Token &comment);
+  Token& getComment();
+
+  virtual void process(Ruleset &r);
+  virtual void process(Stylesheet &s);
+    
+  virtual void write(CssWriter &writer);
 };
 
 #endif

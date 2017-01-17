@@ -19,29 +19,34 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __AtRule_h__
+#define __AtRule_h__
 
-#include <map>
-#include <string>
-#include <list>
+#include "Stylesheet.h"
+#include "StylesheetStatement.h"
 
+#include "../css/CssWriter.h"
+
+#include "../Token.h"
 #include "../TokenList.h"
 
-class ValueScope {
+class AtRule: public StylesheetStatement {
 private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
+  Token keyword;
+  TokenList rule;
 
-  //void putVariable(const std::string &key, const TokenList &value);
-  
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  AtRule(const Token& keyword);
+  virtual ~AtRule();
+  void setKeyword (const Token &keyword);
+  void setRule(const TokenList &rule);
+
+  Token& getKeyword();
+  TokenList& getRule();
+
+  virtual void process(Stylesheet &s);
+  virtual void write(CssWriter &writer);
 };
+
 
 #endif

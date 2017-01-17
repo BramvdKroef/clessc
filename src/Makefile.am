@@ -3,27 +3,90 @@ AM_CPPFLAGS = -Wall $(LIBPNG_CFLAGS)
 
 noinst_LIBRARIES = liblessc.a
 
-liblessc_a_SOURCES = Token.cpp TokenList.cpp CssTokenizer.cpp		\
-CssParser.cpp Stylesheet.cpp CssComment.cpp CssWriter.cpp		\
-LessTokenizer.cpp LessParser.cpp Selector.cpp CssPrettyWriter.cpp	\
-CssParser.h CssPrettyWriter.h CssTokenizer.h CssWriter.h		\
-IOException.h LessParser.h LessTokenizer.h 				\
-ParseException.cpp ParseException.h Selector.h Stylesheet.h Token.h	\
-TokenList.h Mixin.cpp Mixin.h						\
-UnprocessedStatement.cpp UnprocessedStatement.h LessStylesheet.cpp	\
-LessStylesheet.h LessRuleset.cpp LessRuleset.h LessMediaQuery.h		\
-LessMediaQuery.cpp MediaQueryRuleset.h MediaQueryRuleset.cpp		\
-LessSelector.h LessSelector.cpp Extension.h Extension.cpp		\
-ProcessingContext.h ProcessingContext.cpp LessAtRule.h LessAtRule.cpp	\
-SourceMapWriter.h SourceMapWriter.cpp					\
-									\
-value/Value.cpp value/Color.cpp value/StringValue.cpp			\
-value/NumberValue.cpp value/UnitValue.cpp value/BooleanValue.cpp	\
-value/UrlValue.cpp value/FunctionLibrary.cpp value/ValueProcessor.cpp	\
-value/BooleanValue.h value/Color.h value/FunctionLibrary.h		\
-value/NumberValue.h value/StringValue.h value/UnitValue.h		\
-value/UrlValue.h value/Value.h value/ValueException.h			\
-value/ValueProcessor.h value/ValueScope.h value/ValueScope.cpp
+liblessc_a_SOURCES = \
+Token.cpp				\
+Token.h					\
+TokenList.cpp				\
+TokenList.h				\
+stylesheet/AtRule.cpp			\
+stylesheet/AtRule.h			\
+stylesheet/CssComment.cpp		\
+stylesheet/CssComment.h			\
+stylesheet/CssWritable.h		\
+stylesheet/Declaration.cpp		\
+stylesheet/Declaration.h		\
+stylesheet/MediaQuery.cpp		\
+stylesheet/MediaQuery.h			\
+stylesheet/Ruleset.cpp			\
+stylesheet/Ruleset.h			\
+stylesheet/RulesetStatement.cpp		\
+stylesheet/RulesetStatement.h		\
+stylesheet/Selector.cpp			\
+stylesheet/Selector.h			\
+stylesheet/Stylesheet.cpp		\
+stylesheet/Stylesheet.h			\
+stylesheet/StylesheetStatement.cpp	\
+stylesheet/StylesheetStatement.h	\
+css/CssParser.cpp			\
+css/CssParser.h				\
+css/CssPrettyWriter.cpp			\
+css/CssPrettyWriter.h			\
+css/CssTokenizer.cpp			\
+css/CssTokenizer.h			\
+css/CssWriter.cpp			\
+css/CssWriter.h				\
+css/IOException.h			\
+css/ParseException.cpp			\
+css/ParseException.h			\
+css/SourceMapWriter.cpp			\
+css/SourceMapWriter.h			\
+lessstylesheet/LessAtRule.cpp		\
+lessstylesheet/LessAtRule.h		\
+lessstylesheet/LessMediaQuery.cpp	\
+lessstylesheet/LessMediaQuery.h		\
+lessstylesheet/LessRuleset.cpp		\
+lessstylesheet/LessRuleset.h		\
+lessstylesheet/LessSelector.cpp		\
+lessstylesheet/LessSelector.h		\
+lessstylesheet/LessStylesheet.cpp	\
+lessstylesheet/LessStylesheet.h		\
+lessstylesheet/MediaQueryRuleset.cpp	\
+lessstylesheet/MediaQueryRuleset.h	\
+lessstylesheet/Mixin.cpp		\
+lessstylesheet/Mixin.h			\
+lessstylesheet/UnprocessedStatement.cpp	\
+lessstylesheet/UnprocessedStatement.h	\
+lessstylesheet/Extension.cpp		\
+lessstylesheet/Extension.h		\
+lessstylesheet/ProcessingContext.cpp	\
+lessstylesheet/ProcessingContext.h	\
+less/LessParser.cpp			\
+less/LessParser.h			\
+less/LessTokenizer.cpp			\
+less/LessTokenizer.h			\
+value/BooleanValue.cpp			\
+value/BooleanValue.h			\
+value/BooleanValue.o			\
+value/Color.cpp				\
+value/Color.h				\
+value/FunctionLibrary.cpp		\
+value/FunctionLibrary.h			\
+value/NumberValue.cpp			\
+value/NumberValue.h			\
+value/StringValue.cpp			\
+value/StringValue.h			\
+value/UnitValue.cpp			\
+value/UnitValue.h			\
+value/UrlValue.cpp			\
+value/UrlValue.h			\
+value/Value.cpp				\
+value/Value.h				\
+value/ValueException.h			\
+value/ValueProcessor.cpp		\
+value/ValueProcessor.h			\
+value/ValueScope.cpp			\
+value/ValueScope.h
+
 
 bin_PROGRAMS = lessc
 lessc_SOURCES = lessc.cpp 

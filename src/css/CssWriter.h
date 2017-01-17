@@ -19,31 +19,35 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __CssPrettyWriter_h__
-#define __CssPrettyWriter_h__
+#ifndef __CssWriter_h__
+#define __CssWriter_h__
 
-#include "CssWriter.h"
+#include "../TokenList.h"
+#include "SourceMapWriter.h"
 #include <iostream>
 
-class CssPrettyWriter: public CssWriter {
-private:
-  int indent_size;
-
+class CssWriter {
 protected:
-  void indent();
-  void newline();
+  std::ostream* out;
+  unsigned int column;
+  SourceMapWriter* sourcemap;
 
+  void writeStr(const char* str, size_t len);
+  void writeToken(const Token &token);
+  void writeTokenList(const TokenList &tokens);
+  
   virtual void writeSelector(const TokenList &selector);
-    
+  virtual void writeValue(const TokenList &value);
+  
 public:
-  CssPrettyWriter(std::ostream &out): CssWriter(out) {
-    indent_size = 0;
-  };
-  CssPrettyWriter(std::ostream &out, SourceMapWriter &sourcemap):
-    CssWriter(out, sourcemap) {
-    indent_size = 0;
-  }
+  CssWriter();
+  CssWriter(std::ostream &out);
+  CssWriter(std::ostream &out,
+            SourceMapWriter &sourcemap);
 
+  unsigned int getColumn();
+  
+  virtual ~CssWriter();
   virtual void writeAtRule(const Token &keyword, const TokenList &rule);
   virtual void writeRulesetStart(const TokenList &selector);
   virtual void writeRulesetEnd();
@@ -52,6 +56,8 @@ public:
   virtual void writeComment(const Token &comment);
   virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();
-};
 
+  void writeSourceMapUrl(const char* sourcemap_url);
+};
+  
 #endif

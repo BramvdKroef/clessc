@@ -23,7 +23,7 @@
 #define __LessSelector_h__
 
 
-#include "Selector.h"
+#include "../stylesheet/Selector.h"
 #include "Mixin.h"
 #include "Extension.h"
 

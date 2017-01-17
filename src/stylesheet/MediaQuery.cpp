@@ -19,47 +19,42 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __UnprocessedStatement_h__
-#define __UnprocessedStatement_h__
+#include "MediaQuery.h"
 
-#include "Stylesheet.h"
-#include "TokenList.h"
-#include "value/ValueProcessor.h"
+Selector& MediaQuery::getSelector() {
+  return selector;
+}
+void MediaQuery::setSelector(const Selector &s) {
+  selector = s;
+}
 
-#include <iterator>
+MediaQuery* MediaQuery::createMediaQuery() {
+  MediaQuery* q = getStylesheet()->createMediaQuery();
 
-class LessRuleset;
-
-class UnprocessedStatement: public RulesetStatement {
-private:
-  Selector tokens;
-  LessRuleset* lessRuleset;
-  
-protected:
-  bool processDeclaration (Declaration* declaration);
-  
-public:
-  size_t property_i;
-  
-  UnprocessedStatement();
-  ~UnprocessedStatement() {}
-
-  Selector* getTokens();
-
-  void getProperty(TokenList &tokens);
-  void getValue(TokenList &tokens);
-
-  void setLessRuleset(LessRuleset &r);
-  LessRuleset* getLessRuleset();
-
-  bool isExtends();
-  bool getExtension(TokenList &extension);
-  
-  void insert(Stylesheet &s);
-    
-  virtual void process(Ruleset &r) ;
-  virtual void write(CssWriter &css) {};
-};
-
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Creating media query";
 #endif
+
+  q->setSelector(getSelector());
   
+  return q;
+}
+
+void MediaQuery::process(Stylesheet &s) {
+  MediaQuery* query = s.createMediaQuery();
+    
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing media query " << getSelector().toString();
+#endif
+      
+  query->setSelector(getSelector());
+    
+  Stylesheet::process(*query);
+}
+
+void MediaQuery::write(CssWriter &writer) {
+  writer.writeMediaQueryStart(selector);
+  Stylesheet::write(writer);
+  
+  writer.writeMediaQueryEnd();
+}

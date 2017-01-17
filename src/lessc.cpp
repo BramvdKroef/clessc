@@ -25,13 +25,13 @@
 #include <sstream>
 #include <getopt.h>
 
-#include "LessTokenizer.h"
-#include "LessParser.h"
-#include "CssWriter.h"
-#include "CssPrettyWriter.h"
-#include "Stylesheet.h"
-#include "IOException.h"
-#include "LessStylesheet.h"
+#include "less/LessTokenizer.h"
+#include "less/LessParser.h"
+#include "css/CssWriter.h"
+#include "css/CssPrettyWriter.h"
+#include "stylesheet/Stylesheet.h"
+#include "css/IOException.h"
+#include "lessstylesheet/LessStylesheet.h"
 
 #include <config.h>
 

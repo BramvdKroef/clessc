@@ -24,7 +24,7 @@
 
 #include "../TokenList.h"
 #include "../Token.h"
-#include "../ParseException.h"
+#include "../css/ParseException.h"
 #include "Value.h"
 #include "Color.h"
 #include "NumberValue.h"

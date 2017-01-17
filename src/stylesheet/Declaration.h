@@ -19,29 +19,33 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __Declaration_h__
+#define __Declaration_h__
 
-#include <map>
-#include <string>
-#include <list>
+#include "RulesetStatement.h"
+#include "Ruleset.h"
+#include "../css/CssWriter.h"
 
+#include "../Token.h"
 #include "../TokenList.h"
 
-class ValueScope {
+class Declaration: public RulesetStatement {
 private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
-
-  //void putVariable(const std::string &key, const TokenList &value);
+  Token property;
+  TokenList value;
   
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
+  Declaration();
+  Declaration(const Token &property);
+  virtual ~Declaration();
+  void setProperty(const Token &property);
+  void setValue(const TokenList &value);
   
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  Token& getProperty();
+  TokenList& getValue();
+
+  virtual void process(Ruleset &r);
+  virtual void write(CssWriter &writer);
 };
 
 #endif

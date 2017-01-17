@@ -25,8 +25,8 @@
 #include <exception>
 #include <string>
 
-#include "Token.h"
-#include "TokenList.h"
+#include "../Token.h"
+#include "../TokenList.h"
 
 using namespace std;
 

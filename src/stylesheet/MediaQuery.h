@@ -19,36 +19,25 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __LessMediaQuery_h__
-#define __LessMediaQuery_h__
+#ifndef __MediaQuery_h__
+#define __MediaQuery_h__
 
-#include "LessStylesheet.h"
+#include "Stylesheet.h"
 #include "Selector.h"
-#include "LessRuleset.h"
-#include "Mixin.h"
-#include <list>
 
-class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
+class MediaQuery: public Stylesheet, public StylesheetStatement {
 private:
   Selector selector;
-  LessStylesheet* parent;
-  
+
 public:
-  LessMediaQuery();
-  virtual ~LessMediaQuery();
-  
-  Selector* getSelector();
-  void setSelector(const Selector &s);
+  Selector& getSelector();
+  void setSelector(const Selector& s);
 
-  virtual void setLessStylesheet(LessStylesheet &parent);
-  LessStylesheet* getLessStylesheet();
-
-  virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
-                               const Mixin &mixin);
+  virtual MediaQuery* createMediaQuery();
   
-  virtual ProcessingContext* getContext();
-  virtual void process(Stylesheet &s);
+  virtual void process(Stylesheet& s);
   virtual void write(CssWriter &writer);
 };
+
 
 #endif

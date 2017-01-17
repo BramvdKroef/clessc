@@ -22,14 +22,21 @@
 #ifndef __LessRuleset_h__
 #define __LessRuleset_h__
 
-#include "Stylesheet.h"
-#include "Selector.h"
-#include "ParseException.h"
-#include "value/ValueProcessor.h"
+#include "../stylesheet/Stylesheet.h"
+#include "../stylesheet/Ruleset.h"
+#include "../stylesheet/Selector.h"
+
+#include "../css/ParseException.h"
+#include "../value/ValueProcessor.h"
+
+#include "../Token.h"
+#include "../TokenList.h"
+
 #include "UnprocessedStatement.h"
 #include "LessSelector.h"
 #include "Mixin.h"
 #include "ProcessingContext.h"
+
 #include <map>
 #include <list>
 #include <string>

@@ -19,29 +19,11 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#include "RulesetStatement.h"
 
-#include <map>
-#include <string>
-#include <list>
-
-#include "../TokenList.h"
-
-class ValueScope {
-private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
-
-  //void putVariable(const std::string &key, const TokenList &value);
-  
-public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
-};
-
-#endif
+void RulesetStatement::setRuleset(Ruleset* r) {
+  ruleset = r;
+}
+Ruleset* RulesetStatement::getRuleset() {
+  return ruleset;
+}

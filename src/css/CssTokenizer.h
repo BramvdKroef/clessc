@@ -24,7 +24,7 @@
 
 #include <iostream>
 #include <string>
-#include "Token.h"
+#include "../Token.h"
 #include "IOException.h"
 #include "ParseException.h"
 

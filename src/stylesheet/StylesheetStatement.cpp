@@ -19,27 +19,18 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __MediaQueryRuleset_h__
-#define __MediaQueryRuleset_h__
-
-#include "LessRuleset.h"
 #include "Stylesheet.h"
-#include "Selector.h"
-#include <map>
-#include <list>
 
+void StylesheetStatement::setStylesheet(Stylesheet* s) {
+  stylesheet = s;
+}
+Stylesheet* StylesheetStatement::getStylesheet() {
+  return stylesheet;
+}
 
-class MediaQueryRuleset: public LessRuleset {
-private:
-  static const Token BUILTIN_AND;
-  
-public:
-  MediaQueryRuleset();
-  virtual ~MediaQueryRuleset();
-
-
-  virtual void process(Stylesheet &s, Selector* prefix,
-                       ProcessingContext &context);
-};
-
-#endif
+void StylesheetStatement::setReference(bool ref) {
+  reference = ref;
+}
+bool StylesheetStatement::isReference() {
+  return reference;
+}

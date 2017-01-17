@@ -19,27 +19,32 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __LessAtRule_h__
-#define __LessAtRule_h__
+#ifndef __Extension_h__
+#define __Extension_h__
 
-#include "Stylesheet.h"
+#include "../stylesheet/Selector.h"
 
-#include "Token.h"
-
-class LessStylesheet;
-
-class LessAtRule: public AtRule {
+/**
+ * 
+ */
+class Extension {
 private:
-  LessStylesheet *lessStylesheet;
-
+  Selector target;
+  Selector extension;
+  bool all;
+  
 public:
-  LessAtRule(const Token& keyword);
-  virtual ~LessAtRule();
+  Extension();
+  Extension(bool all);
+  virtual ~Extension();
 
-  void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet* getLessStylesheet();
+  Selector& getTarget();
+  Selector& getExtension();
 
-  virtual void process(Stylesheet &s);
+  void setExtension(Selector &selector);
+
+  void updateSelector(Selector& s) const;
+  void replaceInSelector(Selector &s) const;
 };
 
 #endif

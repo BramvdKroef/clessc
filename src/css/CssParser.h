@@ -23,8 +23,8 @@
 #define __CssParser_h__
 
 #include "CssTokenizer.h"
-#include "Stylesheet.h"
-#include "Token.h"
+#include "../stylesheet/Stylesheet.h"
+#include "../TokenList.h"
 #include <string>
 
 using namespace std;

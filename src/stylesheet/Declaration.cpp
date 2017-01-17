@@ -19,29 +19,43 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#include "Declaration.h"
 
-#include <map>
-#include <string>
-#include <list>
+Declaration::Declaration() {
+  property = "";
+}
 
-#include "../TokenList.h"
+Declaration::Declaration(const Token &property) {
+  this->property = property;
+}
 
-class ValueScope {
-private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
+Declaration::~Declaration() {
+}
 
-  //void putVariable(const std::string &key, const TokenList &value);
-  
-public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
-};
+void Declaration::setProperty(const Token &property) {
+  this->property = property;
+}
+void Declaration::setValue(const TokenList &value) {
+  this->value = value;
+}
+Token& Declaration::getProperty() {
+  return property;
+}
+TokenList& Declaration::getValue() {
+  return value;
+}
 
+void Declaration::process(Ruleset &r) {
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Processing declaration " << property << ": " <<
+    value.toString();
 #endif
+  Declaration* d = r.createDeclaration();
+  d->setProperty(property);
+  d->setValue(value);
+}
+
+
+void Declaration::write(CssWriter &writer) {
+  writer.writeDeclaration(property, value);
+}

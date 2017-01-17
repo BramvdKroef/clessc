@@ -19,28 +19,31 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __CssComment_h__
-#define __CssComment_h__
+#ifndef __MediaQueryRuleset_h__
+#define __MediaQueryRuleset_h__
 
-#include "Token.h"
-#include "Stylesheet.h"
-#include "CssWriter.h"
+#include "../stylesheet/Stylesheet.h"
+#include "../stylesheet/Selector.h"
 
-class CssComment: public StylesheetStatement, public RulesetStatement {
-protected:
-  Token comment;
+#include "../Token.h"
 
-public:
-  CssComment();
-  CssComment(const Token &comment);
+#include "LessRuleset.h"
+
+#include <map>
+#include <list>
+
+
+class MediaQueryRuleset: public LessRuleset {
+private:
+  static const Token BUILTIN_AND;
   
-  void setComment(const Token &comment);
-  Token& getComment();
+public:
+  MediaQueryRuleset();
+  virtual ~MediaQueryRuleset();
 
-  virtual void process(Ruleset &r);
-  virtual void process(Stylesheet &s);
-    
-  virtual void write(CssWriter &writer);
+
+  virtual void process(Stylesheet &s, Selector* prefix,
+                       ProcessingContext &context);
 };
 
 #endif
