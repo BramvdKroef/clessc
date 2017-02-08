@@ -297,16 +297,16 @@ Value* Color::multiply(const Value &v) const {
   case COLOR:
     c = static_cast<const Color*>(&v);
 
-    return new Color(max(color[RGB_RED] * c->getRed(), 255),
-                     max(color[RGB_GREEN] * c->getGreen(), 255),
-                     max(color[RGB_BLUE] * c->getBlue(), 255));
+    return new Color(min(color[RGB_RED] * c->getRed(), 255),
+                     min(color[RGB_GREEN] * c->getGreen(), 255),
+                     min(color[RGB_BLUE] * c->getBlue(), 255));
   case NUMBER:
   case PERCENTAGE:
   case DIMENSION:
     n = static_cast<const NumberValue*>(&v);
-    return new Color(max(color[RGB_RED] * n->getValue(), 255),
-                     max(color[RGB_GREEN] * n->getValue(), 255),
-                     max(color[RGB_BLUE] * n->getValue(), 255));
+    return new Color(min(color[RGB_RED] * n->getValue(), 255),
+                     min(color[RGB_GREEN] * n->getValue(), 255),
+                     min(color[RGB_BLUE] * n->getValue(), 255));
 
   default:
     throw new ValueException("You can only multiply a color by a \
