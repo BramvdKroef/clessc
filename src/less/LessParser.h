@@ -69,10 +69,10 @@ public:
   static const unsigned int IMPORT_REFERENCE = 1,
     IMPORT_INLINE = 2,
     IMPORT_LESS = 4,
-    IMPORT_CSS = 6,
-    IMPORT_ONCE = 12,
-    IMPORT_MULTIPLE = 24,
-    IMPORT_OPTIONAL = 48;
+    IMPORT_CSS = 8,
+    IMPORT_ONCE = 16,
+    IMPORT_MULTIPLE = 32,
+    IMPORT_OPTIONAL = 64;
 
   LessParser(CssTokenizer &tokenizer,
              std::list<const char*> &source_files):
