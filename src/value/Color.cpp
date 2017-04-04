@@ -271,9 +271,12 @@ Value* Color::substract(const Value &v) const {
   switch (v.type) {
   case COLOR:
     c = static_cast<const Color*>(&v);
-    return new Color(max(color[RGB_RED] - c->getRed(), 0),
-                     max(color[RGB_GREEN] - c->getGreen(), 0),
-                     max(color[RGB_BLUE] - c->getBlue(), 0));
+    return new Color((color[RGB_RED] > c->getRed() ?
+                      color[RGB_RED] - c->getRed() : 0),
+                     (color[RGB_GREEN] > c->getGreen() ?
+                      color[RGB_GREEN] - c->getGreen() : 0),
+                     (color[RGB_BLUE] > c->getBlue() ?
+                      color[RGB_BLUE] - c->getBlue() : 0));
 
   case NUMBER:
   case PERCENTAGE:
