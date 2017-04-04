@@ -417,8 +417,12 @@ bool LessParser::parseImportStatement(TokenList &statement, LessStylesheet &styl
     }
 
     if (statement.size() > 0 &&
-        statement.front().type != Token::PAREN_CLOSED) 
+        statement.front().type != Token::PAREN_CLOSED) {
       throw new ParseException(statement, ")");
+    } else {
+      statement.pop_front();
+      statement.ltrim();
+    }
   }
 
   if (statement.size() > 0 &&
