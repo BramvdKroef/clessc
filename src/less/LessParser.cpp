@@ -461,11 +461,9 @@ bool LessParser::importFile(Token uri,
                             LessStylesheet &stylesheet,
                             unsigned int directive) {
   size_t pathend;
-  size_t pos;
   size_t extension_pos;
-  std::string source;
-  std::string relative_filename;
   std::list<const char*>::iterator i;
+  std::string relative_filename;
   char* relative_filename_cpy;
   std::string extension;
     
@@ -500,22 +498,18 @@ bool LessParser::importFile(Token uri,
   // don't import if css directive is given
   if ((extension == "css" &&
        !(directive & IMPORT_LESS)) ||
-      
       (directive & IMPORT_CSS)) {
     return false;
   }
-  
-  // uri.source is the sourcefile that is currently parsed.
-  source = uri.source;
-  pos = source.find_last_of("/\\");
-  
-  // if the current stylesheet is outside of the current working
-  //  directory then add the directory to the filename.
-  if (pos != std::string::npos) {
-    relative_filename.append(source.substr(0, pos + 1));
-    relative_filename.append(uri);
-  } else
-    relative_filename = uri;
+
+  if (!findFile(uri, relative_filename)) {
+    if (directive & IMPORT_OPTIONAL)
+      return true;
+    else {
+      throw new ParseException(uri, "existing file",
+                               uri.line, uri.column, uri.source);
+    }
+  }
 
   if (!(directive & IMPORT_MULTIPLE)) {
     // check if the file has already been imported.
@@ -526,14 +520,6 @@ bool LessParser::importFile(Token uri,
   }
   
   ifstream in(relative_filename.c_str());
-  if (in.fail() || in.bad()) {
-    if (directive & IMPORT_OPTIONAL)
-      return true;
-    else {
-      throw new ParseException(relative_filename, "existing file",
-                               uri.line, uri.column, uri.source);
-    }
-  }
 
 #ifdef WITH_LIBGLOG
   VLOG(1) << "Opening: " << relative_filename;
@@ -546,6 +532,8 @@ bool LessParser::importFile(Token uri,
   LessTokenizer tokenizer(in, relative_filename_cpy);
   LessParser parser(tokenizer, sources, (directive & IMPORT_REFERENCE));
 
+  parser.includePaths = includePaths;
+  
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Parsing";
 #endif
@@ -553,6 +541,52 @@ bool LessParser::importFile(Token uri,
   parser.parseStylesheet(stylesheet);
   in.close();
   return true;
+}
+
+bool LessParser::findFile(Token& uri, std::string& filename) {
+  ifstream* in;
+  size_t pos;
+  std::string source;
+  std::list<const char*>::iterator i;
+  
+  source = uri.source;
+  pos = source.find_last_of("/\\");
+
+  // if the current stylesheet is outside of the current working
+  //  directory then add the directory to the filename.
+  if (pos != std::string::npos) {
+    filename.append(source.substr(0, pos + 1));
+  }
+  filename.append(uri);
+  
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Looking for path: " << filename;
+#endif
+
+  in = new ifstream(filename.c_str());
+  if (in->good()) {
+    in->close();
+    return true;
+  }
+
+  for (i = includePaths->begin(); i != includePaths->end(); i++) {
+    filename.clear();
+
+    filename.append((*i));
+    filename.append("/");
+    filename.append(uri);
+
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Looking for path: " << filename;
+#endif
+
+    in = new ifstream(filename.c_str());
+    if (in->good()) {
+      in->close();
+      return true;
+    }
+  }
+  return false;
 }
 
 void LessParser::parseLessMediaQuery(Token &mediatoken,

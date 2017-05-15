@@ -74,6 +74,8 @@ public:
     IMPORT_MULTIPLE = 32,
     IMPORT_OPTIONAL = 64;
 
+  std::list<const char*>* includePaths;
+  
   LessParser(CssTokenizer &tokenizer,
              std::list<const char*> &source_files):
     CssParser(tokenizer),
@@ -151,6 +153,8 @@ private:
   TokenList* processValue(TokenList* value);
   
   std::list<TokenList*>* processArguments(TokenList* arguments);
+
+  bool findFile(Token& uri, std::string& filename);
 };
 
 #endif

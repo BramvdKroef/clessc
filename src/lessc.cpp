@@ -24,6 +24,7 @@
 #include <string>
 #include <sstream>
 #include <getopt.h>
+#include <cstring>
 
 #include "less/LessTokenizer.h"
 #include "less/LessParser.h"
@@ -87,14 +88,40 @@ void version () {
     "There is NO WARRANTY, to the extent permitted by law.\n";
 }
 
+void parsePathList(const char* path, std::list<const char*>& paths) {
+  const char* start = path;
+  const char* end = path;
+  size_t len;
+  char* p;
+  while((end = std::strchr(start, ':')) != NULL) {
+    len = (end - start);
+    // skip empty paths
+    if (len > 0) {
+      p = new char[len + 1];
+      std::strncpy(p, start, len);
+      p[len] = '\0';
+      paths.push_back(p);
+    }
+    start = end + 1;
+  }
+  len = std::strlen(start);
+  if (len > 0) {
+    p = new char[len + 1];
+    std::strcpy(p, start);
+    paths.push_back(p);
+  }
+}
+
 bool parseInput(LessStylesheet &stylesheet,
                 istream &in,
                 const char* source,
-                std::list<const char*> &sources){
+                std::list<const char*> &sources,
+                std::list<const char*> &includePaths){
   std::list<const char*>::iterator i;
   
   LessTokenizer tokenizer(in, source);
   LessParser parser(tokenizer, sources);
+  parser.includePaths = &includePaths;
   
   try{
     parser.parseStylesheet(stylesheet);
@@ -181,6 +208,8 @@ int main(int argc, char * argv[]){
   const char* sourcemap_rootpath = NULL;
   const char* sourcemap_basepath = NULL;
 
+  std::list<const char*> includePaths;
+
   static struct option long_options[] = {
     {"version",    no_argument,       0, 1},
     {"help",       no_argument,       0, 'h'},
@@ -190,6 +219,7 @@ int main(int argc, char * argv[]){
     {"source-map", optional_argument, 0, 'm'},
     {"source-map-rootpath", required_argument, 0, 2},
     {"source-map-basepath", required_argument, 0, 3},
+    {"include-path", required_argument,        0, 'I'},
     {0,0,0,0}
   };
   
@@ -240,6 +270,10 @@ int main(int argc, char * argv[]){
       case 3:
         sourcemap_basepath = optarg;
         break;
+
+      case 'I':
+        parsePathList(optarg, includePaths);
+        break;
       }
     }
     
@@ -271,7 +305,7 @@ source.");
 
     sources.push_back(source);
     
-    if (parseInput(stylesheet, *in, source, sources)) {
+    if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (sourcemap_file != "") {
 #ifdef WITH_LIBGLOG
         VLOG(1) << "sourcemap: " << sourcemap_file;
