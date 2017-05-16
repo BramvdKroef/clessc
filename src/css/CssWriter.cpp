@@ -46,8 +46,24 @@ void CssWriter::writeStr(const char* str, size_t len) {
   column += len;
 }
 void CssWriter::writeToken(const Token &token) {
-  writeStr(token.c_str(),
-           token.size());
+  std::string url;
+  
+  if (rootpath != NULL && token.type == Token::URL) {
+    url = token.getUrlString();
+    if (url.find(':') == std::string::npos) {
+      writeStr("url(\"", 5);
+      writeStr(rootpath, std::strlen(rootpath));
+
+      writeStr(url.c_str(), url.size());
+      writeStr("\")", 2);
+    } else {
+      writeStr(token.c_str(),
+               token.size());
+    }
+  } else {
+    writeStr(token.c_str(),
+             token.size());
+  }
 }
 void CssWriter::writeTokenList(const TokenList &tokens) {
   TokenList::const_iterator i = tokens.begin();

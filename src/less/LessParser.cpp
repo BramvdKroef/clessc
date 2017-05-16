@@ -573,7 +573,6 @@ bool LessParser::findFile(Token& uri, std::string& filename) {
     filename.clear();
 
     filename.append((*i));
-    filename.append("/");
     filename.append(uri);
 
 #ifdef WITH_LIBGLOG

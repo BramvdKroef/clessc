@@ -88,29 +88,37 @@ void version () {
     "There is NO WARRANTY, to the extent permitted by law.\n";
 }
 
+/**
+ * Copy a given path to a new string and add a trailing slash if necessary.
+ */
+char* createPath(const char* path, size_t len) {
+  size_t newlen = len +
+    (path[len - 1] != '/' ? 1 : 0);
+  char* p = new char[newlen + 1];
+  std::strncpy(p, path, len);
+  p[newlen - 1] = '/';
+  p[newlen] = '\0';
+  return p;
+}
+
 void parsePathList(const char* path, std::list<const char*>& paths) {
   const char* start = path;
   const char* end = path;
   size_t len;
-  char* p;
+
   while((end = std::strchr(start, ':')) != NULL) {
     len = (end - start);
     // skip empty paths
-    if (len > 0) {
-      p = new char[len + 1];
-      std::strncpy(p, start, len);
-      p[len] = '\0';
-      paths.push_back(p);
-    }
+    if (len > 0)
+      paths.push_back(createPath(start, len));
+
     start = end + 1;
   }
   len = std::strlen(start);
-  if (len > 0) {
-    p = new char[len + 1];
-    std::strcpy(p, start);
-    paths.push_back(p);
-  }
+  if (len > 0) 
+    paths.push_back(createPath(start, len));
 }
+
 
 bool parseInput(LessStylesheet &stylesheet,
                 istream &in,
@@ -207,6 +215,7 @@ int main(int argc, char * argv[]){
   SourceMapWriter* sourcemap = NULL;
   const char* sourcemap_rootpath = NULL;
   const char* sourcemap_basepath = NULL;
+  const char* rootpath = NULL;
 
   std::list<const char*> includePaths;
 
@@ -220,6 +229,7 @@ int main(int argc, char * argv[]){
     {"source-map-rootpath", required_argument, 0, 2},
     {"source-map-basepath", required_argument, 0, 3},
     {"include-path", required_argument,        0, 'I'},
+    {"rootpath", required_argument,  0, 4},
     {0,0,0,0}
   };
   
@@ -235,7 +245,7 @@ int main(int argc, char * argv[]){
     VLOG(3) << "argc: " << argc;
 #endif
 
-    while((c = getopt_long(argc, argv, ":o:hfv:m::", long_options, &option_index)) != -1) {
+    while((c = getopt_long(argc, argv, ":o:hfv:m::I:", long_options, &option_index)) != -1) {
       switch (c) {
       case 1:
         version();
@@ -265,15 +275,20 @@ int main(int argc, char * argv[]){
         break;
         
       case 2:
-        sourcemap_rootpath = optarg;
+        sourcemap_rootpath = createPath(optarg, std::strlen(optarg));
         break;
       case 3:
-        sourcemap_basepath = optarg;
+        sourcemap_basepath = createPath(optarg, std::strlen(optarg));
         break;
 
       case 'I':
         parsePathList(optarg, includePaths);
         break;
+
+      case 4:
+        rootpath = createPath(optarg, std::strlen(optarg));
+        break;
+
       }
     }
     
@@ -321,7 +336,8 @@ source.");
         writer = formatoutput ? new CssPrettyWriter(*out) :
           new CssWriter(*out);
       }
-
+      writer->rootpath = rootpath;
+      
       writeOutput(stylesheet, *writer);
       
       if (sourcemap != NULL) {

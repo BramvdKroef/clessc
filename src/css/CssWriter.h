@@ -25,6 +25,7 @@
 #include "../TokenList.h"
 #include "SourceMapWriter.h"
 #include <iostream>
+#include <cstring>
 
 class CssWriter {
 protected:
@@ -45,6 +46,8 @@ public:
   CssWriter(std::ostream &out,
             SourceMapWriter &sourcemap);
 
+  const char* rootpath = NULL;
+  
   unsigned int getColumn();
   
   virtual ~CssWriter();
