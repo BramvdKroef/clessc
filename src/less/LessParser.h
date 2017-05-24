@@ -116,6 +116,8 @@ protected:
    */
   bool parseAtRuleOrVariable (LessStylesheet &stylesheet);
 
+  bool parseAtRuleValue(TokenList &rule);
+
   bool parseVariable (TokenList &value);
   bool parseSelector(Selector &selector);
   bool parseSelectorVariable(Selector &selector);

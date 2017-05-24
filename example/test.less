@@ -492,6 +492,7 @@ div.test11b {
 }
 
 @import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
+@import url('test.css');
 
 .icon.dim { opacity: 0.3;filter:alpha(opacity=30); }
 
@@ -504,6 +505,16 @@ div /* a */ .class {
 
 /* semi colon without statement */
 ;
+
+/* @-rule inside mixin */
+.declare-font(@type) {
+    @font-face {
+        font-family: @type;
+        src: url('fonts/@{type}.eot');
+    }
+}
+
+.declare-font('test');
 
 /* Multiline comment ending with * at the end of the file */
 /*

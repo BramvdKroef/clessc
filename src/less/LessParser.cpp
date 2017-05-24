@@ -120,17 +120,9 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
       parseLessMediaQuery(token, stylesheet);
       return true;
     }
+
+    parseAtRuleValue(rule);
     
-    while(parseAny(rule)) {};
-  
-    if (!parseBlock(rule)) {
-      if (tokenizer->getTokenType() != Token::DELIMITER) {
-        throw new ParseException(tokenizer->getToken(),
-                                 "delimiter (';') at end of @-rule");
-      }
-      tokenizer->readNextToken();
-      skipWhitespace();
-    }
     // parse import
     if (token == "@import" && rule.size() > 0) {
       if (parseImportStatement(rule, stylesheet))
@@ -140,6 +132,20 @@ bool LessParser::parseAtRuleOrVariable (LessStylesheet &stylesheet) {
     atrule = stylesheet.createLessAtRule(token);
     atrule->setReference(reference);
     atrule->setRule(rule);
+  }
+  return true;
+}
+
+bool LessParser::parseAtRuleValue(TokenList &rule) {
+  while(parseAny(rule)) {};
+  
+  if (!parseBlock(rule)) {
+    if (tokenizer->getTokenType() != Token::DELIMITER) {
+      throw new ParseException(tokenizer->getToken(),
+                               "delimiter (';') at end of @-rule");
+    }
+    tokenizer->readNextToken();
+    skipWhitespace();
   }
   return true;
 }
@@ -267,8 +273,11 @@ void LessParser::parseRulesetStatements (LessStylesheet &stylesheet,
         parseMediaQueryRuleset(token, stylesheet, ruleset);
           
       } else {
-        throw new ParseException(tokenizer->getToken(),
-                                 "Variable declaration after keyword.");
+        statement = ruleset.createUnprocessedStatement();
+  
+        statement->getTokens()->push_back(token);
+        parseAtRuleValue(*statement->getTokens());
+        statement->property_i = 1;
       }
 
       

@@ -65,11 +65,17 @@ LessRuleset* UnprocessedStatement::getLessRuleset() {
 }
 
 void UnprocessedStatement::insert(Stylesheet &s) {
+  AtRule* target;
   Mixin mixin;
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
-  
-  // process mixin
-  if (mixin.parse(*getTokens()))
+
+  if (getTokens()->front().type == Token::ATKEYWORD) {
+    target = s.createAtRule(getTokens()->front());
+    getValue(target->getRule());
+    getLessRuleset()->getContext()->processValue(target->getRule());
+
+    // process mixin
+  } else if (mixin.parse(*getTokens()))
     mixin.insert(s, *getLessRuleset()->getContext(),
                  NULL, getLessRuleset());
 }
@@ -78,10 +84,15 @@ void UnprocessedStatement::process(Ruleset &r) {
   Extension extension;
   Mixin mixin;
   Declaration* declaration;
-
+  
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Statement: " << getTokens()->toString();
 #endif
+
+  if (getTokens()->front().type == Token::ATKEYWORD) {
+    // Can't add @-rules to rulesets so ignore the statement.
+    return;
+  }
   
   // process extends statement
   if (getExtension(extension.getTarget())) {
