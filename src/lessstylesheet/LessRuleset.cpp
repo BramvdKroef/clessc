@@ -180,10 +180,6 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
     VLOG(2) << "Inserting statements";
 #endif
 
-    if (mixin != NULL) {
-      addClosures(context);
-    }
-    
     // process statements
     Ruleset::insert(target);
 
@@ -193,6 +189,14 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
   
     // insert nested rules
     insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
+
+    if (mixin != NULL) {
+      
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Adding closures";
+#endif
+      addClosures(context);
+    }
 
     context.popScope();
     ret = true;
@@ -218,11 +222,7 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
 
     // set local variables
     context.pushScope(variables);
-
-    if (mixin != NULL) {
-      addClosures(context);
-    }
-    
+ 
     // insert mixins
     for (up_it = unprocessedStatements.cbegin();
          up_it != unprocessedStatements.cend();
@@ -232,6 +232,10 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
     
     // insert nested rules
     insertNestedRules(s, NULL, context);
+
+    if (mixin != NULL) {
+      addClosures(context);
+    }
 
     context.popScope();
     ret = true;

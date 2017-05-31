@@ -317,6 +317,7 @@ p .test14 {
   width: 1px solid blue;
 }
 @import url("http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic");
+@import url('test.css');
 .icon.dim {
   opacity: 0.3;
   filter: alpha(opacity=30);
@@ -327,6 +328,11 @@ div  .class {
   color: #fff;
 }
 /* semi colon without statement */
+/* @-rule inside mixin */
+@font-face { font-family: "test" ; src: url('fonts/test.eot') ; }
+#namespace {
+  declaration: 5;
+}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
