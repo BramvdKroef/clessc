@@ -30,15 +30,21 @@
 #include "../value/ValueScope.h"
 #include "../value/ValueProcessor.h"
 #include "../lessstylesheet/Extension.h"
+#include "Function.h"
+#include "Closure.h"
 
 class LessRuleset;
+class Function;
+class Closure;
+class Mixin;
 
 class ProcessingContext {
 private:
   const ValueScope* scopes;
-  std::list<const LessRuleset*> rulesets;
+  std::list<const Function*> functionStack;
   ValueProcessor processor;
   std::list<Extension> extensions;
+  std::list<std::pair<std::list<Closure*>*, const ValueScope*>> closureStack;
   
 public:
   ProcessingContext();
@@ -47,10 +53,16 @@ public:
   void pushScope(const std::map<std::string, TokenList> &scope);
   void popScope();
   
-  void pushRuleset(const LessRuleset &ruleset);
-  void popRuleset();
-  bool isInStack(const LessRuleset &ruleset);
+  void pushFunction(const Function &function);
+  void popFunction();
+  bool isInStack(const Function &function);
 
+  void pushClosureScope(std::list<Closure*>
+                        &scope);
+  void popClosureScope();
+  void addClosure(const LessRuleset &ruleset);
+  void getClosures(std::list<const Function*> &closureList,
+                   const Mixin &mixin);
   void addExtension(Extension& extension);
   std::list<Extension>& getExtensions();
 

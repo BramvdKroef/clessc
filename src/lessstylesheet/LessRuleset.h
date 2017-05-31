@@ -44,7 +44,7 @@
 class LessStylesheet;
 class MediaQueryRuleset;
 
-class LessRuleset: public Ruleset {
+class LessRuleset: public Ruleset, Function {
   
 protected:
   map<string, TokenList> variables;  
@@ -59,7 +59,9 @@ protected:
 
   void processVariables();
   void insertNestedRules(Stylesheet &s, Selector* prefix,
-                         ProcessingContext &context);
+                         ProcessingContext &context) const;
+
+  void addClosures(ProcessingContext &context) const;
   
 public:
   LessRuleset();
@@ -67,7 +69,7 @@ public:
   virtual ~LessRuleset();
 
   virtual void setSelector(const Selector &selector);
-  LessSelector* getLessSelector();
+  virtual LessSelector* getLessSelector() const;
 
   UnprocessedStatement* createUnprocessedStatement();
   LessRuleset* createNestedRule();
@@ -77,17 +79,17 @@ public:
   void deleteUnprocessedStatement(UnprocessedStatement
                                   &statement);
   
-  list<UnprocessedStatement*>& getUnprocessedStatements();
-  list<LessRuleset*>& getNestedRules();
+  const list<UnprocessedStatement*>& getUnprocessedStatements() const;
+  const list<LessRuleset*>& getNestedRules() const;
 
   void putVariable(const std::string &key, const TokenList &value);
   map<string, TokenList>& getVariables();
 
   void setParent(LessRuleset* r);
-  LessRuleset* getParent();
+  LessRuleset* getParent() const;
 
   void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet* getLessStylesheet();
+  LessStylesheet* getLessStylesheet() const;
 
   ProcessingContext* getContext();
   
@@ -95,28 +97,27 @@ public:
                          Selector* prefix);
   
   virtual bool insert(Mixin* mixin, Ruleset &target,
-                      ProcessingContext& context);
+                      ProcessingContext& context) const;
   virtual bool insert(Mixin* mixin, Stylesheet &s,
-                      ProcessingContext& context);
+                      ProcessingContext& context) const;
 
   virtual void process(Stylesheet &s);
   virtual void process(Stylesheet &s, Selector* prefix,
                        ProcessingContext &context);
-  
-  void getLessRulesets(list<LessRuleset*> &rulesetList,
-                       const Mixin &mixin,
-                       TokenList::const_iterator selector_offset);
 
+  virtual void getFunctions(list<const Function*> &functionList,
+                            const Mixin &mixin,
+                            TokenList::const_iterator selector_offset) const;
   /**
    * Look for a ruleset inside this ruleset and scope up to
    * getParent(), or getLessStylesheet() if getParent() is NULL.
    */
-  void getLocalLessRulesets(list<LessRuleset*> &rulesetList,
-                            const Mixin &mixin);
+  void getLocalFunctions(list<const Function*> &functionList,
+                         const Mixin &mixin) const;
 
-  bool matchConditions(ProcessingContext &context);
+  bool matchConditions(ProcessingContext &context) const;
   bool putArguments(const Mixin &mixin,
-                    std::map<std::string, TokenList> &scope);
+                    std::map<std::string, TokenList> &scope) const;
 };
 
 #endif

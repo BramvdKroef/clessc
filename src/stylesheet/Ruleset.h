@@ -61,12 +61,12 @@ public:
 
   Selector& getSelector();
   const Selector& getSelector() const;
-  std::list<RulesetStatement*>& getStatements();
+  const std::list<RulesetStatement*>& getStatements() const;
   std::list<Declaration*>& getDeclarations();
 
   void clearStatements();
   
-  virtual void insert(Ruleset &target);
+  virtual void insert(Ruleset &target) const;
   virtual void process(Stylesheet& s);
   virtual void write(CssWriter &writer);
 };

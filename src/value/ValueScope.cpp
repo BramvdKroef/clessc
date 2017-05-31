@@ -53,6 +53,17 @@ const TokenList* ValueScope::getVariable(const std::string &key) const {
     return NULL;
 }
 
+void ValueScope::copyVariables(std::map<std::string, TokenList> &variables,
+                               const ValueScope *start) const {
+  if (this == start) 
+    return;
+  
+  variables.insert(this->variables->cbegin(), this->variables->cend());
+
+  if (getParent() != NULL)
+    getParent()->copyVariables(variables, start);
+}
+
 const ValueScope* ValueScope::getParent() const {
   return parent;
 }

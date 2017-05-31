@@ -66,14 +66,14 @@ void LessStylesheet::deleteMixin(Mixin &mixin) {
   deleteStatement(mixin);
 }
   
-void LessStylesheet::getLessRulesets(list<LessRuleset*> &rulesetList,
-                                     const Mixin &mixin) {
-  list<LessRuleset*>::iterator i;
+void LessStylesheet::getFunctions(std::list<const Function*> &rulesetList,
+                                  const Mixin &mixin) const {
+  std::list<LessRuleset*>::const_iterator i;
   
-  for (i = lessrulesets.begin(); i != lessrulesets.end();
+  for (i = lessrulesets.cbegin(); i != lessrulesets.cend();
        i++) {
 
-    (*i)->getLessRulesets(rulesetList, mixin, mixin.name.begin());
+    (*i)->getFunctions(rulesetList, mixin, mixin.name.begin());
   }
 }
 
@@ -94,13 +94,18 @@ void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
   
   std::list<Ruleset*>::iterator r_it;
   std::list<Extension>::iterator e_it;
-
+  std::list<Closure*> closureScope;
+  
+  
   context.pushScope(variables);
 
+  context.pushClosureScope(closureScope);
+  
   this->context = &context;
   
   Stylesheet::process(s);
 
+  context.popClosureScope();
   context.popScope();
 
 

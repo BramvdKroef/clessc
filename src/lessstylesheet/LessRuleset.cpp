@@ -53,7 +53,7 @@ void LessRuleset::setSelector(const Selector &selector) {
   this->selector = new LessSelector(selector);
   Ruleset::setSelector(*this->selector);
 }
-LessSelector* LessRuleset::getLessSelector() {
+LessSelector* LessRuleset::getLessSelector() const {
   return selector;
 }
 
@@ -66,7 +66,8 @@ UnprocessedStatement* LessRuleset::createUnprocessedStatement() {
   return s;
 }
 
-std::list<UnprocessedStatement*>& LessRuleset::getUnprocessedStatements() {
+const std::list<UnprocessedStatement*>&
+  LessRuleset::getUnprocessedStatements() const {
   return unprocessedStatements;
 }
 
@@ -107,7 +108,7 @@ void LessRuleset::deleteUnprocessedStatement(UnprocessedStatement
   deleteStatement(statement);
 }
 
-std::list<LessRuleset*>& LessRuleset::getNestedRules() {
+const std::list<LessRuleset*>& LessRuleset::getNestedRules() const {
   return nestedRules;
 }
 
@@ -122,7 +123,7 @@ map<string, TokenList>& LessRuleset::getVariables() {
 void LessRuleset::setParent(LessRuleset* r) {
   parent = r;
 }
-LessRuleset* LessRuleset::getParent() {
+LessRuleset* LessRuleset::getParent() const {
   return parent;
 }
 
@@ -133,12 +134,12 @@ void LessRuleset::setLessStylesheet(LessStylesheet &s) {
   lessStylesheet = &s;
 }
 
-LessStylesheet* LessRuleset::getLessStylesheet() {
+LessStylesheet* LessRuleset::getLessStylesheet() const {
   return lessStylesheet;
 }
 
 ProcessingContext* LessRuleset::getContext() {
-  return context;
+  return getLessStylesheet()->getContext();
 }
 
 void LessRuleset::processExtensions(ProcessingContext& context,
@@ -157,10 +158,10 @@ void LessRuleset::processExtensions(ProcessingContext& context,
 }
 
 bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
-                         ProcessingContext &context) {
+                         ProcessingContext &context) const {
   map<string, TokenList> scope;
   bool ret = false;
-  context.pushRuleset(*this);
+  context.pushFunction(*this);
   
   context.pushScope(scope);
   
@@ -179,8 +180,10 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
     VLOG(2) << "Inserting statements";
 #endif
 
-   
-    this->context = &context;
+    if (mixin != NULL) {
+      addClosures(context);
+    }
+    
     // process statements
     Ruleset::insert(target);
 
@@ -195,18 +198,18 @@ bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
     ret = true;
   }
   context.popScope();
-  context.popRuleset();
+  context.popFunction();
   return ret;
 }
 
 bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
-                         ProcessingContext &context) {
+                         ProcessingContext &context) const {
   map<string, TokenList> scope;
-  list<UnprocessedStatement*>& unprocessedStatements = getUnprocessedStatements();
-  list<UnprocessedStatement*>::iterator up_it;
+  const list<UnprocessedStatement*>& unprocessedStatements = getUnprocessedStatements();
+  list<UnprocessedStatement*>::const_iterator up_it;
   bool ret = false;
 
-  context.pushRuleset(*this);
+  context.pushFunction(*this);
   context.pushScope(scope);
 
   if (((mixin == NULL && !selector->needsArguments()) ||
@@ -216,12 +219,13 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
     // set local variables
     context.pushScope(variables);
 
-    this->context = &context;
-
+    if (mixin != NULL) {
+      addClosures(context);
+    }
     
     // insert mixins
-    for (up_it = unprocessedStatements.begin();
-         up_it != unprocessedStatements.end();
+    for (up_it = unprocessedStatements.cbegin();
+         up_it != unprocessedStatements.cend();
          up_it++) {
       (*up_it)->insert(s);
     }
@@ -234,7 +238,7 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
   }
 
   context.popScope();
-  context.popRuleset();
+  context.popFunction();
   return ret;
 }
 
@@ -244,6 +248,7 @@ void LessRuleset::process(Stylesheet &s) {
 void LessRuleset::process(Stylesheet &s, Selector* prefix,
                           ProcessingContext& context) {
   Ruleset* target;
+  std::list<Closure*> closureScope;
 
   if (selector->needsArguments())
     return;
@@ -262,16 +267,19 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
   context.interpolate(target->getSelector());
 
   processExtensions(context, prefix);
-  
+
+  context.pushClosureScope(closureScope);
   insert(NULL, *target, context);
+  context.popClosureScope();
 }
 
-void LessRuleset::getLessRulesets(list<LessRuleset*> &rulesetList,
-                                  const Mixin &mixin,
-                                  TokenList::const_iterator offset) {
+void LessRuleset::getFunctions(list<const Function*> &functionList,
+                               const Mixin &mixin,
+                               TokenList::const_iterator offset)
+  const {
 
-  list<LessRuleset*>& nestedRules = getNestedRules();
-  list<LessRuleset*>::iterator r_it;
+  const list<LessRuleset*>& nestedRules = getNestedRules();
+  list<LessRuleset*>::const_iterator r_it;
 
   offset = mixin.name.walk(getSelector(), offset);
   
@@ -291,44 +299,55 @@ void LessRuleset::getLessRulesets(list<LessRuleset*> &rulesetList,
   
   if (offset == mixin.name.end()) {
     if (selector->matchArguments(mixin))
-      rulesetList.push_back(this);
+      functionList.push_back(this);
 
   } else {   
-    for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
-      (*r_it)->getLessRulesets(rulesetList, mixin, offset);
+    for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+      (*r_it)->getFunctions(functionList, mixin, offset);
     }
   }
 }
 
-void LessRuleset::getLocalLessRulesets(std::list<LessRuleset*> &rulesetList,
-                                       const Mixin &mixin) {
-  std::list<LessRuleset*>& nestedRules = getNestedRules();
-  std::list<LessRuleset*>::iterator r_it;
+void LessRuleset::getLocalFunctions(std::list<const Function*> &functionList,
+                                    const Mixin &mixin) const {
+  const std::list<LessRuleset*>& nestedRules = getNestedRules();
+  std::list<LessRuleset*>::const_iterator r_it;
   
-  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
-    (*r_it)->getLessRulesets(rulesetList, mixin, mixin.name.begin());
+  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+    (*r_it)->getFunctions(functionList, mixin, mixin.name.begin());
   }
 
   if (getParent() != NULL) {
-    getParent()->getLocalLessRulesets(rulesetList, mixin);
+    getParent()->getLocalFunctions(functionList, mixin);
   } else {
-    getLessStylesheet()->getLessRulesets(rulesetList, mixin);
+    getLessStylesheet()->getFunctions(functionList, mixin);
   }
 }
 
 
 void LessRuleset::insertNestedRules(Stylesheet &s, Selector *prefix,
-                                    ProcessingContext &context) {
-  std::list<LessRuleset*>& nestedRules = getNestedRules();
-  std::list<LessRuleset*>::iterator r_it;
+                                    ProcessingContext &context) const {
+  const std::list<LessRuleset*>& nestedRules = getNestedRules();
+  std::list<LessRuleset*>::const_iterator r_it;
 
-  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
+  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
     (*r_it)->process(s, prefix, context);
   }
 }
 
+void LessRuleset::addClosures(ProcessingContext &context) const {
+  const std::list<LessRuleset*>& nestedRules = getNestedRules();
+  std::list<LessRuleset*>::const_iterator r_it;
+  
+  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+    if ((*r_it)->selector->needsArguments()) {
+      context.addClosure(*(*r_it));
+    }
+  }
+}
 
-bool LessRuleset::matchConditions(ProcessingContext &context){
+
+bool LessRuleset::matchConditions(ProcessingContext &context) const {
   std::list<TokenList>& conditions = selector->getConditions();
   std::list<TokenList>::iterator cit;
   TokenList condition;
@@ -356,7 +375,8 @@ bool LessRuleset::matchConditions(ProcessingContext &context){
 }
   
 bool LessRuleset::putArguments(const Mixin &mixin,
-                               std::map<std::string, TokenList> &scope) {
+                               std::map<std::string, TokenList>
+                               &scope) const {
   std::list<std::string>& parameters = selector->getParameters();
   std::list<std::string>::iterator pit;
   TokenList argsCombined;

@@ -19,32 +19,34 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __Closure_h__
+#define __Closure_h__
 
-#include <map>
-#include <string>
-#include <list>
+#include "Function.h"
+#include "LessRuleset.h"
+#include "Mixin.h"
+#include "../stylesheet/Ruleset.h"
 
-#include "../TokenList.h"
+class ProcessingContext;
 
-class ValueScope {
-private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
-
-  //void putVariable(const std::string &key, const TokenList &value);
-  
+class Closure: public Function {
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  const LessRuleset* ruleset;
+  std::map<std::string, TokenList> variables;
 
-  void copyVariables(std::map<std::string, TokenList> &variables,
-                     const ValueScope *start) const ;
+  Closure();
+  Closure(const LessRuleset &ruleset);
+
+  virtual bool insert(Mixin* mixin, Ruleset &target,
+                      ProcessingContext& context) const;
+  virtual bool insert(Mixin* mixin, Stylesheet &s,
+                      ProcessingContext& context) const;
+  virtual void getFunctions(std::list<const Function*> &functionList,
+                            const Mixin &mixin,
+                            TokenList::const_iterator selector_offset)
+    const;
+
+  virtual LessSelector* getLessSelector() const;
 };
-
+  
 #endif

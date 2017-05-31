@@ -61,20 +61,22 @@ bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
 
   vector<TokenList>::iterator arg_i;
   map<string, TokenList>::iterator argn_i;
-  list<LessRuleset*>::iterator i;
-  list<LessRuleset*> rulesetList;
-  LessRuleset* lessruleset;
+  list<const Function*>::iterator i;
+  list<const Function*> functionList;
+  const Function* function;
 
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Mixin: \"" << name.toString() << "\"";
 #endif
 
   if (parent != NULL)
-    parent->getLocalLessRulesets(rulesetList, *this);
+    parent->getLocalFunctions(functionList, *this);
   else
-    getLessStylesheet()->getLessRulesets(rulesetList, *this);
+    getLessStylesheet()->getFunctions(functionList, *this);
 
-  if (rulesetList.empty())
+  context.getClosures(functionList, *this);
+  
+  if (functionList.empty())
     return false;
   
   for (arg_i = arguments.begin(); arg_i != arguments.end(); arg_i++) {
@@ -93,23 +95,23 @@ bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
   }
   
 
-  for (i = rulesetList.begin(); i != rulesetList.end(); i++) {
-    lessruleset = *i;
+  for (i = functionList.begin(); i != functionList.end(); i++) {
+    function = *i;
 
 #ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin: " << lessruleset->getSelector().toString();
+    VLOG(3) << "Mixin: " << function->getLessSelector()->toString();
 #endif
 
-    if (lessruleset->getLessSelector()->needsArguments() ||
-        !context.isInStack(*lessruleset)) {
+    if (function->getLessSelector()->needsArguments() ||
+        !context.isInStack(*function)) {
       if (target != NULL)
-        lessruleset->insert(this, *target, context);
+        function->insert(this, *target, context);
       else
-        lessruleset->insert(this, s, context);
+        function->insert(this, s, context);
     }
   }
 
-  return !rulesetList.empty();
+  return true;
 }
 
 void Mixin::setLessStylesheet(LessStylesheet &s) {

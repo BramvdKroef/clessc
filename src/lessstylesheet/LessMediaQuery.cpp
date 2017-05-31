@@ -16,14 +16,14 @@ void LessMediaQuery::setSelector(const Selector &s) {
 void LessMediaQuery::setLessStylesheet(LessStylesheet &parent) {
   this->parent = &parent;
 }
-LessStylesheet* LessMediaQuery::getLessStylesheet() {
+LessStylesheet* LessMediaQuery::getLessStylesheet() const {
   return parent;
 }
 
-void LessMediaQuery::getLessRulesets(std::list<LessRuleset*> &rulesetList,
-                                     const Mixin &mixin) {
-  LessStylesheet::getLessRulesets(rulesetList, mixin);
-  getLessStylesheet()->getLessRulesets(rulesetList, mixin);
+void LessMediaQuery::getFunctions(std::list<const Function*> &functionList,
+                                     const Mixin &mixin) const {
+  LessStylesheet::getFunctions(functionList, mixin);
+  getLessStylesheet()->getFunctions(functionList, mixin);
 }
 
 ProcessingContext* LessMediaQuery::getContext() {

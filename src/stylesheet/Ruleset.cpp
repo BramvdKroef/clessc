@@ -81,7 +81,7 @@ Selector& Ruleset::getSelector() {
 const Selector& Ruleset::getSelector() const {
   return selector;
 }
-std::list<RulesetStatement*>& Ruleset::getStatements() {
+const std::list<RulesetStatement*>& Ruleset::getStatements() const {
   return statements;
 }
 
@@ -97,7 +97,7 @@ void Ruleset::clearStatements() {
   }
 }
 
-void Ruleset::insert(Ruleset &target) {
+void Ruleset::insert(Ruleset &target) const {
   std::list<RulesetStatement*> statements = getStatements();
   std::list<RulesetStatement*>::iterator i;
   for (i = statements.begin(); i != statements.end(); i++) {

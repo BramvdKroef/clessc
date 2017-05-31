@@ -57,8 +57,8 @@ public:
   void deleteLessRuleset(LessRuleset &ruleset);
   void deleteMixin(Mixin &mixin);
   
-  virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
-                               const Mixin &mixin);
+  virtual void getFunctions(std::list<const Function*> &functionList,
+                            const Mixin &mixin) const;
 
   void setContext(ProcessingContext* context);
   virtual ProcessingContext* getContext();

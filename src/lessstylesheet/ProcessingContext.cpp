@@ -52,27 +52,27 @@ void ProcessingContext::popScope() {
   delete tmp;
 }
   
-void ProcessingContext::pushRuleset(const LessRuleset &ruleset) {
+void ProcessingContext::pushFunction(const Function &function) {
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Push: " << ruleset.getSelector().toString();
+  VLOG(2) << "Push: " << function.getLessSelector()->toString();
 #endif
   
-  rulesets.push_back(&ruleset);
+  functionStack.push_back(&function);
 }
 
-void ProcessingContext::popRuleset() {
+void ProcessingContext::popFunction() {
 #ifdef WITH_LIBGLOG
-  VLOG(2) << "Pop: " << rulesets.back()->getSelector().toString();
+  VLOG(2) << "Pop: " << functionStack.back()->getLessSelector()->toString();
 #endif
 
-  rulesets.pop_back();
+  functionStack.pop_back();
 }
 
-bool ProcessingContext::isInStack(const LessRuleset &ruleset) {
-  std::list<const LessRuleset*>::iterator i;
+bool ProcessingContext::isInStack(const Function &function) {
+  std::list<const Function*>::iterator i;
 
-  for(i = rulesets.begin(); i != rulesets.end(); i++) {
-    if (*i == &ruleset)
+  for(i = functionStack.begin(); i != functionStack.end(); i++) {
+    if (*i == &function)
       return true;
   }
   return false;
@@ -83,6 +83,34 @@ void ProcessingContext::addExtension(Extension& extension){
 }
 std::list<Extension>& ProcessingContext::getExtensions() {
   return extensions;
+}
+
+
+void ProcessingContext::pushClosureScope(std::list<Closure*>
+                                         &scope) {
+  std::pair<std::list<Closure*>*, const ValueScope*> pair(&scope, scopes);
+  closureStack.push_back(pair);
+}
+
+void ProcessingContext::popClosureScope() {
+  // delete closures
+  closureStack.pop_back();
+}
+
+void ProcessingContext::addClosure(const LessRuleset &ruleset) {
+  Closure* c = new Closure(ruleset);
+  closureStack.back().first->push_back(c);
+  scopes->copyVariables(closureStack.back().first->back()->variables,
+                        closureStack.back().second);
+}
+
+void ProcessingContext::getClosures(std::list<const Function*> &closureList,
+                                        const Mixin &mixin) {
+  std::list<Closure*>::iterator it;
+  
+  for (it = closureStack.back().first->begin(); it != closureStack.back().first->end(); it++) {
+    (*it)->getFunctions(closureList, mixin, mixin.name.begin());
+  }
 }
 
 ValueProcessor* ProcessingContext::getValueProcessor() {

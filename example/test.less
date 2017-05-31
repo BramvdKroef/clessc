@@ -516,6 +516,16 @@ div /* a */ .class {
 
 .declare-font('test');
 
+.unlock(@value) { // outer mixin
+  .doSomething() { // nested mixin
+    declaration: @value;
+  }
+}
+
+#namespace {
+  .unlock(5); // unlock doSomething mixin
+  .doSomething(); //nested mixin was copied here and is usable
+}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

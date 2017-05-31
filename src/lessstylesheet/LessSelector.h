@@ -31,6 +31,8 @@
 #include <map>
 #include <iterator>
 
+class Mixin;
+
 class LessSelector: public Selector {
 private:
   std::list<Extension> extensions;

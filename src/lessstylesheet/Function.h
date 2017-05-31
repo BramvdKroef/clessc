@@ -19,32 +19,31 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __Function_h__
+#define __Function_h__
 
-#include <map>
-#include <string>
 #include <list>
 
+#include "../stylesheet/Ruleset.h"
 #include "../TokenList.h"
+#include "LessSelector.h"
 
-class ValueScope {
-private:
-  const ValueScope* parent;
-  const std::map<std::string, TokenList>* variables;
+class Mixin;
+class ProcessingContext;
+class LessSelector;
 
-  //void putVariable(const std::string &key, const TokenList &value);
-  
+class Function {
 public:
-  ValueScope(const ValueScope &p, const std::map<std::string, TokenList> &v);
-  ValueScope(const std::map<std::string, TokenList> &v);
-  
-  const TokenList* getVariable(const std::string &key) const;
-  
-  const ValueScope* getParent() const;
+  virtual bool insert(Mixin* mixin, Ruleset &target,
+                      ProcessingContext& context) const = 0;
+  virtual bool insert(Mixin* mixin, Stylesheet &s,
+                      ProcessingContext& context) const = 0;
+  virtual void getFunctions(std::list<const Function*> &functionList,
+                            const Mixin &mixin,
+                            TokenList::const_iterator selector_offset)
+  const = 0;
 
-  void copyVariables(std::map<std::string, TokenList> &variables,
-                     const ValueScope *start) const ;
+  virtual LessSelector* getLessSelector() const = 0;
+ 
 };
-
 #endif

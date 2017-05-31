@@ -38,6 +38,7 @@
 
 class LessStylesheet;
 class LessRuleset;
+class ProcessingContext;
 
 class Mixin: public StylesheetStatement{
 private:

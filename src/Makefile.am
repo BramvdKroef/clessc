@@ -60,6 +60,8 @@ lessstylesheet/Extension.cpp		\
 lessstylesheet/Extension.h		\
 lessstylesheet/ProcessingContext.cpp	\
 lessstylesheet/ProcessingContext.h	\
+lessstylesheet/Closure.cpp		\
+lessstylesheet/Closure.h		\
 less/LessParser.cpp			\
 less/LessParser.h			\
 less/LessTokenizer.cpp			\

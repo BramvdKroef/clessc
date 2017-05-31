@@ -32,6 +32,7 @@
 #include "LessRuleset.h"
 #include "Mixin.h"
 #include "ProcessingContext.h"
+#include "Function.h"
 #include <list>
 
 class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
@@ -47,10 +48,10 @@ public:
   void setSelector(const Selector &s);
 
   virtual void setLessStylesheet(LessStylesheet &parent);
-  LessStylesheet* getLessStylesheet();
+  LessStylesheet* getLessStylesheet() const;
 
-  virtual void getLessRulesets(std::list<LessRuleset*> &rulesetList,
-                               const Mixin &mixin);
+  virtual void getFunctions(std::list<const Function*> &functionList,
+                            const Mixin &mixin) const;
   
   virtual ProcessingContext* getContext();
   virtual void process(Stylesheet &s);
