@@ -415,7 +415,6 @@ div {
 
     .nested-loop(@name, 3);
 }
-
 .test-nested-loop();
 
 .test8 {
@@ -523,8 +522,20 @@ div /* a */ .class {
 }
 
 #namespace {
-  .unlock(5); // unlock doSomething mixin
-  .doSomething(); //nested mixin was copied here and is usable
+    .unlock(5); // unlock doSomething mixin
+    .doSomething();
+}
+
+.unlock2(@value) { // outer mixin
+  .doSomething() { // nested mixin
+    declaration: @value;
+  }
+  .doSomething();
+}
+
+#namespace2 {
+    .unlock(5); // unlock doSomething mixin
+    .doSomething();
 }
 /* Multiline comment ending with * at the end of the file */
 /*

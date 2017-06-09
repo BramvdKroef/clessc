@@ -61,7 +61,7 @@ public:
   bool isExtends();
   bool getExtension(TokenList &extension);
   
-  void insert(Stylesheet &s);
+  void process(Stylesheet &s);
     
   virtual void process(Ruleset &r) ;
   virtual void write(CssWriter &css) {};

@@ -97,7 +97,7 @@ void Ruleset::clearStatements() {
   }
 }
 
-void Ruleset::insert(Ruleset &target) const {
+void Ruleset::processStatements(Ruleset &target) const {
   std::list<RulesetStatement*> statements = getStatements();
   std::list<RulesetStatement*>::iterator i;
   for (i = statements.begin(); i != statements.end(); i++) {
@@ -113,7 +113,7 @@ void Ruleset::process(Stylesheet &s) {
 #endif
         
   target->setSelector(getSelector());
-  insert(*target);
+  processStatements(*target);
 }
 
 void Ruleset::write(CssWriter &writer) {

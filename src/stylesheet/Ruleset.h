@@ -66,7 +66,7 @@ public:
 
   void clearStatements();
   
-  virtual void insert(Ruleset &target) const;
+  virtual void processStatements(Ruleset &target) const;
   virtual void process(Stylesheet& s);
   virtual void write(CssWriter &writer);
 };

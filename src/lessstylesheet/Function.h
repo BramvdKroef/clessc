@@ -34,9 +34,9 @@ class LessSelector;
 
 class Function {
 public:
-  virtual bool insert(Mixin* mixin, Ruleset &target,
+  virtual bool call(Mixin& mixin, Ruleset &target,
                       ProcessingContext& context) const = 0;
-  virtual bool insert(Mixin* mixin, Stylesheet &s,
+  virtual bool call(Mixin* mixin, Stylesheet &s,
                       ProcessingContext& context) const = 0;
   virtual void getFunctions(std::list<const Function*> &functionList,
                             const Mixin &mixin,

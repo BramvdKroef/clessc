@@ -38,13 +38,18 @@ class Function;
 class Closure;
 class Mixin;
 
+
+class CallStack {
+  LessRuleset* function;
+  
+};
+  
 class ProcessingContext {
 private:
   const ValueScope* scopes;
-  std::list<const Function*> functionStack;
+  std::list<const LessRuleset*> stack;
   ValueProcessor processor;
   std::list<Extension> extensions;
-  std::list<std::pair<std::list<Closure*>*, const ValueScope*>> closureStack;
   
 public:
   ProcessingContext();
@@ -53,16 +58,10 @@ public:
   void pushScope(const std::map<std::string, TokenList> &scope);
   void popScope();
   
-  void pushFunction(const Function &function);
-  void popFunction();
-  bool isInStack(const Function &function);
+  void pushLessRuleset(const LessRuleset &ruleset);
+  void popLessRuselet();
+  bool isInStack(const LessRuleset &function);
 
-  void pushClosureScope(std::list<Closure*>
-                        &scope);
-  void popClosureScope();
-  void addClosure(const LessRuleset &ruleset);
-  void getClosures(std::list<const Function*> &closureList,
-                   const Mixin &mixin);
   void addExtension(Extension& extension);
   std::list<Extension>& getExtensions();
 

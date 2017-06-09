@@ -37,7 +37,7 @@ public:
   Closure();
   Closure(const LessRuleset &ruleset);
 
-  virtual bool insert(Mixin* mixin, Ruleset &target,
+  virtual bool insert(Mixin& mixin, Ruleset &target,
                       ProcessingContext& context) const;
   virtual bool insert(Mixin* mixin, Stylesheet &s,
                       ProcessingContext& context) const;

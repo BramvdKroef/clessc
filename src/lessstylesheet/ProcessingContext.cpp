@@ -52,7 +52,7 @@ void ProcessingContext::popScope() {
   delete tmp;
 }
   
-void ProcessingContext::pushFunction(const Function &function) {
+void ProcessingContext::pushLessRuleset(const LessRuleset &function) {
 #ifdef WITH_LIBGLOG
   VLOG(2) << "Push: " << function.getLessSelector()->toString();
 #endif
@@ -111,6 +111,19 @@ void ProcessingContext::getClosures(std::list<const Function*> &closureList,
   for (it = closureStack.back().first->begin(); it != closureStack.back().first->end(); it++) {
     (*it)->getFunctions(closureList, mixin, mixin.name.begin());
   }
+}
+
+void ProcessingContext::getFunctions (std::list<const Function*>
+                                      functionList, const Mixin* mixin) {
+  
+  for (it = stack.rbegin(); it != stack.rend(); ++it) {
+    (*it)->getLocalFunctions(functionList, mixin);
+
+    if (!functionList.empty())
+      return;
+  }
+  
+  return;
 }
 
 ValueProcessor* ProcessingContext::getValueProcessor() {

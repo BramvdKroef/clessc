@@ -157,67 +157,37 @@ void LessRuleset::processExtensions(ProcessingContext& context,
   }
 }
 
-bool LessRuleset::insert(Mixin *mixin, Ruleset &target,
+bool LessRuleset::call(Mixin &mixin, Ruleset &target,
                          ProcessingContext &context) const {
   map<string, TokenList> scope;
   bool ret = false;
-  context.pushFunction(*this);
-  
+
+  context.pushLessRuleset(*this);
   context.pushScope(scope);
   
-  if (((mixin == NULL && !selector->needsArguments()) ||
-       (mixin != NULL && putArguments(*mixin, scope))) &&
+  if (putArguments(mixin, scope) &&
       matchConditions(context)) {
 
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Inserting variables";
-#endif
-    
-    // set local variables
-    context.pushScope(variables);
-
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Inserting statements";
-#endif
-
-    // process statements
-    Ruleset::insert(target);
-
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Inserting nested rules";
-#endif
-  
-    // insert nested rules
-    insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
-
-    if (mixin != NULL) {
-      
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Adding closures";
-#endif
-      addClosures(context);
-    }
-
-    context.popScope();
+    processStatements(target, context);
     ret = true;
   }
+  
   context.popScope();
-  context.popFunction();
+  context.popLessRuleset();
   return ret;
 }
 
-bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
-                         ProcessingContext &context) const {
+bool LessRuleset::call(Mixin *mixin, Stylesheet &target,
+                       ProcessingContext &context) const {
   map<string, TokenList> scope;
   const list<UnprocessedStatement*>& unprocessedStatements = getUnprocessedStatements();
   list<UnprocessedStatement*>::const_iterator up_it;
   bool ret = false;
 
-  context.pushFunction(*this);
+  context.pushLessRuleset(*this);
   context.pushScope(scope);
 
-  if (((mixin == NULL && !selector->needsArguments()) ||
-       (mixin != NULL && putArguments(*mixin, scope))) &&
+  if (putArguments(*mixin, scope) &&
       matchConditions(context)) {
 
     // set local variables
@@ -227,15 +197,11 @@ bool LessRuleset::insert(Mixin *mixin, Stylesheet &s,
     for (up_it = unprocessedStatements.cbegin();
          up_it != unprocessedStatements.cend();
          up_it++) {
-      (*up_it)->insert(s);
+      (*up_it)->process(target);
     }
     
     // insert nested rules
-    insertNestedRules(s, NULL, context);
-
-    if (mixin != NULL) {
-      addClosures(context);
-    }
+    insertNestedRules(target, NULL, context);
 
     context.popScope();
     ret = true;
@@ -272,9 +238,38 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
 
   processExtensions(context, prefix);
 
-  context.pushClosureScope(closureScope);
-  insert(NULL, *target, context);
-  context.popClosureScope();
+  processStatements(*target, context);
+
+  // move closures from context to this->closures
+  // move variables from context to this->variables
+}
+
+void LessRuleset::processStatements(Ruleset &target,
+                                    ProcessingContext& context) const {
+  map<string, TokenList> scope;
+  
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Inserting variables";
+#endif
+  
+  // set local variables
+  context.pushScope(variables);
+
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Inserting statements";
+#endif
+
+  // process statements
+  Ruleset::processStatements(target);
+
+#ifdef WITH_LIBGLOG
+  VLOG(2) << "Inserting nested rules";
+#endif
+  
+  // insert nested rules
+  insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
+
+  context.popScope();
 }
 
 void LessRuleset::getFunctions(list<const Function*> &functionList,
@@ -283,7 +278,7 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
   const {
 
   const list<LessRuleset*>& nestedRules = getNestedRules();
-  list<LessRuleset*>::const_iterator r_it;
+  list<Function*>::const_iterator f_it;
 
   offset = mixin.name.walk(getSelector(), offset);
   
@@ -300,14 +295,17 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
           *offset == ">")) {
     offset++;
   }
-  
-  if (offset == mixin.name.end()) {
-    if (selector->matchArguments(mixin))
-      functionList.push_back(this);
 
-  } else {   
-    for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
-      (*r_it)->getFunctions(functionList, mixin, offset);
+  if (selector->matchArguments(mixin)) {
+    if (offset == mixin.name.end()) {
+      functionList.push_back(this);
+    } else {   
+      for (f_it = nestedRules.cbegin(); f_it != nestedRules.cend(); f_it++) {
+        (*f_it)->getFunctions(functionList, mixin, offset);
+      }
+      for (f_it = closures.cbegin(); f_it != closures.cend(); f_it++) {
+        (*f_it)->getFunctions(functionList, mixin, mixin.name.begin());
+      }
     }
   }
 }
@@ -315,17 +313,23 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
 void LessRuleset::getLocalFunctions(std::list<const Function*> &functionList,
                                     const Mixin &mixin) const {
   const std::list<LessRuleset*>& nestedRules = getNestedRules();
-  std::list<LessRuleset*>::const_iterator r_it;
+  std::list<Function*>::const_iterator f_it;
   
-  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
-    (*r_it)->getFunctions(functionList, mixin, mixin.name.begin());
+  for (f_it = nestedRules.cbegin(); f_it != nestedRules.cend(); f_it++) {
+    (*f_it)->getFunctions(functionList, mixin, mixin.name.begin());
   }
 
-  if (getParent() != NULL) {
-    getParent()->getLocalFunctions(functionList, mixin);
-  } else {
-    getLessStylesheet()->getFunctions(functionList, mixin);
+  for (f_it = closures.cbegin(); f_it != closures.cend(); f_it++) {
+    (*f_it)->getFunctions(functionList, mixin, mixin.name.begin());
   }
+
+  if (!functionList.empty())
+    return;
+  
+  if (getParent() != NULL) 
+    getParent()->getLocalFunctions(functionList, mixin);
+  else 
+    getLessStylesheet()->getFunctions(functionList, mixin);
 }
 
 

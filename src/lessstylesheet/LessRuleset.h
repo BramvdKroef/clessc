@@ -49,6 +49,8 @@ class LessRuleset: public Ruleset, Function {
 protected:
   map<string, TokenList> variables;  
   list<LessRuleset*> nestedRules;
+  std::list<Closure*> closures;
+
   list<UnprocessedStatement*> unprocessedStatements;
 
   LessRuleset* parent;
@@ -96,11 +98,12 @@ public:
   void processExtensions(ProcessingContext &context,
                          Selector* prefix);
   
-  virtual bool insert(Mixin* mixin, Ruleset &target,
+  virtual bool call(Mixin &mixin, Ruleset &target,
                       ProcessingContext& context) const;
-  virtual bool insert(Mixin* mixin, Stylesheet &s,
-                      ProcessingContext& context) const;
+  virtual bool call(Mixin* mixin, Stylesheet &s,
+                    ProcessingContext& context) const;
 
+  virtual void processStatements(Ruleset &target, ProcessingContext& context) const;
   virtual void process(Stylesheet &s);
   virtual void process(Stylesheet &s, Selector* prefix,
                        ProcessingContext &context);

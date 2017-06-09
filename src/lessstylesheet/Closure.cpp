@@ -14,7 +14,7 @@ Closure::Closure(const LessRuleset &ruleset) {
   this->ruleset = &ruleset;
 }
 
-bool Closure::insert(Mixin* mixin, Ruleset &target,
+bool Closure::call(Mixin& mixin, Ruleset &target,
                     ProcessingContext& context) const {
   bool ret;
   
@@ -32,7 +32,7 @@ bool Closure::insert(Mixin* mixin, Ruleset &target,
   return ret;
 }
   
-bool Closure::insert(Mixin* mixin, Stylesheet &s,
+bool Closure::call(Mixin* mixin, Stylesheet &s,
                     ProcessingContext& context) const {
   bool ret;
   context.pushScope(variables);

@@ -64,7 +64,7 @@ LessRuleset* UnprocessedStatement::getLessRuleset() {
   return lessRuleset;
 }
 
-void UnprocessedStatement::insert(Stylesheet &s) {
+void UnprocessedStatement::process(Stylesheet &s) {
   AtRule* target;
   Mixin mixin;
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
@@ -76,7 +76,7 @@ void UnprocessedStatement::insert(Stylesheet &s) {
 
     // process mixin
   } else if (mixin.parse(*getTokens()))
-    mixin.insert(s, *getLessRuleset()->getContext(),
+    mixin.call(s, *getLessRuleset()->getContext(),
                  NULL, getLessRuleset());
 }
 
@@ -105,7 +105,7 @@ void UnprocessedStatement::process(Ruleset &r) {
   
   // process mixin
   if (mixin.parse(*getTokens()) &&
-      mixin.insert(*r.getStylesheet(), *getLessRuleset()->getContext(),
+      mixin.call(*r.getStylesheet(), *getLessRuleset()->getContext(),
                    &r, getLessRuleset())) {
 
   } else {

@@ -56,7 +56,8 @@ bool Mixin::parse(const Selector &selector) {
   return true;
 }
 
-bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
+
+bool Mixin::call(Stylesheet &s, ProcessingContext &context,
                    Ruleset* target, LessRuleset* parent) {
 
   vector<TokenList>::iterator arg_i;
@@ -69,13 +70,11 @@ bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
   VLOG(2) << "Mixin: \"" << name.toString() << "\"";
 #endif
 
-  if (parent != NULL)
-    parent->getLocalFunctions(functionList, *this);
+  if (parent != NULL) 
+    context.getFunctions(functionList, *this);
   else
     getLessStylesheet()->getFunctions(functionList, *this);
 
-  context.getClosures(functionList, *this);
-  
   if (functionList.empty())
     return false;
   
@@ -105,9 +104,9 @@ bool Mixin::insert(Stylesheet &s, ProcessingContext &context,
     if (function->getLessSelector()->needsArguments() ||
         !context.isInStack(*function)) {
       if (target != NULL)
-        function->insert(this, *target, context);
+        function->call(this, *target, context);
       else
-        function->insert(this, s, context);
+        function->call(this, s, context);
     }
   }
 
@@ -125,7 +124,7 @@ LessStylesheet* Mixin::getLessStylesheet() {
 
 
 void Mixin::process(Stylesheet &s) {
-  insert(s, *getLessStylesheet()->getContext(), NULL, NULL);
+  call(s, *getLessStylesheet()->getContext(), NULL, NULL);
 }
 
 void Mixin::parseArguments(TokenList::const_iterator i, const Selector &selector) {
