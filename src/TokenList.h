@@ -50,6 +50,7 @@ public:
 
   bool contains(const Token &t) const;
   bool contains(Token::Type t, const std::string &str) const;
+  bool containsType(Token::Type t) const;
 };
 
 #endif

@@ -72,3 +72,13 @@ bool TokenList::contains(Token::Type type, const std::string &str)
   }
   return false;
 }
+
+bool TokenList::containsType(Token::Type type) const {
+  std::list<Token>::const_iterator it;
+
+  for (it = begin(); it != end(); it++) {
+    if ((*it).type == type)
+      return true;
+  }
+  return false;
+}
