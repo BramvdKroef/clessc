@@ -333,6 +333,9 @@ div  .class {
 #namespace {
   declaration: 5;
 }
+non-parameter-mixin(odd) {
+  color: #000;
+}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
