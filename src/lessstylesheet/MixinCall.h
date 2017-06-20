@@ -33,8 +33,10 @@ public:
   MixinCall* parent;
   const Function* function;
   VariableMap arguments;
+  bool savepoint;
 
-  MixinCall(MixinCall* parent, const Function& function);
+  MixinCall(MixinCall* parent, const Function& function, bool
+            savepoint = false);
 
   const TokenList* getVariable(const std::string &key) const;
   void getFunctions (std::list<const Function*> &functionList,

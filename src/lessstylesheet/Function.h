@@ -52,6 +52,8 @@ public:
   &key, const MixinCall &stack) const
   = 0;
 
+  void saveReturnValues(ProcessingContext &context);
+  
   virtual LessSelector* getLessSelector() const = 0;
  
 };

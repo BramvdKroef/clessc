@@ -23,9 +23,11 @@
 #include "Function.h"
 #include "Mixin.h"
 
-MixinCall::MixinCall(MixinCall* parent, const Function& function) {
+MixinCall::MixinCall(MixinCall* parent, const Function& function, bool
+  savepoint) {
   this->parent = parent;
   this->function = &function;
+  this->savepoint = savepoint;
 }
 
 const TokenList* MixinCall::getVariable(const std::string &key) const {

@@ -52,8 +52,9 @@ const TokenList* ProcessingContext::getVariable(const std::string &key) const {
     return NULL;
 }
 
-void ProcessingContext::pushMixinCall(const Function &function) {
-  stack = new MixinCall(stack, function);
+void ProcessingContext::pushMixinCall(const Function &function, bool
+  savepoint) {
+  stack = new MixinCall(stack, function, savepoint);
 }
 
 void ProcessingContext::popMixinCall() {
@@ -65,6 +66,7 @@ void ProcessingContext::popMixinCall() {
       delete tmp;
   }
 }
+
 VariableMap* ProcessingContext::getStackArguments() {
   if (stack != NULL)
     return &stack->arguments;
@@ -74,6 +76,9 @@ VariableMap* ProcessingContext::getStackArguments() {
 
 bool ProcessingContext::isStackEmpty() const {
   return stack == NULL;
+}
+bool ProcessingContext::isSavePoint() const {
+  return (stack != NULL && stack->savepoint);
 }
 
 void ProcessingContext::getFunctions (std::list<const Function*> &functionList,

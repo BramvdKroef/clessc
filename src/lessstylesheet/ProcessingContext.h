@@ -62,11 +62,12 @@ public:
   
   virtual const TokenList* getVariable(const std::string &key) const;
   
-  void pushMixinCall(const Function &function);
+  void pushMixinCall(const Function &function, bool savepoint = false);
   void popMixinCall();
   bool isInStack(const Function &function) const;
   VariableMap* getStackArguments();
   bool isStackEmpty() const;
+  bool isSavePoint() const;
 
   void getFunctions (std::list<const Function*> &functionList,
                      const Mixin& mixin) const;

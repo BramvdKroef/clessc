@@ -248,7 +248,7 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
   context.interpolate(target->getSelector());
 
   processExtensions(context, prefix);
-  context.pushMixinCall(*this);
+  context.pushMixinCall(*this, true);
   processStatements(*target, context);
   context.popMixinCall();
   

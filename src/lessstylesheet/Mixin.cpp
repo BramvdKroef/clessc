@@ -110,6 +110,14 @@ bool Mixin::call(Stylesheet &s, ProcessingContext &context,
         function->call(*this, s, context);
 
       context.popMixinCall();
+      if (parent != NULL)  {
+        if (context.isSavePoint()) 
+          parent->saveReturnValues(context);
+        
+      } else {
+        getLessStylesheet()->saveReturnValues(context);
+      }
+
     }
   }
 
