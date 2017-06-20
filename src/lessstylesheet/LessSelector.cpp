@@ -44,14 +44,15 @@ LessSelector::LessSelector(const Selector &original) {
   
   for (it = parts.begin(); it != parts.end(); it++) {
     old_selector = &(*it);
-
+    
     while(!old_selector->empty()) {
       
       if (parseExtension(*old_selector, new_selector)) {
         
       } else if (parts.size() == 1 &&
                  !new_selector.empty() &&
-                 new_selector.back() != "nth-child" &&
+                 (new_selector.front().type == Token::HASH ||
+                  new_selector.front() == ".") &&
                  parseArguments(*old_selector)) {
         _needsArguments = true;
         old_selector->ltrim();
