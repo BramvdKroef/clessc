@@ -336,6 +336,9 @@ div  .class {
 non-parameter-mixin(odd) {
   color: #000;
 }
+#namespace .same-name {
+  height: 100%;
+}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

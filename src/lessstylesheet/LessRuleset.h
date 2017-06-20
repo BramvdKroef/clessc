@@ -128,8 +128,11 @@ public:
    * Look for a ruleset inside this ruleset and scope up to
    * getParent(), or getLessStylesheet() if getParent() is NULL.
    */
-  void getLocalFunctions(list<const Function*> &functionList,
+  void getLocalFunctions(std::list<const Function*> &functionList,
                          const Mixin &mixin) const;
+  void getLocalFunctions(std::list<const Function*> &functionList,
+                         const Mixin &mixin,
+                         const LessRuleset *exclude = NULL) const;
 
   bool matchConditions(ProcessingContext &context) const;
   bool putArguments(const Mixin &mixin,

@@ -50,15 +50,18 @@ LessSelector::LessSelector(const Selector &original) {
       if (parseExtension(*old_selector, new_selector)) {
         
       } else if (parts.size() == 1 &&
-                 !new_selector.empty() &&
-                 (new_selector.front().type == Token::HASH ||
-                  new_selector.front() == ".") &&
-                 parseArguments(*old_selector)) {
-        _needsArguments = true;
-        old_selector->ltrim();
-        
-        parseConditions(*old_selector);
-        
+                 !new_selector.empty()) {
+
+        if ((new_selector.front().type == Token::HASH ||
+             new_selector.front() == ".") &&
+            parseArguments(*old_selector)) {
+          _needsArguments = true;
+          old_selector->ltrim();
+          
+        } else if (!parseConditions(*old_selector)) {
+          new_selector.push_back(old_selector->front());
+          old_selector->pop_front();
+        }
       } else {
         new_selector.push_back(old_selector->front());
         old_selector->pop_front();

@@ -348,12 +348,20 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
 
 void LessRuleset::getLocalFunctions(std::list<const Function*> &functionList,
                                     const Mixin &mixin) const {
+  getLocalFunctions(functionList, mixin, NULL);
+}
+
+void LessRuleset::getLocalFunctions(std::list<const Function*> &functionList,
+                                    const Mixin &mixin,
+                                    const LessRuleset *exclude) const {
   const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
   std::list<Closure*>::const_iterator c_it;
   
   for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
-    (*r_it)->getFunctions(functionList, mixin, mixin.name.begin());
+    if ((*r_it) != exclude) {
+      (*r_it)->getFunctions(functionList, mixin, mixin.name.begin());
+    }
   }
 
   for (c_it = closures.cbegin(); c_it != closures.cend(); c_it++) {
@@ -363,9 +371,10 @@ void LessRuleset::getLocalFunctions(std::list<const Function*> &functionList,
   if (!functionList.empty())
     return;
   
-  if (getParent() != NULL) 
-    getParent()->getLocalFunctions(functionList, mixin);
-  else 
+  if (getParent() != NULL) {
+    getParent()->getLocalFunctions(functionList, mixin,
+                                   selector->needsArguments() ? NULL : this);
+  } else 
     getLessStylesheet()->getFunctions(functionList, mixin);
 }
 

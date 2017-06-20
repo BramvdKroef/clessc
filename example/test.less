@@ -532,6 +532,16 @@ non-parameter-mixin(odd) {
 #hash-mixin () {
     color: #fff;
 }
+
+.same-name() {
+    height: 100%;
+}
+#namespace {
+    .same-name {
+        .same-name();
+    }
+}
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

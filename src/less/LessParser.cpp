@@ -63,6 +63,7 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
     tokenizer->readNextToken();
     skipWhitespace();
     return true;
+    
   } else if (parseSelector(selector) && !selector.empty()) {
 #ifdef WITH_LIBGLOG
     VLOG(2) << "Parse: Selector: " << selector.toString();
