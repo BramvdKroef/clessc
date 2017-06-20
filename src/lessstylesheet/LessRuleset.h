@@ -31,7 +31,9 @@
 
 #include "../Token.h"
 #include "../TokenList.h"
+#include "../VariableMap.h"
 
+#include "Function.h"
 #include "UnprocessedStatement.h"
 #include "LessSelector.h"
 #include "Mixin.h"
@@ -43,11 +45,12 @@
 
 class LessStylesheet;
 class MediaQueryRuleset;
+class Closure;
 
 class LessRuleset: public Ruleset, Function {
   
 protected:
-  map<string, TokenList> variables;  
+  VariableMap variables;  
   list<LessRuleset*> nestedRules;
   std::list<Closure*> closures;
 
@@ -85,8 +88,14 @@ public:
   const list<LessRuleset*>& getNestedRules() const;
 
   void putVariable(const std::string &key, const TokenList &value);
-  map<string, TokenList>& getVariables();
+  VariableMap& getVariables();
 
+  const TokenList* getVariable(const std::string &key) const;
+  const TokenList* getInheritedVariable(const std::string &key,
+                                        const MixinCall &stack) const;
+
+  const list<Closure*>& getClosures() const;
+  
   void setParent(LessRuleset* r);
   LessRuleset* getParent() const;
 
@@ -100,10 +109,12 @@ public:
   
   virtual bool call(Mixin &mixin, Ruleset &target,
                       ProcessingContext& context) const;
-  virtual bool call(Mixin* mixin, Stylesheet &s,
+  virtual bool call(Mixin &mixin, Stylesheet &s,
                     ProcessingContext& context) const;
 
   virtual void processStatements(Ruleset &target, ProcessingContext& context) const;
+  void processStatements(Stylesheet &target,
+                                      ProcessingContext& context) const;
   virtual void process(Stylesheet &s);
   virtual void process(Stylesheet &s, Selector* prefix,
                        ProcessingContext &context);
@@ -111,6 +122,8 @@ public:
   virtual void getFunctions(list<const Function*> &functionList,
                             const Mixin &mixin,
                             TokenList::const_iterator selector_offset) const;
+
+  void saveReturnValues(ProcessingContext &context);
   /**
    * Look for a ruleset inside this ruleset and scope up to
    * getParent(), or getLessStylesheet() if getParent() is NULL.
@@ -120,7 +133,7 @@ public:
 
   bool matchConditions(ProcessingContext &context) const;
   bool putArguments(const Mixin &mixin,
-                    std::map<std::string, TokenList> &scope) const;
+                    VariableMap &scope) const;
 };
 
 #endif

@@ -52,6 +52,7 @@ public:
 
   virtual void getFunctions(std::list<const Function*> &functionList,
                             const Mixin &mixin) const;
+  virtual const TokenList* getVariable(const std::string &key) const;
   
   virtual ProcessingContext* getContext();
   virtual void process(Stylesheet &s);

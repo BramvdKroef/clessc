@@ -26,6 +26,14 @@ void LessMediaQuery::getFunctions(std::list<const Function*> &functionList,
   getLessStylesheet()->getFunctions(functionList, mixin);
 }
 
+const TokenList* LessMediaQuery::getVariable(const std::string &key) const {
+  const TokenList* t = LessStylesheet::getVariable(key);
+  if (t == NULL)
+    t = getLessStylesheet()->getVariable(key);
+  return t;
+}
+
+
 ProcessingContext* LessMediaQuery::getContext() {
   return getLessStylesheet()->getContext();
 }
@@ -36,6 +44,7 @@ void LessMediaQuery::process(Stylesheet &s) {
   getContext()->processValue(query->getSelector());
 
   LessStylesheet::process(*query, *parent->getContext());
+  getContext()->setLessStylesheet(*parent);
 }
 
 

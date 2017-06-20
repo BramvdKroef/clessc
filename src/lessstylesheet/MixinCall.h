@@ -19,19 +19,28 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
-
-#include <map>
-#include <string>
-#include <list>
+#ifndef __MixinCall_h__
+#define __MixinCall_h__
 
 #include "../TokenList.h"
+#include "../VariableMap.h"
 
-class ValueScope {
+class Function;
+class Mixin;
+
+class MixinCall {
 public:
-  virtual const TokenList* getVariable(const std::string &key) const =0;
-  
+  MixinCall* parent;
+  const Function* function;
+  VariableMap arguments;
+
+  MixinCall(MixinCall* parent, const Function& function);
+
+  const TokenList* getVariable(const std::string &key) const;
+  void getFunctions (std::list<const Function*> &functionList,
+                     const Mixin& mixin) const;
+  bool isInStack(const Function &function) const;
+  const VariableMap* getArguments(const Function &function) const;
 };
 
 #endif

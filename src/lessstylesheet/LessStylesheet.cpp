@@ -87,6 +87,10 @@ ProcessingContext* LessStylesheet::getContext() {
 void LessStylesheet::putVariable(const std::string &key, const TokenList &value) {
   variables[key] = value;
 }
+const TokenList* LessStylesheet::getVariable(const std::string &key) const {
+  return variables.getVariable(key);
+}
+
 
 
 void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
@@ -96,19 +100,13 @@ void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
   std::list<Extension>::iterator e_it;
   std::list<Closure*> closureScope;
   
-  
-  context.pushScope(variables);
-
-  context.pushClosureScope(closureScope);
-  
   this->context = &context;
-  
+
+  context.setLessStylesheet(*this);
   Stylesheet::process(s);
-
-  context.popClosureScope();
-  context.popScope();
-
-
+  
+  saveReturnValues(context);
+  
   // post processing
   extensions = &context.getExtensions();
 
@@ -121,4 +119,12 @@ void LessStylesheet::process(Stylesheet &s, ProcessingContext &context) {
       (*e_it).updateSelector((*r_it)->getSelector());
     }
   }
+}
+
+void LessStylesheet::saveReturnValues(ProcessingContext &context) {
+  // move closures from context to this->closures
+  context.saveClosures(this->closures);
+  
+  // move variables from context to this->variables
+  context.saveVariables(this->variables);
 }

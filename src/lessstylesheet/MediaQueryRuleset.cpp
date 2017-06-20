@@ -70,9 +70,9 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
 #endif
     context.interpolate(target->getSelector());
   
-    insert(NULL, *target, context);
+    processStatements(*target, context);
   } else
-    insert(NULL, *query, context);
+    processStatements(*query, context);
 }
 
 

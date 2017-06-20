@@ -42,7 +42,9 @@ class LessMediaQuery;
 class LessStylesheet: public Stylesheet {
 private:
   std::list<LessRuleset*> lessrulesets;
-  std::map<std::string, TokenList> variables;
+  std::list<Closure*> closures;
+
+  VariableMap variables;
   ProcessingContext* context;
   
 public:
@@ -57,16 +59,18 @@ public:
   void deleteLessRuleset(LessRuleset &ruleset);
   void deleteMixin(Mixin &mixin);
   
-  virtual void getFunctions(std::list<const Function*> &functionList,
-                            const Mixin &mixin) const;
-
   void setContext(ProcessingContext* context);
   virtual ProcessingContext* getContext();
   
   void putVariable(const std::string &key, const TokenList &value);
 
-  virtual void process(Stylesheet &s, ProcessingContext &context);
+  virtual void getFunctions(std::list<const Function*> &functionList,
+                            const Mixin &mixin) const;
 
+  virtual const TokenList* getVariable(const std::string &key) const;
+  
+  virtual void process(Stylesheet &s, ProcessingContext &context);
+  void saveReturnValues(ProcessingContext &context);
   
 };
 

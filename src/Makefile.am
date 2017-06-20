@@ -8,6 +8,8 @@ Token.cpp				\
 Token.h					\
 TokenList.cpp				\
 TokenList.h				\
+VariableMap.cpp				\
+VariableMap.h				\
 stylesheet/AtRule.cpp			\
 stylesheet/AtRule.h			\
 stylesheet/CssComment.cpp		\
@@ -62,6 +64,8 @@ lessstylesheet/ProcessingContext.cpp	\
 lessstylesheet/ProcessingContext.h	\
 lessstylesheet/Closure.cpp		\
 lessstylesheet/Closure.h		\
+lessstylesheet/MixinCall.h		\
+lessstylesheet/MixinCall.cpp		\
 less/LessParser.cpp			\
 less/LessParser.h			\
 less/LessTokenizer.cpp			\
@@ -86,7 +90,6 @@ value/Value.h				\
 value/ValueException.h			\
 value/ValueProcessor.cpp		\
 value/ValueProcessor.h			\
-value/ValueScope.cpp			\
 value/ValueScope.h
 
 

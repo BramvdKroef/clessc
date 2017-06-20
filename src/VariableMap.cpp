@@ -19,19 +19,40 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#include "VariableMap.h"
 
-#include <map>
-#include <string>
-#include <list>
+const TokenList* VariableMap::getVariable(const std::string &key) const {
+  VariableMap::const_iterator mit;
 
-#include "../TokenList.h"
+  if ((mit = this->find(key)) != this->end()) {
+    return &mit->second;
+  } else
+    return NULL;
+}
 
-class ValueScope {
-public:
-  virtual const TokenList* getVariable(const std::string &key) const =0;
+void VariableMap::merge(const VariableMap &map) {
+  this->insert(map.cbegin(), map.cend());
+
+}
+
+void VariableMap::overwrite(const VariableMap &map) {
+  VariableMap::const_iterator it;
   
-};
+  for (it = map.cbegin(); it != map.cend(); ++it) {
+    (*this)[it->first] = it->second;
+  }
+}
+    
+std::string VariableMap::toString() const {
+  std::string str;
+  VariableMap::const_iterator it;
+  
+  for (it = this->cbegin(); it != this->cend(); ++it) {
+    str.append(it->first);
+    str.append(": ");
+    str.append(it->second.toString());
+    str.append("\n");
+  }
+  return str;
+}
 
-#endif

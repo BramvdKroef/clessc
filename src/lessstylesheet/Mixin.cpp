@@ -85,15 +85,14 @@ bool Mixin::call(Stylesheet &s, ProcessingContext &context,
     context.processValue(*arg_i);
   }
 
-  for (argn_i = namedArguments.begin(); argn_i !=
-         namedArguments.end(); argn_i++) {
+  for (argn_i = namedArguments.begin();
+       argn_i != namedArguments.end(); argn_i++) {
 #ifdef WITH_LIBGLOG
     VLOG(3) << "Mixin Arg " << argn_i->first << ": " << argn_i->second.toString();
 #endif
     context.processValue(argn_i->second);
   }
   
-
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
 
@@ -103,10 +102,14 @@ bool Mixin::call(Stylesheet &s, ProcessingContext &context,
 
     if (function->getLessSelector()->needsArguments() ||
         !context.isInStack(*function)) {
+      context.pushMixinCall(*function);
+      
       if (target != NULL)
-        function->call(this, *target, context);
+        function->call(*this, *target, context);
       else
-        function->call(this, s, context);
+        function->call(*this, s, context);
+
+      context.popMixinCall();
     }
   }
 

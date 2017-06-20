@@ -60,7 +60,7 @@ public:
   
   const TokenList* getArgument(const string &name) const;
 
-  bool insert(Stylesheet &s, ProcessingContext &context,
+  bool call(Stylesheet &s, ProcessingContext &context,
               Ruleset* ruleset, LessRuleset* parent);
   bool parse(const Selector &selector);
 

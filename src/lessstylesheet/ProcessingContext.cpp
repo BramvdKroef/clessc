@@ -20,7 +20,9 @@
  */
 
 #include "ProcessingContext.h"
+#include "MixinCall.h"
 #include "LessRuleset.h"
+#include "LessStylesheet.h"
 
 #include <config.h>
 
@@ -28,54 +30,67 @@
 #include <glog/logging.h>
 #endif
 
+
 ProcessingContext::ProcessingContext() {
-  scopes = NULL;
+  stack = NULL;
+  contextStylesheet = NULL;
 }
-  
-const TokenList* ProcessingContext::getVariable(const std::string &key) {
-  return scopes->getVariable(key);
+
+void ProcessingContext::setLessStylesheet(LessStylesheet &stylesheet) {
+  contextStylesheet = &stylesheet;
 }
-void ProcessingContext::pushScope(const std::map<std::string,
-                                  TokenList> &scope) {
-  if (scopes == NULL)
-    scopes = new ValueScope(scope);
+LessStylesheet* ProcessingContext::getLessStylesheet() {
+  return contextStylesheet;
+}
+
+const TokenList* ProcessingContext::getVariable(const std::string &key) const {
+  if (stack != NULL)
+    return stack->getVariable(key);
+  else if (contextStylesheet != NULL)
+    return contextStylesheet->getVariable(key);
   else
-    scopes = new ValueScope(*scopes, scope);
-}
-void ProcessingContext::popScope() {
-  const ValueScope* tmp = scopes;
-
-  if (scopes == NULL)
-    return;
-  
-  scopes = tmp->getParent();
-  delete tmp;
-}
-  
-void ProcessingContext::pushLessRuleset(const LessRuleset &function) {
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Push: " << function.getLessSelector()->toString();
-#endif
-  
-  functionStack.push_back(&function);
+    return NULL;
 }
 
-void ProcessingContext::popFunction() {
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Pop: " << functionStack.back()->getLessSelector()->toString();
-#endif
-
-  functionStack.pop_back();
+void ProcessingContext::pushMixinCall(const Function &function) {
+  stack = new MixinCall(stack, function);
 }
 
-bool ProcessingContext::isInStack(const Function &function) {
-  std::list<const Function*>::iterator i;
+void ProcessingContext::popMixinCall() {
+  MixinCall* tmp = stack;
+  if (stack != NULL) {
+    stack = stack->parent;
 
-  for(i = functionStack.begin(); i != functionStack.end(); i++) {
-    if (*i == &function)
-      return true;
+    if (closures.empty() && variables.empty())
+      delete tmp;
   }
-  return false;
+}
+VariableMap* ProcessingContext::getStackArguments() {
+  if (stack != NULL)
+    return &stack->arguments;
+  else
+    return NULL;
+}
+
+bool ProcessingContext::isStackEmpty() const {
+  return stack == NULL;
+}
+
+void ProcessingContext::getFunctions (std::list<const Function*> &functionList,
+                                      const Mixin& mixin) const {
+  getClosures(functionList, mixin);
+
+  if (stack != NULL) 
+    stack->getFunctions(functionList, mixin);
+  else if (contextStylesheet != NULL)
+    contextStylesheet->getFunctions(functionList, mixin);
+}
+
+bool ProcessingContext::isInStack(const Function &function) const {
+  if (stack != NULL)
+    return stack->isInStack(function);
+  else
+    return NULL;
 }
 
 void ProcessingContext::addExtension(Extension& extension){
@@ -85,45 +100,32 @@ std::list<Extension>& ProcessingContext::getExtensions() {
   return extensions;
 }
 
-
-void ProcessingContext::pushClosureScope(std::list<Closure*>
-                                         &scope) {
-  std::pair<std::list<Closure*>*, const ValueScope*> pair(&scope, scopes);
-  closureStack.push_back(pair);
-}
-
-void ProcessingContext::popClosureScope() {
-  // delete closures
-  closureStack.pop_back();
-}
-
 void ProcessingContext::addClosure(const LessRuleset &ruleset) {
-  Closure* c = new Closure(ruleset);
-  closureStack.back().first->push_back(c);
-  scopes->copyVariables(closureStack.back().first->back()->variables,
-                        closureStack.back().second);
+  if (stack != NULL) {
+    Closure* c = new Closure(ruleset, *stack);
+    closures.push_back(c);
+  }
+}
+void ProcessingContext::saveClosures(std::list<Closure*> &closures) {
+  closures.insert(closures.end(), this->closures.begin(), this->closures.end());
+  this->closures.clear();
+}
+
+void ProcessingContext::addVariables(const VariableMap &variables) {
+  this->variables.overwrite(variables);
+}
+void ProcessingContext::saveVariables(VariableMap &variables) {
+  variables.merge(this->variables);
+  this->variables.clear();
 }
 
 void ProcessingContext::getClosures(std::list<const Function*> &closureList,
-                                        const Mixin &mixin) {
-  std::list<Closure*>::iterator it;
+                                        const Mixin &mixin) const {
+  std::list<Closure*>::const_iterator it;
   
-  for (it = closureStack.back().first->begin(); it != closureStack.back().first->end(); it++) {
+  for (it = closures.cbegin(); it != closures.cend(); it++) {
     (*it)->getFunctions(closureList, mixin, mixin.name.begin());
   }
-}
-
-void ProcessingContext::getFunctions (std::list<const Function*>
-                                      functionList, const Mixin* mixin) {
-  
-  for (it = stack.rbegin(); it != stack.rend(); ++it) {
-    (*it)->getLocalFunctions(functionList, mixin);
-
-    if (!functionList.empty())
-      return;
-  }
-  
-  return;
 }
 
 ValueProcessor* ProcessingContext::getValueProcessor() {
@@ -131,16 +133,16 @@ ValueProcessor* ProcessingContext::getValueProcessor() {
 }
 
 void ProcessingContext::interpolate(TokenList &tokens) {
-  processor.interpolate(tokens, *scopes);
+  processor.interpolate(tokens, *this);
 }
 void ProcessingContext::interpolate(std::string &str) {
-  processor.interpolate(str, *scopes);
+  processor.interpolate(str, *this);
 }
 
 void ProcessingContext::processValue(TokenList& value) {
-  processor.processValue(value, *scopes);
+  processor.processValue(value, *this);
 }
 
 bool ProcessingContext::validateCondition(TokenList &value) {
-  return processor.validateCondition(value, *scopes);
+  return processor.validateCondition(value, *this);
 }

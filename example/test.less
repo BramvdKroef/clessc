@@ -526,17 +526,6 @@ div /* a */ .class {
     .doSomething();
 }
 
-.unlock2(@value) { // outer mixin
-  .doSomething() { // nested mixin
-    declaration: @value;
-  }
-  .doSomething();
-}
-
-#namespace2 {
-    .unlock(5); // unlock doSomething mixin
-    .doSomething();
-}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
