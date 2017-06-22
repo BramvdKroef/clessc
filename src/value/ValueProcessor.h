@@ -41,6 +41,11 @@
  * 
  */
 class ValueProcessor {
+public:
+  enum Operator{OP_EQUALS, OP_LESS, OP_GREATER, OP_LESS_EQUALS,
+                OP_GREATER_EQUALS, OP_ADD, OP_SUBSTRACT,
+                OP_MULTIPLY, OP_DIVIDE, OP_NONE}; 
+
 private:
   FunctionLibrary functionLibrary;
 
@@ -51,11 +56,14 @@ private:
                           TokenList::const_iterator &end,
                           const ValueScope &scope) const;
 
-  Value* processOperator(TokenList::const_iterator &it,
-                         TokenList::const_iterator &end,
-                         const Value &operand1,
-                         const ValueScope &scope,
-                         Token* lastop = NULL) const;
+  Value* processOperation(TokenList::const_iterator &i,
+                          TokenList::const_iterator &end,
+                          const Value &operand1,
+                          const ValueScope &scope,
+                          ValueProcessor::Operator lastop) const;
+
+  Operator processOperator(TokenList::const_iterator &i,
+                           TokenList::const_iterator &end) const;
 
   Value* processConstant(TokenList::const_iterator &it,
                          TokenList::const_iterator &end,
@@ -92,7 +100,10 @@ private:
 
   void skipWhitespace(TokenList::const_iterator &i,
                       TokenList::const_iterator &end) const;
+
+  const char* operatorToString(ValueProcessor::Operator o) const;
 public:
+
   ValueProcessor();
   virtual ~ValueProcessor();
 

@@ -250,7 +250,7 @@ Value* ValueProcessor::processStatement(TokenList::const_iterator &i,
   if (v != NULL) {
     skipWhitespace(i, end);
 
-    while ((op = processOperator(i, end, *v, scope)) != NULL) {
+    while ((op = processOperation(i, end, *v, scope, OP_NONE)) != NULL) {
       delete v;
       v = op;        
       
@@ -262,47 +262,28 @@ Value* ValueProcessor::processStatement(TokenList::const_iterator &i,
     return NULL;
 }
 
-Value* ValueProcessor::processOperator(TokenList::const_iterator &i,
+Value* ValueProcessor::processOperation(TokenList::const_iterator &i,
                                        TokenList::const_iterator &end,
                                        const Value &operand1,
                                        const ValueScope &scope,
-                                       Token* lastop) const {
+                                       ValueProcessor::Operator lastop) const {
+  TokenList::const_iterator tmp;
   const Value* operand2;
   Value* result;
-  Token op;
-  std::string operators("+-*/=><");
-  size_t pos;
+  Operator op;
+  const Token* opToken;
 
   if (i == end)
     return NULL;
-  
-  op = *i;
-  pos = operators.find(op);
-  
-  if (pos == string::npos)
-    return NULL;
 
-  if (lastop != NULL &&
-      operators.find(*lastop) >= pos) {
-    return NULL;
-  }
-
-  i++;
-  if (i != end) {
-    // if a minus is not followed by a space we have to consider it
-    // part of a negative consonant.
-    if (op == "-" && (*i).type != Token::WHITESPACE) {
-      i--;
+  opToken = &(*i);
+  tmp = i;
+  
+  if ((op = processOperator(tmp, end)) == OP_NONE ||
+      (lastop != OP_NONE && lastop >= op))
       return NULL;
-    }
 
-    // Check for 2 char operators ('>=' and '=<')
-    if ((pos = operators.find(*i)) != string::npos) {
-      op.append(*i);
-      i++;
-    }
-  }
-
+  i = tmp;
   skipWhitespace(i, end);
   
   operand2 = processConstant(i, end, scope);
@@ -310,7 +291,7 @@ Value* ValueProcessor::processOperator(TokenList::const_iterator &i,
     if (i == end)
       throw new ParseException("end of line",
                                "Constant or @-variable",
-                               op.line, op.column, op.source);
+                               opToken->line, opToken->column, opToken->source);
     else
       throw new ParseException(*i,
                                "Constant or @-variable",
@@ -319,7 +300,7 @@ Value* ValueProcessor::processOperator(TokenList::const_iterator &i,
 
   skipWhitespace(i, end);
   
-  while ((result = processOperator(i, end, *operand2, scope, &op))) {
+  while ((result = processOperation(i, end, *operand2, scope, op))) {
     delete operand2;
     operand2 = result;
     
@@ -328,34 +309,101 @@ Value* ValueProcessor::processOperator(TokenList::const_iterator &i,
 
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Operation: " << operand1.getTokens()->toString() << 
-    "(" << Value::typeToString(operand1.type) <<  ") " << op << " " <<
+    "(" << Value::typeToString(operand1.type) <<  ") " << operatorToString(op) << " " <<
     operand2->getTokens()->toString() << "(" <<
     Value::typeToString(operand2->type) << ")";
 #endif
   
-  if (op == "+") 
+  if (op == OP_ADD) 
     result = operand1.add(*operand2);
-  else if (op == "-")
+  else if (op == OP_SUBSTRACT)
     result = operand1.substract(*operand2);
-  else if (op == "*")
+  else if (op == OP_MULTIPLY)
     result = operand1.multiply(*operand2);
-  else if (op == "/")
+  else if (op == OP_DIVIDE)
     result = operand1.divide(*operand2);
-  else if (op == "=")
+  else if (op == OP_EQUALS)
     result = operand1.equals(*operand2);
-  else if (op == "<")
+  else if (op == OP_LESS)
     result = operand1.lessThan(*operand2);
-  else if (op == ">")
+  else if (op == OP_GREATER)
     result = operand1.greaterThan(*operand2);
-  else if (op == "=<")
+  else if (op == OP_LESS_EQUALS)
     result = operand1.lessThanEquals(*operand2);
-  else if (op == ">=") 
+  else if (op == OP_GREATER_EQUALS) 
     result = operand1.greaterThanEquals(*operand2);
   
   delete operand2;
-  result->setLocation(op);
+  result->setLocation(*opToken);
   return result;
 }
+
+ValueProcessor::Operator ValueProcessor::processOperator(TokenList::const_iterator &i,
+                                                         TokenList::const_iterator
+                                                         &end) const {
+  Token t = *i;
+  i++;
+  
+  if (t == "=") {
+    if (i != end && *i == "<") {
+      i++;
+      return OP_LESS_EQUALS;
+    } else
+      return OP_EQUALS;
+    
+  } else if (t == "<") {
+    return OP_LESS;
+    
+  } else if (t == ">") {
+    if (i != end && *i == "=") {
+      i++;
+      return OP_GREATER_EQUALS;
+    } else
+      return OP_GREATER;
+    
+  } else if (t == "+") {
+    return OP_ADD;
+  } else if (t == "-") {
+    if (i != end && (*i).type != Token::WHITESPACE) {
+      i--;
+      return OP_NONE;
+    }
+    return OP_SUBSTRACT;
+  } else if (t == "*") {
+    return OP_MULTIPLY;
+  } else if (t == "/") {
+    return OP_DIVIDE;
+  } else
+    return OP_NONE;
+}
+
+const char* ValueProcessor::operatorToString(ValueProcessor::Operator
+                                             o) const {
+  switch(o) {
+  case OP_EQUALS:
+    return "=";
+  case OP_LESS:
+    return "<";
+  case OP_GREATER:
+    return ">";
+  case OP_LESS_EQUALS:
+    return "=<";
+  case OP_GREATER_EQUALS:
+    return ">=";
+  case OP_ADD:
+    return "+";
+  case OP_SUBSTRACT:
+    return "-";
+  case OP_MULTIPLY:
+    return "*";
+  case OP_DIVIDE:
+    return "/";
+  case OP_NONE:
+  default:
+    return "not an operator";
+  }
+}
+
 Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
                                        TokenList::const_iterator &end,
                                        const ValueScope &scope) const {

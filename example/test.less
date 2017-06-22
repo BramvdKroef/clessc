@@ -542,6 +542,13 @@ non-parameter-mixin(odd) {
     }
 }
 
+.conditional(@x) when (@x =< 10 + 1) {
+    width: 100%;
+}
+.test {
+    .conditional(10);
+}
+
 /* Multiline comment ending with * at the end of the file */
 /*
 **/
