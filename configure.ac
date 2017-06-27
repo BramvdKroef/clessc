@@ -6,6 +6,9 @@ AC_PROG_CXX
 AC_PROG_RANLIB
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 
+# C++11 support
+AX_CXX_COMPILE_STDCXX_11()
+
 # libpng support
 AC_ARG_WITH([libpng],
   [AS_HELP_STRING([--without-libpng],
