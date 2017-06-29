@@ -19,7 +19,7 @@
  * Author: Bram van der Kroef <bram@vanderkroef.net>
  */
 
-#include "CssTokenizer.h"
+#include "css/CssTokenizer.h"
 #include "gtest/gtest.h"
 
 /**
@@ -28,7 +28,7 @@
 TEST(CssTokenizerTest, ReckognizesTokens) {
   istringstream in("identifier @atkeyword #hash 1234 100% 1.5em : ; { } ( ) [ ] /* comment */ function( ~= |= ~ ");
     
-  CssTokenizer t(&in);
+  CssTokenizer t(in, "test");
   EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::ATKEYWORD, t.readNextToken());
@@ -82,8 +82,8 @@ TEST(CssTokenizerTest, String) {
     inBad2("'string"),
     newlines("'\\\n \\\r\n \\\r'");
 
-  CssTokenizer t(&in), tBad1(&inBad1), tBad2(&inBad2),
-    tNewlines(&newlines);
+  CssTokenizer t(in, "test"), tBad1(inBad1, "test"), tBad2(inBad2, "test"),
+    tNewlines(newlines, "test");
 
   EXPECT_EQ(Token::STRING, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
@@ -97,13 +97,13 @@ TEST(CssTokenizerTest, String) {
   EXPECT_THROW(tBad2.readNextToken(), ParseException*);
 
   ASSERT_EQ(Token::STRING, tNewlines.readNextToken());
-  EXPECT_STREQ("'\\\n \\\r\n \\\r'", tNewlines.getToken()->str.c_str());
+  EXPECT_STREQ("'\\\n \\\r\n \\\r'", tNewlines.getToken().c_str());
 }
 
 TEST(CssTokenizerTest, URL) {
   istringstream in("url(../img/img.png) url('http://example.com/image.jpg')");
 
-  CssTokenizer t(&in);
+  CssTokenizer t(in, "test");
   EXPECT_EQ(Token::URL, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::URL, t.readNextToken());
@@ -111,7 +111,7 @@ TEST(CssTokenizerTest, URL) {
 
 TEST(CssTokenizerTest, UnicodeRange) {
   istringstream in("u+123 u+123DEF-123");
-  CssTokenizer t(&in);
+  CssTokenizer t(in, "test");
   EXPECT_EQ(Token::UNICODE_RANGE, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::UNICODE_RANGE, t.readNextToken());
@@ -119,14 +119,14 @@ TEST(CssTokenizerTest, UnicodeRange) {
 
 TEST(CssTokenizerTest, NonAscii) {
   istringstream in("a\xEE€");
-  CssTokenizer t(&in);
+  CssTokenizer t(in, "test");
   EXPECT_EQ(Token::IDENTIFIER, t.readNextToken());
-  EXPECT_STREQ("a\xEE€", t.getToken()->str.c_str());
+  EXPECT_STREQ("a\xEE€", t.getToken().c_str());
 }
 
 TEST(CssTokenizerTest, Minus) {
   istringstream in("-10 -50% -5em -identifier -moz-border-radius( -");
-  CssTokenizer t(&in);
+  CssTokenizer t(in, "test");
   EXPECT_EQ(Token::NUMBER, t.readNextToken());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::PERCENTAGE, t.readNextToken());
@@ -142,25 +142,34 @@ TEST(CssTokenizerTest, Minus) {
 }
 TEST(CssTokenizerTest, Other) {
   istringstream in("@ - ~ | / + =");
-  CssTokenizer t(&in);
+  CssTokenizer t(in, "test");
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("@", t.getToken()->str.c_str());
+  EXPECT_STREQ("@", t.getToken().c_str());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("-", t.getToken()->str.c_str());
+  EXPECT_STREQ("-", t.getToken().c_str());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("~", t.getToken()->str.c_str());
+  EXPECT_STREQ("~", t.getToken().c_str());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("|", t.getToken()->str.c_str());
+  EXPECT_STREQ("|", t.getToken().c_str());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("/", t.getToken()->str.c_str());
+  EXPECT_STREQ("/", t.getToken().c_str());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("+", t.getToken()->str.c_str());
+  EXPECT_STREQ("+", t.getToken().c_str());
   EXPECT_EQ(Token::WHITESPACE, t.readNextToken());
   EXPECT_EQ(Token::OTHER, t.readNextToken());
-  EXPECT_STREQ("=", t.getToken()->str.c_str());
+  EXPECT_STREQ("=", t.getToken().c_str());
+}
+
+TEST(CssTokenizerTest, StringEscape) {
+  istringstream in("'string\\''");
+
+  CssTokenizer t(in, "test");
+
+  EXPECT_EQ(Token::STRING, t.readNextToken());
+  EXPECT_STREQ("'string\\''", t.getToken().c_str());
 }
