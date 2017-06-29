@@ -8,6 +8,6 @@ test_lessc_SOURCES = CssTokenizer_test.cpp CssParser_test.cpp	\
 
 test_lessc_CXXFLAGS = -I$(GTEST_DIR)/include -I$(top_builddir)/src
 test_lessc_LDADD = -lgtest $(top_builddir)/src/liblessc.a	\
-	$(LIBPNG_LIBS) $(LIBJPEG_LIBS) -lgtest_main
+	$(LIBPNG_LIBS) $(LIBJPEG_LIBS) $(LIBGLOG_LIBS) -lgtest_main
 
 TESTS = test_lessc
