@@ -152,7 +152,7 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
         operators.find(*i) != string::npos) {
       return true;
 
-    } else if (i != value.end()) {
+    } else {
       // function
       if ((*i).type == Token::IDENTIFIER) {
         t = &(*i);
