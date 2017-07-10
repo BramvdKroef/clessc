@@ -882,3 +882,209 @@ TEST_F(LessParserTest, CommentAtEndOfString) {
   css->write(*writer);
   ASSERT_STREQ("/* **/", out->str().c_str());
 }
+
+TEST_F(LessParserTest, NamespaceGuardTrue) {
+  in->str("#namespace when (@x = true) { \
+   .mixin { \
+     x: x; \
+   } \
+} \
+@x: true;\
+.test { \
+  #namespace .mixin;\
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ("#namespace .mixin{x:x}.test{x:x}", out->str().c_str());
+}
+TEST_F(LessParserTest, NamespaceGuardFalse) {
+  in->str("#namespace when (@x = true) { \
+   .mixin { \
+     x: x; \
+   } \
+} \
+@x: false;\
+.test { \
+  #namespace .mixin;\
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ("", out->str().c_str());
+}
+
+TEST_F(LessParserTest, Default) {
+  in->str(".mixin(@x) when (@x = 2) { \
+  a: @x; \
+}\
+.mixin (@x) when (default()) { \
+  default: @x; \
+} \
+.test { \
+  .mixin(1); \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{default:1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, NotDefault) {
+  in->str(".mixin(@x) when (@x = 1) { \
+  a: @x; \
+}\
+.mixin (@x) when (default()) { \
+  default: @x; \
+} \
+.test { \
+  .mixin(1); \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{a:1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, ImportantMixin) {
+  in->str(".mixin(@x) { \
+  x: @x; \
+} \
+.test { \
+  .mixin(1) !important; \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{x:1 !important}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, MergeComma) {
+  in->str(".mixin(@x) { \
+  x+: @x; \
+} \
+.test { \
+  x+: 4; \
+  .mixin(1); \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{x:4, 1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, MergeSpace) {
+  in->str(".mixin(@x) { \
+  x+_: @x; \
+} \
+.test { \
+  x+: 4; \
+  .mixin(1); \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{x:4 1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, SwitchArgument) {
+  in->str(".mixin(x) { \
+  x: 1; \
+} \
+.test { \
+  .mixin(x); \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{x:1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, NotGuard) {
+  in->str(".mixin(@x) when not (@x = 2) { \
+  x: 1; \
+} \
+.test { \
+  .mixin(1); \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{x:1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, DetachedRuleset) {
+  in->str("@x: { \
+    x:1; \
+  }; \
+  .test { \
+    @x(); \
+  }");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".test{x:1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, AttributeSelectorMatch) {
+  in->str(".x[a='b'] { \
+  x: x; \
+} \
+.y { \
+  &:extend(.x[a=\"b\"]); \
+  y:y; \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".x[a='b'],.y{x:x}.y{y:y}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, ExtendInterpolatedSelector) {
+  in->str(".x { \
+  x:x; \
+} \
+@{var}:extend(.x) { \
+  &:extend(.x); \
+} \
+@var:.y;");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ(".x,.y,.y{x:x}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, ExtendOutsideMedia) {
+  in->str("@media print { \
+  .screenClass:extend(.selector) {} \
+  .selector {  \
+    color: black; \
+  } \
+} \
+.selector { \
+  color: red; \
+} \
+@media screen { \
+  .selector { \
+    color: blue; \
+  } \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, *context);
+  css->write(*writer);
+  ASSERT_STREQ("@media print{.selector,.screenClass{color:black;}}\
+.selector{color:red;}@media screen{.selector{color: blue;}}", out->str().c_str());
+}

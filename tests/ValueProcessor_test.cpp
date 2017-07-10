@@ -335,3 +335,859 @@ TEST(ValueProcessorTest, FunctionErrors) {
 
   EXPECT_THROW(vp.processValue(l, c), ParseException*);
 }
+
+TEST(ValueProcessorTest, GetUnit) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("get-unit", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("10px", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("px", l.toString().c_str());
+
+  l.clear();
+  l.push_back(Token("get-unit", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("10", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  ASSERT_EQ((uint)0, l.size());
+}
+
+TEST(ValueProcessorTest, StringFormat) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("%", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'%s %d %a'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("\"abc\"", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10px", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("\"abc 10 10px\"", l.toString().c_str());
+
+  l.clear();
+  l.push_back(Token("%", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'%S %D %A'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("\"ab /c\"", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10px", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("\"ab%20%2Fc 10 10px\"", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, Replace) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("replace", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'Hello, Mars?'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'Mars\\?'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'Earth!'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("'Hello, Earth!'", l.toString().c_str());
+
+  l.clear();
+  l.push_back(Token("replace", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'One + one = 4'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'one'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'2'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'gi'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("'2 + 2 = 4'", l.toString().c_str());
+
+  l.clear();
+  l.push_back(Token("replace", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'This is a string.'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'(string)\\.$'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'new $1.'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("'This is a new string.'", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, Length) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("length", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'banana'", Token::STRING,0,0,0));
+  l.push_back(Token(" ", Token::WHITESPACE,0,0,0));
+  l.push_back(Token("'tomato'", Token::STRING,0,0,0));
+  l.push_back(Token(" ", Token::WHITESPACE,0,0,0));
+  l.push_back(Token("'potato'", Token::STRING,0,0,0));
+  l.push_back(Token(" ", Token::WHITESPACE,0,0,0));
+  l.push_back(Token("'peach'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("4", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, Extract) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("extract", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'banana'", Token::STRING,0,0,0));
+  l.push_back(Token(" ", Token::WHITESPACE,0,0,0));
+  l.push_back(Token("'tomato'", Token::STRING,0,0,0));
+  l.push_back(Token(" ", Token::WHITESPACE,0,0,0));
+  l.push_back(Token("'potato'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("3", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("'potato'", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, Min) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("min", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("100", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("1", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, Max) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("max", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("100", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("100", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsNumber) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("isnumber", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("isnumber", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("isnumber", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("isnumber", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("isnumber", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsString) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("isstring", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isstring", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isstring", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isstring", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+  
+  l.push_back(Token("isstring", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsColor) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("iscolor", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iscolor", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iscolor", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iscolor", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("iscolor", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iscolor", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("#fff", Token::HASH,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsKeyword) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("iskeyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iskeyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iskeyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("iskeyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("iskeyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("iskeyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("#fff", Token::HASH,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsUrl) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("#fff", Token::HASH,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isurl", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("url('...')", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsPixel) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("#fff", Token::HASH,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("url('...')", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispixel", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1px", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsEm) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("#fff", Token::HASH,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("url('...')", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isem", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1px", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsPercentage) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'string'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+  
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("keyword", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("#fff", Token::HASH,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("url('...')", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("ispercentage", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1px", Token::URL,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+}
+
+TEST(ValueProcessorTest, IsUnit) {
+  TokenList l;
+  ValueProcessor vp;
+  ProcessingContext c;
+
+  l.push_back(Token("isunit", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1px", Token::DIMENSION,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("px", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("isunit", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1%", Token::PERCENTAGE,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'%'", Token::STRING,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("true", l.toString().c_str());
+
+  l.push_back(Token("isunit", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("em", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+
+  l.push_back(Token("isunit", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("1em", Token::DIMENSION,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("'%'", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  ASSERT_EQ((uint)1, l.size());
+  EXPECT_STREQ("false", l.toString().c_str());
+}
+
+// `isruleset`
+/*
+- `hsla`: no
+- `hsv`: no
+- `hsva`: no
+- `hsvue`: no
+- `hsvsaturation`: no
+- `hsvvalue`: no
+- `luma`: no
+- `luminance`: no
+- `fade`: no
+- `mix`: no
+- `tint`: no
+- `shade`: no
+- `greyscale`: no
+- `contrast`: no
+- `multiply`: no
+- `screen`: no
+- `overlay`: no
+- `softlight`: no
+- `hardlight`: no
+- `difference`: no
+- `exclusion`: no
+- `average`: no
+- `negation`: no
+*/
