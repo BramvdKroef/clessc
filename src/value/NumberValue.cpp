@@ -330,6 +330,7 @@ bool NumberValue::isNumber(const Value &val) {
 
 void NumberValue::loadFunctions(FunctionLibrary &lib) {
   lib.push("unit", ".U?", &NumberValue::unit);
+  lib.push("get-unit", "N", &NumberValue::get_unit);
   lib.push("ceil", ".", &NumberValue::ceil);
   lib.push("floor", ".", &NumberValue::floor);
   lib.push("percentage", "N", &NumberValue::percentage);
@@ -365,6 +366,13 @@ Value* NumberValue::unit(const vector<const Value*> &arguments) {
     throw new ValueException("argument 1 has to be a number "
                              "or dimension", *arguments[0]->getTokens());
 }
+Value* NumberValue::get_unit(const vector<const Value*> &arguments) {
+  const NumberValue* val = (const NumberValue*)arguments[0];
+  Token t(val->getUnit(), Token::IDENTIFIER,0, 0, NULL);
+  t.setLocation(val->getTokens()->front());
+  return new UnitValue(t);
+}
+
 Value* NumberValue::ceil(const vector<const Value*> &args) {
   NumberValue *n;
   

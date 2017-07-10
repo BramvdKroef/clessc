@@ -60,6 +60,7 @@ public:
 
   static void loadFunctions(FunctionLibrary &lib);
   static Value* unit(const vector<const Value*> &args);
+  static Value* get_unit(const vector<const Value*> &args);
   static Value* ceil(const vector<const Value*> &args);
   static Value* floor(const vector<const Value*> &args);
   static Value* percentage(const vector<const Value*> &args);
