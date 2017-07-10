@@ -62,6 +62,11 @@ void SourceMapWriter::writePreamble(const char* out_filename,
   
   sourcemap_h << "\"file\": ";
 
+  if (basepath != NULL &&
+      strncmp(out_filename, basepath, bp_l) == 0) {
+    out_filename += bp_l;
+  }
+
   sourcemap_h << "\"" << out_filename << "\",";
   
   sourcemap_h << "\"sources\": [";
