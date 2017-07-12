@@ -1,5 +1,6 @@
 
 #include "StringValue.h"
+#include <regex>
 
 #include <config.h>
 #ifdef WITH_LIBGLOG
@@ -178,6 +179,7 @@ void StringValue::loadFunctions(FunctionLibrary &lib) {
   lib.push("escape", "S", &StringValue::escape);
   lib.push("e", "S", &StringValue::e);
   lib.push("%", "S.+", &StringValue::format);
+  lib.push("replace", "SSSS?", &StringValue::replace);
   lib.push("color", "S", &StringValue::color);
   lib.push("data-uri", "SS?", &StringValue::data_uri);
 }
@@ -242,6 +244,38 @@ placeholders for all given arguments.", *arguments[0]->getTokens());
   s->setString(newstr.str());
   return s;
 }
+
+Value* StringValue::replace(const vector<const Value*> &arguments) {
+  std::string out;
+  std::regex regex;
+  std::regex_constants::syntax_option_type regex_flags =
+    std::regex_constants::ECMAScript;
+  std::regex_constants::match_flag_type match_flags =
+    std::regex_constants::match_default |
+    std::regex_constants::format_first_only;
+
+  const StringValue* in = (const StringValue*)arguments[0];
+  const StringValue* pattern = (const StringValue*)arguments[1];
+  const StringValue* replacement = (const StringValue*)arguments[2];
+  std::string options;
+
+  if (arguments.size() > 3) {
+    options = ((const StringValue*)arguments[3])->getString();
+
+    if (options.find('i') != std::string::npos)
+      regex_flags |= std::regex::icase;
+    if (options.find('g') != std::string::npos)
+      match_flags &= ~std::regex_constants::format_first_only;
+  }
+  
+  regex = std::regex(pattern->getString(), regex_flags);
+  out = std::regex_replace(in->getString(),
+                           regex,
+                           replacement->getString(),
+                           match_flags);
+  return new StringValue(out, in->getQuotes());
+}
+
 
 Value* StringValue::color(const vector<const Value*> &arguments) {
   const StringValue* s;

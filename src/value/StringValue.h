@@ -46,6 +46,7 @@ public:
   static Value* escape(const vector<const Value*> &arguments);
   static Value* e(const vector<const Value*> &arguments);
   static Value* format(const vector<const Value*> &arguments);
+  static Value* replace(const vector<const Value*> &arguments);
   static Value* color(const vector<const Value*> &arguments);
   static Value* data_uri(const vector<const Value*> &arguments);
 };
