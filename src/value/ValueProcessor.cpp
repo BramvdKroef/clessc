@@ -134,7 +134,8 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
 
     } else {
       // function
-      if ((*i).type == Token::IDENTIFIER) {
+      if ((*i).type == Token::IDENTIFIER ||
+          (*i).type == Token::OTHER) {
         t = &(*i);
         i++;
         if (i != value.end() &&
