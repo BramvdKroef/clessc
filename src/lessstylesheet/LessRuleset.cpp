@@ -265,7 +265,7 @@ void LessRuleset::processStatements(Stylesheet &target,
 #endif
 
   // insert mixins
-  for (up_it = unprocessedStatements.cbegin();
+  for (up_it = unprocessedStatements.begin();
        up_it != unprocessedStatements.end();
        up_it++) {
     (*up_it)->process(target);
