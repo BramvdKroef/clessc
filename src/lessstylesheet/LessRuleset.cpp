@@ -266,7 +266,7 @@ void LessRuleset::processStatements(Stylesheet &target,
 
   // insert mixins
   for (up_it = unprocessedStatements.cbegin();
-       up_it != unprocessedStatements.cend();
+       up_it != unprocessedStatements.end();
        up_it++) {
     (*up_it)->process(target);
   }
@@ -316,10 +316,10 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
     if (offset == mixin.name.end()) {
       functionList.push_back(this);
     } else {   
-      for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+      for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
         (*r_it)->getFunctions(functionList, mixin, offset);
       }
-      for (c_it = closures.cbegin(); c_it != closures.cend(); c_it++) {
+      for (c_it = closures.begin(); c_it != closures.end(); c_it++) {
         (*c_it)->getFunctions(functionList, mixin, mixin.name.begin());
       }
     }
@@ -338,13 +338,13 @@ void LessRuleset::getLocalFunctions(std::list<const Function*> &functionList,
   std::list<LessRuleset*>::const_iterator r_it;
   std::list<Closure*>::const_iterator c_it;
   
-  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     if ((*r_it) != exclude) {
       (*r_it)->getFunctions(functionList, mixin, mixin.name.begin());
     }
   }
 
-  for (c_it = closures.cbegin(); c_it != closures.cend(); c_it++) {
+  for (c_it = closures.begin(); c_it != closures.end(); c_it++) {
     (*c_it)->getFunctions(functionList, mixin, mixin.name.begin());
   }
 
@@ -364,7 +364,7 @@ void LessRuleset::insertNestedRules(Stylesheet &s, Selector *prefix,
   const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
 
-  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     (*r_it)->process(s, prefix, context);
   }
 }
@@ -373,7 +373,7 @@ void LessRuleset::addClosures(ProcessingContext &context) const {
   const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
   
-  for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+  for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     if ((*r_it)->selector->needsArguments()) {
       context.addClosure(*(*r_it));
     }

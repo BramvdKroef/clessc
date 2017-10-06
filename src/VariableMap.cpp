@@ -11,14 +11,14 @@ const TokenList* VariableMap::getVariable(const std::string &key) const {
 }
 
 void VariableMap::merge(const VariableMap &map) {
-  this->insert(map.cbegin(), map.cend());
+  this->insert(map.begin(), map.end());
 
 }
 
 void VariableMap::overwrite(const VariableMap &map) {
   VariableMap::const_iterator it;
   
-  for (it = map.cbegin(); it != map.cend(); ++it) {
+  for (it = map.begin(); it != map.end(); ++it) {
     (*this)[it->first] = it->second;
   }
 }
@@ -27,7 +27,7 @@ std::string VariableMap::toString() const {
   std::string str;
   VariableMap::const_iterator it;
   
-  for (it = this->cbegin(); it != this->cend(); ++it) {
+  for (it = this->begin(); it != this->end(); ++it) {
     str.append(it->first);
     str.append(": ");
     str.append(it->second.toString());

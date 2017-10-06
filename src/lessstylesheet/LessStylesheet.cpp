@@ -70,7 +70,7 @@ void LessStylesheet::getFunctions(std::list<const Function*> &rulesetList,
                                   const Mixin &mixin) const {
   std::list<LessRuleset*>::const_iterator i;
   
-  for (i = lessrulesets.cbegin(); i != lessrulesets.cend();
+  for (i = lessrulesets.begin(); i != lessrulesets.end();
        i++) {
 
     (*i)->getFunctions(rulesetList, mixin, mixin.name.begin());

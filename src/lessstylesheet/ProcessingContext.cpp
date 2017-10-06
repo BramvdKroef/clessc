@@ -108,7 +108,7 @@ void ProcessingContext::getClosures(std::list<const Function*> &closureList,
                                         const Mixin &mixin) const {
   std::list<Closure*>::const_iterator it;
   
-  for (it = closures.cbegin(); it != closures.cend(); it++) {
+  for (it = closures.begin(); it != closures.end(); it++) {
     (*it)->getFunctions(closureList, mixin, mixin.name.begin());
   }
 }

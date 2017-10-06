@@ -52,10 +52,10 @@ void Closure::getFunctions(list<const Function*> &functionList,
     if (offset == mixin.name.end()) {
       functionList.push_back(this);
     } else {   
-      for (r_it = nestedRules.cbegin(); r_it != nestedRules.cend(); r_it++) {
+      for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
         (*r_it)->getFunctions(functionList, mixin, offset);
       }
-      for (c_it = closures.cbegin(); c_it != closures.cend(); c_it++) {
+      for (c_it = closures.begin(); c_it != closures.end(); c_it++) {
         (*c_it)->getFunctions(functionList, mixin, mixin.name.begin());
       }
     }
@@ -83,7 +83,7 @@ const TokenList* Closure::getInheritedVariable(const std::string &key,
 
 void Closure::getLocalFunctions (std::list<const Function*> &functionList,
                                  const Mixin& mixin) const {
-  ruleset->getFunctions(functionList, mixin, mixin.name.cbegin());
+  ruleset->getFunctions(functionList, mixin, mixin.name.begin());
   if (functionList.empty())
     stack->getFunctions(functionList, mixin);
 }

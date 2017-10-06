@@ -38,7 +38,7 @@ void ValueScope::copyVariables(std::map<std::string, TokenList> &variables,
   if (this == start) 
     return;
   
-  variables.insert(this->variables->cbegin(), this->variables->cend());
+  variables.insert(this->variables->begin(), this->variables->end());
 
   if (getParent() != NULL)
     getParent()->copyVariables(variables, start);
