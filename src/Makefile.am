@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects
-AM_CPPFLAGS = -Wall $(LIBPNG_CFLAGS)
+AM_CPPFLAGS = -Wall $(LIBPNG_CFLAGS) -std=c++11
 
 noinst_LIBRARIES = liblessc.a
 
