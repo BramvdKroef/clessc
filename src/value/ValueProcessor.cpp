@@ -133,9 +133,16 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
       return true;
 
     } else {
-      // function
-      if ((*i).type == Token::IDENTIFIER ||
-          (*i).type == Token::OTHER) {
+
+      if (*i == "~") {
+        if ((*++i).type == Token::STRING)
+          return true;
+        else
+          i--;
+        
+      } else if ((*i).type == Token::IDENTIFIER ||
+                 (*i).type == Token::OTHER) {
+        // function
         t = &(*i);
         i++;
         if (i != value.end() &&
@@ -145,12 +152,7 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
         } else
           i--;
         
-      } else if (*i == "~") {
-        if ((*++i).type == Token::STRING)
-          return true;
-        else
-          i--;
-      }
+      } 
     }
   }
   
@@ -704,6 +706,10 @@ Value* ValueProcessor::processEscape (TokenList::const_iterator &i,
     return NULL;
 
   i++;
+
+#ifdef WITH_LIBGLOG
+  VLOG(3) << "Escaping: " << *i;
+#endif
 
   if ((*i).type != Token::STRING) {
     i--;
