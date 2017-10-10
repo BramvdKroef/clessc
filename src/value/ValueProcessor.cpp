@@ -492,7 +492,7 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
     variable = *var;
     ret = processStatement(variable, scope);
     if (ret != NULL) {
-      ret->setLocation(*i);
+      ret->setLocation(token);
     }
     return ret;
 
