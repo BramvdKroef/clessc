@@ -339,6 +339,13 @@ non-parameter-mixin(odd) {
 #namespace .same-name {
   height: 100%;
 }
+.test5 {
+  width: 100%;
+}
+.test6 {
+  font-size: 1px;
+  font-size: 2px;
+}
 /* Multiline comment ending with * at the end of the file */
 /*
 **/

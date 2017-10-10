@@ -383,6 +383,7 @@ body {
 }
 
 /* Reference a mixin before it is declared. */
+
 .mixin-test7 {
     .mixin7(15);
 }
@@ -445,7 +446,6 @@ div {
 }
 
 .test11a:extend(.test10, .test10b) {}
-
 
 .test11b:a,
 div.test11b {
@@ -545,8 +545,18 @@ non-parameter-mixin(odd) {
 .conditional(@x) when (@x =< 10 + 1) {
     width: 100%;
 }
-.test {
+.test5 {
     .conditional(10);
+}
+
+#namespace2 {
+    .test (@a) {
+        font-size: @a;
+    }
+}
+.test6 {
+    #namespace2 .test(1px);
+    #namespace2 > .test(2px);
 }
 
 /* Multiline comment ending with * at the end of the file */
