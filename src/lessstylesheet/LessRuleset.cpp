@@ -312,7 +312,7 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
     offset++;
   }
 
-  if (selector->matchArguments(mixin)) {
+  if (!selector->needsArguments() || selector->matchArguments(mixin)) {
     if (offset == mixin.name.end()) {
       functionList.push_back(this);
     } else {   
