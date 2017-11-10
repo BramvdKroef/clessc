@@ -469,7 +469,8 @@ bool LessParser::importFile(Token uri,
 #endif
 
   // no remote includes
-  if (uri.substr(0, 7) == "http://")
+  if (uri.compare(0, 7, "http://") == 0 ||
+      uri.compare(0, 8, "https://") == 0)
     return false;
 
   pathend = uri.rfind('?');
