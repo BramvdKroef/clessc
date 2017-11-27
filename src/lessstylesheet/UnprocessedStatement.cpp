@@ -82,32 +82,32 @@ void UnprocessedStatement::process(Ruleset &r) {
   }
   
   mixin.setStylesheet(getLessRuleset()->getLessStylesheet());
-  
-  // process mixin
-  if (mixin.parse(*getTokens()) &&
-      mixin.call(*r.getStylesheet(), *getLessRuleset()->getContext(),
+
+  declaration = r.createDeclaration();
+    
+  if (isDeclaration() && processDeclaration(*declaration)) {
+    
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Declaration: " <<
+      declaration->getProperty() << ": " << declaration->getValue().toString();
+#endif
+
+    getLessRuleset()->getContext()->interpolate(declaration->getProperty());
+    getLessRuleset()->getContext()->processValue(declaration->getValue());
+
+#ifdef WITH_LIBGLOG
+    VLOG(2) << "Processed declaration: " <<
+      declaration->getProperty() << ": " << declaration->getValue().toString();
+#endif
+    
+  } else {
+    r.deleteDeclaration(*declaration);
+    // process mixin
+    if (mixin.parse(*getTokens()) &&
+        mixin.call(*r.getStylesheet(), *getLessRuleset()->getContext(),
                    &r, getLessRuleset())) {
 
-  } else {
-    declaration = r.createDeclaration();
-    
-    if (processDeclaration(declaration)) {
-    
-#ifdef WITH_LIBGLOG
-      VLOG(2) << "Declaration: " <<
-        declaration->getProperty() << ": " << declaration->getValue().toString();
-#endif
-
-      getLessRuleset()->getContext()->interpolate(declaration->getProperty());
-      getLessRuleset()->getContext()->processValue(declaration->getValue());
-
-#ifdef WITH_LIBGLOG
-      VLOG(2) << "Processed declaration: " <<
-        declaration->getProperty() << ": " << declaration->getValue().toString();
-#endif
-    
     } else {
-      r.deleteDeclaration(*declaration);
       throw new ParseException(getTokens()->toString(),
                                "variable, mixin or declaration.",
                                getTokens()->front().line,
@@ -119,6 +119,27 @@ void UnprocessedStatement::process(Ruleset &r) {
 #ifdef WITH_LIBGLOG
   VLOG(3) << "Statement done";
 #endif
+}
+
+bool UnprocessedStatement::isDeclaration() {
+  TokenList::iterator i = getTokens()->begin();
+  if (property_i == 0)
+    return false;
+
+  if ((*i).type == Token::HASH ||
+      (*i) == ".") 
+    return false;
+  
+  std::advance(i, property_i);  
+  while(i != getTokens()->end() &&
+        (*i).type == Token::WHITESPACE) {
+    i++;
+  }
+  if (i == getTokens()->end() ||
+      (*i).type != Token::COLON) {
+    return false;
+  }
+  return true;
 }
 
 bool UnprocessedStatement::isExtends() {
@@ -168,7 +189,7 @@ bool UnprocessedStatement::getExtension(TokenList &extension) {
   return true;
 }
 
-bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
+bool UnprocessedStatement::processDeclaration (Declaration &declaration) {
   TokenList property;
   Token keyword;
 
@@ -176,27 +197,27 @@ bool UnprocessedStatement::processDeclaration (Declaration* declaration) {
   VLOG(3) << "Declaration";
 #endif
   
-  getValue(declaration->getValue());
+  getValue(declaration.getValue());
 
   // fix: If there's a Token (not empty) and if this token is a space
-  if (declaration->getValue().empty() == false &&
-      declaration->getValue().front().type == Token::WHITESPACE) {
+  if (declaration.getValue().empty() == false &&
+      declaration.getValue().front().type == Token::WHITESPACE) {
     // Then we dismiss it to process the next token which should be a colon
-    declaration->getValue().pop_front();
+    declaration.getValue().pop_front();
   }
   
-  if (declaration->getValue().empty() ||
-      declaration->getValue().front().type != Token::COLON) {
+  if (declaration.getValue().empty() ||
+      declaration.getValue().front().type != Token::COLON) {
     return NULL;
   }
     
-  declaration->getValue().pop_front();
+  declaration.getValue().pop_front();
   
   getProperty(property);
   keyword = property.front();
   keyword.assign(property.toString());
   
-  declaration->setProperty(keyword);
+  declaration.setProperty(keyword);
   
   return true;
 }

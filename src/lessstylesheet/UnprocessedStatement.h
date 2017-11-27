@@ -22,8 +22,9 @@ private:
   LessRuleset* lessRuleset;
   
 protected:
-  bool processDeclaration (Declaration* declaration);
-  
+  bool processDeclaration (Declaration &declaration);
+  bool isDeclaration();
+    
 public:
   size_t property_i;
   
