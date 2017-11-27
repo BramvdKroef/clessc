@@ -135,9 +135,8 @@ bool parseInput(LessStylesheet &stylesheet,
 #endif
   return true;
 }
-void writeOutput (LessStylesheet &stylesheet,
-                  CssWriter &writer) {
-  Stylesheet css;
+bool processStylesheet (LessStylesheet &stylesheet,
+                  Stylesheet &css) {
   ProcessingContext context;
 
   try{
@@ -152,7 +151,7 @@ void writeOutput (LessStylesheet &stylesheet,
       e->getColumn() << " Parse Error: " << e->what();
 #endif
 
-    return;
+    return false;
 
   } catch(ValueException* e) {
 #ifdef WITH_LIBGLOG
@@ -163,17 +162,16 @@ void writeOutput (LessStylesheet &stylesheet,
       e->getColumn() << " Error: " << e->what();
 #endif
     
-    return;
+    return false;
   } catch(exception* e) {
 #ifdef WITH_LIBGLOG
     LOG(ERROR) << "Error: " << e->what();
 #else
     cerr << "Error: " << e->what();
 #endif
-    return;
+    return false;
   }
-
-  css.write(writer);
+  return true;
 }
 
 int main(int argc, char * argv[]){
@@ -184,6 +182,7 @@ int main(int argc, char * argv[]){
   string output = "-";
   LessStylesheet stylesheet;
   std::list<const char*> sources;
+  Stylesheet css;
   CssWriter* writer;
 
   std::string sourcemap_file = "";
@@ -314,7 +313,10 @@ source.");
       }
       writer->rootpath = rootpath;
       
-      writeOutput(stylesheet, *writer);
+      if (!processStylesheet(stylesheet, css)) {
+        return 1;
+      }
+      css.write(*writer);
       
       if (sourcemap != NULL) {
         if (sourcemap_basepath != NULL &&
@@ -336,7 +338,7 @@ source.");
       *out << endl;
     } else
       return 1;
-    delete source;
+    delete [] source;
     
   } catch (IOException* e) {
 #ifdef WITH_LIBGLOG
