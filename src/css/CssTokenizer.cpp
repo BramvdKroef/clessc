@@ -10,6 +10,7 @@
 CssTokenizer::CssTokenizer(istream &in, const char* source):
   in(&in), line(0),  source(source) {
   currentToken.source = source;
+  lastRead = 0;
   readChar();
   column = 0;
 }
