@@ -457,7 +457,7 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
   case Token::IDENTIFIER:
     i++;
     
-    if ((*i).type == Token::PAREN_OPEN) {
+    if (i != end && (*i).type == Token::PAREN_OPEN) {
 
       if (functionExists(token.c_str())) {
         i++;
