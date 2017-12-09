@@ -44,7 +44,6 @@ set(lessc_SOURCES
         src/value/UrlValue.cpp
         src/value/Value.cpp
         src/value/ValueProcessor.cpp
-#        src/value/ValueScope.cpp
         src/Token.cpp
         src/TokenList.cpp
         src/VariableMap.cpp
