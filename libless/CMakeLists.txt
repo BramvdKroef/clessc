@@ -14,7 +14,6 @@ set(less_SOURCES
         src/less/LessTokenizer.cpp
         src/lessstylesheet/Closure.cpp
         src/lessstylesheet/Extension.cpp
-        src/lessstylesheet/Function.cpp
         src/lessstylesheet/LessAtRule.cpp
         src/lessstylesheet/LessMediaQuery.cpp
         src/lessstylesheet/LessRuleset.cpp
