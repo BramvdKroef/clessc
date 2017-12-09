@@ -1,7 +1,6 @@
 
 #include "ValueProcessor.h"
 
-#include <config.h>
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
 #endif

@@ -13,8 +13,6 @@
 #include "css/IOException.h"
 #include "lessstylesheet/LessStylesheet.h"
 
-#include <config.h>
-
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
 #endif
