@@ -4,18 +4,6 @@
 #include <glog/logging.h>
 #endif
 
-/*
-#include <sstream>
-#include <iostream>
-template <class T>
-inline std::string to_string (const T& t)
-{
-  std::stringstream ss;
-  ss << t;
-  return ss.str();
-}
-*/
-
 ValueProcessor::ValueProcessor() {
   NumberValue::loadFunctions(functionLibrary);
   Color::loadFunctions(functionLibrary);
