@@ -1,6 +1,6 @@
+#ifndef __less_stylesheet_Ruleset_h__
+#define __less_stylesheet_Ruleset_h__
 
-#ifndef __Ruleset_h__
-#define __Ruleset_h__
 #include <less/stylesheet/Stylesheet.h>
 #include <less/stylesheet/StylesheetStatement.h>
 #include <less/stylesheet/Selector.h>
@@ -53,4 +53,4 @@ public:
 #include <less/stylesheet/RulesetStatement.h>
 #include <less/stylesheet/Declaration.h>
 
-#endif
+#endif // __less_stylesheet_Ruleset_h__

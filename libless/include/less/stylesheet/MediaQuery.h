@@ -1,6 +1,5 @@
-
-#ifndef __MediaQuery_h__
-#define __MediaQuery_h__
+#ifndef __less_stylesheet_MediaQuery_h__
+#define __less_stylesheet_MediaQuery_h__
 
 #include <less/stylesheet/Stylesheet.h>
 #include <less/stylesheet/Selector.h>
@@ -19,5 +18,4 @@ public:
   virtual void write(CssWriter &writer);
 };
 
-
-#endif
+#endif // __less_stylesheet_MediaQuery_h__

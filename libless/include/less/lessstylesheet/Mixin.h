@@ -1,6 +1,6 @@
+#ifndef __less_lessstylesheet_Mixin_h__
+#define __less_lessstylesheet_Mixin_h__
 
-#ifndef __Mixin_h__
-#define __Mixin_h__
 #include <vector>
 #include <map>
 #include <string>
@@ -51,4 +51,4 @@ public:
   virtual void write(CssWriter &writer) {};
 };
 
-#endif
+#endif // __less_lessstylesheet_Mixin_h__

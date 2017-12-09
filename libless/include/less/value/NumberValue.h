@@ -1,6 +1,6 @@
+#ifndef __less_value_NumberValue_h__
+#define __less_value_NumberValue_h__
 
-#ifndef __NumberValue_h__
-#define __NumberValue_h__
 #include <vector>
 #include <cmath>
 #include <less/value/Value.h>
@@ -59,4 +59,4 @@ public:
   static Value* convert(const vector<const Value*> &args);
 };
 
-#endif
+#endif // __less_value_NumberValue_h__

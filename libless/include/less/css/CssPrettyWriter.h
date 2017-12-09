@@ -1,6 +1,5 @@
-
-#ifndef __CssPrettyWriter_h__
-#define __CssPrettyWriter_h__
+#ifndef __less_css_CssPrettyWriter_h__
+#define __less_css_CssPrettyWriter_h__
 
 #include <iostream>
 #include <less/css/CssWriter.h>
@@ -36,4 +35,4 @@ public:
   virtual void writeMediaQueryEnd();
 };
 
-#endif
+#endif // __less_css_CssPrettyWriter_h__

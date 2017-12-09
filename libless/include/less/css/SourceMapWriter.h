@@ -1,5 +1,5 @@
-#ifndef __SourceMapWriter_h__
-#define __SourceMapWriter_h__
+#ifndef __less_css_SourceMapWriter_h__
+#define __less_css_SourceMapWriter_h__
 
 #include <list>
 #include <iostream>
@@ -40,4 +40,4 @@ public:
   void close();
 };
   
-#endif
+#endif // __less_css_SourceMapWriter_h__

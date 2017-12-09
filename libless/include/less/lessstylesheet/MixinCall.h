@@ -1,6 +1,5 @@
-
-#ifndef __MixinCall_h__
-#define __MixinCall_h__
+#ifndef __less_lessstylesheet_MixinCall_h__
+#define __less_lessstylesheet_MixinCall_h__
 
 #include <less/TokenList.h>
 #include <less/VariableMap.h>
@@ -25,4 +24,4 @@ public:
   const VariableMap* getArguments(const Function &function) const;
 };
 
-#endif
+#endif // __less_lessstylesheet_MixinCall_h__

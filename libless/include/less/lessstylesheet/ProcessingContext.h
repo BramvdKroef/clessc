@@ -1,6 +1,5 @@
-
-#ifndef __ProcessingContext_h__
-#define __ProcessingContext_h__
+#ifndef __less_lessstylesheet_ProcessingContext_h__
+#define __less_lessstylesheet_ProcessingContext_h__
 
 #include <map>
 #include <string>
@@ -71,4 +70,4 @@ public:
   bool validateCondition(TokenList &value);
 };
 
-#endif
+#endif // __less_lessstylesheet_ProcessingContext_h__

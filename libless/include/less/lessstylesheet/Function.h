@@ -1,6 +1,5 @@
-
-#ifndef __Function_h__
-#define __Function_h__
+#ifndef __less_lessstylesheet_Function_h__
+#define __less_lessstylesheet_Function_h__
 
 #include <list>
 
@@ -37,4 +36,5 @@ public:
   virtual LessSelector* getLessSelector() const = 0;
  
 };
-#endif
+
+#endif // __less_lessstylesheet_Function_h__

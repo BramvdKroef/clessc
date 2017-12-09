@@ -1,6 +1,5 @@
-
-#ifndef __BooleanValue_h__
-#define __BooleanValue_h__
+#ifndef __less_value_BooleanValue_h__
+#define __less_value_BooleanValue_h__
 
 #include <less/value/Value.h>
 #include <less/value/ValueException.h>
@@ -28,5 +27,5 @@ public:
   virtual BooleanValue* equals(const Value &v) const;
   virtual BooleanValue* lessThan(const Value &v) const;
 };
-#endif
-  
+
+#endif // __less_value_BooleanValue_h__

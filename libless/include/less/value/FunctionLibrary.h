@@ -1,6 +1,5 @@
-
-#ifndef __FunctionLibrary_h__
-#define __FunctionLibrary_h__
+#ifndef __less_value_FunctionLibrary_h__
+#define __less_value_FunctionLibrary_h__
 
 #include <map>
 #include <vector>
@@ -29,4 +28,4 @@ public:
                                   const FuncInfo* fi = NULL);
 };
 
-#endif
+#endif // __less_value_FunctionLibrary_h__

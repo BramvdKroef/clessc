@@ -1,6 +1,6 @@
+#ifndef __less_stylesheet_Declaration_h__
+#define __less_stylesheet_Declaration_h__
 
-#ifndef __Declaration_h__
-#define __Declaration_h__
 #include <less/stylesheet/RulesetStatement.h>
 #include <less/stylesheet/Ruleset.h>
 #include <less/css/CssWriter.h>
@@ -27,4 +27,4 @@ public:
   virtual void write(CssWriter &writer);
 };
 
-#endif
+#endif // __less_stylesheet_Declaration_h__

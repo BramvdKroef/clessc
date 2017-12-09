@@ -1,6 +1,5 @@
-
-#ifndef __CssWriter_h__
-#define __CssWriter_h__
+#ifndef __less_css_CssWriter_h__
+#define __less_css_CssWriter_h__
 
 #include <iostream>
 #include <cstring>
@@ -44,4 +43,4 @@ public:
   void writeSourceMapUrl(const char* sourcemap_url);
 };
   
-#endif
+#endif // __less_css_CssWriter_h__

@@ -1,6 +1,5 @@
-
-#ifndef __UnitValue_h__
-#define __UnitValue_h__
+#ifndef __less_value_UnitValue_h__
+#define __less_value_UnitValue_h__
 
 #include <less/value/Value.h>
 #include <less/value/ValueException.h>
@@ -37,4 +36,4 @@ public:
   static double radToAngle(double rad, const std::string &unit);
 };
 
-#endif
+#endif // __less_value_UnitValue_h__

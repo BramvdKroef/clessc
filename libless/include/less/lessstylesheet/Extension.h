@@ -1,6 +1,5 @@
-
-#ifndef __Extension_h__
-#define __Extension_h__
+#ifndef __less_lessstylesheet_Extension_h__
+#define __less_lessstylesheet_Extension_h__
 
 #include <less/stylesheet/Selector.h>
 
@@ -27,4 +26,4 @@ public:
   void replaceInSelector(Selector &s) const;
 };
 
-#endif
+#endif // __less_lessstylesheet_Extension_h__

@@ -1,6 +1,6 @@
+#ifndef __less_lessstylesheet_LessRuleset_h__
+#define __less_lessstylesheet_LessRuleset_h__
 
-#ifndef __LessRuleset_h__
-#define __LessRuleset_h__
 #include <map>
 #include <list>
 #include <string>
@@ -118,4 +118,4 @@ public:
                     VariableMap &scope) const;
 };
 
-#endif
+#endif // __less_lessstylesheet_LessRuleset_h__

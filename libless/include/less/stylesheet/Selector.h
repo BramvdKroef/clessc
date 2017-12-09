@@ -1,6 +1,5 @@
-
-#ifndef __Selector_h__
-#define __Selector_h__
+#ifndef __less_stylesheet_Selector_h__
+#define __less_stylesheet_Selector_h__
 
 #include <list>
 #include <less/TokenList.h>
@@ -38,4 +37,4 @@ public:
   const_iterator findComma(const_iterator offset, const_iterator limit) const;
 };
 
-#endif
+#endif // __less_stylesheet_Selector_h__

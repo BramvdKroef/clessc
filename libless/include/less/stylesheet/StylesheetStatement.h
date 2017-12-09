@@ -1,6 +1,5 @@
-
-#ifndef __StylesheetStatement_h__
-#define __StylesheetStatement_h__
+#ifndef __less_stylesheet_StylesheetStatement_h__
+#define __less_stylesheet_StylesheetStatement_h__
 
 #include <less/stylesheet/CssWritable.h>
 #include <less/stylesheet/Stylesheet.h>
@@ -22,4 +21,4 @@ public:
   virtual void process(Stylesheet &s) = 0;
 };
 
-#endif
+#endif // __less_stylesheet_StylesheetStatement_h__

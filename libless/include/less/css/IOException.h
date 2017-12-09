@@ -1,6 +1,5 @@
-
-#ifndef __IOException_h__
-#define __IOException_h__
+#ifndef __less_css_IOException_h__
+#define __less_css_IOException_h__
 
 #include <exception>
 
@@ -23,4 +22,4 @@ public:
   }
 };
   
-#endif
+#endif // __less_css_IOException_h__

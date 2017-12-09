@@ -1,6 +1,6 @@
+#ifndef __less_value_Value_h__
+#define __less_value_Value_h__
 
-#ifndef __Value_h__
-#define __Value_h__
 #include <less/Token.h>
 #include <less/TokenList.h>
 #include <less/value/ValueException.h>
@@ -55,5 +55,4 @@ public:
 
 #include <less/value/BooleanValue.h>
 
-
-#endif
+#endif // __less_value_Value_h__

@@ -1,6 +1,5 @@
-
-#ifndef __CssWritable_h__
-#define __CssWritable_h__
+#ifndef __less_stylesheet_CssWritable_h__
+#define __less_stylesheet_CssWritable_h__
 
 #include <less/css/CssWriter.h>
 
@@ -9,4 +8,4 @@ public:
   virtual void write(CssWriter &css) = 0; 
 };
 
-#endif
+#endif // __less_stylesheet_CssWritable_h__

@@ -1,6 +1,5 @@
-
-#ifndef __UrlValue_h__
-#define __UrlValue_h__
+#ifndef __less_value_UrlValue_h__
+#define __less_value_UrlValue_h__
 
 #include <string>
 #include <less/value/Value.h>
@@ -52,4 +51,4 @@ public:
   static Value* imgbackground(const vector<const Value*> &arguments);
 };
   
-#endif
+#endif // __less_value_UrlValue_h__

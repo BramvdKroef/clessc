@@ -1,6 +1,6 @@
+#ifndef __less_lessstylesheet_Closure_h__
+#define __less_lessstylesheet_Closure_h__
 
-#ifndef __Closure_h__
-#define __Closure_h__
 #include <less/lessstylesheet/Function.h>
 #include <less/lessstylesheet/LessRuleset.h>
 #include <less/lessstylesheet/Mixin.h>
@@ -38,4 +38,4 @@ public:
 
 };
   
-#endif
+#endif // __less_lessstylesheet_Closure_h__

@@ -1,6 +1,5 @@
-
-#ifndef __RulesetStatement_h__
-#define __RulesetStatement_h__
+#ifndef __less_stylesheet_RulesetStatement_h__
+#define __less_stylesheet_RulesetStatement_h__
 
 #include <less/stylesheet/CssWritable.h>
 
@@ -19,4 +18,4 @@ public:
 
 #include <less/stylesheet/Ruleset.h>
 
-#endif
+#endif // __less_stylesheet_RulesetStatement_h__

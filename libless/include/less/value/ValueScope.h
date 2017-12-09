@@ -1,6 +1,5 @@
-
-#ifndef __ValueScope_h__
-#define __ValueScope_h__
+#ifndef __tree_ValueScope_h__
+#define __tree_ValueScope_h__
 
 #include <map>
 #include <string>
@@ -13,4 +12,4 @@ public:
   
 };
 
-#endif
+#endif // __tree_ValueScope_h__

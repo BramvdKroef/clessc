@@ -1,6 +1,6 @@
+#ifndef __less_value_ValueException_h__
+#define __less_value_ValueException_h__
 
-#ifndef __ValueException_h__
-#define __ValueException_h__
 #include <string>
 #include <less/TokenList.h>
 
@@ -38,4 +38,4 @@ public:
 
 };
 
-#endif
+#endif // __less_value_ValueException_h__

@@ -1,6 +1,5 @@
-
-#ifndef __Token_h__
-#define __Token_h__
+#ifndef __less_Token_h__
+#define __less_Token_h__
 
 #include <string>
 
@@ -104,4 +103,4 @@ public:
   }
 };
 
-#endif
+#endif // __less_Token_h__

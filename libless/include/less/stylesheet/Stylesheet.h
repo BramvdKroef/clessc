@@ -1,6 +1,6 @@
+#ifndef __less_stylesheet_Stylesheet_h__
+#define __less_stylesheet_Stylesheet_h__
 
-#ifndef __Stylesheet_h__
-#define __Stylesheet_h__
 #include <list>
 
 #include <less/stylesheet/CssWritable.h>
@@ -61,4 +61,4 @@ public:
 #include <less/stylesheet/CssComment.h>
 #include <less/stylesheet/MediaQuery.h>
 
-#endif
+#endif // __less_stylesheet_Stylesheet_h__

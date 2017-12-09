@@ -1,5 +1,5 @@
-#ifndef __MediaQueryRuleset_h__
-#define __MediaQueryRuleset_h__
+#ifndef __less_lessstylesheet_MediaQueryRuleset_h__
+#define __less_lessstylesheet_MediaQueryRuleset_h__
 
 #include <map>
 #include <list>
@@ -24,4 +24,4 @@ public:
                        ProcessingContext &context);
 };
 
-#endif
+#endif // __less_lessstylesheet_MediaQueryRuleset_h__

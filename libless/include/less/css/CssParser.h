@@ -1,6 +1,5 @@
-
-#ifndef __CssParser_h__
-#define __CssParser_h__
+#ifndef __less_css_CssParser_h__
+#define __less_css_CssParser_h__
 
 #include <string>
 
@@ -182,4 +181,4 @@ public:
   
 };
 
-#endif
+#endif // __less_css_CssParser_h__

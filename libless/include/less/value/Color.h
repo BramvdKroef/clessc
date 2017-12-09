@@ -1,6 +1,5 @@
-
-#ifndef __Color_h__
-#define __Color_h__
+#ifndef __less_value_Color_h__
+#define __less_value_Color_h__
 
 #include <algorithm>
 #include <cmath>
@@ -128,4 +127,4 @@ public:
   static Value* negation(const vector<const Value*> &arguments);
 };
 
-#endif
+#endif // __less_value_Color_h__

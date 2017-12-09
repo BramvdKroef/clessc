@@ -1,6 +1,5 @@
-
-#ifndef __LessTokenizer_h__
-#define __LessTokenizer_h__
+#ifndef __less_less_LessTokenizer_h__
+#define __less_less_LessTokenizer_h__
 
 #include <less/css/CssTokenizer.h>
 #include <iostream>
@@ -18,4 +17,4 @@ protected:
   bool readComment();
 };
   
-#endif
+#endif // __less_less_LessTokenizer_h__

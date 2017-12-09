@@ -1,6 +1,5 @@
-
-#ifndef __ParseException_h__
-#define __ParseException_h__
+#ifndef __less_css_ParseException_h__
+#define __less_css_ParseException_h__
 
 #include <exception>
 #include <string>
@@ -49,4 +48,4 @@ protected:
 
 };
 
-#endif
+#endif // __less_css_ParseException_h__

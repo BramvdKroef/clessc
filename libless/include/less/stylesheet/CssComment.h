@@ -1,6 +1,6 @@
+#ifndef __less_stylesheet_CssComment_h__
+#define __less_stylesheet_CssComment_h__
 
-#ifndef __CssComment_h__
-#define __CssComment_h__
 #include <less/stylesheet/Stylesheet.h>
 #include <less/stylesheet/StylesheetStatement.h>
 #include <less/stylesheet/RulesetStatement.h>
@@ -24,4 +24,4 @@ public:
   virtual void write(CssWriter &writer);
 };
 
-#endif
+#endif // __less_stylesheet_CssComment_h__

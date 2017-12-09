@@ -1,6 +1,6 @@
+#ifndef __less_value_ValueProcessor_h__
+#define __less_value_ValueProcessor_h__
 
-#ifndef __ValueProcessor_h__
-#define __ValueProcessor_h__
 #include <map>
 #include <vector>
 #include <cstring>
@@ -109,4 +109,4 @@ public:
   void interpolate(TokenList &tokens, const ValueScope &scope) const;
 };
 
-#endif
+#endif // __less_value_ValueProcessor_h__

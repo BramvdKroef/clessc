@@ -1,6 +1,5 @@
-
-#ifndef __VariableMap_h__
-#define __VariableMap_h__
+#ifndef __less_VariableMap_h__
+#define __less_VariableMap_h__
 
 #include <map>
 #include <less/TokenList.h>
@@ -16,4 +15,4 @@ public:
   std::string toString() const;
 };
 
-#endif
+#endif // __less_VariableMap_h__

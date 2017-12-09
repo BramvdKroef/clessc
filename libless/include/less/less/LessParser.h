@@ -1,5 +1,5 @@
-#ifndef __LessParser_h__
-#define __LessParser_h__
+#ifndef __less_less_LessParser_h__
+#define __less_less_LessParser_h__
 
 #include <iostream>
 #include <fstream>
@@ -138,4 +138,4 @@ private:
   bool findFile(Token& uri, std::string& filename);
 };
 
-#endif
+#endif // __less_less_LessParser_h__

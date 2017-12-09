@@ -1,5 +1,5 @@
-#ifndef __LessStylesheet_h__
-#define __LessStylesheet_h__
+#ifndef __less_lessstylesheet_LessStylesheet_h__
+#define __less_lessstylesheet_LessStylesheet_h__
 
 #include <list>
 #include <map>
@@ -53,4 +53,4 @@ public:
   
 };
 
-#endif
+#endif // __less_lessstylesheet_LessStylesheet_h__

@@ -1,6 +1,5 @@
-
-#ifndef __LessMediaQuery_h__
-#define __LessMediaQuery_h__
+#ifndef __less_lessstylesheet_LessMediaQuery_h__
+#define __less_lessstylesheet_LessMediaQuery_h__
 
 #include <list>
 
@@ -39,4 +38,4 @@ public:
   virtual void write(CssWriter &writer);
 };
 
-#endif
+#endif // __less_lessstylesheet_LessMediaQuery_h__

@@ -1,6 +1,5 @@
-
-#ifndef __CssTokenizer_h__
-#define __CssTokenizer_h__
+#ifndef __less_css_CssTokenizer_h__
+#define __less_css_CssTokenizer_h__
 
 #include <iostream>
 #include <string>
@@ -130,4 +129,4 @@ protected:
   bool lastReadIsHex();
 };
 
-#endif
+#endif // __less_css_CssTokenizer_h__

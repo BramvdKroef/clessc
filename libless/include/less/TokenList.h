@@ -1,6 +1,6 @@
+#ifndef __less_TokenList_h__
+#define __less_TokenList_h__
 
-#ifndef __TokenList_h__
-#define __TokenList_h__
 #include <list>
 #include <less/Token.h>
 
@@ -32,4 +32,4 @@ public:
   bool containsType(Token::Type t) const;
 };
 
-#endif
+#endif // __less_TokenList_h__

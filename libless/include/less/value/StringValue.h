@@ -1,6 +1,6 @@
+#ifndef __less_value_StringValue_h__
+#define __less_value_StringValue_h__
 
-#ifndef __StringValue_h__
-#define __StringValue_h__
 #include <vector>
 #include <sstream>
 #include <iomanip>
@@ -49,4 +49,5 @@ public:
   static Value* color(const vector<const Value*> &arguments);
   static Value* data_uri(const vector<const Value*> &arguments);
 };
-#endif
+
+#endif // __less_value_StringValue_h__
