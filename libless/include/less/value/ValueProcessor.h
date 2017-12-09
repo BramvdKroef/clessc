@@ -1,22 +1,22 @@
 
 #ifndef __ValueProcessor_h__
 #define __ValueProcessor_h__
-
-#include "../TokenList.h"
-#include "../Token.h"
-#include "../css/ParseException.h"
-#include "Value.h"
-#include "Color.h"
-#include "NumberValue.h"
-#include "StringValue.h"
-#include "UnitValue.h"
-#include "UrlValue.h"
-#include "ValueException.h"
-#include "ValueScope.h"
-#include "FunctionLibrary.h"
 #include <map>
 #include <vector>
 #include <cstring>
+#include <less/TokenList.h>
+#include <less/Token.h>
+#include <less/css/ParseException.h>
+#include <less/value/Value.h>
+#include <less/value/Color.h>
+#include <less/value/NumberValue.h>
+#include <less/value/StringValue.h>
+#include <less/value/UnitValue.h>
+#include <less/value/UrlValue.h>
+#include <less/value/ValueException.h>
+#include <less/value/ValueScope.h>
+#include <less/value/FunctionLibrary.h>
+
 /**
  * 
  */

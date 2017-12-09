@@ -4,8 +4,8 @@
 
 #include <list>
 
-#include "../stylesheet/Ruleset.h"
-#include "../TokenList.h"
+#include <less/stylesheet/Ruleset.h>
+#include <less/TokenList.h>
 
 class LessSelector;
 class Mixin;

@@ -2,12 +2,13 @@
 #ifndef __Color_h__
 #define __Color_h__
 
-#include "Value.h"
-#include "NumberValue.h"
-#include "StringValue.h"
-#include "FunctionLibrary.h"
 #include <algorithm>
 #include <cmath>
+#include <less/value/Value.h>
+#include <less/value/NumberValue.h>
+#include <less/value/StringValue.h>
+#include <less/value/FunctionLibrary.h>
+
 using namespace std;
 
 #define RGB_RED 0

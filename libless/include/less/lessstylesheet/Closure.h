@@ -1,11 +1,10 @@
 
 #ifndef __Closure_h__
 #define __Closure_h__
-
-#include "Function.h"
-#include "LessRuleset.h"
-#include "Mixin.h"
-#include "../stylesheet/Ruleset.h"
+#include <less/lessstylesheet/Function.h>
+#include <less/lessstylesheet/LessRuleset.h>
+#include <less/lessstylesheet/Mixin.h>
+#include <less/stylesheet/Ruleset.h>
 
 class ProcessingContext;
 class MixinCall;

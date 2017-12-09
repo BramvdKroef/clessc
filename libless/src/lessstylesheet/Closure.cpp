@@ -1,5 +1,5 @@
-#include "Closure.h"
-#include "ProcessingContext.h"
+#include <less/lessstylesheet/Closure.h>
+#include <less/lessstylesheet/ProcessingContext.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -85,4 +85,3 @@ void Closure::getLocalFunctions (std::list<const Function*> &functionList,
   if (functionList.empty())
     stack->getFunctions(functionList, mixin);
 }
-

@@ -2,10 +2,10 @@
 #ifndef __CssPrettyWriter_h__
 #define __CssPrettyWriter_h__
 
-#include "CssWriter.h"
-#include "../TokenList.h"
-#include "../Token.h"
 #include <iostream>
+#include <less/css/CssWriter.h>
+#include <less/TokenList.h>
+#include <less//Token.h>
 
 class CssPrettyWriter: public CssWriter {
 private:

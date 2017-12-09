@@ -2,9 +2,9 @@
 #ifndef __BooleanValue_h__
 #define __BooleanValue_h__
 
-#include "Value.h"
-#include "ValueException.h"
-#include "StringValue.h"
+#include <less/value/Value.h>
+#include <less/value/ValueException.h>
+#include <less/value/StringValue.h>
 
 /**
  * True or false.

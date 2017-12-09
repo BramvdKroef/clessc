@@ -1,13 +1,12 @@
 
 #ifndef __Declaration_h__
 #define __Declaration_h__
+#include <less/stylesheet/RulesetStatement.h>
+#include <less/stylesheet/Ruleset.h>
+#include <less/css/CssWriter.h>
 
-#include "RulesetStatement.h"
-#include "Ruleset.h"
-#include "../css/CssWriter.h"
-
-#include "../Token.h"
-#include "../TokenList.h"
+#include <less/Token.h>
+#include <less/TokenList.h>
 
 class Declaration: public RulesetStatement {
 private:

@@ -1,5 +1,4 @@
-
-#include "Stylesheet.h"
+#include <less/stylesheet/Stylesheet.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -150,4 +149,3 @@ void Stylesheet::write(CssWriter &writer) {
     (*i)->write(writer);
   }
 }
-

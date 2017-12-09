@@ -1,10 +1,9 @@
 
 #ifndef __Value_h__
 #define __Value_h__
-
-#include "../Token.h"
-#include "../TokenList.h"
-#include "ValueException.h"
+#include <less/Token.h>
+#include <less/TokenList.h>
+#include <less/value/ValueException.h>
 
 class BooleanValue;
 
@@ -54,8 +53,7 @@ public:
 
 };
 
-  
-#include "BooleanValue.h"
+#include <less/value/BooleanValue.h>
 
 
 #endif

@@ -5,8 +5,7 @@
 #include <map>
 #include <string>
 #include <list>
-
-#include "../TokenList.h"
+#include <less/TokenList.h>
 
 class ValueScope {
 public:

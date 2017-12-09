@@ -6,14 +6,14 @@
 #include <string>
 #include <list>
 
-#include "../TokenList.h"
-#include "../VariableMap.h"
-#include "../value/ValueScope.h"
-#include "../value/ValueProcessor.h"
-#include "../lessstylesheet/Extension.h"
-#include "MixinCall.h"
-#include "Function.h"
-#include "Closure.h"
+#include <less/TokenList.h>
+#include <less/VariableMap.h>
+#include <less/value/ValueScope.h>
+#include <less/value/ValueProcessor.h>
+#include <less/lessstylesheet/Extension.h>
+#include <less/lessstylesheet/MixinCall.h>
+#include <less/lessstylesheet/Function.h>
+#include <less/lessstylesheet/Closure.h>
 
 class LessRuleset;
 class Function;

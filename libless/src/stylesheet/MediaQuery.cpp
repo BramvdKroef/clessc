@@ -1,5 +1,4 @@
-
-#include "MediaQuery.h"
+#include <less/stylesheet/MediaQuery.h>
 
 Selector& MediaQuery::getSelector() {
   return selector;

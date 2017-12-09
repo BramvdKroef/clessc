@@ -2,18 +2,18 @@
 #ifndef __LessMediaQuery_h__
 #define __LessMediaQuery_h__
 
-
-#include "../stylesheet/Stylesheet.h"
-#include "../stylesheet/StylesheetStatement.h"
-#include "../stylesheet/Selector.h"
-
-#include "../css/CssWriter.h"
-#include "LessStylesheet.h"
-#include "LessRuleset.h"
-#include "Mixin.h"
-#include "ProcessingContext.h"
-#include "Function.h"
 #include <list>
+
+#include <less/stylesheet/Stylesheet.h>
+#include <less/stylesheet/StylesheetStatement.h>
+#include <less/stylesheet/Selector.h>
+
+#include <less/css/CssWriter.h>
+#include <less/lessstylesheet/LessStylesheet.h>
+#include <less/lessstylesheet/LessRuleset.h>
+#include <less/lessstylesheet/Mixin.h>
+#include <less/lessstylesheet/ProcessingContext.h>
+#include <less/lessstylesheet/Function.h>
 
 class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
 private:

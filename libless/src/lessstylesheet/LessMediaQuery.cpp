@@ -1,4 +1,4 @@
-#include "LessMediaQuery.h"
+#include <less/lessstylesheet/LessMediaQuery.h>
 
 LessMediaQuery::LessMediaQuery() {
   parent = NULL;

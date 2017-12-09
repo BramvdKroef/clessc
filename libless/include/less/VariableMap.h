@@ -2,8 +2,8 @@
 #ifndef __VariableMap_h__
 #define __VariableMap_h__
 
-#include "TokenList.h"
 #include <map>
+#include <less/TokenList.h>
 
 class VariableMap: public std::map<std::string, TokenList> {
   

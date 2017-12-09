@@ -1,13 +1,12 @@
 
 #ifndef __StringValue_h__
 #define __StringValue_h__
-
-#include "Value.h"
-#include "Color.h"
-#include "FunctionLibrary.h"
 #include <vector>
 #include <sstream>
 #include <iomanip>
+#include <less/value/Value.h>
+#include <less/value/Color.h>
+#include <less/value/FunctionLibrary.h>
 
 class StringValue: public Value {
 private:

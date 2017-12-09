@@ -4,9 +4,9 @@
 
 #include <iostream>
 #include <string>
-#include "../Token.h"
-#include "IOException.h"
-#include "ParseException.h"
+#include <less/Token.h>
+#include <less/css/IOException.h>
+#include <less/css/ParseException.h>
 
 using namespace std;
 

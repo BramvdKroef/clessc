@@ -1,5 +1,4 @@
-
-#include "Extension.h"
+#include <less/lessstylesheet/Extension.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>

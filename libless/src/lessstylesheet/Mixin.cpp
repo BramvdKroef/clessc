@@ -1,6 +1,6 @@
-#include "Mixin.h"
-#include "LessStylesheet.h"
-#include "LessRuleset.h"
+#include <less/lessstylesheet/Mixin.h>
+#include <less/lessstylesheet/LessStylesheet.h>
+#include <less/lessstylesheet/LessRuleset.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -204,4 +204,3 @@ void Mixin::parseArguments(TokenList::const_iterator i, const Selector &selector
     argument.clear();
   }
 }
-

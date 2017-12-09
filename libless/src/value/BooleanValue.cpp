@@ -1,4 +1,4 @@
-#include "BooleanValue.h"
+#include <less/value/BooleanValue.h>
 
 BooleanValue::BooleanValue(bool value) {
   Token t("true", Token::IDENTIFIER, 0,0,"generated");
@@ -71,5 +71,3 @@ BooleanValue* BooleanValue::lessThan(const Value &v) const {
     return new BooleanValue(!getValue());
   }
 }
-
-

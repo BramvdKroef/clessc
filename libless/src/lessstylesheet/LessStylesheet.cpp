@@ -1,5 +1,5 @@
-#include "LessStylesheet.h"
-#include "LessMediaQuery.h"
+#include <less/lessstylesheet/LessStylesheet.h>
+#include <less/lessstylesheet/LessMediaQuery.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>

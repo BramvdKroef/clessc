@@ -49,7 +49,7 @@ set(less_SOURCES
         )
 
 add_library(less ${less_SOURCES})
-target_include_directories(less PUBLIC include/less include/less/css include/less/less include/less/lessstylesheet include/less/stylesheet include/less/value)
+target_include_directories(less PUBLIC include)
 
 find_package(GLOG)
 if (GLOG_FOUND)

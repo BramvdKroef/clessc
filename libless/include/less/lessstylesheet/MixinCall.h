@@ -2,8 +2,8 @@
 #ifndef __MixinCall_h__
 #define __MixinCall_h__
 
-#include "../TokenList.h"
-#include "../VariableMap.h"
+#include <less/TokenList.h>
+#include <less/VariableMap.h>
 
 class Function;
 class Mixin;

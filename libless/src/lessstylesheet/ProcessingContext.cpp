@@ -1,8 +1,7 @@
-
-#include "ProcessingContext.h"
-#include "MixinCall.h"
-#include "LessRuleset.h"
-#include "LessStylesheet.h"
+#include <less/lessstylesheet/ProcessingContext.h>
+#include <less/lessstylesheet/MixinCall.h>
+#include <less/lessstylesheet/LessRuleset.h>
+#include <less/lessstylesheet/LessStylesheet.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>

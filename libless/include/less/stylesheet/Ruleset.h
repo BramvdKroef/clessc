@@ -1,16 +1,15 @@
 
 #ifndef __Ruleset_h__
 #define __Ruleset_h__
+#include <less/stylesheet/Stylesheet.h>
+#include <less/stylesheet/StylesheetStatement.h>
+#include <less/stylesheet/Selector.h>
+#include <less/stylesheet/CssComment.h>
 
-#include "Stylesheet.h"
-#include "StylesheetStatement.h"
-#include "Selector.h"
-#include "CssComment.h"
+#include <less/Token.h>
+#include <less/TokenList.h>
 
-#include "../Token.h"
-#include "../TokenList.h"
-
-#include "../css/CssWriter.h"
+#include <less/css/CssWriter.h>
 
 class RulesetStatement;
 class Declaration;
@@ -51,7 +50,7 @@ public:
   virtual void write(CssWriter &writer);
 };
 
-#include "RulesetStatement.h"
-#include "Declaration.h"
+#include <less/stylesheet/RulesetStatement.h>
+#include <less/stylesheet/Declaration.h>
 
 #endif

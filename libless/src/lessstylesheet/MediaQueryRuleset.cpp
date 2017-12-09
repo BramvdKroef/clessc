@@ -1,6 +1,5 @@
-
-#include "MediaQueryRuleset.h"
-#include "LessStylesheet.h"
+#include <less/lessstylesheet/MediaQueryRuleset.h>
+#include <less/lessstylesheet/LessStylesheet.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -52,5 +51,3 @@ void MediaQueryRuleset::process(Stylesheet &s, Selector* prefix, ProcessingConte
   } else
     processStatements(*query, context);
 }
-
-

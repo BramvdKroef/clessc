@@ -2,10 +2,11 @@
 #ifndef __CssWriter_h__
 #define __CssWriter_h__
 
-#include "../TokenList.h"
-#include "SourceMapWriter.h"
 #include <iostream>
 #include <cstring>
+
+#include <less/TokenList.h>
+#include <less/css/SourceMapWriter.h>
 
 class CssWriter {
 protected:

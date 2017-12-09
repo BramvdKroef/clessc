@@ -1,5 +1,4 @@
-
-#include "VariableMap.h"
+#include <less/VariableMap.h>
 
 const TokenList* VariableMap::getVariable(const std::string &key) const {
   VariableMap::const_iterator mit;
@@ -35,4 +34,3 @@ std::string VariableMap::toString() const {
   }
   return str;
 }
-

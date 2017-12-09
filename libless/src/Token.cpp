@@ -1,5 +1,4 @@
-
-#include "Token.h"
+#include <less/Token.h>
 
 char Token::BUILTIN_SOURCE[8] = "builtin";
 
@@ -75,4 +74,3 @@ std::string Token::getUrlString() const {
   } else
     return "";
 }
-

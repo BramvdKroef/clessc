@@ -2,10 +2,11 @@
 #ifndef __CssParser_h__
 #define __CssParser_h__
 
-#include "CssTokenizer.h"
-#include "../stylesheet/Stylesheet.h"
-#include "../TokenList.h"
 #include <string>
+
+#include <less/css/CssTokenizer.h>
+#include <less/stylesheet/Stylesheet.h>
+#include <less/TokenList.h>
 
 using namespace std;
 

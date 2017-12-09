@@ -1,5 +1,4 @@
-
-#include "ValueProcessor.h"
+#include <less/value/ValueProcessor.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -854,4 +853,3 @@ void ValueProcessor::interpolate(TokenList &tokens,
     interpolate((*i), scope);
   }
 }
-

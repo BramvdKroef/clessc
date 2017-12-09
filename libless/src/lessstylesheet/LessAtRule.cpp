@@ -1,7 +1,5 @@
-
-#include "LessAtRule.h"
-
-#include "LessStylesheet.h"
+#include <less/lessstylesheet/LessAtRule.h>
+#include <less/lessstylesheet/LessStylesheet.h>
 
 LessAtRule::LessAtRule(const Token &keyword): AtRule(keyword) {
 }

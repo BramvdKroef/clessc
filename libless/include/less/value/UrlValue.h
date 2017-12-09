@@ -2,9 +2,9 @@
 #ifndef __UrlValue_h__
 #define __UrlValue_h__
 
-#include "Value.h"
-#include "Color.h"
 #include <string>
+#include <less/value/Value.h>
+#include <less/value/Color.h>
 
 class UrlValue_Img {
 public:

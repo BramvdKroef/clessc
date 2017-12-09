@@ -1,15 +1,13 @@
-
 #ifndef __LessSelector_h__
 #define __LessSelector_h__
-
-
-#include "../stylesheet/Selector.h"
-#include "Mixin.h"
-#include "Extension.h"
 
 #include <list>
 #include <map>
 #include <iterator>
+
+#include <less/stylesheet/Selector.h>
+#include <less/lessstylesheet/Mixin.h>
+#include <less/lessstylesheet/Extension.h>
 
 class Mixin;
 

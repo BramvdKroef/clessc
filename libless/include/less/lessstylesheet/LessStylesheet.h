@@ -1,21 +1,20 @@
-
 #ifndef __LessStylesheet_h__
 #define __LessStylesheet_h__
-
-#include "../stylesheet/Stylesheet.h"
-
-#include "../TokenList.h"
-#include "../Token.h"
-
-#include "LessRuleset.h"
-#include "Mixin.h"
-#include "UnprocessedStatement.h"
-#include "ProcessingContext.h"
-#include "LessAtRule.h"
 
 #include <list>
 #include <map>
 #include <string>
+
+#include <less/stylesheet/Stylesheet.h>
+
+#include <less/TokenList.h>
+#include <less/Token.h>
+
+#include <less/lessstylesheet/LessRuleset.h>
+#include <less/lessstylesheet/Mixin.h>
+#include <less/lessstylesheet/UnprocessedStatement.h>
+#include <less/lessstylesheet/ProcessingContext.h>
+#include <less/lessstylesheet/LessAtRule.h>
 
 class LessMediaQuery;
 

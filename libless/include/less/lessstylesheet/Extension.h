@@ -2,7 +2,7 @@
 #ifndef __Extension_h__
 #define __Extension_h__
 
-#include "../stylesheet/Selector.h"
+#include <less/stylesheet/Selector.h>
 
 /**
  * 

@@ -2,8 +2,8 @@
 #ifndef __StylesheetStatement_h__
 #define __StylesheetStatement_h__
 
-#include "CssWritable.h"
-#include "Stylesheet.h"
+#include <less/stylesheet/CssWritable.h>
+#include <less/stylesheet/Stylesheet.h>
 
 class StylesheetStatement : public CssWritable  {
 protected:

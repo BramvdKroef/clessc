@@ -1,5 +1,4 @@
-
-#include "Declaration.h"
+#include <less/stylesheet/Declaration.h>
 
 Declaration::Declaration() {
   property = "";

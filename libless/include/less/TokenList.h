@@ -1,9 +1,8 @@
 
 #ifndef __TokenList_h__
 #define __TokenList_h__
-
-#include "Token.h"
 #include <list>
+#include <less/Token.h>
 
 class TokenList: public std::list<Token> {
   

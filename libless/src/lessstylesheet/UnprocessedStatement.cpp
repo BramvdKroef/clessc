@@ -1,8 +1,7 @@
-
-#include "UnprocessedStatement.h"
-#include "LessRuleset.h"
-#include "LessStylesheet.h"
-#include "Mixin.h"
+#include <less/lessstylesheet/UnprocessedStatement.h>
+#include <less/lessstylesheet/LessRuleset.h>
+#include <less/lessstylesheet/LessStylesheet.h>
+#include <less/lessstylesheet/Mixin.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -219,4 +218,3 @@ bool UnprocessedStatement::processDeclaration (Declaration &declaration) {
   
   return true;
 }
-

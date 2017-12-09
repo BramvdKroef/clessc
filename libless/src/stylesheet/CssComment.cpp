@@ -1,5 +1,4 @@
-
-#include "CssComment.h"
+#include <less/stylesheet/CssComment.h>
 
 CssComment::CssComment() {
   comment = "";
@@ -28,5 +27,3 @@ void CssComment::process(Stylesheet &s) {
 void CssComment::write(CssWriter &writer) {
   writer.writeComment(comment);
 }
-
-

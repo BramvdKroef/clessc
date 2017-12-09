@@ -2,7 +2,7 @@
 #ifndef __RulesetStatement_h__
 #define __RulesetStatement_h__
 
-#include "CssWritable.h"
+#include <less/stylesheet/CssWritable.h>
 
 class Ruleset;
 
@@ -17,6 +17,6 @@ public:
   virtual void process(Ruleset &r) = 0;
 };
 
-#include "Ruleset.h"
+#include <less/stylesheet/Ruleset.h>
 
 #endif

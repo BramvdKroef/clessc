@@ -1,12 +1,11 @@
 
 #ifndef __CssComment_h__
 #define __CssComment_h__
-
-#include "Stylesheet.h"
-#include "StylesheetStatement.h"
-#include "RulesetStatement.h"
-#include "../css/CssWriter.h"
-#include "../Token.h"
+#include <less/stylesheet/Stylesheet.h>
+#include <less/stylesheet/StylesheetStatement.h>
+#include <less/stylesheet/RulesetStatement.h>
+#include <less/css/CssWriter.h>
+#include <less/Token.h>
 
 class CssComment: public StylesheetStatement, public RulesetStatement {
 protected:

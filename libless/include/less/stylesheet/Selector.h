@@ -2,8 +2,8 @@
 #ifndef __Selector_h__
 #define __Selector_h__
 
-#include "TokenList.h"
 #include <list>
+#include <less/TokenList.h>
 
 /**
  * 

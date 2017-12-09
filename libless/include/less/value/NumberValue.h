@@ -1,12 +1,12 @@
 
 #ifndef __NumberValue_h__
 #define __NumberValue_h__
-
-#include "Value.h"
-#include "StringValue.h"
-#include "UnitValue.h"
 #include <vector>
 #include <cmath>
+#include <less/value/Value.h>
+#include <less/value/StringValue.h>
+#include <less/value/UnitValue.h>
+
 class FunctionLibrary;
 
 class NumberValue: public Value {

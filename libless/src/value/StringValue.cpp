@@ -1,6 +1,5 @@
-
-#include "StringValue.h"
 #include <regex>
+#include <less/value/StringValue.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>

@@ -2,7 +2,7 @@
 #ifndef __CssWritable_h__
 #define __CssWritable_h__
 
-#include "../css/CssWriter.h"
+#include <less/css/CssWriter.h>
 
 class CssWritable {
 public:

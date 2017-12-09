@@ -1,5 +1,4 @@
-
-#include "NumberValue.h"
+#include <less/value/NumberValue.h>
 
 NumberValue::NumberValue(const Token &token) {
   tokens.push_back(token);

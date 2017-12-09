@@ -1,7 +1,6 @@
-
-#include "LessRuleset.h"
-#include "LessStylesheet.h"
-#include "MediaQueryRuleset.h"
+#include <less/lessstylesheet/LessRuleset.h>
+#include <less/lessstylesheet/LessStylesheet.h>
+#include <less/lessstylesheet/MediaQueryRuleset.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>

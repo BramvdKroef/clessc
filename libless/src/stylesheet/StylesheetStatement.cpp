@@ -1,5 +1,4 @@
-
-#include "Stylesheet.h"
+#include <less/stylesheet/Stylesheet.h>
 
 void StylesheetStatement::setStylesheet(Stylesheet* s) {
   stylesheet = s;

@@ -1,14 +1,13 @@
 
 #ifndef __AtRule_h__
 #define __AtRule_h__
+#include <less/stylesheet/Stylesheet.h>
+#include <less/stylesheet/StylesheetStatement.h>
 
-#include "Stylesheet.h"
-#include "StylesheetStatement.h"
+#include <less/css/CssWriter.h>
 
-#include "../css/CssWriter.h"
-
-#include "../Token.h"
-#include "../TokenList.h"
+#include <less/Token.h>
+#include <less/TokenList.h>
 
 class AtRule: public StylesheetStatement {
 private:

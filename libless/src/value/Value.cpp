@@ -1,6 +1,5 @@
-
-#include "Value.h"
-#include "BooleanValue.h"
+#include <less/value/Value.h>
+#include <less/value/BooleanValue.h>
 
 Value::Value() {
 }

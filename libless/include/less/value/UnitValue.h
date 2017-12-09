@@ -2,9 +2,9 @@
 #ifndef __UnitValue_h__
 #define __UnitValue_h__
 
-#include "Value.h"
-#include "ValueException.h"
-#include "StringValue.h"
+#include <less/value/Value.h>
+#include <less/value/ValueException.h>
+#include <less/value/StringValue.h>
 
 /**
  * A dimension unit: em,ex,px,ch,in,cm,mm,pt,pc
