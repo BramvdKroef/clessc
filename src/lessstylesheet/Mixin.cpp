@@ -2,8 +2,6 @@
 #include "LessStylesheet.h"
 #include "LessRuleset.h"
 
-#include <config.h>
-
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
 #endif
