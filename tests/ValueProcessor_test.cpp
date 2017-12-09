@@ -1,6 +1,6 @@
-#include "value/ValueProcessor.h"
-#include "lessstylesheet/ProcessingContext.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <less/value/ValueProcessor.h>
+#include <less/lessstylesheet/ProcessingContext.h>
 
 TEST(ValueProcessorTest, Operators) {
   TokenList l;
