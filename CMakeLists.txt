@@ -93,6 +93,9 @@ target_compile_definitions(clessc PRIVATE PACKAGE_NAME="clessc")
 target_compile_definitions(clessc PRIVATE PACKAGE_URL="https://github.com/BramvdKroef/clessc")
 target_compile_definitions(clessc PRIVATE PACKAGE_BUGREPORT="bram@vanderkroef.net")
 
+install(TARGETS clessc DESTINATION bin)
+# TODO separate headers and sources to install library more easily
+
 enable_testing()
 find_package(GTest)
 if (GTest_FOUND)
