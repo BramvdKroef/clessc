@@ -1,8 +1,5 @@
 #include <less/lessstylesheet/Extension.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 Extension::Extension() {
   all = false;
@@ -30,9 +27,7 @@ void Extension::updateSelector(Selector &s) const {
     replaceInSelector(s);
   } else if (s.match(target)) {
 
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Extending " << s.toString() << " with " << extension.toString() ;
-#endif
+  LogStream().notice(2) << "Extending " << s.toString() << " with " << extension.toString() ;
 
     // add comma and selector    
     s.push_back(Token::BUILTIN_COMMA);
@@ -52,10 +47,8 @@ void Extension::replaceInSelector(Selector &s) const {
     pos = s.find(t, first, last);
 
     if (pos != last) {
-#ifdef WITH_LIBGLOG
-      VLOG(2) << "Extending " << s.toString() << " with " << extension.toString() ;
-#endif
-      
+      LogStream().notice(2) << "Extending " << s.toString() << " with " << extension.toString() ;
+
       s.push_back(Token::BUILTIN_COMMA);
 
       // fix position of <code>last</code>. If <code>last ==

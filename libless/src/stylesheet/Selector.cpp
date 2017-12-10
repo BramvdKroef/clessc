@@ -1,9 +1,6 @@
 #include <iostream>
 #include <less/stylesheet/Selector.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 Selector::~Selector() {
   clear();
@@ -71,9 +68,7 @@ void Selector::split(std::list<Selector> &l) const {
     last = findComma(first);
 
     current.assign(first, last);
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Split: " << current.toString(); 
-#endif
+    LogStream().notice(3) << "Split: " << current.toString();
     l.push_back(current);
     
     first = last;

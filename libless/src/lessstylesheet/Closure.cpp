@@ -1,9 +1,6 @@
 #include <less/lessstylesheet/Closure.h>
 #include <less/lessstylesheet/ProcessingContext.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 Closure::Closure(const LessRuleset &ruleset, const MixinCall &stack) {
   this->ruleset = &ruleset;
@@ -35,11 +32,8 @@ void Closure::getFunctions(list<const Function*> &functionList,
   if (offset == mixin.name.begin())
     return;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Matching mixin " << mixin.name.toString() <<
-    " against " << getLessSelector()->toString();
-#endif
-  
+  LogStream().notice(3) << "Matching mixin " << mixin.name.toString() << " against " << getLessSelector()->toString();
+
   while (offset != mixin.name.end() &&
          ((*offset).type == Token::WHITESPACE ||
           *offset == ">")) {

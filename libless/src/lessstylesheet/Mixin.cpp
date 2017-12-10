@@ -1,10 +1,7 @@
 #include <less/lessstylesheet/Mixin.h>
 #include <less/lessstylesheet/LessStylesheet.h>
 #include <less/lessstylesheet/LessRuleset.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 Mixin::Mixin() {
 }
@@ -64,9 +61,7 @@ bool Mixin::call(Stylesheet &s, ProcessingContext &context,
   list<const Function*> functionList;
   const Function* function;
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Mixin: \"" << name.toString() << "\"";
-#endif
+  LogStream().notice(2) << "Mixin: \"" << name.toString() << "\"";
 
   if (parent != NULL) 
     context.getFunctions(functionList, *this);
@@ -77,26 +72,20 @@ bool Mixin::call(Stylesheet &s, ProcessingContext &context,
     return false;
   
   for (arg_i = arguments.begin(); arg_i != arguments.end(); arg_i++) {
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin Arg: " << (*arg_i).toString();
-#endif
+    LogStream().notice(3) << "Mixin Arg: " << (*arg_i).toString();
     context.processValue(*arg_i);
   }
 
   for (argn_i = namedArguments.begin();
        argn_i != namedArguments.end(); argn_i++) {
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin Arg " << argn_i->first << ": " << argn_i->second.toString();
-#endif
+    LogStream().notice(3) << "Mixin Arg " << argn_i->first << ": " << argn_i->second.toString();
     context.processValue(argn_i->second);
   }
   
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
 
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Mixin: " << function->getLessSelector()->toString();
-#endif
+    LogStream().notice(3) << "Mixin: " << function->getLessSelector()->toString();
 
     if (function->getLessSelector()->needsArguments() ||
         !context.isInStack(*function)) {
