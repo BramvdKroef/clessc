@@ -2,11 +2,11 @@
 #define __less_css_CssPrettyWriter_h__
 
 #include <iostream>
-#include "less/css/CssWriter.h"
-#include "less/TokenList.h"
 #include "less//Token.h"
+#include "less/TokenList.h"
+#include "less/css/CssWriter.h"
 
-class CssPrettyWriter: public CssWriter {
+class CssPrettyWriter : public CssWriter {
 private:
   int indent_size;
 
@@ -15,13 +15,13 @@ protected:
   void newline();
 
   virtual void writeSelector(const TokenList &selector);
-    
+
 public:
-  CssPrettyWriter(std::ostream &out): CssWriter(out) {
+  CssPrettyWriter(std::ostream &out) : CssWriter(out) {
     indent_size = 0;
   };
-  CssPrettyWriter(std::ostream &out, SourceMapWriter &sourcemap):
-    CssWriter(out, sourcemap) {
+  CssPrettyWriter(std::ostream &out, SourceMapWriter &sourcemap)
+      : CssWriter(out, sourcemap) {
     indent_size = 0;
   }
 
@@ -35,4 +35,4 @@ public:
   virtual void writeMediaQueryEnd();
 };
 
-#endif // __less_css_CssPrettyWriter_h__
+#endif  // __less_css_CssPrettyWriter_h__

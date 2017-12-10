@@ -11,22 +11,21 @@
 #include <stdio.h>
 
 struct urlvalue_jpeg_error_mgr {
-  struct jpeg_error_mgr pub;	/* "public" fields */
+  struct jpeg_error_mgr pub; /* "public" fields */
 
-  jmp_buf setjmp_buffer;	/* for return to caller */
+  jmp_buf setjmp_buffer; /* for return to caller */
 };
 
-typedef struct urlvalue_jpeg_error_mgr * urlvalue_jpeg_error_ptr;
+typedef struct urlvalue_jpeg_error_mgr* urlvalue_jpeg_error_ptr;
 
 METHODDEF(void)
-urlvalue_jpeg_error_exit (j_common_ptr cinfo)
-{
+urlvalue_jpeg_error_exit(j_common_ptr cinfo) {
   /* cinfo->err really points to a my_error_mgr struct, so coerce pointer */
-  urlvalue_jpeg_error_ptr myerr = (urlvalue_jpeg_error_ptr) cinfo->err;
+  urlvalue_jpeg_error_ptr myerr = (urlvalue_jpeg_error_ptr)cinfo->err;
 
   /* Always display the message. */
   /* We could postpone this until after returning, if we chose. */
-  (*cinfo->err->output_message) (cinfo);
+  (*cinfo->err->output_message)(cinfo);
 
   /* Return control to the setjmp point */
   longjmp(myerr->setjmp_buffer, 1);
@@ -37,12 +36,11 @@ urlvalue_jpeg_error_exit (j_common_ptr cinfo)
 UrlValue_Img::UrlValue_Img() {
 }
 
-UrlValue::UrlValue(Token &token, std::string &path): Value() {
+UrlValue::UrlValue(Token& token, std::string& path) : Value() {
   tokens.push_back(token);
   this->path = path;
   type = Value::URL;
 }
-
 
 UrlValue::~UrlValue() {
 }
@@ -55,7 +53,7 @@ std::string UrlValue::getRelativePath() const {
   std::string source = tokens.front().source;
   size_t pos = source.find_last_of("/\\");
   std::string relative_path;
-  
+
   // if the source stylesheet is not in the current working directory
   //  then add its directory to the path.
   if (pos != std::string::npos) {
@@ -66,28 +64,24 @@ std::string UrlValue::getRelativePath() const {
   return relative_path;
 }
 
-Value* UrlValue::add(const Value &v) const {
+Value* UrlValue::add(const Value& v) const {
   (void)v;
-  throw new ValueException("You can not add urls.",
-                           *this->getTokens());
+  throw new ValueException("You can not add urls.", *this->getTokens());
 }
-Value* UrlValue::substract(const Value &v) const {
+Value* UrlValue::substract(const Value& v) const {
   (void)v;
-  throw new ValueException("You can not substract urls.",
-                           *this->getTokens());
+  throw new ValueException("You can not substract urls.", *this->getTokens());
 }
-Value* UrlValue::multiply(const Value &v) const {
+Value* UrlValue::multiply(const Value& v) const {
   (void)v;
-  throw new ValueException("You can not multiply urls.",
-                           *this->getTokens());
+  throw new ValueException("You can not multiply urls.", *this->getTokens());
 }
-Value* UrlValue::divide(const Value &v) const {
+Value* UrlValue::divide(const Value& v) const {
   (void)v;
-  throw new ValueException("You can not divide urls.",
-                           *this->getTokens());
+  throw new ValueException("You can not divide urls.", *this->getTokens());
 }
 
-BooleanValue* UrlValue::lessThan(const Value &v) const {
+BooleanValue* UrlValue::lessThan(const Value& v) const {
   const UrlValue* u;
   if (v.type == URL) {
     u = static_cast<const UrlValue*>(&v);
@@ -97,9 +91,9 @@ BooleanValue* UrlValue::lessThan(const Value &v) const {
                              *this->getTokens());
   }
 }
-BooleanValue* UrlValue::equals(const Value &v) const {
+BooleanValue* UrlValue::equals(const Value& v) const {
   const UrlValue* u;
-  
+
   if (v.type == URL) {
     u = static_cast<const UrlValue*>(&v);
     return new BooleanValue(path == u->getPath());
@@ -109,33 +103,32 @@ BooleanValue* UrlValue::equals(const Value &v) const {
   }
 }
 
-bool UrlValue::loadImg(UrlValue_Img &img) const {
+bool UrlValue::loadImg(UrlValue_Img& img) const {
   return loadPng(img) || loadJpeg(img);
 }
 
-bool UrlValue::loadPng(UrlValue_Img &img) const {
-
+bool UrlValue::loadPng(UrlValue_Img& img) const {
 #ifdef WITH_LIBPNG
-  unsigned char header[8];    // 8 is the maximum size that can be checked
+  unsigned char header[8];  // 8 is the maximum size that can be checked
   /* open file and test for it being a png */
-  
+
   png_structp png_ptr;
   png_infop info_ptr;
   png_byte color_type;
   int channels;
-  
+
   std::string path = getRelativePath();
 
   LogStream().notice(3) << "PNG path: " << path;
 
-  FILE *fp = fopen(path.c_str(), "rb");
+  FILE* fp = fopen(path.c_str(), "rb");
   if (!fp)
-    return false; //"Image file could not be opened"
+    return false;  //"Image file could not be opened"
 
   fread(header, 1, 8, fp);
-  
+
   if (png_sig_cmp(header, 0, 8))
-    return false; //"Image is not a PNG file"
+    return false;  //"Image is not a PNG file"
 
   /* initialize stuff */
   png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -150,8 +143,7 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
                              *this->getTokens());
 
   if (setjmp(png_jmpbuf(png_ptr)))
-    throw new ValueException("Error during init_io",
-                             *this->getTokens());
+    throw new ValueException("Error during init_io", *this->getTokens());
 
   png_init_io(png_ptr, fp);
   png_set_sig_bytes(png_ptr, 8);
@@ -162,8 +154,8 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   img.height = png_get_image_height(png_ptr, info_ptr);
   channels = png_get_channels(png_ptr, info_ptr);
   color_type = png_get_color_type(png_ptr, info_ptr);
-  
-  if(color_type == PNG_COLOR_TYPE_PALETTE) {
+
+  if (color_type == PNG_COLOR_TYPE_PALETTE) {
     png_set_palette_to_rgb(png_ptr);
     channels = 3;
   }
@@ -172,16 +164,16 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
     channels += 1;
   }
 
-  LogStream().notice(3) << "Width: " << img.width << ", Height: " << img.height << ", Channels: " << channels;
+  LogStream().notice(3) << "Width: " << img.width << ", Height: " << img.height
+                        << ", Channels: " << channels;
 
   png_color_16p pBackground;
   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
     png_get_bKGD(png_ptr, info_ptr, &pBackground);
-    img.background.setRGB(pBackground->red,
-                          pBackground->green,
-                          pBackground->blue);
-  }else {
-    img.background.setRGB(255,255,255);
+    img.background.setRGB(
+        pBackground->red, pBackground->green, pBackground->blue);
+  } else {
+    img.background.setRGB(255, 255, 255);
   }
 
   png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
@@ -192,24 +184,23 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   LogStream().notice(3) << "Read successful";
 
   return true;
-  
+
 #else
   return false;
-#endif  
+#endif
 }
 
-
-bool UrlValue::loadJpeg(UrlValue_Img &img) const {
+bool UrlValue::loadJpeg(UrlValue_Img& img) const {
 #ifdef WITH_LIBJPEG
   struct jpeg_decompress_struct cinfo;
-  
+
   struct urlvalue_jpeg_error_mgr jerr;
   /* More stuff */
-  FILE * infile;
-  JSAMPARRAY buffer;	/* Output row buffer */
-  int row_stride;	/* physical row width in output buffer */
+  FILE* infile;
+  JSAMPARRAY buffer; /* Output row buffer */
+  int row_stride;    /* physical row width in output buffer */
   std::string path = getRelativePath();
-  
+
   if ((infile = fopen(path.c_str(), "rb")) == NULL) {
     return false;
   }
@@ -237,7 +228,7 @@ bool UrlValue::loadJpeg(UrlValue_Img &img) const {
 
   /* Step 3: read file parameters with jpeg_read_header() */
 
-  (void) jpeg_read_header(&cinfo, TRUE);
+  (void)jpeg_read_header(&cinfo, TRUE);
   /* We can ignore the return value from jpeg_read_header since
    * (a) suspension is not possible with the stdio data source, and
    * (b) we passed TRUE to reject a tables-only JPEG file as an error.
@@ -252,14 +243,14 @@ bool UrlValue::loadJpeg(UrlValue_Img &img) const {
 
   /* Step 5: Start decompressor */
 
-  (void) jpeg_start_decompress(&cinfo);
+  (void)jpeg_start_decompress(&cinfo);
   /* We can ignore the return value since suspension is not possible
    * with the stdio data source.
    */
 
   img.width = cinfo.output_width;
   img.height = cinfo.output_height;
-  
+
   /* We may need to do some setup of our own at this point before reading
    * the data. After jpeg_start_decompress() we have the correct scaled
    * output image dimensions available, as well as the output colormap
@@ -269,8 +260,8 @@ bool UrlValue::loadJpeg(UrlValue_Img &img) const {
   /* JSAMPLEs per row in output buffer */
   row_stride = cinfo.output_width * cinfo.output_components;
   /* Make a one-row-high sample array that will go away when done with image */
-  buffer = (*cinfo.mem->alloc_sarray)
-    ((j_common_ptr) &cinfo, JPOOL_IMAGE, row_stride, 1);
+  buffer = (*cinfo.mem->alloc_sarray)(
+      (j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
 
   /* Step 6: while (scan lines remain to be read) */
   /* jpeg_read_scanlines(...); */
@@ -283,13 +274,12 @@ bool UrlValue::loadJpeg(UrlValue_Img &img) const {
      * Here the array is only one element long, but you could ask for
      * more than one scanline at a time if that's more convenient.
      */
-    (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+    (void)jpeg_read_scanlines(&cinfo, buffer, 1);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
-    //put_scanline_someplace(buffer[0], row_stride);
-    if (cinfo.out_color_space == JCS_RGB && 
+    // put_scanline_someplace(buffer[0], row_stride);
+    if (cinfo.out_color_space == JCS_RGB &&
         (cinfo.output_scanline == 1 ||
          cinfo.output_scanline == cinfo.output_height)) {
-
       if (cinfo.output_scanline == 1) {
         img.background.setRGB(buffer[0][0], buffer[0][1], buffer[0][2]);
       }
@@ -297,17 +287,20 @@ bool UrlValue::loadJpeg(UrlValue_Img &img) const {
           img.background.getGreen() != buffer[0][1] ||
           img.background.getBlue() != buffer[0][2] ||
 
-          img.background.getRed() != buffer[0][row_stride - cinfo.output_components] ||
-          img.background.getGreen() != buffer[0][row_stride - cinfo.output_components + 1] ||
-          img.background.getBlue() != buffer[0][row_stride - cinfo.output_components + 2]) {
-        img.background.setRGB(0,0,0);
+          img.background.getRed() !=
+              buffer[0][row_stride - cinfo.output_components] ||
+          img.background.getGreen() !=
+              buffer[0][row_stride - cinfo.output_components + 1] ||
+          img.background.getBlue() !=
+              buffer[0][row_stride - cinfo.output_components + 2]) {
+        img.background.setRGB(0, 0, 0);
       }
     }
   }
 
   /* Step 7: Finish decompression */
 
-  (void) jpeg_finish_decompress(&cinfo);
+  (void)jpeg_finish_decompress(&cinfo);
   /* We can ignore the return value since suspension is not possible
    * with the stdio data source.
    */
@@ -344,15 +337,13 @@ Color UrlValue::getImageBackground() const {
   return img.background;
 }
 
-
-void UrlValue::loadFunctions(FunctionLibrary &lib) {
+void UrlValue::loadFunctions(FunctionLibrary& lib) {
   lib.push("imgheight", "R", &UrlValue::imgheight);
   lib.push("imgwidth", "R", &UrlValue::imgwidth);
   lib.push("imgbackground", "R", &UrlValue::imgbackground);
 }
 
-
-Value* UrlValue::imgheight(const vector<const Value*> &arguments) {
+Value* UrlValue::imgheight(const vector<const Value*>& arguments) {
   const UrlValue* u;
   NumberValue* val;
   std::string px = "px";
@@ -364,7 +355,7 @@ Value* UrlValue::imgheight(const vector<const Value*> &arguments) {
   val = new NumberValue(u->getImageHeight(), Token::DIMENSION, &px);
   return val;
 }
-Value* UrlValue::imgwidth(const vector<const Value*> &arguments) {
+Value* UrlValue::imgwidth(const vector<const Value*>& arguments) {
   const UrlValue* u;
   NumberValue* val;
   std::string px = "px";
@@ -373,8 +364,8 @@ Value* UrlValue::imgwidth(const vector<const Value*> &arguments) {
   val = new NumberValue(u->getImageWidth(), Token::DIMENSION, &px);
   return val;
 }
- 
-Value* UrlValue::imgbackground(const vector<const Value*> &arguments) {
+
+Value* UrlValue::imgbackground(const vector<const Value*>& arguments) {
   const UrlValue* u = static_cast<const UrlValue*>(arguments[0]);
   return new Color(u->getImageBackground());
 }

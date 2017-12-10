@@ -3,9 +3,9 @@
 
 #include <string>
 
+#include "less/TokenList.h"
 #include "less/css/CssTokenizer.h"
 #include "less/stylesheet/Stylesheet.h"
-#include "less/TokenList.h"
 
 using namespace std;
 
@@ -13,30 +13,27 @@ using namespace std;
  * Parses CSS code according to the syntax spec at
  * http://www.w3.org/TR/CSS2/syndata.html.
  * Excerpt:
- * 
+ *
  *   stylesheet  : [ CDO | CDC | S | statement ]*;
  *   statement   : ruleset | at-rule;
  *   at-rule     : ATKEYWORD S* any* [ block | ';' S* ];
  *   block       : '{' S* [ any | block | ATKEYWORD S* | ';' S* ]* '}' S*;
- *   ruleset     : selector? '{' S* declaration? [ ';' S* declaration? ]* '}' S*;
- *   selector    : any+;
- *   declaration : property S* ':' S* value;
- *   property    : IDENT;
- *   value       : [ any | block | ATKEYWORD S* ]+;
- *   any         : [ IDENT | NUMBER | PERCENTAGE | DIMENSION | STRING
- *                  | DELIM | URI | HASH | UNICODE-RANGE | INCLUDES
- *                  | DASHMATCH | ':' | FUNCTION S* [any|unused]* ')'
- *                  | '(' S* [any|unused]* ')' | '[' S* [any|unused]* ']'
- *                 ] S*;
- *   unused      : block | ATKEYWORD S* | ';' S* | CDO S* | CDC S*;
+ *   ruleset     : selector? '{' S* declaration? [ ';' S* declaration? ]* '}'
+ * S*; selector    : any+; declaration : property S* ':' S* value; property    :
+ * IDENT; value       : [ any | block | ATKEYWORD S* ]+; any         : [ IDENT
+ * | NUMBER | PERCENTAGE | DIMENSION | STRING | DELIM | URI | HASH |
+ * UNICODE-RANGE | INCLUDES | DASHMATCH | ':' | FUNCTION S*
+ * [any|unused]* ')' | '(' S* [any|unused]* ')' | '[' S*
+ * [any|unused]* ']' ] S*; unused      : block | ATKEYWORD S* |
+ * ';' S* | CDO S* | CDC S*;
  *
  * The CDO ('<!--') and CDC ('-->') are not supported by the parser as
  * they are not expected in a .css file.
  */
 
-class CssParser{
+class CssParser {
 protected:
-  CssTokenizer* tokenizer;
+  CssTokenizer *tokenizer;
 
   /**
    * Parse whitespace tokens and comments and skip them.
@@ -48,7 +45,7 @@ protected:
    * argument. Comments are skipped.
    */
   bool parseWhitespace(TokenList &tokens);
-  
+
   /**
    * Parses a Ruleset or an AtRule and adds it to the stylesheet.
    *
@@ -57,27 +54,26 @@ protected:
    */
   virtual bool parseStatement(Stylesheet &stylesheet);
 
-
   /**
    * Parse a semicolon. Prevent errors when encountering a semicolon
    * by itself.
    */
   bool parseEmptyStatement();
-  
+
   /**
    * Parse a media query, starting with the @media keyword.
    *
-   * @return a MediaQuery object or NULL if the current token is not '@media'. 
+   * @return a MediaQuery object or NULL if the current token is not '@media'.
    */
-  MediaQuery* parseMediaQuery(Stylesheet &stylesheet);
-  
+  MediaQuery *parseMediaQuery(Stylesheet &stylesheet);
+
   /**
    * Parses an keyword that begins with '@' and the rule following the keyword.
    *
    * @return an AtRule object or NULL if none was found.
    */
-  AtRule* parseAtRule(Stylesheet &stylesheet);
-  
+  AtRule *parseAtRule(Stylesheet &stylesheet);
+
   /**
    * Parse tokens inside brackets ('{', '}'). The tokens are added to
    * the list.
@@ -85,14 +81,14 @@ protected:
    * @return true if a block was parsed or false if the next token was
    *    not '{'.
    */
-  bool parseBlock (TokenList& tokens);
+  bool parseBlock(TokenList &tokens);
 
   /**
    * Parses an optional selector and a decleration block.
    *
    * @return a Ruleset object or NULL if none was found.
    */
-  Ruleset* parseRuleset (Stylesheet &stylesheet);
+  Ruleset *parseRuleset(Stylesheet &stylesheet);
 
   /**
    * Parses a selector into a list of tokens.
@@ -107,7 +103,7 @@ protected:
    *
    * @return a Declaration* object or NULL if none was found.
    */
-  Declaration* parseDeclaration (Ruleset &ruleset);
+  Declaration *parseDeclaration(Ruleset &ruleset);
 
   /**
    * Parses an identifier token that represents a property name.
@@ -117,7 +113,7 @@ protected:
    *   If no property was found the return value is false and the
    *   argument will be untouched.
    */
-  bool parseProperty (TokenList &property);
+  bool parseProperty(TokenList &property);
 
   /**
    * Parses a list of tokens that represent a value.
@@ -125,7 +121,7 @@ protected:
    * @return true if tokens were parsed or NULL if no
    *         valid tokens could be found.
    */
-  virtual bool parseValue (TokenList &value);
+  virtual bool parseValue(TokenList &value);
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
@@ -146,8 +142,7 @@ protected:
    *  @return true if the token found was one of the tokens in the
    *          above list.
    */
-  bool parseAny (TokenList &tokens);
-
+  bool parseAny(TokenList &tokens);
 
   /**
    * Parses a token and adds it to the tokens argument. The token can
@@ -159,15 +154,14 @@ protected:
    *  @return true if a block, atkeyword or delimiter could be parsed.
    */
   bool parseUnused(TokenList &tokens);
-  
-public:
 
+public:
   /**
    * Initializes the CssParser with the given CssTokenizer argument.
    */
   CssParser(CssTokenizer &tokenizer);
 
-  virtual ~CssParser() {};
+  virtual ~CssParser(){};
   /**
    * Parses a stylesheet from the tokenizer. After parsing the
    * stylesheet all of the input should be parsed so this function
@@ -177,8 +171,6 @@ public:
    *   the input, such as unterminated strings or parentheses.
    */
   virtual void parseStylesheet(Stylesheet &stylesheet);
-  
-  
 };
 
-#endif // __less_css_CssParser_h__
+#endif  // __less_css_CssParser_h__

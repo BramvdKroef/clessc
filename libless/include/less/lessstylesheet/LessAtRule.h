@@ -8,18 +8,18 @@
 
 class LessStylesheet;
 
-class LessAtRule: public AtRule {
+class LessAtRule : public AtRule {
 private:
   LessStylesheet *lessStylesheet;
 
 public:
-  LessAtRule(const Token& keyword);
+  LessAtRule(const Token &keyword);
   virtual ~LessAtRule();
 
   void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet* getLessStylesheet();
+  LessStylesheet *getLessStylesheet();
 
   virtual void process(Stylesheet &s);
 };
 
-#endif // __less_lessstylesheet_LessAtRule_h__
+#endif  // __less_lessstylesheet_LessAtRule_h__

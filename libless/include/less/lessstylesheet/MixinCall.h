@@ -14,14 +14,15 @@ public:
   VariableMap arguments;
   bool savepoint;
 
-  MixinCall(MixinCall* parent, const Function& function, bool
-            savepoint = false);
+  MixinCall(MixinCall* parent,
+            const Function& function,
+            bool savepoint = false);
 
-  const TokenList* getVariable(const std::string &key) const;
-  void getFunctions (std::list<const Function*> &functionList,
-                     const Mixin& mixin) const;
-  bool isInStack(const Function &function) const;
-  const VariableMap* getArguments(const Function &function) const;
+  const TokenList* getVariable(const std::string& key) const;
+  void getFunctions(std::list<const Function*>& functionList,
+                    const Mixin& mixin) const;
+  bool isInStack(const Function& function) const;
+  const VariableMap* getArguments(const Function& function) const;
 };
 
-#endif // __less_lessstylesheet_MixinCall_h__
+#endif  // __less_lessstylesheet_MixinCall_h__

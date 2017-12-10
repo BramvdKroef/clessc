@@ -4,11 +4,9 @@
 #include <list>
 #include "less/Token.h"
 
-class TokenList: public std::list<Token> {
-  
+class TokenList : public std::list<Token> {
 public:
   virtual ~TokenList();
-  
 
   /**
    * Trim whitespace tokens from the front of the selector.
@@ -24,7 +22,7 @@ public:
    * Trim whitespace tokens from the front and back of the selector.
    */
   void trim();
-  
+
   std::string toString() const;
 
   bool contains(const Token &t) const;
@@ -32,4 +30,4 @@ public:
   bool containsType(Token::Type t) const;
 };
 
-#endif // __less_TokenList_h__
+#endif  // __less_TokenList_h__

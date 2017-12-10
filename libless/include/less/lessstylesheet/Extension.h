@@ -4,14 +4,14 @@
 #include "less/stylesheet/Selector.h"
 
 /**
- * 
+ *
  */
 class Extension {
 private:
   Selector target;
   Selector extension;
   bool all;
-  
+
 public:
   Extension();
   Extension(bool all);
@@ -20,10 +20,10 @@ public:
   Selector& getTarget();
   Selector& getExtension();
 
-  void setExtension(Selector &selector);
+  void setExtension(Selector& selector);
 
   void updateSelector(Selector& s) const;
-  void replaceInSelector(Selector &s) const;
+  void replaceInSelector(Selector& s) const;
 };
 
-#endif // __less_lessstylesheet_Extension_h__
+#endif  // __less_lessstylesheet_Extension_h__

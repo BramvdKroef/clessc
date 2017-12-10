@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+Standard: Cpp11
+UseTab: Never
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: false
+PointerAlignment: Left
+AccessModifierOffset: -2

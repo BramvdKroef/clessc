@@ -3,7 +3,7 @@
 LessTokenizer::~LessTokenizer() {
 }
 
-bool LessTokenizer::readComment () {
+bool LessTokenizer::readComment() {
   if (!lastReadEq('/'))
     return CssTokenizer::readComment();
 

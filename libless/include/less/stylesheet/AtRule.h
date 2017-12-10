@@ -9,22 +9,22 @@
 #include "less/Token.h"
 #include "less/TokenList.h"
 
-class AtRule: public StylesheetStatement {
+class AtRule : public StylesheetStatement {
 private:
   Token keyword;
   TokenList rule;
 
 public:
-  AtRule(const Token& keyword);
+  AtRule(const Token &keyword);
   virtual ~AtRule();
-  void setKeyword (const Token &keyword);
+  void setKeyword(const Token &keyword);
   void setRule(const TokenList &rule);
 
-  Token& getKeyword();
-  TokenList& getRule();
+  Token &getKeyword();
+  TokenList &getRule();
 
   virtual void process(Stylesheet &s);
   virtual void write(CssWriter &writer);
 };
 
-#endif // __less_stylesheet_AtRule_h__
+#endif  // __less_stylesheet_AtRule_h__

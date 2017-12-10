@@ -5,7 +5,7 @@
 
 using namespace std;
 
-class IOException: public exception {
+class IOException : public exception {
 public:
   const char* err;
 
@@ -21,5 +21,5 @@ public:
     return err;
   }
 };
-  
-#endif // __less_css_IOException_h__
+
+#endif  // __less_css_IOException_h__

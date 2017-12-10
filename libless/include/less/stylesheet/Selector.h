@@ -5,9 +5,9 @@
 #include "less/TokenList.h"
 
 /**
- * 
+ *
  */
-class Selector: public TokenList {
+class Selector : public TokenList {
 public:
   virtual ~Selector();
 
@@ -16,7 +16,7 @@ public:
   /**
    * If the selector contains commas then it is split up into multiple
    * selectors.
-   * 
+   *
    * For example <code>p .class, a:hover</code> is split up into
    * <code>p .class</code> and <code>a:hover</code>.
    */
@@ -37,4 +37,4 @@ public:
   const_iterator findComma(const_iterator offset, const_iterator limit) const;
 };
 
-#endif // __less_stylesheet_Selector_h__
+#endif  // __less_stylesheet_Selector_h__

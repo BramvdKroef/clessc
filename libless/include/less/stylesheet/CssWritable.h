@@ -5,7 +5,7 @@
 
 class CssWritable {
 public:
-  virtual void write(CssWriter &css) = 0; 
+  virtual void write(CssWriter &css) = 0;
 };
 
-#endif // __less_stylesheet_CssWritable_h__
+#endif  // __less_stylesheet_CssWritable_h__

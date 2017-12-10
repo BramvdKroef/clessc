@@ -44,7 +44,7 @@ using namespace std;
  *   INCLUDES    	~=
  *   DASHMATCH   	|=
  *   DELIM      	any other character not matched by the above
- *                      rules, and neither a single nor a double quote 
+ *                      rules, and neither a single nor a double quote
  *
  * Notes
  *
@@ -84,27 +84,26 @@ using namespace std;
  */
 class CssTokenizer {
 public:
-	
-  CssTokenizer(istream &in, const char* source);
-		
+  CssTokenizer(istream& in, const char* source);
+
   ~CssTokenizer();
-  
+
   Token::Type readNextToken();
-  
+
   Token& getToken();
   Token::Type getTokenType();
 
   const char* getSource();
-		
+
 protected:
   istream* in;
 
   Token currentToken;
   char lastRead;
-  
+
   unsigned int line, column;
   const char* source;
-  
+
   void readChar();
 
   bool readIdent();
@@ -121,7 +120,7 @@ protected:
   bool readWhitespace();
   bool readUrl();
   virtual bool readComment();
-  bool readUnicodeRange ();
+  bool readUnicodeRange();
 
   bool lastReadEq(char c);
   bool lastReadInRange(char c1, char c2);
@@ -129,4 +128,4 @@ protected:
   bool lastReadIsHex();
 };
 
-#endif // __less_css_CssTokenizer_h__
+#endif  // __less_css_CssTokenizer_h__

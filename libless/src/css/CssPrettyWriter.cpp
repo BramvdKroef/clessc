@@ -11,7 +11,7 @@ void CssPrettyWriter::indent() {
 void CssPrettyWriter::newline() {
   out->write("\n", 1);
   column = 0;
-  
+
   if (sourcemap != NULL)
     sourcemap->writeNewline();
 }
@@ -21,10 +21,10 @@ void CssPrettyWriter::writeSelector(const TokenList &selector) {
 
   if (sourcemap != NULL)
     sourcemap->writeMapping(column, selector.front());
-  
+
   for (it = selector.begin(); it != selector.end(); it++) {
     writeToken(*it);
-      
+
     if ((*it) == ",") {
       if (sourcemap != NULL)
         sourcemap->writeMapping(column, selector.front());
@@ -37,16 +37,16 @@ void CssPrettyWriter::writeSelector(const TokenList &selector) {
 
 void CssPrettyWriter::writeAtRule(const Token &keyword, const TokenList &rule) {
   indent();
-  
+
   CssWriter::writeAtRule(keyword, rule);
   newline();
 }
 
 void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
   indent();
-  
+
   writeSelector(selector);
-  
+
   writeStr(" {", 2);
   newline();
   indent_size++;
@@ -55,7 +55,7 @@ void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
 void CssPrettyWriter::writeRulesetEnd() {
   writeStr(";", 1);
   newline();
-  
+
   indent_size--;
   indent();
 
@@ -64,9 +64,8 @@ void CssPrettyWriter::writeRulesetEnd() {
 }
 void CssPrettyWriter::writeDeclaration(const Token &property,
                                        const TokenList &value) {
-
   indent();
-  
+
   if (sourcemap != NULL)
     sourcemap->writeMapping(column, property);
 
@@ -88,9 +87,9 @@ void CssPrettyWriter::writeComment(const Token &comment) {
 
 void CssPrettyWriter::writeMediaQueryStart(const TokenList &selector) {
   indent();
-  
+
   writeSelector(selector);
-  
+
   writeStr(" {", 2);
   newline();
   indent_size++;

@@ -18,20 +18,20 @@ void Declaration::setProperty(const Token &property) {
 void Declaration::setValue(const TokenList &value) {
   this->value = value;
 }
-Token& Declaration::getProperty() {
+Token &Declaration::getProperty() {
   return property;
 }
-TokenList& Declaration::getValue() {
+TokenList &Declaration::getValue() {
   return value;
 }
 
 void Declaration::process(Ruleset &r) {
-  LogStream().notice(2) << "Processing declaration " << property << ": " << value.toString();
-  Declaration* d = r.createDeclaration();
+  LogStream().notice(2) << "Processing declaration " << property << ": "
+                        << value.toString();
+  Declaration *d = r.createDeclaration();
   d->setProperty(property);
   d->setValue(value);
 }
-
 
 void Declaration::write(CssWriter &writer) {
   writer.writeDeclaration(property, value);

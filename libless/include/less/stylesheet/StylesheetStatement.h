@@ -4,21 +4,21 @@
 #include "less/stylesheet/CssWritable.h"
 #include "less/stylesheet/Stylesheet.h"
 
-class StylesheetStatement : public CssWritable  {
+class StylesheetStatement : public CssWritable {
 protected:
   Stylesheet* stylesheet;
   bool reference;
-  
+
 public:
-  StylesheetStatement(): reference(false) {};
-  virtual ~StylesheetStatement() {};
+  StylesheetStatement() : reference(false){};
+  virtual ~StylesheetStatement(){};
   virtual void setStylesheet(Stylesheet* s);
   Stylesheet* getStylesheet();
 
   void setReference(bool ref);
   bool isReference();
-  
-  virtual void process(Stylesheet &s) = 0;
+
+  virtual void process(Stylesheet& s) = 0;
 };
 
-#endif // __less_stylesheet_StylesheetStatement_h__
+#endif  // __less_stylesheet_StylesheetStatement_h__
