@@ -1,10 +1,10 @@
 #ifndef __less_lessstylesheet_LessAtRule_h__
 #define __less_lessstylesheet_LessAtRule_h__
 
-#include <less/stylesheet/AtRule.h>
-#include <less/stylesheet/Stylesheet.h>
+#include "less/stylesheet/AtRule.h"
+#include "less/stylesheet/Stylesheet.h"
 
-#include <less/Token.h>
+#include "less/Token.h"
 
 class LessStylesheet;
 

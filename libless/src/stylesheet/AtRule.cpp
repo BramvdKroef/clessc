@@ -1,5 +1,5 @@
-#include <less/stylesheet/Stylesheet.h>
-#include <less/LogStream.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/LogStream.h"
 
 AtRule::AtRule (const Token &keyword) {
   this->keyword = keyword;

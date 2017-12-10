@@ -2,9 +2,9 @@
 #define __less_css_CssPrettyWriter_h__
 
 #include <iostream>
-#include <less/css/CssWriter.h>
-#include <less/TokenList.h>
-#include <less//Token.h>
+#include "less/css/CssWriter.h"
+#include "less/TokenList.h"
+#include "less//Token.h"
 
 class CssPrettyWriter: public CssWriter {
 private:

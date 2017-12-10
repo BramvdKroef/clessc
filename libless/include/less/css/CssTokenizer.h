@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <string>
-#include <less/Token.h>
-#include <less/css/IOException.h>
-#include <less/css/ParseException.h>
+#include "less/Token.h"
+#include "less/css/IOException.h"
+#include "less/css/ParseException.h"
 
 using namespace std;
 

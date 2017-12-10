@@ -1,5 +1,5 @@
 #include <regex>
-#include <less/value/StringValue.h>
+#include "less/value/StringValue.h"
 
 StringValue::StringValue(const Token &token, bool quotes) {
   type = Value::STRING;

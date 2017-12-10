@@ -1,4 +1,4 @@
-#include <less/css/SourceMapWriter.h>
+#include "less/css/SourceMapWriter.h"
 
 const char* SourceMapWriter::base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

@@ -5,14 +5,14 @@
 #include <string>
 #include <list>
 
-#include <less/TokenList.h>
-#include <less/VariableMap.h>
-#include <less/value/ValueScope.h>
-#include <less/value/ValueProcessor.h>
-#include <less/lessstylesheet/Extension.h>
-#include <less/lessstylesheet/MixinCall.h>
-#include <less/lessstylesheet/Function.h>
-#include <less/lessstylesheet/Closure.h>
+#include "less/TokenList.h"
+#include "less/VariableMap.h"
+#include "less/value/ValueScope.h"
+#include "less/value/ValueProcessor.h"
+#include "less/lessstylesheet/Extension.h"
+#include "less/lessstylesheet/MixinCall.h"
+#include "less/lessstylesheet/Function.h"
+#include "less/lessstylesheet/Closure.h"
 
 class LessRuleset;
 class Function;

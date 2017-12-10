@@ -3,10 +3,10 @@
 
 #include <algorithm>
 #include <cmath>
-#include <less/value/Value.h>
-#include <less/value/NumberValue.h>
-#include <less/value/StringValue.h>
-#include <less/value/FunctionLibrary.h>
+#include "less/value/Value.h"
+#include "less/value/NumberValue.h"
+#include "less/value/StringValue.h"
+#include "less/value/FunctionLibrary.h"
 
 using namespace std;
 

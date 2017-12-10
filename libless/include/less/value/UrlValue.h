@@ -2,8 +2,8 @@
 #define __less_value_UrlValue_h__
 
 #include <string>
-#include <less/value/Value.h>
-#include <less/value/Color.h>
+#include "less/value/Value.h"
+#include "less/value/Color.h"
 
 class UrlValue_Img {
 public:

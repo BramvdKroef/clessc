@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <less/Token.h>
+#include "less/Token.h"
 
 class SourceMapWriter {
 private:

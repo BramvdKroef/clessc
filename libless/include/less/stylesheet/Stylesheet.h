@@ -3,13 +3,13 @@
 
 #include <list>
 
-#include <less/stylesheet/CssWritable.h>
-#include <less/stylesheet/Selector.h>
+#include "less/stylesheet/CssWritable.h"
+#include "less/stylesheet/Selector.h"
 
-#include <less/Token.h>
-#include <less/TokenList.h>
+#include "less/Token.h"
+#include "less/TokenList.h"
 
-#include <less/css/CssWriter.h>
+#include "less/css/CssWriter.h"
 
 class AtRule;
 class Ruleset;
@@ -55,10 +55,10 @@ public:
   virtual void write(CssWriter &writer);
 };
 
-#include <less/stylesheet/StylesheetStatement.h>
-#include <less/stylesheet/AtRule.h>
-#include <less/stylesheet/Ruleset.h>
-#include <less/stylesheet/CssComment.h>
-#include <less/stylesheet/MediaQuery.h>
+#include "less/stylesheet/StylesheetStatement.h"
+#include "less/stylesheet/AtRule.h"
+#include "less/stylesheet/Ruleset.h"
+#include "less/stylesheet/CssComment.h"
+#include "less/stylesheet/MediaQuery.h"
 
 #endif // __less_stylesheet_Stylesheet_h__

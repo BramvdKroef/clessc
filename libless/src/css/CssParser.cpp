@@ -1,6 +1,6 @@
 #include <iostream>
-#include <less/css/CssParser.h>
-#include <less/LogStream.h>
+#include "less/css/CssParser.h"
+#include "less/LogStream.h"
 
 CssParser::CssParser(CssTokenizer &tokenizer){
   this->tokenizer = &tokenizer;

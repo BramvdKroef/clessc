@@ -5,16 +5,16 @@
 #include <map>
 #include <string>
 
-#include <less/stylesheet/Selector.h>
-#include <less/stylesheet/Stylesheet.h>
-#include <less/stylesheet/StylesheetStatement.h>
-#include <less/stylesheet/Ruleset.h>
+#include "less/stylesheet/Selector.h"
+#include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/StylesheetStatement.h"
+#include "less/stylesheet/Ruleset.h"
 
-#include <less/css/CssWriter.h>
+#include "less/css/CssWriter.h"
 
-#include <less/TokenList.h>
+#include "less/TokenList.h"
 
-#include <less/lessstylesheet/ProcessingContext.h>
+#include "less/lessstylesheet/ProcessingContext.h"
 
 class LessStylesheet;
 class LessRuleset;

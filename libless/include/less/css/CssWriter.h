@@ -4,8 +4,8 @@
 #include <iostream>
 #include <cstring>
 
-#include <less/TokenList.h>
-#include <less/css/SourceMapWriter.h>
+#include "less/TokenList.h"
+#include "less/css/SourceMapWriter.h"
 
 class CssWriter {
 protected:

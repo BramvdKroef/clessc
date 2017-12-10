@@ -1,7 +1,7 @@
 #ifndef __less_lessstylesheet_Extension_h__
 #define __less_lessstylesheet_Extension_h__
 
-#include <less/stylesheet/Selector.h>
+#include "less/stylesheet/Selector.h"
 
 /**
  * 

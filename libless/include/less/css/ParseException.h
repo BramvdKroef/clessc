@@ -4,8 +4,8 @@
 #include <exception>
 #include <string>
 
-#include <less/Token.h>
-#include <less/TokenList.h>
+#include "less/Token.h"
+#include "less/TokenList.h"
 
 using namespace std;
 

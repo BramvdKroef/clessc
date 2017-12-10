@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <cmath>
-#include <less/value/Value.h>
-#include <less/value/StringValue.h>
-#include <less/value/UnitValue.h>
+#include "less/value/Value.h"
+#include "less/value/StringValue.h"
+#include "less/value/UnitValue.h"
 
 class FunctionLibrary;
 

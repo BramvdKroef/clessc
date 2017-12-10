@@ -5,9 +5,9 @@
 #include <map>
 #include <iterator>
 
-#include <less/stylesheet/Selector.h>
-#include <less/lessstylesheet/Mixin.h>
-#include <less/lessstylesheet/Extension.h>
+#include "less/stylesheet/Selector.h"
+#include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/Extension.h"
 
 class Mixin;
 

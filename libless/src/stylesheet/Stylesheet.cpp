@@ -1,5 +1,5 @@
-#include <less/stylesheet/Stylesheet.h>
-#include <less/LogStream.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/LogStream.h"
 
 Stylesheet::~Stylesheet() {
   rulesets.clear();

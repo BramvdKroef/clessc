@@ -1,15 +1,15 @@
 #ifndef __less_lessstylesheet_UnprocessedStatement_h__
 #define __less_lessstylesheet_UnprocessedStatement_h__
 
-#include <less/stylesheet/Stylesheet.h>
-#include <less/stylesheet/Ruleset.h>
-#include <less/stylesheet/Declaration.h>
-#include <less/stylesheet/RulesetStatement.h>
-#include <less/css/CssWriter.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/Ruleset.h"
+#include "less/stylesheet/Declaration.h"
+#include "less/stylesheet/RulesetStatement.h"
+#include "less/css/CssWriter.h"
 
-#include <less/TokenList.h>
+#include "less/TokenList.h"
 
-#include <less/value/ValueProcessor.h>
+#include "less/value/ValueProcessor.h"
 
 #include <iterator>
 

@@ -1,7 +1,7 @@
 #ifndef __less_less_LessTokenizer_h__
 #define __less_less_LessTokenizer_h__
 
-#include <less/css/CssTokenizer.h>
+#include "less/css/CssTokenizer.h"
 #include <iostream>
 
 /**

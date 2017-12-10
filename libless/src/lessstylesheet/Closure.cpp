@@ -1,6 +1,6 @@
-#include <less/lessstylesheet/Closure.h>
-#include <less/lessstylesheet/ProcessingContext.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/Closure.h"
+#include "less/lessstylesheet/ProcessingContext.h"
+#include "less/LogStream.h"
 
 Closure::Closure(const LessRuleset &ruleset, const MixinCall &stack) {
   this->ruleset = &ruleset;

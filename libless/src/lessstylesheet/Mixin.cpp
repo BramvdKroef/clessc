@@ -1,7 +1,7 @@
-#include <less/lessstylesheet/Mixin.h>
-#include <less/lessstylesheet/LessStylesheet.h>
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/LogStream.h"
 
 Mixin::Mixin() {
 }

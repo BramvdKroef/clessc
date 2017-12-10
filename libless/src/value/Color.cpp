@@ -1,8 +1,8 @@
 #include <sstream>
 #include <iostream>
 
-#include <less/value/Color.h>
-#include <less/LogStream.h>
+#include "less/value/Color.h"
+#include "less/LogStream.h"
 
 #define max(x,y) x > y ? x : y
 #define min(x,y) x < y ? x : y

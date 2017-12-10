@@ -4,12 +4,12 @@
 #include <map>
 #include <list>
 
-#include <less/stylesheet/Stylesheet.h>
-#include <less/stylesheet/Selector.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/Selector.h"
 
-#include <less/Token.h>
+#include "less/Token.h"
 
-#include <less/lessstylesheet/LessRuleset.h>
+#include "less/lessstylesheet/LessRuleset.h"
 
 class MediaQueryRuleset: public LessRuleset {
 private:

@@ -2,7 +2,7 @@
 #define __less_VariableMap_h__
 
 #include <map>
-#include <less/TokenList.h>
+#include "less/TokenList.h"
 
 class VariableMap: public std::map<std::string, TokenList> {
   

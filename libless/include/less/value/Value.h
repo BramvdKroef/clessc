@@ -1,9 +1,9 @@
 #ifndef __less_value_Value_h__
 #define __less_value_Value_h__
 
-#include <less/Token.h>
-#include <less/TokenList.h>
-#include <less/value/ValueException.h>
+#include "less/Token.h"
+#include "less/TokenList.h"
+#include "less/value/ValueException.h"
 
 class BooleanValue;
 
@@ -53,6 +53,6 @@ public:
 
 };
 
-#include <less/value/BooleanValue.h>
+#include "less/value/BooleanValue.h"
 
 #endif // __less_value_Value_h__

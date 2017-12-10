@@ -2,7 +2,7 @@
 #define __less_TokenList_h__
 
 #include <list>
-#include <less/Token.h>
+#include "less/Token.h"
 
 class TokenList: public std::list<Token> {
   

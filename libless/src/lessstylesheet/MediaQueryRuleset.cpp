@@ -1,6 +1,6 @@
-#include <less/lessstylesheet/MediaQueryRuleset.h>
-#include <less/lessstylesheet/LessStylesheet.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/MediaQueryRuleset.h"
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/LogStream.h"
 
 const Token MediaQueryRuleset::BUILTIN_AND("and", Token::IDENTIFIER, 0,0, Token::BUILTIN_SOURCE);
 

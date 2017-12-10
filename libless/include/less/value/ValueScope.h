@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 #include <list>
-#include <less/TokenList.h>
+#include "less/TokenList.h"
 
 class ValueScope {
 public:

@@ -1,5 +1,5 @@
-#include <less/lessstylesheet/Extension.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/Extension.h"
+#include "less/LogStream.h"
 
 Extension::Extension() {
   all = false;

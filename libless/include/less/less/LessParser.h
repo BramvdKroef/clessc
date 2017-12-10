@@ -6,18 +6,18 @@
 #include <string>
 #include <list>
   
-#include <less/css/CssParser.h>
-#include <less/css/CssTokenizer.h>
-#include <less/stylesheet/Stylesheet.h>
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/lessstylesheet/LessStylesheet.h>
-#include <less/lessstylesheet/LessMediaQuery.h>
-#include <less/lessstylesheet/MediaQueryRuleset.h>
+#include "less/css/CssParser.h"
+#include "less/css/CssTokenizer.h"
+#include "less/stylesheet/Stylesheet.h"
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/LessMediaQuery.h"
+#include "less/lessstylesheet/MediaQueryRuleset.h"
 
-#include <less/Token.h>
-#include <less/TokenList.h>
+#include "less/Token.h"
+#include "less/TokenList.h"
 
-#include <less/less/LessTokenizer.h>
+#include "less/less/LessTokenizer.h"
 
 /**
  * Extends the css spec with these parts:

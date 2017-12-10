@@ -3,8 +3,8 @@
 
 #include <list>
 
-#include <less/stylesheet/Ruleset.h>
-#include <less/TokenList.h>
+#include "less/stylesheet/Ruleset.h"
+#include "less/TokenList.h"
 
 class LessSelector;
 class Mixin;

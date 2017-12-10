@@ -1,7 +1,7 @@
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/lessstylesheet/LessStylesheet.h>
-#include <less/lessstylesheet/MediaQueryRuleset.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/MediaQueryRuleset.h"
+#include "less/LogStream.h"
 
 LessRuleset::LessRuleset() : Ruleset() {
   parent = NULL;

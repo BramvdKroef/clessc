@@ -1,6 +1,6 @@
-#include <less/lessstylesheet/LessStylesheet.h>
-#include <less/lessstylesheet/LessMediaQuery.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/LessMediaQuery.h"
+#include "less/LogStream.h"
 
 LessStylesheet::LessStylesheet() {
 }

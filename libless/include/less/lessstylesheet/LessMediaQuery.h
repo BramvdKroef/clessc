@@ -3,16 +3,16 @@
 
 #include <list>
 
-#include <less/stylesheet/Stylesheet.h>
-#include <less/stylesheet/StylesheetStatement.h>
-#include <less/stylesheet/Selector.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/StylesheetStatement.h"
+#include "less/stylesheet/Selector.h"
 
-#include <less/css/CssWriter.h>
-#include <less/lessstylesheet/LessStylesheet.h>
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/lessstylesheet/Mixin.h>
-#include <less/lessstylesheet/ProcessingContext.h>
-#include <less/lessstylesheet/Function.h>
+#include "less/css/CssWriter.h"
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/ProcessingContext.h"
+#include "less/lessstylesheet/Function.h"
 
 class LessMediaQuery: public LessStylesheet, public StylesheetStatement {
 private:

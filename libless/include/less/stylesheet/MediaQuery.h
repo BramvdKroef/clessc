@@ -1,8 +1,8 @@
 #ifndef __less_stylesheet_MediaQuery_h__
 #define __less_stylesheet_MediaQuery_h__
 
-#include <less/stylesheet/Stylesheet.h>
-#include <less/stylesheet/Selector.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/Selector.h"
 
 class MediaQuery: public Stylesheet, public StylesheetStatement {
 private:

@@ -4,18 +4,18 @@
 #include <map>
 #include <vector>
 #include <cstring>
-#include <less/TokenList.h>
-#include <less/Token.h>
-#include <less/css/ParseException.h>
-#include <less/value/Value.h>
-#include <less/value/Color.h>
-#include <less/value/NumberValue.h>
-#include <less/value/StringValue.h>
-#include <less/value/UnitValue.h>
-#include <less/value/UrlValue.h>
-#include <less/value/ValueException.h>
-#include <less/value/ValueScope.h>
-#include <less/value/FunctionLibrary.h>
+#include "less/TokenList.h"
+#include "less/Token.h"
+#include "less/css/ParseException.h"
+#include "less/value/Value.h"
+#include "less/value/Color.h"
+#include "less/value/NumberValue.h"
+#include "less/value/StringValue.h"
+#include "less/value/UnitValue.h"
+#include "less/value/UrlValue.h"
+#include "less/value/ValueException.h"
+#include "less/value/ValueScope.h"
+#include "less/value/FunctionLibrary.h"
 
 /**
  * 

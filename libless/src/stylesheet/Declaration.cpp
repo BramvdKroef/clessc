@@ -1,5 +1,5 @@
-#include <less/stylesheet/Declaration.h>
-#include <less/LogStream.h>
+#include "less/stylesheet/Declaration.h"
+#include "less/LogStream.h"
 
 Declaration::Declaration() {
   property = "";

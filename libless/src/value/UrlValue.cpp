@@ -1,5 +1,5 @@
-#include <less/value/UrlValue.h>
-#include <less/LogStream.h>
+#include "less/value/UrlValue.h"
+#include "less/LogStream.h"
 
 #ifdef WITH_LIBPNG
 #include <png.h>

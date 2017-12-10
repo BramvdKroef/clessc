@@ -1,4 +1,4 @@
-#include <less/LogStream.h>
+#include "less/LogStream.h"
 
 #ifdef WITH_LIBGLOG
 

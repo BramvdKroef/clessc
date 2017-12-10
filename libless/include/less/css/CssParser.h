@@ -3,9 +3,9 @@
 
 #include <string>
 
-#include <less/css/CssTokenizer.h>
-#include <less/stylesheet/Stylesheet.h>
-#include <less/TokenList.h>
+#include "less/css/CssTokenizer.h"
+#include "less/stylesheet/Stylesheet.h"
+#include "less/TokenList.h"
 
 using namespace std;
 

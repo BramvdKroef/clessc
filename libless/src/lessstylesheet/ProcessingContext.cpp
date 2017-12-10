@@ -1,7 +1,7 @@
-#include <less/lessstylesheet/ProcessingContext.h>
-#include <less/lessstylesheet/MixinCall.h>
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/lessstylesheet/LessStylesheet.h>
+#include "less/lessstylesheet/ProcessingContext.h"
+#include "less/lessstylesheet/MixinCall.h"
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/lessstylesheet/LessStylesheet.h"
 
 ProcessingContext::ProcessingContext() {
   stack = NULL;

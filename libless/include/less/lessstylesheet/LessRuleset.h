@@ -5,22 +5,22 @@
 #include <list>
 #include <string>
 
-#include <less/stylesheet/Stylesheet.h>
-#include <less/stylesheet/Ruleset.h>
-#include <less/stylesheet/Selector.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/Ruleset.h"
+#include "less/stylesheet/Selector.h"
 
-#include <less/css/ParseException.h>
-#include <less/value/ValueProcessor.h>
+#include "less/css/ParseException.h"
+#include "less/value/ValueProcessor.h"
 
-#include <less/Token.h>
-#include <less/TokenList.h>
-#include <less/VariableMap.h>
+#include "less/Token.h"
+#include "less/TokenList.h"
+#include "less/VariableMap.h"
 
-#include <less/lessstylesheet/Function.h>
-#include <less/lessstylesheet/UnprocessedStatement.h>
-#include <less/lessstylesheet/LessSelector.h>
-#include <less/lessstylesheet/Mixin.h>
-#include <less/lessstylesheet/ProcessingContext.h>
+#include "less/lessstylesheet/Function.h"
+#include "less/lessstylesheet/UnprocessedStatement.h"
+#include "less/lessstylesheet/LessSelector.h"
+#include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/ProcessingContext.h"
 
 class LessStylesheet;
 class MediaQueryRuleset;

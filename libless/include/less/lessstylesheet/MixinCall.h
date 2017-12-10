@@ -1,8 +1,8 @@
 #ifndef __less_lessstylesheet_MixinCall_h__
 #define __less_lessstylesheet_MixinCall_h__
 
-#include <less/TokenList.h>
-#include <less/VariableMap.h>
+#include "less/TokenList.h"
+#include "less/VariableMap.h"
 
 class Function;
 class Mixin;

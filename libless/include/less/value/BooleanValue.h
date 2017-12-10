@@ -1,9 +1,9 @@
 #ifndef __less_value_BooleanValue_h__
 #define __less_value_BooleanValue_h__
 
-#include <less/value/Value.h>
-#include <less/value/ValueException.h>
-#include <less/value/StringValue.h>
+#include "less/value/Value.h"
+#include "less/value/ValueException.h"
+#include "less/value/StringValue.h"
 
 /**
  * True or false.

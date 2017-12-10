@@ -1,5 +1,5 @@
-#include <less/stylesheet/MediaQuery.h>
-#include <less/LogStream.h>
+#include "less/stylesheet/MediaQuery.h"
+#include "less/LogStream.h"
 
 Selector& MediaQuery::getSelector() {
   return selector;

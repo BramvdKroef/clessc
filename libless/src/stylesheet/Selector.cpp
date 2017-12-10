@@ -1,6 +1,6 @@
 #include <iostream>
-#include <less/stylesheet/Selector.h>
-#include <less/LogStream.h>
+#include "less/stylesheet/Selector.h"
+#include "less/LogStream.h"
 
 Selector::~Selector() {
   clear();

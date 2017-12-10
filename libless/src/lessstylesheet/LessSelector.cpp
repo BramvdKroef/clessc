@@ -1,5 +1,5 @@
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/LogStream.h>
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/LogStream.h"
 
 LessSelector::LessSelector(const Selector &original) {
   list<Selector> parts;

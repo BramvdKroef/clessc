@@ -1,6 +1,6 @@
-#include <less/lessstylesheet/MixinCall.h>
-#include <less/lessstylesheet/Function.h>
-#include <less/lessstylesheet/Mixin.h>
+#include "less/lessstylesheet/MixinCall.h"
+#include "less/lessstylesheet/Function.h"
+#include "less/lessstylesheet/Mixin.h"
 
 MixinCall::MixinCall(MixinCall* parent, const Function& function, bool
   savepoint) {

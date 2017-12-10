@@ -2,7 +2,7 @@
 #define __less_stylesheet_Selector_h__
 
 #include <list>
-#include <less/TokenList.h>
+#include "less/TokenList.h"
 
 /**
  * 
