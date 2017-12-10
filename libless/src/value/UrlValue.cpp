@@ -1,9 +1,5 @@
 #include <less/value/UrlValue.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
-
+#include <less/LogStream.h>
 
 #ifdef WITH_LIBPNG
 #include <png.h>
@@ -129,11 +125,9 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   int channels;
   
   std::string path = getRelativePath();
-  
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "PNG path: " << path;
-#endif
-    
+
+  LogStream().notice(3) << "PNG path: " << path;
+
   FILE *fp = fopen(path.c_str(), "rb");
   if (!fp)
     return false; //"Image file could not be opened"
@@ -178,10 +172,7 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
     channels += 1;
   }
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Width: " << img.width << ", Height: " << img.height <<
-    ", Channels: " << channels;
-#endif
+  LogStream().notice(3) << "Width: " << img.width << ", Height: " << img.height << ", Channels: " << channels;
 
   png_color_16p pBackground;
   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
@@ -197,10 +188,8 @@ bool UrlValue::loadPng(UrlValue_Img &img) const {
   png_ptr = NULL;
   info_ptr = NULL;
   fclose(fp);
-  
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Read successful";
-#endif
+
+  LogStream().notice(3) << "Read successful";
 
   return true;
   
@@ -370,9 +359,7 @@ Value* UrlValue::imgheight(const vector<const Value*> &arguments) {
 
   u = static_cast<const UrlValue*>(arguments[0]);
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Height: " << u->getImageHeight();
-#endif
+  LogStream().notice(3) << "Height: " << u->getImageHeight();
 
   val = new NumberValue(u->getImageHeight(), Token::DIMENSION, &px);
   return val;

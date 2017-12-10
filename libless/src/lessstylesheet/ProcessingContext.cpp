@@ -3,11 +3,6 @@
 #include <less/lessstylesheet/LessRuleset.h>
 #include <less/lessstylesheet/LessStylesheet.h>
 
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
-
-
 ProcessingContext::ProcessingContext() {
   stack = NULL;
   contextStylesheet = NULL;

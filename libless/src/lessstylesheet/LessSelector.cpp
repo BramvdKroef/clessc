@@ -1,8 +1,5 @@
 #include <less/lessstylesheet/LessRuleset.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 LessSelector::LessSelector(const Selector &original) {
   list<Selector> parts;
@@ -15,10 +12,8 @@ LessSelector::LessSelector(const Selector &original) {
   _needsArguments = false;
   _unlimitedArguments = false;
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Parsing less selector";
-#endif
-  
+  LogStream().notice(2) << "Parsing less selector";
+
   for (it = parts.begin(); it != parts.end(); it++) {
     old_selector = &(*it);
     
@@ -53,9 +48,7 @@ LessSelector::LessSelector(const Selector &original) {
     new_selector.clear();
   }
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Parsed selector: " << toString();
-#endif
+  LogStream().notice(2) << "Parsed selector: " << toString();
 }
 
 LessSelector::~LessSelector() {
@@ -94,10 +87,8 @@ bool LessSelector::parseExtension(Selector &selector, Selector &extension) {
 
   selector.erase(selector.begin(), i);
   
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Extension: " << extension.toString();
-#endif
-  
+  LogStream().notice(2) << "Extension: " << extension.toString();
+
   return true; 
 }
 
@@ -113,10 +104,8 @@ bool LessSelector::parseArguments(TokenList &selector) {
   else
     delimiter = ",";
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Parameter delimiter: " << delimiter;
-#endif
-  
+  LogStream().notice(3) << "Parameter delimiter: " << delimiter;
+
   if (!validateArguments(selector, delimiter))
     return false;
 
@@ -147,10 +136,8 @@ bool LessSelector::parseArguments(TokenList &selector) {
   }
   selector.pop_front();
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Done parsing parameters";
-#endif
-  
+  LogStream().notice(3) << "Done parsing parameters";
+
   return true;
 }
 
@@ -225,10 +212,8 @@ bool LessSelector::validateArguments(const TokenList &arguments,
   if ((*i).type != Token::PAREN_CLOSED) 
     return false;
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Validated parameters";
-#endif
-  
+  LogStream().notice(2) << "Validated parameters";
+
   return true;
 }
 
@@ -275,10 +260,8 @@ bool LessSelector::parseParameter(TokenList &selector, const std::string &delimi
       selector.front() == delimiter)
     selector.pop_front();
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Parameter: " << keyword << " default: " << value.toString();
-#endif
-  
+  LogStream().notice(2) << "Parameter: " << keyword << " default: " << value.toString();
+
   parameters.push_back(keyword);
   defaults.push_back(value);
   return true;
@@ -325,10 +308,8 @@ bool LessSelector::parseConditions (TokenList &selector) {
       selector.front() != "when")
     return false;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Parsing conditions";
-#endif
-  
+  LogStream().notice(3) << "Parsing conditions";
+
   selector.pop_front();
   selector.ltrim();
   
@@ -341,10 +322,8 @@ bool LessSelector::parseConditions (TokenList &selector) {
     if (!selector.empty() && selector.front() == ",")
       selector.pop_front();
 
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Condition: " << condition.toString();
-#endif
-    
+    LogStream().notice(2) << "Condition: " << condition.toString();
+
     conditions.push_back(condition);
   }
   return true;

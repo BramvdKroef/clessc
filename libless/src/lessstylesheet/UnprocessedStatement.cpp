@@ -2,10 +2,7 @@
 #include <less/lessstylesheet/LessRuleset.h>
 #include <less/lessstylesheet/LessStylesheet.h>
 #include <less/lessstylesheet/Mixin.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 UnprocessedStatement::UnprocessedStatement() {
   property_i = 0;
@@ -30,10 +27,7 @@ void UnprocessedStatement::getValue(TokenList &tokens) {
 }
 
 void UnprocessedStatement::setLessRuleset(LessRuleset &r) {
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Set LessRuleset";
-#endif
-  
+  LogStream().notice(3) << "Set LessRuleset";
   lessRuleset = &r;
 }
 
@@ -62,9 +56,7 @@ void UnprocessedStatement::process(Ruleset &r) {
   Mixin mixin;
   Declaration* declaration;
   
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Statement: " << getTokens()->toString();
-#endif
+  LogStream().notice(2) << "Statement: " << getTokens()->toString();
 
   if (getTokens()->front().type == Token::ATKEYWORD) {
     // Can't add @-rules to rulesets so ignore the statement.
@@ -84,19 +76,13 @@ void UnprocessedStatement::process(Ruleset &r) {
     
   if (isDeclaration() && processDeclaration(*declaration)) {
     
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Declaration: " <<
-      declaration->getProperty() << ": " << declaration->getValue().toString();
-#endif
+    LogStream().notice(2) << "Declaration: " << declaration->getProperty() << ": " << declaration->getValue().toString();
 
     getLessRuleset()->getContext()->interpolate(declaration->getProperty());
     getLessRuleset()->getContext()->processValue(declaration->getValue());
 
-#ifdef WITH_LIBGLOG
-    VLOG(2) << "Processed declaration: " <<
-      declaration->getProperty() << ": " << declaration->getValue().toString();
-#endif
-    
+    LogStream().notice(2) << "Processed declaration: " << declaration->getProperty() << ": " << declaration->getValue().toString();
+
   } else {
     r.deleteDeclaration(*declaration);
     // process mixin
@@ -113,9 +99,7 @@ void UnprocessedStatement::process(Ruleset &r) {
     }
   }
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Statement done";
-#endif
+  LogStream().notice(3) << "Statement done";
 }
 
 bool UnprocessedStatement::isDeclaration() {
@@ -190,10 +174,8 @@ bool UnprocessedStatement::processDeclaration (Declaration &declaration) {
   TokenList property;
   Token keyword;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Declaration";
-#endif
-  
+  LogStream().notice(3) << "Declaration";
+
   getValue(declaration.getValue());
 
   // fix: If there's a Token (not empty) and if this token is a space

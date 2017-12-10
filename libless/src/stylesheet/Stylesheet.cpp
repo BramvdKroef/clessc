@@ -1,9 +1,5 @@
 #include <less/stylesheet/Stylesheet.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
-
+#include <less/LogStream.h>
 
 Stylesheet::~Stylesheet() {
   rulesets.clear();
@@ -17,10 +13,8 @@ Stylesheet::~Stylesheet() {
 void Stylesheet::addStatement(StylesheetStatement &statement) {
   statements.push_back(&statement);
   statement.setStylesheet(this);
-  
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Adding statement";
-#endif
+
+  LogStream().notice(3) << "Adding statement";
 }
 void Stylesheet::addRuleset(Ruleset &ruleset) {
   addStatement(ruleset);
@@ -35,9 +29,7 @@ void Stylesheet::addAtRule(AtRule &rule) {
 Ruleset* Stylesheet::createRuleset() {
   Ruleset* r = new Ruleset();
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Creating ruleset";
-#endif
+  LogStream().notice(3) << "Creating ruleset";
 
   addRuleset(*r);
   
@@ -47,9 +39,7 @@ Ruleset* Stylesheet::createRuleset() {
 Ruleset* Stylesheet::createRuleset(const Selector &selector) {
   Ruleset* r = new Ruleset(selector);
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Creating ruleset: " << selector.toString();
-#endif
+  LogStream().notice(3) << "Creating ruleset: " << selector.toString();
 
   addRuleset(*r);
   
@@ -59,10 +49,8 @@ Ruleset* Stylesheet::createRuleset(const Selector &selector) {
 AtRule* Stylesheet::createAtRule(const Token &keyword) {
   AtRule* r = new AtRule(keyword);
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Creating @rule";
-#endif
-  
+  LogStream().notice(3) << "Creating @rule";
+
   addStatement(*r);
   atrules.push_back(r);
   return r;
@@ -77,10 +65,8 @@ CssComment* Stylesheet::createComment() {
 MediaQuery* Stylesheet::createMediaQuery() {
   MediaQuery* q = new MediaQuery();
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Creating media query";
-#endif
-  
+  LogStream().notice(3) << "Creating media query";
+
   addStatement(*q);
   return q;
 }
@@ -125,19 +111,15 @@ Ruleset* Stylesheet::getRuleset(const Selector &selector) {
 void Stylesheet::process(Stylesheet &s) {
   std::list<StylesheetStatement*> statements = getStatements();
   std::list<StylesheetStatement*>::iterator i;
-  
-#ifdef WITH_LIBGLOG
-  VLOG(1) << "Processing stylesheet";
-#endif
-        
+
+  LogStream().notice(1) << "Processing stylesheet";
+
   for (i = statements.begin(); i != statements.end(); i++) {
     if ((*i)->isReference() == false)
       (*i)->process(s);
   }
-  
-#ifdef WITH_LIBGLOG
-  VLOG(1) << "Done processing stylesheet";
-#endif
+
+  LogStream().notice(1) << "Done processing stylesheet";
 }
 
 

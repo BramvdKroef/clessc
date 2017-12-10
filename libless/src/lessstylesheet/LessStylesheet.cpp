@@ -1,9 +1,6 @@
 #include <less/lessstylesheet/LessStylesheet.h>
 #include <less/lessstylesheet/LessMediaQuery.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 LessStylesheet::LessStylesheet() {
 }
@@ -14,10 +11,8 @@ LessStylesheet::~LessStylesheet() {
 LessRuleset* LessStylesheet::createLessRuleset() {
   LessRuleset* r = new LessRuleset();
   
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Creating LessRuleset";
-#endif
-  
+  LogStream().notice(3) << "Creating LessRuleset";
+
   addRuleset(*r);
   lessrulesets.push_back(r);
   r->setLessStylesheet(*this);
@@ -27,10 +22,8 @@ LessRuleset* LessStylesheet::createLessRuleset() {
 Mixin* LessStylesheet::createMixin() {
   Mixin* m = new Mixin();
   
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Creating mixin";
-#endif
-  
+  LogStream().notice(3) << "Creating mixin";
+
   addStatement(*m);
   m->setLessStylesheet(*this);
   return m;
@@ -46,10 +39,8 @@ LessAtRule* LessStylesheet::createLessAtRule(const Token &keyword) {
 LessMediaQuery* LessStylesheet::createLessMediaQuery() {
   LessMediaQuery* q = new LessMediaQuery();
   
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Adding Media Query";
-#endif
-  
+  LogStream().notice(3) << "Adding Media Query";
+
   addStatement(*q);
   q->setLessStylesheet(*this);
   return q;

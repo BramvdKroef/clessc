@@ -1,11 +1,6 @@
 #include <regex>
 #include <less/value/StringValue.h>
 
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
-
-
 StringValue::StringValue(const Token &token, bool quotes) {
   type = Value::STRING;
   

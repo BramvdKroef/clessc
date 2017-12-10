@@ -12,10 +12,7 @@
 #include <less/stylesheet/Stylesheet.h>
 #include <less/css/IOException.h>
 #include <less/lessstylesheet/LessStylesheet.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 using namespace std;
 
@@ -295,9 +292,7 @@ source.");
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (sourcemap_file != "") {
-#ifdef WITH_LIBGLOG
-        VLOG(1) << "sourcemap: " << sourcemap_file;
-#endif
+        LogStream().notice(1) << "sourcemap: " << sourcemap_file;
         sourcemap_s = new ofstream(sourcemap_file.c_str());
         sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str(),
                                         sourcemap_rootpath,
@@ -339,11 +334,7 @@ source.");
     delete [] source;
     
   } catch (IOException* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << " Error: " << e->what();
-#else
-    cerr << " Error: " << e->what();
-#endif
+    LogStream().error() << " Error: " << e->what();
     return 1;
   }
 		
