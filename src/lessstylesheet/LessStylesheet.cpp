@@ -1,8 +1,6 @@
 #include "LessStylesheet.h"
 #include "LessMediaQuery.h"
 
-#include <config.h>
-
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
 #endif
