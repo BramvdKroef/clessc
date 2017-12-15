@@ -2,6 +2,10 @@
 #include "CssParser.h"
 #include <iostream>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+ 
 CssParser::CssParser(CssTokenizer &tokenizer){
   this->tokenizer = &tokenizer;
 }
