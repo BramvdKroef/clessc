@@ -1,5 +1,9 @@
 #include <less/stylesheet/MediaQuery.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 Selector& MediaQuery::getSelector() {
   return selector;
 }

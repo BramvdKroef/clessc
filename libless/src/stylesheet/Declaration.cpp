@@ -1,5 +1,9 @@
 #include <less/stylesheet/Declaration.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+ 
 Declaration::Declaration() {
   property = "";
 }

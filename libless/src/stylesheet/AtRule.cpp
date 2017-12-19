@@ -1,5 +1,9 @@
 #include <less/stylesheet/Stylesheet.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 AtRule::AtRule (const Token &keyword) {
   this->keyword = keyword;
 }

@@ -1,5 +1,9 @@
 #include <less/stylesheet/Ruleset.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+ 
 Ruleset::Ruleset() {
 }
 Ruleset::Ruleset(const Selector &selector){
