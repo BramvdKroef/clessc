@@ -1,6 +1,5 @@
-
-#include "css/CssTokenizer.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <less/css/CssTokenizer.h>
 
 /**
  * Test if the tokenizer reckognizes the tokens in the input string.
