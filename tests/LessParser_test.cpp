@@ -1,7 +1,6 @@
-
-#include "less/LessParser.h"
-#include "gtest/gtest.h"
 #include <list>
+#include <gtest/gtest.h>
+#include <less/less/LessParser.h>
 
 class LessParserTest : public ::testing::Test {
 public:

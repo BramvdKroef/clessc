@@ -1,5 +1,5 @@
-#include "css/CssParser.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include <less/css/CssParser.h>
 
 class CssParserTest : public ::testing::Test {
 public:
@@ -119,5 +119,3 @@ TEST_F(CssParserTest, BlockValue) {
   ASSERT_STREQ("key", d->getProperty().c_str());
   ASSERT_STREQ("{value}", d->getValue().toString().c_str());
 }
-
-

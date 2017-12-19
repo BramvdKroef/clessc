@@ -5,13 +5,13 @@
 #include <getopt.h>
 #include <cstring>
 
-#include "less/LessTokenizer.h"
-#include "less/LessParser.h"
-#include "css/CssWriter.h"
-#include "css/CssPrettyWriter.h"
-#include "stylesheet/Stylesheet.h"
-#include "css/IOException.h"
-#include "lessstylesheet/LessStylesheet.h"
+#include <less/less/LessTokenizer.h>
+#include <less/less/LessParser.h>
+#include <less/css/CssWriter.h>
+#include <less/css/CssPrettyWriter.h>
+#include <less/stylesheet/Stylesheet.h>
+#include <less/css/IOException.h>
+#include <less/lessstylesheet/LessStylesheet.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -349,4 +349,3 @@ source.");
 		
   return 0;
 }
-
