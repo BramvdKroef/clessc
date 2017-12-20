@@ -2,6 +2,10 @@
 #include <less/css/CssParser.h>
 #include <less/LogStream.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+ 
 CssParser::CssParser(CssTokenizer &tokenizer){
   this->tokenizer = &tokenizer;
 }
