@@ -1,10 +1,7 @@
 #include <less/lessstylesheet/LessRuleset.h>
 #include <less/lessstylesheet/LessStylesheet.h>
 #include <less/lessstylesheet/MediaQueryRuleset.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 LessRuleset::LessRuleset() : Ruleset() {
   parent = NULL;
@@ -51,10 +48,8 @@ const std::list<UnprocessedStatement*>&
 LessRuleset* LessRuleset::createNestedRule() {
   LessRuleset* r = new LessRuleset();
   
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Creating nested rule" ;
-#endif
-  
+  LogStream().notice(2) << "Creating nested rule" ;
+
   nestedRules.push_back(r);
   r->setParent(this);
   r->setLessStylesheet(*getLessStylesheet());
@@ -64,10 +59,8 @@ LessRuleset* LessRuleset::createNestedRule() {
 MediaQueryRuleset* LessRuleset::createMediaQuery() {
   MediaQueryRuleset* r = new MediaQueryRuleset();
   
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Creating nested media query";
-#endif
-  
+  LogStream().notice(2) << "Creating nested media query";
+
   nestedRules.push_back(r);
   r->setParent(this);
   r->setLessStylesheet(*getLessStylesheet());
@@ -134,9 +127,7 @@ const list<Closure*>& LessRuleset::getClosures() const {
 }
 
 void LessRuleset::setLessStylesheet(LessStylesheet &s) {
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "set LessStylesheet";
-#endif
+  LogStream().notice(3) << "set LessStylesheet";
   lessStylesheet = &s;
 }
 
@@ -217,10 +208,7 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
   if (prefix != NULL)
     target->getSelector().addPrefix(*prefix);
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing Less Ruleset: " <<
-    getSelector().toString();
-#endif
+  LogStream().notice(2) << "Processing Less Ruleset: " << getSelector().toString();
 
   context.interpolate(target->getSelector());
 
@@ -235,17 +223,13 @@ void LessRuleset::process(Stylesheet &s, Selector* prefix,
 void LessRuleset::processStatements(Ruleset &target,
                                     ProcessingContext& context) const {
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Inserting statements";
-#endif
+  LogStream().notice(2) << "Inserting statements";
 
   // process statements
   Ruleset::processStatements(target);
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Inserting nested rules";
-#endif
-  
+  LogStream().notice(2) << "Inserting nested rules";
+
   // insert nested rules
   insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
 }
@@ -257,9 +241,7 @@ void LessRuleset::processStatements(Stylesheet &target,
     getUnprocessedStatements();
   list<UnprocessedStatement*>::const_iterator up_it;
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Inserting statements";
-#endif
+  LogStream().notice(2) << "Inserting statements";
 
   // insert mixins
   for (up_it = unprocessedStatements.begin();
@@ -268,9 +250,7 @@ void LessRuleset::processStatements(Stylesheet &target,
     (*up_it)->process(target);
   }
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Inserting nested rules";
-#endif
+  LogStream().notice(2) << "Inserting nested rules";
 
   // insert nested rules
   insertNestedRules(target, NULL, context);
@@ -298,11 +278,8 @@ void LessRuleset::getFunctions(list<const Function*> &functionList,
   if (offset == mixin.name.begin())
     return;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Matching mixin " << mixin.name.toString() <<
-    " against " << getSelector().toString();
-#endif
-  
+  LogStream().notice(3) << "Matching mixin " << mixin.name.toString() << " against " << getSelector().toString();
+
   while (offset != mixin.name.end() &&
          ((*offset).type == Token::WHITESPACE ||
           *offset == ">")) {
@@ -389,16 +366,10 @@ bool LessRuleset::matchConditions(ProcessingContext &context) const {
   for(cit = conditions.begin(); cit != conditions.end(); cit++) {
     condition = (*cit);
     
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Checking condition: " << condition.toString();
-#endif
-    
+    LogStream().notice(3) << "Checking condition: " << condition.toString();
+
     if (context.validateCondition(condition)) {
-      
-#ifdef WITH_LIBGLOG
-      VLOG(3) << "Found valid condition: " << condition.toString();
-#endif
-      
+      LogStream().notice(3) << "Found valid condition: " << condition.toString();
       return true;
     }
   }
@@ -436,9 +407,7 @@ bool LessRuleset::putArguments(const Mixin &mixin,
 
   argsCombined.trim();
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "@arguments: " << argsCombined.toString();
-#endif
+  LogStream().notice(3) << "@arguments: " << argsCombined.toString();
 
   if (selector->unlimitedArguments() &&
       selector->getRestIdentifier() != "") {

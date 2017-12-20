@@ -1,11 +1,8 @@
-#include <less/value/Color.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
-
 #include <sstream>
 #include <iostream>
+
+#include <less/value/Color.h>
+#include <less/LogStream.h>
 
 #define max(x,y) x > y ? x : y
 #define min(x,y) x < y ? x : y
@@ -40,9 +37,7 @@ void Color::updateTokens() {
 
   tokens.clear();
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Update tokens";
-#endif
+  LogStream().notice(3) << "Update tokens";
 
   // If the color is not opaque the rgba() function needs to be used.
   if (alpha < 1) {
@@ -90,10 +85,8 @@ void Color::updateTokens() {
 
     tokens.push_back(Token(hash, Token::HASH, 0,0,"generated"));
   }
-#ifdef WITH_LIBGLOG
-  VLOG(3) << tokens.toString();
-#endif
 
+  LogStream().notice(3) << tokens.toString();
 }
 
 Color::Color(): Value() {

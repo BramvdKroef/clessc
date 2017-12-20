@@ -42,6 +42,7 @@ set(less_SOURCES
         src/value/UrlValue.cpp
         src/value/Value.cpp
         src/value/ValueProcessor.cpp
+        src/LogStream.cpp
         src/Token.cpp
         src/TokenList.cpp
         src/VariableMap.cpp

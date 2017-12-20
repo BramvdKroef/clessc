@@ -1,5 +1,6 @@
 #include <iostream>
 #include <less/css/CssParser.h>
+#include <less/LogStream.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -50,13 +51,7 @@ bool CssParser::parseEmptyStatement() {
   if (tokenizer->getTokenType() == Token::DELIMITER) {
     t = &tokenizer->getToken();
 
-#ifdef WITH_LIBGLOG
-    LOG(WARNING) << t->source << ": Line " << t->line << ", Column" <<
-      t->column << " Warning: Semicolon without statement.";
-#else
-    std::cerr << t->source << ": Line " << t->line << ", Column" <<
-      t->column << " Warning: Semicolon without statement.\n";
-#endif
+    LogStream().warning() << t->source << ": Line " << t->line << ", Column" << t->column << " Warning: Semicolon without statement.";
 
     tokenizer->readNextToken();
     

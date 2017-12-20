@@ -1,8 +1,5 @@
 #include <less/value/ValueProcessor.h>
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
+#include <less/LogStream.h>
 
 ValueProcessor::ValueProcessor() {
   NumberValue::loadFunctions(functionLibrary);
@@ -32,9 +29,7 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
     return;
   }
 
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing: " << value.toString();
-#endif
+  LogStream().notice(2) << "Processing: " << value.toString();
 
   end = oldvalue->end();
   for(i2 = oldvalue->begin(); i2 != end; ) {
@@ -95,10 +90,9 @@ void ValueProcessor::processValue(TokenList &value, const ValueScope &scope)
       }
     }
   }
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Processed: " << newvalue.toString();
-#endif
-  
+
+  LogStream().notice(2) << "Processed: " << newvalue.toString();
+
   value = newvalue;
   return;
 }
@@ -276,13 +270,11 @@ Value* ValueProcessor::processOperation(TokenList::const_iterator &i,
     skipWhitespace(i, end);
   }
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Operation: " << operand1.getTokens()->toString() << 
+  LogStream().notice(3) << "Operation: " << operand1.getTokens()->toString() <<
     "(" << Value::typeToString(operand1.type) <<  ") " << operatorToString(op) << " " <<
     operand2->getTokens()->toString() << "(" <<
     Value::typeToString(operand2->type) << ")";
-#endif
-  
+
   if (op == OP_ADD) 
     result = operand1.add(*operand2);
   else if (op == OP_SUBSTRACT)
@@ -387,11 +379,9 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
     return NULL;
   
   token = *i;
-  
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Constant: " << token << "[type " << token.type << "]";
-#endif
-  
+
+  LogStream().notice(3) << "Constant: " << token << "[type " << token.type << "]";
+
   switch(token.type) {
   case Token::HASH:
     i++;
@@ -414,10 +404,8 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
         i++;
         ret->setLocation(token);
 
-#ifdef WITH_LIBGLOG
-        VLOG(3) << "Variable value: " << ret->getTokens()->toString();
-#endif
-        
+        LogStream().notice(3) << "Variable value: " << ret->getTokens()->toString();
+
         return ret;
       }
     } 
@@ -434,9 +422,7 @@ Value* ValueProcessor::processConstant(TokenList::const_iterator &i,
     i++;
     interpolate(token, scope);
     str = token.getUrlString();
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "url: " << str;
-#endif
+    LogStream().notice(3) << "url: " << str;
 
     return new UrlValue(token, str);
         
@@ -598,10 +584,8 @@ Value* ValueProcessor::processFunction(const Token &function,
   vector<const Value*>::iterator it;
   string arg_str;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Function: " << function;
-#endif
-  
+  LogStream().notice(3) << "Function: " << function;
+
   fi = functionLibrary.getFunction(function.c_str());
   
   if (fi == NULL)
@@ -693,9 +677,7 @@ Value* ValueProcessor::processEscape (TokenList::const_iterator &i,
 
   i++;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Escaping: " << *i;
-#endif
+  LogStream().notice(3) << "Escaping: " << *i;
 
   if ((*i).type != Token::STRING) {
     i--;
@@ -776,10 +758,8 @@ Value* ValueProcessor::processNegative(TokenList::const_iterator &i,
     i--;
     return NULL;
   }
-  
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Negate: " << constant->getTokens()->toString();
-#endif
+
+  LogStream().notice(3) << "Negate: " << constant->getTokens()->toString();
 
   zero = new NumberValue(t_zero);
   ret = zero->substract(*constant);
@@ -799,19 +779,15 @@ void ValueProcessor::interpolate(std::string &str, const ValueScope &scope)
   const TokenList* var;
   TokenList variable;
 
-#ifdef WITH_LIBGLOG
-  VLOG(3) << "Interpolate: " << str;
-#endif
+  LogStream().notice(3) << "Interpolate: " << str;
 
   while ((start = str.find("@{", end)) != string::npos &&
          (end = str.find("}", start)) != string::npos) {
     key = "@";
     key.append(str.substr(start + 2, end - (start + 2)));
 
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "Key: " << key;
-#endif
-    
+    LogStream().notice(3) << "Key: " << key;
+
     var = scope.getVariable(key);
     
     if (var != NULL) {

@@ -1,4 +1,5 @@
 #include <less/stylesheet/Ruleset.h>
+#include <less/LogStream.h>
 
 #ifdef WITH_LIBGLOG
 #include <glog/logging.h>
@@ -90,11 +91,9 @@ void Ruleset::processStatements(Ruleset &target) const {
 
 void Ruleset::process(Stylesheet &s) {
   Ruleset* target = s.createRuleset();
-    
-#ifdef WITH_LIBGLOG
-  VLOG(2) << "Processing Ruleset: " << getSelector().toString();
-#endif
-        
+
+  LogStream().notice(2) << "Processing Ruleset: " << getSelector().toString();
+
   target->setSelector(getSelector());
   processStatements(*target);
 }
