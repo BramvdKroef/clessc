@@ -1,9 +1,9 @@
-#include <less/less/LessTokenizer.h>
+#include "less/less/LessTokenizer.h"
 
 LessTokenizer::~LessTokenizer() {
 }
 
-bool LessTokenizer::readComment () {
+bool LessTokenizer::readComment() {
   if (!lastReadEq('/'))
     return CssTokenizer::readComment();
 

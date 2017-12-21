@@ -1,7 +1,7 @@
-#include <less/lessstylesheet/ProcessingContext.h>
-#include <less/lessstylesheet/MixinCall.h>
-#include <less/lessstylesheet/LessRuleset.h>
-#include <less/lessstylesheet/LessStylesheet.h>
+#include "less/lessstylesheet/ProcessingContext.h"
+#include "less/lessstylesheet/LessRuleset.h"
+#include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/MixinCall.h"
 
 ProcessingContext::ProcessingContext() {
   stack = NULL;
@@ -11,11 +11,11 @@ ProcessingContext::ProcessingContext() {
 void ProcessingContext::setLessStylesheet(LessStylesheet &stylesheet) {
   contextStylesheet = &stylesheet;
 }
-LessStylesheet* ProcessingContext::getLessStylesheet() {
+LessStylesheet *ProcessingContext::getLessStylesheet() {
   return contextStylesheet;
 }
 
-const TokenList* ProcessingContext::getVariable(const std::string &key) const {
+const TokenList *ProcessingContext::getVariable(const std::string &key) const {
   if (stack != NULL)
     return stack->getVariable(key);
   else if (contextStylesheet != NULL)
@@ -24,13 +24,13 @@ const TokenList* ProcessingContext::getVariable(const std::string &key) const {
     return NULL;
 }
 
-void ProcessingContext::pushMixinCall(const Function &function, bool
-  savepoint) {
+void ProcessingContext::pushMixinCall(const Function &function,
+                                      bool savepoint) {
   stack = new MixinCall(stack, function, savepoint);
 }
 
 void ProcessingContext::popMixinCall() {
-  MixinCall* tmp = stack;
+  MixinCall *tmp = stack;
   if (stack != NULL) {
     stack = stack->parent;
 
@@ -39,7 +39,7 @@ void ProcessingContext::popMixinCall() {
   }
 }
 
-VariableMap* ProcessingContext::getStackArguments() {
+VariableMap *ProcessingContext::getStackArguments() {
   if (stack != NULL)
     return &stack->arguments;
   else
@@ -53,11 +53,11 @@ bool ProcessingContext::isSavePoint() const {
   return (stack != NULL && stack->savepoint);
 }
 
-void ProcessingContext::getFunctions (std::list<const Function*> &functionList,
-                                      const Mixin& mixin) const {
+void ProcessingContext::getFunctions(std::list<const Function *> &functionList,
+                                     const Mixin &mixin) const {
   getClosures(functionList, mixin);
 
-  if (stack != NULL) 
+  if (stack != NULL)
     stack->getFunctions(functionList, mixin);
   else if (contextStylesheet != NULL)
     contextStylesheet->getFunctions(functionList, mixin);
@@ -70,20 +70,20 @@ bool ProcessingContext::isInStack(const Function &function) const {
     return NULL;
 }
 
-void ProcessingContext::addExtension(Extension& extension){
+void ProcessingContext::addExtension(Extension &extension) {
   extensions.push_back(extension);
 }
-std::list<Extension>& ProcessingContext::getExtensions() {
+std::list<Extension> &ProcessingContext::getExtensions() {
   return extensions;
 }
 
 void ProcessingContext::addClosure(const LessRuleset &ruleset) {
   if (stack != NULL) {
-    Closure* c = new Closure(ruleset, *stack);
+    Closure *c = new Closure(ruleset, *stack);
     closures.push_back(c);
   }
 }
-void ProcessingContext::saveClosures(std::list<Closure*> &closures) {
+void ProcessingContext::saveClosures(std::list<Closure *> &closures) {
   closures.insert(closures.end(), this->closures.begin(), this->closures.end());
   this->closures.clear();
 }
@@ -96,16 +96,16 @@ void ProcessingContext::saveVariables(VariableMap &variables) {
   this->variables.clear();
 }
 
-void ProcessingContext::getClosures(std::list<const Function*> &closureList,
-                                        const Mixin &mixin) const {
-  std::list<Closure*>::const_iterator it;
-  
+void ProcessingContext::getClosures(std::list<const Function *> &closureList,
+                                    const Mixin &mixin) const {
+  std::list<Closure *>::const_iterator it;
+
   for (it = closures.begin(); it != closures.end(); it++) {
     (*it)->getFunctions(closureList, mixin, mixin.name.begin());
   }
 }
 
-ValueProcessor* ProcessingContext::getValueProcessor() {
+ValueProcessor *ProcessingContext::getValueProcessor() {
   return &processor;
 }
 
@@ -116,7 +116,7 @@ void ProcessingContext::interpolate(std::string &str) {
   processor.interpolate(str, *this);
 }
 
-void ProcessingContext::processValue(TokenList& value) {
+void ProcessingContext::processValue(TokenList &value) {
   processor.processValue(value, *this);
 }
 

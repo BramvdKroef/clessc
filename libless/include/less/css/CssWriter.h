@@ -1,35 +1,34 @@
 #ifndef __less_css_CssWriter_h__
 #define __less_css_CssWriter_h__
 
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
-#include <less/TokenList.h>
-#include <less/css/SourceMapWriter.h>
+#include "less/TokenList.h"
+#include "less/css/SourceMapWriter.h"
 
 class CssWriter {
 protected:
-  std::ostream* out;
+  std::ostream *out;
   unsigned int column;
-  SourceMapWriter* sourcemap;
+  SourceMapWriter *sourcemap;
 
-  void writeStr(const char* str, size_t len);
+  void writeStr(const char *str, size_t len);
   void writeToken(const Token &token);
   void writeTokenList(const TokenList &tokens);
-  
+
   virtual void writeSelector(const TokenList &selector);
   virtual void writeValue(const TokenList &value);
-  
+
 public:
   CssWriter();
   CssWriter(std::ostream &out);
-  CssWriter(std::ostream &out,
-            SourceMapWriter &sourcemap);
+  CssWriter(std::ostream &out, SourceMapWriter &sourcemap);
 
-  const char* rootpath = NULL;
-  
+  const char *rootpath = NULL;
+
   unsigned int getColumn();
-  
+
   virtual ~CssWriter();
   virtual void writeAtRule(const Token &keyword, const TokenList &rule);
   virtual void writeRulesetStart(const TokenList &selector);
@@ -40,7 +39,7 @@ public:
   virtual void writeMediaQueryStart(const TokenList &selector);
   virtual void writeMediaQueryEnd();
 
-  void writeSourceMapUrl(const char* sourcemap_url);
+  void writeSourceMapUrl(const char *sourcemap_url);
 };
-  
-#endif // __less_css_CssWriter_h__
+
+#endif  // __less_css_CssWriter_h__

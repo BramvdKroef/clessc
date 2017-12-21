@@ -1,30 +1,29 @@
-#include <less/stylesheet/Stylesheet.h>
-#include <less/LogStream.h>
+#include "less/stylesheet/Stylesheet.h"
+#include "less/LogStream.h"
 
 Stylesheet::~Stylesheet() {
   rulesets.clear();
   atrules.clear();
-  while(!statements.empty()) {
+  while (!statements.empty()) {
     delete statements.back();
     statements.pop_back();
   }
 }
 
-void Stylesheet::addStatement(StylesheetStatement &statement) {
+void Stylesheet::addStatement(StylesheetStatement& statement) {
   statements.push_back(&statement);
   statement.setStylesheet(this);
 
   LogStream().notice(3) << "Adding statement";
 }
-void Stylesheet::addRuleset(Ruleset &ruleset) {
+void Stylesheet::addRuleset(Ruleset& ruleset) {
   addStatement(ruleset);
   rulesets.push_back(&ruleset);
 }
-void Stylesheet::addAtRule(AtRule &rule) {
+void Stylesheet::addAtRule(AtRule& rule) {
   addStatement(rule);
   atrules.push_back(&rule);
 }
-
 
 Ruleset* Stylesheet::createRuleset() {
   Ruleset* r = new Ruleset();
@@ -32,21 +31,21 @@ Ruleset* Stylesheet::createRuleset() {
   LogStream().notice(3) << "Creating ruleset";
 
   addRuleset(*r);
-  
+
   return r;
 }
 
-Ruleset* Stylesheet::createRuleset(const Selector &selector) {
+Ruleset* Stylesheet::createRuleset(const Selector& selector) {
   Ruleset* r = new Ruleset(selector);
 
   LogStream().notice(3) << "Creating ruleset: " << selector.toString();
 
   addRuleset(*r);
-  
+
   return r;
 }
 
-AtRule* Stylesheet::createAtRule(const Token &keyword) {
+AtRule* Stylesheet::createAtRule(const Token& keyword) {
   AtRule* r = new AtRule(keyword);
 
   LogStream().notice(3) << "Creating @rule";
@@ -71,20 +70,20 @@ MediaQuery* Stylesheet::createMediaQuery() {
   return q;
 }
 
-void Stylesheet::deleteStatement(StylesheetStatement &statement) {
+void Stylesheet::deleteStatement(StylesheetStatement& statement) {
   statements.remove(&statement);
   delete &statement;
 }
 
-void Stylesheet::deleteRuleset(Ruleset &ruleset) {
+void Stylesheet::deleteRuleset(Ruleset& ruleset) {
   rulesets.remove(&ruleset);
   deleteStatement(ruleset);
 }
-void Stylesheet::deleteAtRule(AtRule &atrule) {
+void Stylesheet::deleteAtRule(AtRule& atrule) {
   atrules.remove(&atrule);
   deleteStatement(atrule);
 }
-void Stylesheet::deleteMediaQuery(MediaQuery &query) {
+void Stylesheet::deleteMediaQuery(MediaQuery& query) {
   deleteStatement(query);
 }
 
@@ -98,7 +97,7 @@ std::list<StylesheetStatement*>& Stylesheet::getStatements() {
   return statements;
 }
 
-Ruleset* Stylesheet::getRuleset(const Selector &selector) {
+Ruleset* Stylesheet::getRuleset(const Selector& selector) {
   std::list<Ruleset*>::iterator it;
 
   for (it = rulesets.begin(); it != rulesets.end(); it++) {
@@ -108,7 +107,7 @@ Ruleset* Stylesheet::getRuleset(const Selector &selector) {
   return NULL;
 }
 
-void Stylesheet::process(Stylesheet &s) {
+void Stylesheet::process(Stylesheet& s) {
   std::list<StylesheetStatement*> statements = getStatements();
   std::list<StylesheetStatement*>::iterator i;
 
@@ -122,11 +121,10 @@ void Stylesheet::process(Stylesheet &s) {
   LogStream().notice(1) << "Done processing stylesheet";
 }
 
-
-void Stylesheet::write(CssWriter &writer) {
+void Stylesheet::write(CssWriter& writer) {
   std::list<StylesheetStatement*> statements = getStatements();
   std::list<StylesheetStatement*>::iterator i;
-  
+
   for (i = statements.begin(); i != statements.end(); i++) {
     (*i)->write(writer);
   }

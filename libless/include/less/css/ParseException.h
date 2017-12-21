@@ -4,32 +4,38 @@
 #include <exception>
 #include <string>
 
-#include <less/Token.h>
-#include <less/TokenList.h>
+#include "less/Token.h"
+#include "less/TokenList.h"
 
 using namespace std;
 
-class ParseException: public exception{
+class ParseException : public exception {
 public:
   string err;
 
   string source;
   unsigned int line, column;
-  
-  ParseException(string found, string& expected,
-                 unsigned int line, unsigned int column,
+
+  ParseException(string found,
+                 string& expected,
+                 unsigned int line,
+                 unsigned int column,
                  string source);
-  ParseException(string found, const char* expected,
-                 unsigned int line, unsigned int column,
+  ParseException(string found,
+                 const char* expected,
+                 unsigned int line,
+                 unsigned int column,
                  string source);
-  ParseException(const char* found, const char* expected,
-                 unsigned int line, unsigned int column,
+  ParseException(const char* found,
+                 const char* expected,
+                 unsigned int line,
+                 unsigned int column,
                  string source);
 
-  ParseException(Token &found, const char* expected);
-  ParseException(TokenList &found, const char* expected);
-  
-  ~ParseException() throw () {};
+  ParseException(Token& found, const char* expected);
+  ParseException(TokenList& found, const char* expected);
+
+  ~ParseException() throw(){};
 
   void setLocation(unsigned int line, unsigned int column);
   unsigned int getLineNumber();
@@ -40,12 +46,11 @@ public:
    */
   void setSource(string source);
 
-  string getSource(); 
-  virtual const char* what() const throw(); 
+  string getSource();
+  virtual const char* what() const throw();
 
 protected:
-  string translate(string found); 
-
+  string translate(string found);
 };
 
-#endif // __less_css_ParseException_h__
+#endif  // __less_css_ParseException_h__

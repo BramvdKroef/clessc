@@ -11,4 +11,4 @@ public:
   std::ostream& error();
 };
 
-#endif // __less_LogStream_h__
+#endif  // __less_LogStream_h__

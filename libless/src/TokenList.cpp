@@ -1,17 +1,15 @@
-#include <less/TokenList.h>
+#include "less/TokenList.h"
 
 TokenList::~TokenList() {
 }
 
 void TokenList::ltrim() {
-  while (!empty() &&
-         front().type == Token::WHITESPACE) {
+  while (!empty() && front().type == Token::WHITESPACE) {
     pop_front();
   }
 }
 void TokenList::rtrim() {
-  while (!empty() &&
-         back().type == Token::WHITESPACE) {
+  while (!empty() && back().type == Token::WHITESPACE) {
     pop_back();
   }
 }
@@ -20,11 +18,10 @@ void TokenList::trim() {
   rtrim();
 }
 
-  
 std::string TokenList::toString() const {
   std::string str;
   std::list<Token>::const_iterator it;
-  
+
   for (it = begin(); it != end(); it++) {
     str.append(*it);
   }
@@ -41,8 +38,7 @@ bool TokenList::contains(const Token &t) const {
   return false;
 }
 
-bool TokenList::contains(Token::Type type, const std::string &str)
-  const {
+bool TokenList::contains(Token::Type type, const std::string &str) const {
   std::list<Token>::const_iterator it;
 
   for (it = begin(); it != end(); it++) {
