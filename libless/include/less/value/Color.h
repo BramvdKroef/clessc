@@ -3,7 +3,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include "less/value/FunctionLibrary.h"
 #include "less/value/NumberValue.h"
 #include "less/value/StringValue.h"
 #include "less/value/Value.h"
@@ -14,6 +13,8 @@ using namespace std;
 #define RGB_GREEN 1
 #define RGB_BLUE 2
 //#define ABS(x) (x < 0 ? 0 - x : x)
+
+class FunctionLibrary;
 
 class Color : public Value {
 private:

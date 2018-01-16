@@ -1,4 +1,5 @@
 #include "less/lessstylesheet/Closure.h"
+#include "less/lessstylesheet/LessRuleset.h"
 #include "less/LogStream.h"
 #include "less/lessstylesheet/ProcessingContext.h"
 
@@ -19,13 +20,13 @@ bool Closure::call(Mixin& mixin,
   return ruleset->call(mixin, s, context);
 }
 
-void Closure::getFunctions(list<const Function*>& functionList,
+void Closure::getFunctions(std::list<const Function*>& functionList,
                            const Mixin& mixin,
                            TokenList::const_iterator offset) const {
-  const list<LessRuleset*>& nestedRules = ruleset->getNestedRules();
-  const list<Closure*>& closures = ruleset->getClosures();
-  list<LessRuleset*>::const_iterator r_it;
-  list<Closure*>::const_iterator c_it;
+  const std::list<LessRuleset*>& nestedRules = ruleset->getNestedRules();
+  const std::list<Closure*>& closures = ruleset->getClosures();
+  std::list<LessRuleset*>::const_iterator r_it;
+  std::list<Closure*>::const_iterator c_it;
 
   offset = mixin.name.walk(*getLessSelector(), offset);
 

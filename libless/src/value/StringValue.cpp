@@ -1,5 +1,6 @@
 #include "less/value/StringValue.h"
 #include <regex>
+#include "less/value/FunctionLibrary.h"
 
 StringValue::StringValue(const Token& token, bool quotes) {
   type = Value::STRING;

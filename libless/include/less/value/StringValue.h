@@ -5,8 +5,9 @@
 #include <sstream>
 #include <vector>
 #include "less/value/Color.h"
-#include "less/value/FunctionLibrary.h"
 #include "less/value/Value.h"
+
+class FunctionLibrary;
 
 class StringValue : public Value {
 private:
