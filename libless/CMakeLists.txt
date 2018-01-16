@@ -48,8 +48,11 @@ set(less_SOURCES
         src/VariableMap.cpp
         )
 
-add_library(less ${less_SOURCES})
+add_library(less SHARED ${less_SOURCES})
 target_include_directories(less PUBLIC include)
+
+install(TARGETS less LIBRARY DESTINATION lib)
+install(DIRECTORY include/less DESTINATION include)
 
 find_package(GLOG)
 if (GLOG_FOUND)
