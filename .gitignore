@@ -2,3 +2,14 @@
 cmake-build-debug/
 cmake-build-release/
 \.idea/
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+Makefile
+clessc
+testlessc
+cmake_install.cmake
+libless/CMakeFiles/
+libless/Makefile
+libless/cmake_install.cmake
+libless/libless.so
