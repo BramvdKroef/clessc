@@ -14,6 +14,10 @@
 #include <less/lessstylesheet/LessStylesheet.h>
 #include <less/LogStream.h>
 
+#ifdef WITH_LIBGLOG
+#include <glog/logging.h>
+#endif
+
 using namespace std;
 
 /**
@@ -105,29 +109,22 @@ bool parseInput(LessStylesheet &stylesheet,
   try{
     parser.parseStylesheet(stylesheet);
   } catch(ParseException* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+
+    LogStream().error() << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what();
-#else
-    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Parse Error: " << e->what();
-#endif
     
     return false;
   } catch(exception* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << " Error: " << e->what();
-#else
-    cerr << " Error: " << e->what();
-#endif
+    LogStream().error() << " Error: " << e->what();
+
     return false;
   }
-#ifdef WITH_LIBGLOG
-  VLOG(1) << "Source files: ";
+
+  LogStream().notice(1) << "Source files: ";
   for(i = sources.begin(); i != sources.end(); i++) {
-    VLOG(1) << (*i);
+    LogStream().notice(1) << (*i);
   }
-#endif
+  
   return true;
 }
 bool processStylesheet (LessStylesheet &stylesheet,
@@ -138,32 +135,20 @@ bool processStylesheet (LessStylesheet &stylesheet,
     stylesheet.process(css, context);
 
   } catch(ParseException* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+    
+    LogStream().error() << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what();
-#else
-    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Parse Error: " << e->what();
-#endif
 
     return false;
 
   } catch(ValueException* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+
+    LogStream().error() << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Error: " << e->what();
-#else
-    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Error: " << e->what();
-#endif
     
     return false;
   } catch(exception* e) {
-#ifdef WITH_LIBGLOG
-    LOG(ERROR) << "Error: " << e->what();
-#else
-    cerr << "Error: " << e->what();
-#endif
+    LogStream().error()  << "Error: " << e->what();
     return false;
   }
   return true;
@@ -211,9 +196,8 @@ int main(int argc, char * argv[]){
   
   try {
     int c, option_index;
-#ifdef WITH_LIBGLOG
-    VLOG(3) << "argc: " << argc;
-#endif
+
+    LogStream().notice(3) << "argc: " << argc;
 
     while((c = getopt_long(argc, argv, ":o:hfv:m::I:", long_options, &option_index)) != -1) {
       switch (c) {
@@ -263,9 +247,8 @@ int main(int argc, char * argv[]){
     }
     
     if(argc - optind >= 1){
-#ifdef WITH_LIBGLOG
-      VLOG(1) << argv[optind];
-#endif
+
+      LogStream().notice(1) << argv[optind];
       
       source = new char[std::strlen(argv[optind]) + 1];
       std::strcpy(source, argv[optind]);
