@@ -3,7 +3,22 @@
 
 #include <ostream>
 
+class NullBuffer : public std::streambuf
+{
+public:
+  int overflow(int c) { return c; }
+};
+class NullStream : public std::ostream {
+public:
+  NullStream() : std::ostream(&m_sb) {}
+private:
+  NullBuffer m_sb;
+};
+
 class LogStream {
+private:
+  NullStream nullstream;
+          
 public:
   std::ostream& notice();
   std::ostream& notice(int verbosityLevel);

@@ -4,12 +4,16 @@
 
 #include <glog/logging.h>
 
+
 std::ostream& LogStream::notice() {
   return LOG(INFO);
 }
 
 std::ostream& LogStream::notice(int verbosityLevel) {
-  return VLOG(verbosityLevel);
+  if (VLOG_IS_ON(verbosityLevel))
+    return LOG(INFO);
+  else
+    return nullstream;
 }
 
 std::ostream& LogStream::warning() {
