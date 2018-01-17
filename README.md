@@ -145,18 +145,18 @@ status:
     - Functions
       - `color`: yes
       - `image-size`: no 
-      - `image-width`: no
-      - `image-height`: no
+      - `image-width`: yes
+      - `image-height`: yes
       - `convert`: yes
       - `data-uri`: no
       - `default`: no
       - `unit`: yes
-      - `get-unit`: no
+      - `get-unit`: yes
       - `svg-gradient`: no
       - `escape`: yes
       - `e`: yes
-      - `%`: no
-      - `replace`: no
+      - `%`: yes
+      - `replace`: yes
       - `length` : no
       - `extract`: no
       - `ceil`: yes
@@ -174,17 +174,17 @@ status:
       - `pi`: yes
       - `pow`: yes
       - `mod`: yes
-      - `min`: no
-      - `max`: no
-      - `isnumber`: no
-      - `isstring`: no
-      - `iscolor`: no
-      - `iskeyword`: no
-      - `isurl`: no
-      - `ispixel`: no
-      - `isem`: no
-      - `ispercentage`: no
-      - `isunit`: no
+      - `min`: yes
+      - `max`: yes
+      - `isnumber`: yes
+      - `isstring`: yes
+      - `iscolor`: yes
+      - `iskeyword`: yes
+      - `isurl`: yes
+      - `ispixel`: yes
+      - `isem`: yes
+      - `ispercentage`: yes
+      - `isunit`: yes
       - `isruleset`: no
       - `rgb`: yes
       - `rgba`: yes
