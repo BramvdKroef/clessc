@@ -29,7 +29,8 @@ void CssWriter::writeToken(const Token &token) {
 
   if (rootpath != NULL && token.type == Token::URL) {
     url = token.getUrlString();
-    if (url.find(':') == std::string::npos) {
+    if (url.find(':') == std::string::npos &&
+        url[0] != '/') {
       writeStr("url(\"", 5);
       writeStr(rootpath, std::strlen(rootpath));
 
