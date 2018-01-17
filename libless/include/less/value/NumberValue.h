@@ -40,6 +40,7 @@ public:
   static void loadFunctions(FunctionLibrary &lib);
   static Value *unit(const vector<const Value *> &args);
   static Value *get_unit(const vector<const Value *> &args);
+  static Value *is_unit(const vector<const Value *> &args);
   static Value *ceil(const vector<const Value *> &args);
   static Value *floor(const vector<const Value *> &args);
   static Value *percentage(const vector<const Value *> &args);
@@ -56,6 +57,15 @@ public:
   static Value *pow(const vector<const Value *> &args);
   static Value *mod(const vector<const Value *> &args);
   static Value *convert(const vector<const Value *> &args);
+
+  static Value *is_number(const vector<const Value *> &args);
+  static Value *is_string(const vector<const Value *> &args);
+  static Value *is_color(const vector<const Value *> &args);
+  static Value *is_keyword(const vector<const Value *> &args);
+  static Value *is_url(const vector<const Value *> &args);
+  static Value *is_pixel(const vector<const Value *> &args);
+  static Value *is_em(const vector<const Value *> &args);
+  static Value *is_percentage(const vector<const Value *> &args);
 };
 
 #endif  // __less_value_NumberValue_h__

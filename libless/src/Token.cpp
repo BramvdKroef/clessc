@@ -64,7 +64,7 @@ void Token::removeQuotes(std::string &str) const {
 
 std::string Token::getUrlString() const {
   std::string ret;
-  if (type == URL) {
+  if (type == URL && size() > 4) {
     ret = substr(4, length() - 5);
     removeQuotes(ret);
     return ret;

@@ -319,6 +319,7 @@ bool NumberValue::isNumber(const Value& val) {
 void NumberValue::loadFunctions(FunctionLibrary& lib) {
   lib.push("unit", ".U?", &NumberValue::unit);
   lib.push("get-unit", "N", &NumberValue::get_unit);
+  lib.push("isunit", "..", &NumberValue::is_unit);
   lib.push("ceil", ".", &NumberValue::ceil);
   lib.push("floor", ".", &NumberValue::floor);
   lib.push("percentage", "N", &NumberValue::percentage);
@@ -335,6 +336,14 @@ void NumberValue::loadFunctions(FunctionLibrary& lib) {
   lib.push("pow", ".N", &NumberValue::pow);
   lib.push("mod", "..", &NumberValue::mod);
   lib.push("convert", "..", &NumberValue::convert);
+  lib.push("isnumber", ".", &NumberValue::is_number);
+  lib.push("isstring", ".", &NumberValue::is_string);
+  lib.push("iscolor", ".", &NumberValue::is_color);
+  lib.push("iskeyword", ".", &NumberValue::is_keyword);
+  lib.push("isurl", ".", &NumberValue::is_url);
+  lib.push("ispixel", ".", &NumberValue::is_pixel);
+  lib.push("isem", ".", &NumberValue::is_em);
+  lib.push("ispercentage", ".", &NumberValue::is_percentage);
 }
 
 // DIMENSION unit(DIMENSION, UNIT)
@@ -362,6 +371,25 @@ Value* NumberValue::get_unit(const vector<const Value*>& arguments) {
   t.setLocation(val->getTokens()->front());
   return new UnitValue(t);
 }
+
+Value* NumberValue::is_unit(const vector<const Value*>& arguments) {
+  bool ret = false;
+  
+  if ((arguments[0]->type == Value::NUMBER ||
+       arguments[0]->type == Value::DIMENSION) &&
+      arguments[1]->type == Value::UNIT) {
+    
+    ret = (((const NumberValue*)arguments[0])->getUnit() ==
+           ((const UnitValue*)arguments[1])->getUnit());
+    
+  } else if (arguments[0]->type == Value::PERCENTAGE &&
+                arguments[1]->type == Value::STRING) {
+    ret = (((const StringValue*)arguments[1])->getString() == "%");
+  }
+
+  return new BooleanValue(ret);
+}
+
 
 Value* NumberValue::ceil(const vector<const Value*>& args) {
   NumberValue* n;
@@ -599,4 +627,46 @@ Value* NumberValue::convert(const vector<const Value*>& args) {
   n->setValue(n->convert(unit));
   n->setUnit(unit);
   return n;
+}
+
+Value* NumberValue::is_number(const vector<const Value*>& arguments) {
+  return new BooleanValue((arguments[0]->type == Value::NUMBER ||
+                           arguments[0]->type == Value::DIMENSION ||
+                           arguments[0]->type == Value::PERCENTAGE));
+}
+
+Value* NumberValue::is_string(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::STRING &&
+                          ((const StringValue*)arguments[0])
+                          ->getQuotes() == true);
+}
+
+Value* NumberValue::is_color(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::COLOR);
+}
+
+Value* NumberValue::is_keyword(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::STRING &&
+                          ((const StringValue*)arguments[0])
+                          ->getQuotes() == false);
+}
+
+Value* NumberValue::is_url(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::URL);
+}
+
+Value* NumberValue::is_pixel(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::DIMENSION &&
+                          ((const NumberValue*)arguments[0])
+                          ->getUnit() == "px");
+}
+
+Value* NumberValue::is_em(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::DIMENSION &&
+                          ((const NumberValue*)arguments[0])
+                          ->getUnit() == "em");
+}
+
+Value* NumberValue::is_percentage(const vector<const Value*>& arguments) {
+  return new BooleanValue(arguments[0]->type == Value::PERCENTAGE);
 }
