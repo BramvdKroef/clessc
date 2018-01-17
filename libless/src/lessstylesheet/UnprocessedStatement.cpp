@@ -1,5 +1,4 @@
 #include "less/lessstylesheet/UnprocessedStatement.h"
-#include "less/LogStream.h"
 #include "less/lessstylesheet/LessRuleset.h"
 #include "less/lessstylesheet/LessStylesheet.h"
 #include "less/lessstylesheet/Mixin.h"
@@ -27,7 +26,6 @@ void UnprocessedStatement::getValue(TokenList &tokens) {
 }
 
 void UnprocessedStatement::setLessRuleset(LessRuleset &r) {
-  LogStream().notice(3) << "Set LessRuleset";
   lessRuleset = &r;
 }
 
@@ -55,8 +53,6 @@ void UnprocessedStatement::process(Ruleset &r) {
   Mixin mixin;
   Declaration *declaration;
 
-  LogStream().notice(2) << "Statement: " << getTokens()->toString();
-
   if (getTokens()->front().type == Token::ATKEYWORD) {
     // Can't add @-rules to rulesets so ignore the statement.
     return;
@@ -74,15 +70,9 @@ void UnprocessedStatement::process(Ruleset &r) {
   declaration = r.createDeclaration();
 
   if (isDeclaration() && processDeclaration(*declaration)) {
-    LogStream().notice(2) << "Declaration: " << declaration->getProperty()
-                          << ": " << declaration->getValue().toString();
 
     getLessRuleset()->getContext()->interpolate(declaration->getProperty());
     getLessRuleset()->getContext()->processValue(declaration->getValue());
-
-    LogStream().notice(2) << "Processed declaration: "
-                          << declaration->getProperty() << ": "
-                          << declaration->getValue().toString();
 
   } else {
     r.deleteDeclaration(*declaration);
@@ -100,7 +90,6 @@ void UnprocessedStatement::process(Ruleset &r) {
     }
   }
 
-  LogStream().notice(3) << "Statement done";
 }
 
 bool UnprocessedStatement::isDeclaration() {
@@ -169,8 +158,6 @@ bool UnprocessedStatement::getExtension(TokenList &extension) {
 bool UnprocessedStatement::processDeclaration(Declaration &declaration) {
   TokenList property;
   Token keyword;
-
-  LogStream().notice(3) << "Declaration";
 
   getValue(declaration.getValue());
 

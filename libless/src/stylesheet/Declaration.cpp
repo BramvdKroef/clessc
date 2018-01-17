@@ -1,9 +1,4 @@
 #include "less/stylesheet/Declaration.h"
-#include "less/LogStream.h"
-
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
  
 Declaration::Declaration() {
   property = "";
@@ -30,8 +25,6 @@ TokenList &Declaration::getValue() {
 }
 
 void Declaration::process(Ruleset &r) {
-  LogStream().notice(2) << "Processing declaration " << property << ": "
-                        << value.toString();
   Declaration *d = r.createDeclaration();
   d->setProperty(property);
   d->setValue(value);

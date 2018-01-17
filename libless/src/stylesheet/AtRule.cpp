@@ -1,4 +1,3 @@
-#include "less/LogStream.h"
 #include "less/stylesheet/Stylesheet.h"
 
 AtRule::AtRule(const Token &keyword) {
@@ -24,9 +23,6 @@ TokenList &AtRule::getRule() {
 void AtRule::process(Stylesheet &s) {
   AtRule *target = s.createAtRule(keyword);
   target->setRule(rule);
-
-  LogStream().notice(2) << "Processing @rule " << this->getKeyword() << ": "
-                        << this->getRule().toString();
 }
 
 void AtRule::write(CssWriter &writer) {

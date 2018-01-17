@@ -1,6 +1,5 @@
 #include "less/stylesheet/Selector.h"
 #include <iostream>
-#include "less/LogStream.h"
 
 Selector::~Selector() {
   clear();
@@ -64,7 +63,6 @@ void Selector::split(std::list<Selector> &l) const {
     last = findComma(first);
 
     current.assign(first, last);
-    LogStream().notice(3) << "Split: " << current.toString();
     l.push_back(current);
 
     first = last;

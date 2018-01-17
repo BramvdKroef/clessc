@@ -1,5 +1,4 @@
 #include "less/css/CssTokenizer.h"
-#include "less/LogStream.h"
 
 CssTokenizer::CssTokenizer(istream& in, const char* source)
     : in(&in), line(0), source(source) {
@@ -190,9 +189,6 @@ Token::Type CssTokenizer::readNextToken() {
       }
       break;
   }
-
-  LogStream().notice(4) << "Token: " << currentToken << '[' << currentToken.type
-                        << ']';
 
   return currentToken.type;
 }

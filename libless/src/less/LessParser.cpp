@@ -1,5 +1,4 @@
 #include "less/less/LessParser.h"
-#include "less/LogStream.h"
 
 #include <libgen.h>
 
@@ -7,11 +6,7 @@
  * Only allows LessStylesheets
  */
 void LessParser::parseStylesheet(LessStylesheet &stylesheet) {
-  LogStream().notice(1) << "Parser Start";
-
   CssParser::parseStylesheet(stylesheet);
-
-  LogStream().notice(1) << "Parser End";
 }
 
 void LessParser::skipWhitespace() {
@@ -36,8 +31,6 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
     return true;
 
   } else if (parseSelector(selector) && !selector.empty()) {
-    LogStream().notice(2) << "Parse: Selector: " << selector.toString();
-
     if (parseRuleset(*ls, selector))
       return true;
 
@@ -76,10 +69,7 @@ bool LessParser::parseAtRuleOrVariable(LessStylesheet &stylesheet) {
   tokenizer->readNextToken();
   CssParser::skipWhitespace();
 
-  LogStream().notice(2) << "Parse: keyword: " << token;
-
   if (parseVariable(value)) {
-    LogStream().notice(2) << "Parse: variable";
     stylesheet.putVariable(token, value);
 
   } else {
@@ -190,8 +180,6 @@ bool LessParser::parseRuleset(LessStylesheet &stylesheet,
 
   tokenizer->readNextToken();
   skipWhitespace();
-
-  LogStream().notice(2) << "Parse: Ruleset";
 
   // Create the ruleset and parse ruleset statements.
   if (parent == NULL)
@@ -443,8 +431,6 @@ bool LessParser::importFile(Token uri,
     uri.removeQuotes();
   }
 
-  LogStream().notice(2) << "Import filename: " << uri;
-
   // no remote includes
   if (uri.compare(0, 7, "http://") == 0 || uri.compare(0, 8, "https://") == 0)
     return false;
@@ -487,8 +473,6 @@ bool LessParser::importFile(Token uri,
 
   ifstream in(relative_filename.c_str());
 
-  LogStream().notice(1) << "Opening: " << relative_filename;
-
   relative_filename_cpy = new char[relative_filename.length() + 1];
   std::strcpy(relative_filename_cpy, relative_filename.c_str());
 
@@ -497,8 +481,6 @@ bool LessParser::importFile(Token uri,
   LessParser parser(tokenizer, sources, (directive & IMPORT_REFERENCE));
 
   parser.includePaths = includePaths;
-
-  LogStream().notice(2) << "Parsing";
 
   parser.parseStylesheet(stylesheet);
   in.close();
@@ -521,8 +503,6 @@ bool LessParser::findFile(Token &uri, std::string &filename) {
   }
   filename.append(uri);
 
-  LogStream().notice(2) << "Looking for path: " << filename;
-
   in = new ifstream(filename.c_str());
   if (in->good()) {
     in->close();
@@ -534,8 +514,6 @@ bool LessParser::findFile(Token &uri, std::string &filename) {
 
     filename.append((*i));
     filename.append(uri);
-
-    LogStream().notice(2) << "Looking for path: " << filename;
 
     in = new ifstream(filename.c_str());
     if (in->good()) {
@@ -564,8 +542,6 @@ void LessParser::parseLessMediaQuery(Token &mediatoken,
       parseWhitespace(*query->getSelector());
     }
   }
-
-  LogStream().notice(2) << "Media query: " << query->getSelector()->toString();
 
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(), "{");

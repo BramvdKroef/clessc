@@ -12,11 +12,7 @@
 #include <less/stylesheet/Stylesheet.h>
 #include <less/css/IOException.h>
 #include <less/lessstylesheet/LessStylesheet.h>
-#include <less/LogStream.h>
 
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
 
 using namespace std;
 
@@ -45,9 +41,6 @@ reference in the css output. \n"
     "       --source-map-basepath=<PATH>   PATH is removed from the \
 source file references in the source map, and also from the source \
 map reference in the css output.\n"
-    "\n"
-    "   -v, --verbose=<LEVEL>	Output log data for debugging. LEVEL is \
-a number in the range 1-3 that defines granularity.\n" 
     "\n"
     "Example:\n"
     "   lessc in.less -o out.css\n"
@@ -110,19 +103,14 @@ bool parseInput(LessStylesheet &stylesheet,
     parser.parseStylesheet(stylesheet);
   } catch(ParseException* e) {
 
-    LogStream().error() << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Parse Error: " << e->what();
+    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what() << endl;
     
     return false;
   } catch(exception* e) {
-    LogStream().error() << " Error: " << e->what();
+    cerr << " Error: " << e->what() << endl;
 
     return false;
-  }
-
-  LogStream().notice(1) << "Source files: ";
-  for(i = sources.begin(); i != sources.end(); i++) {
-    LogStream().notice(1) << (*i);
   }
   
   return true;
@@ -136,19 +124,19 @@ bool processStylesheet (LessStylesheet &stylesheet,
 
   } catch(ParseException* e) {
     
-    LogStream().error() << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Parse Error: " << e->what();
+    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Parse Error: " << e->what() << endl;
 
     return false;
 
   } catch(ValueException* e) {
 
-    LogStream().error() << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
-      e->getColumn() << " Error: " << e->what();
+    cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
+      e->getColumn() << " Error: " << e->what() << endl;
     
     return false;
   } catch(exception* e) {
-    LogStream().error()  << "Error: " << e->what();
+    cerr << "Error: " << e->what() << endl;
     return false;
   }
   return true;
@@ -179,7 +167,6 @@ int main(int argc, char * argv[]){
     {"help",       no_argument,       0, 'h'},
     {"output",     required_argument, 0, 'o'},
     {"format",     no_argument,       0, 'f'},
-    {"verbose",    required_argument, 0, 'v'},
     {"source-map", optional_argument, 0, 'm'},
     {"source-map-rootpath", required_argument, 0, 2},
     {"source-map-basepath", required_argument, 0, 3},
@@ -188,16 +175,8 @@ int main(int argc, char * argv[]){
     {0,0,0,0}
   };
   
-#ifdef WITH_LIBGLOG
-  FLAGS_logtostderr = 1;
-  google::InitGoogleLogging(argv[0]);
-  VLOG(1) << "Start.";
-#endif
-  
   try {
     int c, option_index;
-
-    LogStream().notice(3) << "argc: " << argc;
 
     while((c = getopt_long(argc, argv, ":o:hfv:m::I:", long_options, &option_index)) != -1) {
       switch (c) {
@@ -213,13 +192,6 @@ int main(int argc, char * argv[]){
         break;
       case 'f':
         formatoutput = true;
-        break;
-      case 'v':
-#ifdef WITH_LIBGLOG
-        FLAGS_v = atoi(optarg);
-#else
-        std::cerr << "Warning: -v flag not supported: lessc has to be compiled with libglog.\n";
-#endif
         break;
       case 'm':
         if (optarg)
@@ -248,8 +220,6 @@ int main(int argc, char * argv[]){
     
     if(argc - optind >= 1){
 
-      LogStream().notice(1) << argv[optind];
-      
       source = new char[std::strlen(argv[optind]) + 1];
       std::strcpy(source, argv[optind]);
       
@@ -275,7 +245,6 @@ source.");
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (sourcemap_file != "") {
-        LogStream().notice(1) << "sourcemap: " << sourcemap_file;
         sourcemap_s = new ofstream(sourcemap_file.c_str());
         sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str(),
                                         sourcemap_rootpath,
@@ -317,7 +286,7 @@ source.");
     delete [] source;
     
   } catch (IOException* e) {
-    LogStream().error() << " Error: " << e->what();
+    cerr << " Error: " << e->what() << endl;
     return 1;
   }
 		

@@ -1,5 +1,4 @@
 #include "less/stylesheet/Stylesheet.h"
-#include "less/LogStream.h"
 
 Stylesheet::~Stylesheet() {
   rulesets.clear();
@@ -13,8 +12,6 @@ Stylesheet::~Stylesheet() {
 void Stylesheet::addStatement(StylesheetStatement& statement) {
   statements.push_back(&statement);
   statement.setStylesheet(this);
-
-  LogStream().notice(3) << "Adding statement";
 }
 void Stylesheet::addRuleset(Ruleset& ruleset) {
   addStatement(ruleset);
@@ -28,8 +25,6 @@ void Stylesheet::addAtRule(AtRule& rule) {
 Ruleset* Stylesheet::createRuleset() {
   Ruleset* r = new Ruleset();
 
-  LogStream().notice(3) << "Creating ruleset";
-
   addRuleset(*r);
 
   return r;
@@ -38,8 +33,6 @@ Ruleset* Stylesheet::createRuleset() {
 Ruleset* Stylesheet::createRuleset(const Selector& selector) {
   Ruleset* r = new Ruleset(selector);
 
-  LogStream().notice(3) << "Creating ruleset: " << selector.toString();
-
   addRuleset(*r);
 
   return r;
@@ -47,8 +40,6 @@ Ruleset* Stylesheet::createRuleset(const Selector& selector) {
 
 AtRule* Stylesheet::createAtRule(const Token& keyword) {
   AtRule* r = new AtRule(keyword);
-
-  LogStream().notice(3) << "Creating @rule";
 
   addStatement(*r);
   atrules.push_back(r);
@@ -63,8 +54,6 @@ CssComment* Stylesheet::createComment() {
 
 MediaQuery* Stylesheet::createMediaQuery() {
   MediaQuery* q = new MediaQuery();
-
-  LogStream().notice(3) << "Creating media query";
 
   addStatement(*q);
   return q;
@@ -111,14 +100,10 @@ void Stylesheet::process(Stylesheet& s) {
   std::list<StylesheetStatement*> statements = getStatements();
   std::list<StylesheetStatement*>::iterator i;
 
-  LogStream().notice(1) << "Processing stylesheet";
-
   for (i = statements.begin(); i != statements.end(); i++) {
     if ((*i)->isReference() == false)
       (*i)->process(s);
   }
-
-  LogStream().notice(1) << "Done processing stylesheet";
 }
 
 void Stylesheet::write(CssWriter& writer) {

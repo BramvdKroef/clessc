@@ -1,5 +1,4 @@
 #include "less/value/ValueProcessor.h"
-#include "less/LogStream.h"
 
 ValueProcessor::ValueProcessor() {
   NumberValue::loadFunctions(functionLibrary);
@@ -28,8 +27,6 @@ void ValueProcessor::processValue(TokenList &value,
     }
     return;
   }
-
-  LogStream().notice(2) << "Processing: " << value.toString();
 
   end = oldvalue->end();
   for (i2 = oldvalue->begin(); i2 != end;) {
@@ -85,8 +82,6 @@ void ValueProcessor::processValue(TokenList &value,
       }
     }
   }
-
-  LogStream().notice(2) << "Processed: " << newvalue.toString();
 
   value = newvalue;
   return;
@@ -262,12 +257,6 @@ Value *ValueProcessor::processOperation(TokenList::const_iterator &i,
     skipWhitespace(i, end);
   }
 
-  LogStream().notice(3) << "Operation: " << operand1.getTokens()->toString()
-                        << "(" << Value::typeToString(operand1.type) << ") "
-                        << operatorToString(op) << " "
-                        << operand2->getTokens()->toString() << "("
-                        << Value::typeToString(operand2->type) << ")";
-
   if (op == OP_ADD)
     result = operand1.add(*operand2);
   else if (op == OP_SUBSTRACT)
@@ -371,9 +360,6 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
 
   token = *i;
 
-  LogStream().notice(3) << "Constant: " << token << "[type " << token.type
-                        << "]";
-
   switch (token.type) {
     case Token::HASH:
       i++;
@@ -396,9 +382,6 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
           i++;
           ret->setLocation(token);
 
-          LogStream().notice(3)
-              << "Variable value: " << ret->getTokens()->toString();
-
           return ret;
         }
       }
@@ -415,7 +398,6 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
       i++;
       interpolate(token, scope);
       str = token.getUrlString();
-      LogStream().notice(3) << "url: " << str;
 
       return new UrlValue(token, str);
 
@@ -568,8 +550,6 @@ Value *ValueProcessor::processFunction(const Token &function,
   vector<const Value *>::iterator it;
   string arg_str;
 
-  LogStream().notice(3) << "Function: " << function;
-
   fi = functionLibrary.getFunction(function.c_str());
 
   if (fi == NULL)
@@ -654,8 +634,6 @@ Value *ValueProcessor::processEscape(TokenList::const_iterator &i,
 
   i++;
 
-  LogStream().notice(3) << "Escaping: " << *i;
-
   if ((*i).type != Token::STRING) {
     i--;
     return NULL;
@@ -726,8 +704,6 @@ Value *ValueProcessor::processNegative(TokenList::const_iterator &i,
     return NULL;
   }
 
-  LogStream().notice(3) << "Negate: " << constant->getTokens()->toString();
-
   zero = new NumberValue(t_zero);
   ret = zero->substract(*constant);
 
@@ -746,14 +722,10 @@ void ValueProcessor::interpolate(std::string &str,
   const TokenList *var;
   TokenList variable;
 
-  LogStream().notice(3) << "Interpolate: " << str;
-
   while ((start = str.find("@{", end)) != string::npos &&
          (end = str.find("}", start)) != string::npos) {
     key = "@";
     key.append(str.substr(start + 2, end - (start + 2)));
-
-    LogStream().notice(3) << "Key: " << key;
 
     var = scope.getVariable(key);
 

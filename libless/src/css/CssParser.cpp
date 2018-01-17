@@ -1,6 +1,5 @@
 #include "less/css/CssParser.h"
 #include <iostream>
-#include "less/LogStream.h"
 
 CssParser::CssParser(CssTokenizer& tokenizer) {
   this->tokenizer = &tokenizer;
@@ -45,9 +44,9 @@ bool CssParser::parseEmptyStatement() {
   if (tokenizer->getTokenType() == Token::DELIMITER) {
     t = &tokenizer->getToken();
 
-    LogStream().warning() << t->source << ": Line " << t->line << ", Column"
-                          << t->column
-                          << " Warning: Semicolon without statement.";
+    cerr << t->source << ": Line " << t->line << ", Column"
+         << t->column
+         << " Warning: Semicolon without statement." << endl;
 
     tokenizer->readNextToken();
 

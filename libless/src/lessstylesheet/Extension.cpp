@@ -1,5 +1,4 @@
 #include "less/lessstylesheet/Extension.h"
-#include "less/LogStream.h"
 
 Extension::Extension() {
   all = false;
@@ -26,8 +25,6 @@ void Extension::updateSelector(Selector &s) const {
   if (target.back() == "all") {
     replaceInSelector(s);
   } else if (s.match(target)) {
-    LogStream().notice(2) << "Extending " << s.toString() << " with "
-                          << extension.toString();
 
     // add comma and selector
     s.push_back(Token::BUILTIN_COMMA);
@@ -47,8 +44,6 @@ void Extension::replaceInSelector(Selector &s) const {
     pos = s.find(t, first, last);
 
     if (pos != last) {
-      LogStream().notice(2)
-          << "Extending " << s.toString() << " with " << extension.toString();
 
       s.push_back(Token::BUILTIN_COMMA);
 

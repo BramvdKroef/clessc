@@ -1,5 +1,4 @@
 #include "less/lessstylesheet/LessRuleset.h"
-#include "less/LogStream.h"
 #include "less/lessstylesheet/LessStylesheet.h"
 #include "less/lessstylesheet/MediaQueryRuleset.h"
 
@@ -48,8 +47,6 @@ const std::list<UnprocessedStatement*>& LessRuleset::getUnprocessedStatements()
 LessRuleset* LessRuleset::createNestedRule() {
   LessRuleset* r = new LessRuleset();
 
-  LogStream().notice(2) << "Creating nested rule";
-
   nestedRules.push_back(r);
   r->setParent(this);
   r->setLessStylesheet(*getLessStylesheet());
@@ -58,8 +55,6 @@ LessRuleset* LessRuleset::createNestedRule() {
 
 MediaQueryRuleset* LessRuleset::createMediaQuery() {
   MediaQueryRuleset* r = new MediaQueryRuleset();
-
-  LogStream().notice(2) << "Creating nested media query";
 
   nestedRules.push_back(r);
   r->setParent(this);
@@ -125,7 +120,6 @@ const list<Closure*>& LessRuleset::getClosures() const {
 }
 
 void LessRuleset::setLessStylesheet(LessStylesheet& s) {
-  LogStream().notice(3) << "set LessStylesheet";
   lessStylesheet = &s;
 }
 
@@ -206,9 +200,6 @@ void LessRuleset::process(Stylesheet& s,
   if (prefix != NULL)
     target->getSelector().addPrefix(*prefix);
 
-  LogStream().notice(2) << "Processing Less Ruleset: "
-                        << getSelector().toString();
-
   context.interpolate(target->getSelector());
 
   processExtensions(context, prefix);
@@ -221,12 +212,8 @@ void LessRuleset::process(Stylesheet& s,
 
 void LessRuleset::processStatements(Ruleset& target,
                                     ProcessingContext& context) const {
-  LogStream().notice(2) << "Inserting statements";
-
   // process statements
   Ruleset::processStatements(target);
-
-  LogStream().notice(2) << "Inserting nested rules";
 
   // insert nested rules
   insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
@@ -238,16 +225,12 @@ void LessRuleset::processStatements(Stylesheet& target,
       getUnprocessedStatements();
   list<UnprocessedStatement*>::const_iterator up_it;
 
-  LogStream().notice(2) << "Inserting statements";
-
   // insert mixins
   for (up_it = unprocessedStatements.begin();
        up_it != unprocessedStatements.end();
        up_it++) {
     (*up_it)->process(target);
   }
-
-  LogStream().notice(2) << "Inserting nested rules";
 
   // insert nested rules
   insertNestedRules(target, NULL, context);
@@ -272,9 +255,6 @@ void LessRuleset::getFunctions(list<const Function*>& functionList,
 
   if (offset == mixin.name.begin())
     return;
-
-  LogStream().notice(3) << "Matching mixin " << mixin.name.toString()
-                        << " against " << getSelector().toString();
 
   while (offset != mixin.name.end() &&
          ((*offset).type == Token::WHITESPACE || *offset == ">")) {
@@ -360,11 +340,7 @@ bool LessRuleset::matchConditions(ProcessingContext& context) const {
   for (cit = conditions.begin(); cit != conditions.end(); cit++) {
     condition = (*cit);
 
-    LogStream().notice(3) << "Checking condition: " << condition.toString();
-
     if (context.validateCondition(condition)) {
-      LogStream().notice(3)
-          << "Found valid condition: " << condition.toString();
       return true;
     }
   }
@@ -399,8 +375,6 @@ bool LessRuleset::putArguments(const Mixin& mixin, VariableMap& scope) const {
   }
 
   argsCombined.trim();
-
-  LogStream().notice(3) << "@arguments: " << argsCombined.toString();
 
   if (selector->unlimitedArguments() && selector->getRestIdentifier() != "") {
     while (pos < mixin.getArgumentCount()) {

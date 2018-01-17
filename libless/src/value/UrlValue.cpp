@@ -1,6 +1,5 @@
 #include "less/value/UrlValue.h"
 #include "less/value/FunctionLibrary.h"
-#include "less/LogStream.h"
 
 #ifdef WITH_LIBPNG
 #include <png.h>
@@ -120,8 +119,6 @@ bool UrlValue::loadPng(UrlValue_Img& img) const {
 
   std::string path = getRelativePath();
 
-  LogStream().notice(3) << "PNG path: " << path;
-
   FILE* fp = fopen(path.c_str(), "rb");
   if (!fp)
     return false;  //"Image file could not be opened"
@@ -165,9 +162,6 @@ bool UrlValue::loadPng(UrlValue_Img& img) const {
     channels += 1;
   }
 
-  LogStream().notice(3) << "Width: " << img.width << ", Height: " << img.height
-                        << ", Channels: " << channels;
-
   png_color_16p pBackground;
   if (png_get_valid(png_ptr, info_ptr, PNG_INFO_bKGD)) {
     png_get_bKGD(png_ptr, info_ptr, &pBackground);
@@ -181,8 +175,6 @@ bool UrlValue::loadPng(UrlValue_Img& img) const {
   png_ptr = NULL;
   info_ptr = NULL;
   fclose(fp);
-
-  LogStream().notice(3) << "Read successful";
 
   return true;
 
@@ -350,8 +342,6 @@ Value* UrlValue::imgheight(const vector<const Value*>& arguments) {
   std::string px = "px";
 
   u = static_cast<const UrlValue*>(arguments[0]);
-
-  LogStream().notice(3) << "Height: " << u->getImageHeight();
 
   val = new NumberValue(u->getImageHeight(), Token::DIMENSION, &px);
   return val;

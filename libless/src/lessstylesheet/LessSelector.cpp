@@ -1,4 +1,3 @@
-#include "less/LogStream.h"
 #include "less/lessstylesheet/LessRuleset.h"
 
 LessSelector::LessSelector(const Selector &original) {
@@ -11,8 +10,6 @@ LessSelector::LessSelector(const Selector &original) {
 
   _needsArguments = false;
   _unlimitedArguments = false;
-
-  LogStream().notice(2) << "Parsing less selector";
 
   for (it = parts.begin(); it != parts.end(); it++) {
     old_selector = &(*it);
@@ -43,7 +40,6 @@ LessSelector::LessSelector(const Selector &original) {
     new_selector.clear();
   }
 
-  LogStream().notice(2) << "Parsed selector: " << toString();
 }
 
 LessSelector::~LessSelector() {
@@ -80,8 +76,6 @@ bool LessSelector::parseExtension(Selector &selector, Selector &extension) {
 
   selector.erase(selector.begin(), i);
 
-  LogStream().notice(2) << "Extension: " << extension.toString();
-
   return true;
 }
 
@@ -96,8 +90,6 @@ bool LessSelector::parseArguments(TokenList &selector) {
     delimiter = ";";
   else
     delimiter = ",";
-
-  LogStream().notice(3) << "Parameter delimiter: " << delimiter;
 
   if (!validateArguments(selector, delimiter))
     return false;
@@ -125,8 +117,6 @@ bool LessSelector::parseArguments(TokenList &selector) {
         selector.toString(), "matching parentheses.", 0, 0, "");
   }
   selector.pop_front();
-
-  LogStream().notice(3) << "Done parsing parameters";
 
   return true;
 }
@@ -199,8 +189,6 @@ bool LessSelector::validateArguments(const TokenList &arguments,
   if ((*i).type != Token::PAREN_CLOSED)
     return false;
 
-  LogStream().notice(2) << "Validated parameters";
-
   return true;
 }
 
@@ -244,9 +232,6 @@ bool LessSelector::parseParameter(TokenList &selector,
   if (!selector.empty() && selector.front() == delimiter)
     selector.pop_front();
 
-  LogStream().notice(2) << "Parameter: " << keyword
-                        << " default: " << value.toString();
-
   parameters.push_back(keyword);
   defaults.push_back(value);
   return true;
@@ -288,8 +273,6 @@ bool LessSelector::parseConditions(TokenList &selector) {
   if (selector.empty() || selector.front() != "when")
     return false;
 
-  LogStream().notice(3) << "Parsing conditions";
-
   selector.pop_front();
   selector.ltrim();
 
@@ -300,8 +283,6 @@ bool LessSelector::parseConditions(TokenList &selector) {
     }
     if (!selector.empty() && selector.front() == ",")
       selector.pop_front();
-
-    LogStream().notice(2) << "Condition: " << condition.toString();
 
     conditions.push_back(condition);
   }

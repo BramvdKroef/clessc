@@ -1,7 +1,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "less/LogStream.h"
 #include "less/value/Color.h"
 
 #include "less/value/FunctionLibrary.h"
@@ -36,8 +35,6 @@ void Color::updateTokens() {
   int i;
 
   tokens.clear();
-
-  LogStream().notice(3) << "Update tokens";
 
   // If the color is not opaque the rgba() function needs to be used.
   if (alpha < 1) {
@@ -82,8 +79,6 @@ void Color::updateTokens() {
 
     tokens.push_back(Token(hash, Token::HASH, 0, 0, "generated"));
   }
-
-  LogStream().notice(3) << tokens.toString();
 }
 
 Color::Color() : Value() {

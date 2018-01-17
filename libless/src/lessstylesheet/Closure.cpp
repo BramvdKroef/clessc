@@ -1,6 +1,5 @@
 #include "less/lessstylesheet/Closure.h"
 #include "less/lessstylesheet/LessRuleset.h"
-#include "less/LogStream.h"
 #include "less/lessstylesheet/ProcessingContext.h"
 
 Closure::Closure(const LessRuleset& ruleset, const MixinCall& stack) {
@@ -32,9 +31,6 @@ void Closure::getFunctions(std::list<const Function*>& functionList,
 
   if (offset == mixin.name.begin())
     return;
-
-  LogStream().notice(3) << "Matching mixin " << mixin.name.toString()
-                        << " against " << getLessSelector()->toString();
 
   while (offset != mixin.name.end() &&
          ((*offset).type == Token::WHITESPACE || *offset == ">")) {

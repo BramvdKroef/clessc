@@ -1,5 +1,4 @@
 #include "less/lessstylesheet/MediaQueryRuleset.h"
-#include "less/LogStream.h"
 #include "less/lessstylesheet/LessStylesheet.h"
 
 const Token MediaQueryRuleset::BUILTIN_AND(
@@ -16,9 +15,6 @@ void MediaQueryRuleset::process(Stylesheet& s,
   MediaQuery* query;
   Ruleset* target;
   Selector selector;
-
-  LogStream().notice(2) << "Processing Less Ruleset: "
-                        << getSelector().toString();
 
   query = s.createMediaQuery();
   selector = getSelector();
@@ -38,8 +34,6 @@ void MediaQueryRuleset::process(Stylesheet& s,
     target = query->createRuleset();
     target->setSelector(*prefix);
 
-    LogStream().notice(3) << "Interpolating selector "
-                          << target->getSelector().toString();
     context.interpolate(target->getSelector());
 
     processStatements(*target, context);

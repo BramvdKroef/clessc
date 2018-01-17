@@ -42,7 +42,6 @@ set(less_SOURCES
         src/value/UrlValue.cpp
         src/value/Value.cpp
         src/value/ValueProcessor.cpp
-        src/LogStream.cpp
         src/Token.cpp
         src/TokenList.cpp
         src/VariableMap.cpp
@@ -53,16 +52,6 @@ target_include_directories(less PUBLIC include)
 
 install(TARGETS less LIBRARY DESTINATION lib)
 install(DIRECTORY include/less DESTINATION include)
-
-find_package(GLOG)
-if (GLOG_FOUND)
-    target_compile_definitions(less PUBLIC WITH_LIBGLOG)
-    target_include_directories(less PUBLIC ${GLOG_INCLUDE_DIRS})
-    target_link_libraries(less ${GLOG_LIBRARIES})
-    message(STATUS "Compile with libglog")
-else (PNG_FOUND)
-    message(WARNING "Did not find libglog")
-endif (GLOG_FOUND)
 
 find_package(PNG 1.2)
 if (PNG_FOUND)

@@ -1,9 +1,5 @@
 #include "less/stylesheet/MediaQuery.h"
-#include "less/LogStream.h"
 
-#ifdef WITH_LIBGLOG
-#include <glog/logging.h>
-#endif
 
 Selector& MediaQuery::getSelector() {
   return selector;
@@ -15,8 +11,6 @@ void MediaQuery::setSelector(const Selector& s) {
 MediaQuery* MediaQuery::createMediaQuery() {
   MediaQuery* q = getStylesheet()->createMediaQuery();
 
-  LogStream().notice(3) << "Creating media query";
-
   q->setSelector(getSelector());
 
   return q;
@@ -24,9 +18,6 @@ MediaQuery* MediaQuery::createMediaQuery() {
 
 void MediaQuery::process(Stylesheet& s) {
   MediaQuery* query = s.createMediaQuery();
-
-  LogStream().notice(2) << "Processing media query "
-                        << getSelector().toString();
 
   query->setSelector(getSelector());
 

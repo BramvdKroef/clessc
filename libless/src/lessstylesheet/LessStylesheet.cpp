@@ -1,5 +1,4 @@
 #include "less/lessstylesheet/LessStylesheet.h"
-#include "less/LogStream.h"
 #include "less/lessstylesheet/LessMediaQuery.h"
 
 LessStylesheet::LessStylesheet() {
@@ -11,8 +10,6 @@ LessStylesheet::~LessStylesheet() {
 LessRuleset* LessStylesheet::createLessRuleset() {
   LessRuleset* r = new LessRuleset();
 
-  LogStream().notice(3) << "Creating LessRuleset";
-
   addRuleset(*r);
   lessrulesets.push_back(r);
   r->setLessStylesheet(*this);
@@ -21,8 +18,6 @@ LessRuleset* LessStylesheet::createLessRuleset() {
 
 Mixin* LessStylesheet::createMixin() {
   Mixin* m = new Mixin();
-
-  LogStream().notice(3) << "Creating mixin";
 
   addStatement(*m);
   m->setLessStylesheet(*this);
@@ -38,8 +33,6 @@ LessAtRule* LessStylesheet::createLessAtRule(const Token& keyword) {
 
 LessMediaQuery* LessStylesheet::createLessMediaQuery() {
   LessMediaQuery* q = new LessMediaQuery();
-
-  LogStream().notice(3) << "Adding Media Query";
 
   addStatement(*q);
   q->setLessStylesheet(*this);

@@ -1,5 +1,4 @@
 #include "less/lessstylesheet/Mixin.h"
-#include "less/LogStream.h"
 #include "less/lessstylesheet/LessRuleset.h"
 #include "less/lessstylesheet/LessStylesheet.h"
 
@@ -57,8 +56,6 @@ bool Mixin::call(Stylesheet &s,
   std::list<const Function *> functionList;
   const Function *function;
 
-  LogStream().notice(2) << "Mixin: \"" << name.toString() << "\"";
-
   if (parent != NULL)
     context.getFunctions(functionList, *this);
   else
@@ -68,22 +65,17 @@ bool Mixin::call(Stylesheet &s,
     return false;
 
   for (arg_i = arguments.begin(); arg_i != arguments.end(); arg_i++) {
-    LogStream().notice(3) << "Mixin Arg: " << (*arg_i).toString();
     context.processValue(*arg_i);
   }
 
   for (argn_i = namedArguments.begin(); argn_i != namedArguments.end();
        argn_i++) {
-    LogStream().notice(3) << "Mixin Arg " << argn_i->first << ": "
-                          << argn_i->second.toString();
     context.processValue(argn_i->second);
   }
 
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
 
-    LogStream().notice(3) << "Mixin: "
-                          << function->getLessSelector()->toString();
 
     if (function->getLessSelector()->needsArguments() ||
         !context.isInStack(*function)) {
