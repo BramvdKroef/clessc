@@ -357,7 +357,6 @@ TEST(ValueProcessorTest, StringFormat) {
 
   vp.processValue(l, c);
   
-  ASSERT_EQ((uint)1, l.size());
   EXPECT_STREQ("\"abc 10 10px\"", l.toString().c_str());
 
   l.clear();
@@ -372,8 +371,9 @@ TEST(ValueProcessorTest, StringFormat) {
   l.push_back(Token("10px", Token::DIMENSION,0,0,0));
   l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
 
-  ASSERT_EQ((uint)1, l.size());
-  EXPECT_STREQ("\"ab%20%2Fc 10 10px\"", l.toString().c_str());
+  vp.processValue(l, c);
+  
+  EXPECT_STREQ("\"ab%20%2fc 10 10px\"", l.toString().c_str());
 }
 
 TEST(ValueProcessorTest, Replace) {
@@ -393,7 +393,7 @@ TEST(ValueProcessorTest, Replace) {
   vp.processValue(l, c);
   
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_STREQ("'Hello, Earth!'", l.toString().c_str());
+  EXPECT_STREQ("\"Hello, Earth!\"", l.toString().c_str());
 
   l.clear();
   l.push_back(Token("replace", Token::IDENTIFIER,0,0,0));
@@ -410,7 +410,7 @@ TEST(ValueProcessorTest, Replace) {
   vp.processValue(l, c);
   
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_STREQ("'2 + 2 = 4'", l.toString().c_str());
+  EXPECT_STREQ("\"2 + 2 = 4\"", l.toString().c_str());
 
   l.clear();
   l.push_back(Token("replace", Token::IDENTIFIER,0,0,0));
@@ -425,7 +425,7 @@ TEST(ValueProcessorTest, Replace) {
   vp.processValue(l, c);
   
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_STREQ("'This is a new string.'", l.toString().c_str());
+  EXPECT_STREQ("\"This is a new string.\"", l.toString().c_str());
 }
 
 TEST(ValueProcessorTest, Length) {
