@@ -41,6 +41,8 @@ reference in the css output. \n"
     "       --source-map-basepath=<PATH>   PATH is removed from the \
 source file references in the source map, and also from the source \
 map reference in the css output.\n"
+    "       --rootpath=<PATH>           Prefix PATH to urls and import \
+statements in output. \n"
     "\n"
     "Example:\n"
     "   lessc in.less -o out.css\n"
@@ -231,7 +233,7 @@ int main(int argc, char * argv[]){
       
       in = new ifstream(source);
       if (in->fail() || in->bad())
-        throw new IOException("Error opening file");
+        throw new IOException("Error opening file.");
 
     }  else {
       
