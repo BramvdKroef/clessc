@@ -483,12 +483,11 @@ TEST(ValueProcessorTest, Min) {
   l.push_back(Token(",", Token::DELIMITER,0,0,0));
   l.push_back(Token("10", Token::NUMBER,0,0,0));
   l.push_back(Token(",", Token::DELIMITER,0,0,0));
-  l.push_back(Token("100", Token::STRING,0,0,0));
+  l.push_back(Token("100", Token::NUMBER,0,0,0));
   l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
 
   vp.processValue(l, c);
   
-  ASSERT_EQ((uint)1, l.size());
   EXPECT_STREQ("1", l.toString().c_str());
 }
 
@@ -503,13 +502,36 @@ TEST(ValueProcessorTest, Max) {
   l.push_back(Token(",", Token::DELIMITER,0,0,0));
   l.push_back(Token("10", Token::NUMBER,0,0,0));
   l.push_back(Token(",", Token::DELIMITER,0,0,0));
-  l.push_back(Token("100", Token::STRING,0,0,0));
+  l.push_back(Token("100", Token::NUMBER,0,0,0));
   l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
 
   vp.processValue(l, c);
   
-  ASSERT_EQ((uint)1, l.size());
   EXPECT_STREQ("100", l.toString().c_str());
+
+  l.clear();
+  l.push_back(Token("max", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token("'one'", Token::STRING,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("10", Token::NUMBER,0,0,0));
+  l.push_back(Token(",", Token::DELIMITER,0,0,0));
+  l.push_back(Token("100", Token::NUMBER,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  EXPECT_STREQ("max(\"one\", 10, 100)", l.toString().c_str());
+
+  l.clear();
+  l.push_back(Token("max", Token::IDENTIFIER,0,0,0));
+  l.push_back(Token("(", Token::PAREN_OPEN,0,0,0));
+  l.push_back(Token(")", Token::PAREN_CLOSED,0,0,0));
+
+  vp.processValue(l, c);
+  
+  EXPECT_STREQ("max()", l.toString().c_str());
+
 }
 
 TEST(ValueProcessorTest, IsNumber) {

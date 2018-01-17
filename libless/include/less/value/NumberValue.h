@@ -58,6 +58,8 @@ public:
   static Value *mod(const vector<const Value *> &args);
   static Value *convert(const vector<const Value *> &args);
 
+  static Value *min(const vector<const Value *> &args);
+  static Value *max(const vector<const Value *> &args);
   static Value *is_number(const vector<const Value *> &args);
   static Value *is_string(const vector<const Value *> &args);
   static Value *is_color(const vector<const Value *> &args);

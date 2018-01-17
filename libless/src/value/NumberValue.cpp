@@ -336,6 +336,8 @@ void NumberValue::loadFunctions(FunctionLibrary& lib) {
   lib.push("pow", ".N", &NumberValue::pow);
   lib.push("mod", "..", &NumberValue::mod);
   lib.push("convert", "..", &NumberValue::convert);
+  lib.push("min", "..+", &NumberValue::min);
+  lib.push("max", "..+", &NumberValue::max);
   lib.push("isnumber", ".", &NumberValue::is_number);
   lib.push("isstring", ".", &NumberValue::is_string);
   lib.push("iscolor", ".", &NumberValue::is_color);
@@ -629,10 +631,50 @@ Value* NumberValue::convert(const vector<const Value*>& args) {
   return n;
 }
 
+Value* NumberValue::min(const vector<const Value*>& arguments) {
+  const NumberValue* min = NULL;
+  vector<const Value *>::const_iterator it;
+  
+  for (it = arguments.begin(); it != arguments.end(); it++) {
+    if (!NumberValue::isNumber(**it)) {
+      throw new ValueException("arguments should be numbers",
+                               *(*it)->getTokens());
+    } else if (min == NULL) {
+      min = (const NumberValue*)*it;
+    } else {
+      if (((const NumberValue*)*it)->convert(min->getUnit()) <
+          min->getValue()) {
+        min = (const NumberValue*)*it;
+      }
+    }
+  }
+
+  return new NumberValue(*min);
+}
+
+Value* NumberValue::max(const vector<const Value*>& arguments) {
+  const NumberValue* max = NULL;
+  vector<const Value *>::const_iterator it;
+  
+  for (it = arguments.begin(); it != arguments.end(); it++) {
+    if (!NumberValue::isNumber(**it)) {
+      throw new ValueException("arguments should be numbers",
+                               *(*it)->getTokens());
+    } else if (max == NULL) {
+      max = (const NumberValue*)*it;
+    } else {
+      if (((const NumberValue*)*it)->convert(max->getUnit()) >
+          max->getValue()) {
+        max = (const NumberValue*)*it;
+      }
+    }
+  }
+
+  return new NumberValue(*max);
+}
+
 Value* NumberValue::is_number(const vector<const Value*>& arguments) {
-  return new BooleanValue((arguments[0]->type == Value::NUMBER ||
-                           arguments[0]->type == Value::DIMENSION ||
-                           arguments[0]->type == Value::PERCENTAGE));
+  return new BooleanValue(NumberValue::isNumber(*arguments[0]));
 }
 
 Value* NumberValue::is_string(const vector<const Value*>& arguments) {
