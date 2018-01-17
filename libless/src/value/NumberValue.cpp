@@ -318,7 +318,7 @@ bool NumberValue::isNumber(const Value& val) {
 
 void NumberValue::loadFunctions(FunctionLibrary& lib) {
   lib.push("unit", ".U?", &NumberValue::unit);
-  lib.push("get-unit", "N", &NumberValue::get_unit);
+  lib.push("get-unit", ".", &NumberValue::get_unit);
   lib.push("isunit", "..", &NumberValue::is_unit);
   lib.push("ceil", ".", &NumberValue::ceil);
   lib.push("floor", ".", &NumberValue::floor);
@@ -367,10 +367,17 @@ Value* NumberValue::unit(const vector<const Value*>& arguments) {
         "or dimension",
         *arguments[0]->getTokens());
 }
+
 Value* NumberValue::get_unit(const vector<const Value*>& arguments) {
-  const NumberValue* val = (const NumberValue*)arguments[0];
-  Token t(val->getUnit(), Token::IDENTIFIER, 0, 0, NULL);
-  t.setLocation(val->getTokens()->front());
+  Token t("", Token::IDENTIFIER, 0, 0, NULL);
+  const NumberValue* val;
+  if (arguments[0]->type == Value::NUMBER ||
+      arguments[0]->type == Value::DIMENSION) {
+    val = (const NumberValue*)arguments[0];
+    t = val->getUnit();
+    t.setLocation(val->getTokens()->front());
+  }
+  
   return new UnitValue(t);
 }
 
