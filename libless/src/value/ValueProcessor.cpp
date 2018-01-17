@@ -555,24 +555,18 @@ Value *ValueProcessor::processFunction(const Token &function,
   if (fi == NULL)
     return NULL;
 
-  try {
-    if (processArguments(i2, end, scope, arguments) &&
+  if (processArguments(i2, end, scope, arguments)) {
 
-        functionLibrary.checkArguments(fi, arguments)) {
-      ret = fi->func(arguments);
-      ret->setLocation(function);
-      // advance the iterator
-      i = i2;
-    } else
-      ret = NULL;
-
-    // If an exception is thrown, parsing or processing failed, and we
-    // assume this isn't a function.
-  } catch (ValueException *e) {
+    if (!functionLibrary.checkArguments(fi, arguments)) {
+      throw new ParseException(function, "valid arguments for function.",
+                               function.line, function.column, function.source);
+    }
+    ret = fi->func(arguments);
+    ret->setLocation(function);
+    // advance the iterator
+    i = i2;
+  } else
     ret = NULL;
-  } catch (ParseException *e) {
-    ret = NULL;
-  }
 
   // delete arguments
   for (it = arguments.begin(); it != arguments.end(); it++) {
