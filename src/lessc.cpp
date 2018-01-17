@@ -92,7 +92,7 @@ bool parseInput(LessStylesheet &stylesheet,
                 istream &in,
                 const char* source,
                 std::list<const char*> &sources,
-                std::list<const char*> &includePaths){
+                std::list<const char*> &includePaths) {
   std::list<const char*>::iterator i;
   
   LessTokenizer tokenizer(in, source);
@@ -115,8 +115,9 @@ bool parseInput(LessStylesheet &stylesheet,
   
   return true;
 }
+
 bool processStylesheet (LessStylesheet &stylesheet,
-                  Stylesheet &css) {
+                        Stylesheet &css) {
   ProcessingContext context;
 
   try{
@@ -126,16 +127,16 @@ bool processStylesheet (LessStylesheet &stylesheet,
     
     cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Parse Error: " << e->what() << endl;
-
     return false;
 
   } catch(ValueException* e) {
 
     cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Error: " << e->what() << endl;
-    
     return false;
+    
   } catch(exception* e) {
+    
     cerr << "Error: " << e->what() << endl;
     return false;
   }
@@ -183,16 +184,20 @@ int main(int argc, char * argv[]){
       case 1:
         version();
         return 0;
+        
       case 'h':
         usage();
         return 0;
+        
       case 'o':
         output = optarg;
         out = new ofstream(optarg);
         break;
+        
       case 'f':
         formatoutput = true;
         break;
+        
       case 'm':
         if (optarg)
           sourcemap_file = optarg;
@@ -203,6 +208,7 @@ int main(int argc, char * argv[]){
       case 2:
         sourcemap_rootpath = createPath(optarg, std::strlen(optarg));
         break;
+        
       case 3:
         sourcemap_basepath = createPath(optarg, std::strlen(optarg));
         break;
@@ -218,7 +224,7 @@ int main(int argc, char * argv[]){
       }
     }
     
-    if(argc - optind >= 1){
+    if (argc - optind >= 1) {
 
       source = new char[std::strlen(argv[optind]) + 1];
       std::strcpy(source, argv[optind]);
@@ -227,20 +233,24 @@ int main(int argc, char * argv[]){
       if (in->fail() || in->bad())
         throw new IOException("Error opening file");
 
-    } else if (sourcemap_file == "-") {
-      throw new IOException("source-map option requires that \
-a file name is specified for either the source map or the less \
-source.");
-    } else {
+    }  else {
+      
       source = new char[2];
       std::strcpy(source, "-");
-    }
-    
-    if (sourcemap_file == "-") {
-      sourcemap_file = source;
-      sourcemap_file += ".map";
+      
     }
 
+    if (sourcemap_file == "-") {
+      if (output == "-") {
+        throw new IOException("source-map option requires that \
+a file name is specified for either the source map or the css \
+output file.");
+      } else {
+        sourcemap_file = output;
+        sourcemap_file += ".map";
+      }
+    }
+    
     sources.push_back(source);
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
