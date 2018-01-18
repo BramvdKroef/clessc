@@ -458,28 +458,41 @@ Value* Color::rgba(const vector<const Value*>& arguments) {
 Value* Color::lighten(const vector<const Value*>& arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
-
-  return Color::fromHSL(
-      hsl[0], hsl[1] * 100, min(hsl[2] * 100 + value, 100.00));
+  Color *ret = Color::fromHSL(hsl[0],
+                               hsl[1] * 100,
+                               min(hsl[2] * 100 + value, 100.00));
+  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
+  return ret;
 }
 Value* Color::darken(const vector<const Value*>& arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
-
-  return Color::fromHSL(hsl[0], hsl[1] * 100, max(hsl[2] * 100 - value, 0.00));
+  Color *ret = Color::fromHSL(hsl[0],
+                              hsl[1] * 100,
+                              max(hsl[2] * 100 - value, 0.00));
+  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
+  return ret;
 }
+
 Value* Color::saturate(const vector<const Value*>& arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  return Color::fromHSL(
-      hsl[0], min(hsl[1] * 100 + value, 100.00), hsl[2] * 100);
+  Color *ret = Color::fromHSL(hsl[0],
+                              min(hsl[1] * 100 + value, 100.00),
+                              hsl[2] * 100);
+  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
+  return ret;
 }
 Value* Color::desaturate(const vector<const Value*>& arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  return Color::fromHSL(hsl[0], max(hsl[1] * 100 - value, 0.00), hsl[2] * 100);
+  Color *ret = Color::fromHSL(hsl[0],
+                              max(hsl[1] * 100 - value, 0.00),
+                              hsl[2] * 100);
+  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
+  return ret;
 }
 
 Value* Color::fade(const vector<const Value*>& arguments) {
@@ -512,8 +525,11 @@ Value* Color::spin(const vector<const Value*>& arguments) {
   double* hsl = ((const Color*)arguments[0])->getHSL();
   double degrees = ((const NumberValue*)arguments[1])->getValue();
 
-  return Color::fromHSL(
-      std::floor(hsl[0] + degrees), hsl[1] * 100, hsl[2] * 100);
+  Color *ret = Color::fromHSL(std::floor(hsl[0] + degrees),
+                              hsl[1] * 100,
+                              hsl[2] * 100);
+  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
+  return ret;
 }
 
 Value* Color::hsl(const vector<const Value*>& arguments) {
