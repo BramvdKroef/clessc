@@ -549,16 +549,27 @@ Value *ValueProcessor::processFunction(const Token &function,
   Value *ret = NULL;
   vector<const Value *>::iterator it;
   string arg_str;
-
+  
+  std::ostringstream fnc_str;
+  
   fi = functionLibrary.getFunction(function.c_str());
 
   if (fi == NULL)
     return NULL;
 
   if (processArguments(i2, end, scope, arguments)) {
-
+    
     if (!functionLibrary.checkArguments(fi, arguments)) {
-      throw new ParseException(function, "valid arguments for function.",
+      fnc_str << function << "(";
+      for (it = arguments.begin(); it != arguments.end(); it++) {
+        if (it != arguments.begin())
+          fnc_str << ", ";
+        fnc_str << (*it)->getTokens()->toString() << "(" <<
+          (*it)->typeToString((*it)->type) << ")";
+      }
+      fnc_str << ")";
+      throw new ParseException(fnc_str.str(),
+                               functionLibrary.functionDefToString(function.c_str(), fi),
                                function.line, function.column, function.source);
     }
     ret = fi->func(arguments);

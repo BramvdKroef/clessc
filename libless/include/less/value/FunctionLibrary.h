@@ -25,7 +25,7 @@ public:
   bool checkArguments(const FuncInfo* fi,
                       const vector<const Value*>& arguments) const;
   const char* functionDefToString(const char* functionName,
-                                  const FuncInfo* fi = NULL);
+                                  const FuncInfo* fi = NULL) const;
 };
 
 #endif  // __less_value_FunctionLibrary_h__

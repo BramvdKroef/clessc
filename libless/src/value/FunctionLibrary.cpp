@@ -59,7 +59,7 @@ bool FunctionLibrary::checkArguments(
 }
 
 const char* FunctionLibrary::functionDefToString(const char* functionName,
-                                                 const FuncInfo* fi) {
+                                                 const FuncInfo* fi) const {
   if (fi == NULL)
     fi = getFunction(functionName);
   if (fi == NULL)
