@@ -43,6 +43,8 @@ source file references in the source map, and also from the source \
 map reference in the css output.\n"
     "       --rootpath=<PATH>           Prefix PATH to urls and import \
 statements in output. \n"
+    "   -I, --include-path=<FILE>       Specify paths to look for \
+imported .less files.\n"
     "\n"
     "Example:\n"
     "   lessc in.less -o out.css\n"
@@ -145,6 +147,19 @@ bool processStylesheet (LessStylesheet &stylesheet,
   return true;
 }
 
+void writeDependencies(const char* output, const std::list<const char*> &sources) {
+  std::list<const char *>::const_iterator i;
+
+  cout << output << ": ";
+
+  for (i = sources.begin(); i != sources.end(); i++) {
+    if (i != sources.begin())
+      cout << ", ";
+    cout << (*i);
+  }
+  cout << endl;
+}
+
 int main(int argc, char * argv[]){
   istream* in = &cin;
   ostream* out = &cout;
@@ -155,6 +170,7 @@ int main(int argc, char * argv[]){
   std::list<const char*> sources;
   Stylesheet css;
   CssWriter* writer;
+  bool depends = false, lint = false;
 
   std::string sourcemap_file = "";
   ostream* sourcemap_s = NULL;
@@ -174,14 +190,16 @@ int main(int argc, char * argv[]){
     {"source-map-rootpath", required_argument, 0, 2},
     {"source-map-basepath", required_argument, 0, 3},
     {"include-path", required_argument,        0, 'I'},
-    {"rootpath", required_argument,  0, 4},
+    {"rootpath",   required_argument, 0, 4},
+    {"depends",    no_argument,       0,  'M'},
+    {"lint",       no_argument,       0,  'l'},
     {0,0,0,0}
   };
   
   try {
     int c, option_index;
 
-    while((c = getopt_long(argc, argv, ":o:hfv:m::I:", long_options, &option_index)) != -1) {
+    while((c = getopt_long(argc, argv, ":o:hfv:m::I:Ml", long_options, &option_index)) != -1) {
       switch (c) {
       case 1:
         version();
@@ -223,6 +241,19 @@ int main(int argc, char * argv[]){
         rootpath = createPath(optarg, std::strlen(optarg));
         break;
 
+      case 'M':
+        depends = true;
+        break;
+        
+      case 'l':
+        lint = true;
+        break;
+        
+      default:
+        cerr << "Unrecognized option. " << endl;
+                                           usage();
+                                           return 1;
+                                         
       }
     }
     
@@ -256,6 +287,14 @@ output file.");
     sources.push_back(source);
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
+      if (lint) {
+        return 0;
+      }
+      if (depends) {
+        writeDependencies(output.c_str(), sources);
+        return 0;
+      }
+      
       if (sourcemap_file != "") {
         sourcemap_s = new ofstream(sourcemap_file.c_str());
         sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str(),
