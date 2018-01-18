@@ -33,10 +33,6 @@ void SourceMapWriter::writePreamble(const char* out_filename,
 
   sourcemap_h << "\"version\" : 3,";
 
-  if (rootpath != NULL) {
-    sourcemap_h << "\"sourceRoot\": \"" << rootpath << "\",";
-  }
-
   sourcemap_h << "\"file\": ";
 
   if (basepath != NULL && strncmp(out_filename, basepath, bp_l) == 0) {
@@ -55,7 +51,11 @@ void SourceMapWriter::writePreamble(const char* out_filename,
     if (basepath != NULL && strncmp(source, basepath, bp_l) == 0) {
       source += bp_l;
     }
-    sourcemap_h << "\"" << source << "\"";
+    sourcemap_h << "\"";
+    if (rootpath != NULL) {
+      sourcemap_h << rootpath;
+    }
+    sourcemap_h << source << "\"";
   }
 
   sourcemap_h << "],";
