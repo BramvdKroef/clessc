@@ -413,6 +413,7 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("darken", "CP", &Color::darken);
   lib.push("saturate", "CP", &Color::saturate);
   lib.push("desaturate", "CP", &Color::desaturate);
+  lib.push("fade", "CP", &Color::fade);
   lib.push("fadein", "CP", &Color::fadein);
   lib.push("fadeout", "CP", &Color::fadeout);
   lib.push("spin", "CN", &Color::spin);
@@ -479,6 +480,14 @@ Value* Color::desaturate(const vector<const Value*>& arguments) {
   double value = ((const NumberValue*)arguments[1])->getValue();
 
   return Color::fromHSL(hsl[0], max(hsl[1] * 100 - value, 0.00), hsl[2] * 100);
+}
+
+Value* Color::fade(const vector<const Value*>& arguments) {
+  const Color* c = static_cast<const Color*>(arguments[0]);
+  double value = ((const NumberValue*)arguments[1])->getValue();
+
+  Color* ret = new Color(c->getRed(), c->getGreen(), c->getBlue(), value * .01);
+  return ret;
 }
 
 Value* Color::fadein(const vector<const Value*>& arguments) {
