@@ -18,19 +18,21 @@ void CssPrettyWriter::newline() {
 
 void CssPrettyWriter::writeSelector(const TokenList &selector) {
   TokenList::const_iterator it;
-
-  if (sourcemap != NULL)
-    sourcemap->writeMapping(column, selector.front());
-
+  bool newselector = true;
+  
   for (it = selector.begin(); it != selector.end(); it++) {
+    if (newselector && sourcemap != NULL) {
+      sourcemap->writeMapping(column, *it);
+      newselector = false;
+    }
+
     writeToken(*it);
 
     if ((*it) == ",") {
-      if (sourcemap != NULL)
-        sourcemap->writeMapping(column, selector.front());
-
       newline();
+      
       indent();
+      newselector = true;
     }
   }
 }
