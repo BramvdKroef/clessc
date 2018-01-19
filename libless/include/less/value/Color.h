@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
 #include "less/value/NumberValue.h"
 #include "less/value/StringValue.h"
 #include "less/value/Value.h"
@@ -26,13 +27,20 @@ private:
 
   void updateTokens();
 
+  bool parseHash(const char* hash);
+  
 public:
   Color();
-  Color(Token& token);
+  Color(const Token &token);
   Color(unsigned int red, unsigned int green, unsigned int blue);
   Color(unsigned int red, unsigned int green, unsigned int blue, double alpha);
   Color(const Color& color);
+  Color(const Token &name, const char* hash);
 
+  static std::map<string,const char*> ColorNames;
+  
+  static Color* fromName(const Token &name);
+  
   /**
    * The HSL to RGB conversion on
    * http://en.wikipedia.org/wiki/HSL_and_HSV did not work at all so

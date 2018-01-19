@@ -365,7 +365,7 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
       i++;
       // generate color from hex value
       return new Color(token);
-
+      
     case Token::NUMBER:
     case Token::PERCENTAGE:
     case Token::DIMENSION:
@@ -421,10 +421,12 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
           return NULL;
         }
 
-      } else if ((ret = processUnit(token)) != NULL) {
-        return ret;
       } else if (token.compare("true") == 0) {
         return new BooleanValue(token, true);
+      } else if ((ret = processUnit(token)) != NULL) {
+        return ret;
+      } else if ((ret = Color::fromName(token)) != NULL) {
+        return ret;
       } else {
         return new StringValue(token, false);
       }
