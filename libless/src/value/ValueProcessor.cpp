@@ -380,7 +380,7 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
 
         if (ret != NULL) {
           i++;
-          ret->setLocation(token);
+          //ret->setLocation(token);
 
           return ret;
         }
@@ -442,7 +442,7 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
     variable = *var;
     ret = processStatement(variable, scope);
     if (ret != NULL) {
-      ret->setLocation(token);
+      //ret->setLocation(token);
     }
     return ret;
   }
