@@ -76,15 +76,17 @@ void CssWriter::writeValue(const TokenList &value) {
     it++;
   }
 
-  if (sourcemap != NULL)
+  if (sourcemap != NULL) {
     sourcemap->writeMapping(column, *it);
-  t = &(*it);
+    t = &(*it);
+  }
 
   for (; it != value.end(); it++) {
-    if ((*it).source != t->source || (*it).line != t->line) {
-      if (sourcemap != NULL)
-        sourcemap->writeMapping(column, (*it));
-      t = &(*it);
+    if (sourcemap != NULL) {
+      if ((*it).source != t->source || (*it).line != t->line) {
+        if (sourcemap->writeMapping(column, (*it)))
+          t = &(*it);
+      }
     }
 
     writeToken(*it);
