@@ -34,7 +34,7 @@ public:
                   const char* basepath = NULL);
   virtual ~SourceMapWriter();
 
-  void writeMapping(unsigned int column, const Token& source);
+  bool writeMapping(unsigned int column, const Token& source);
   void writeNewline();
 
   void close();
