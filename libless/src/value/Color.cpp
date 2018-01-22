@@ -148,7 +148,7 @@ bool Color::parseHash(const char* hash) {
     len = 1;
     break;
     
-  case 8:
+  case 9:
     alpha = 0;
   case 7:
     len = 2;
