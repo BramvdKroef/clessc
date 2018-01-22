@@ -13,9 +13,6 @@ can use the `-f` option to indent the output. If you need it to be more
 user-readable you can use a CSS formatter. Try CSSTidy:
 http://csstidy.sourceforge.net/
 
-CSS comments are not included in the output. The purpose of this
-compiler is to produce the smallest amount of output as possible. 
-
 Parentheses are not required in compound values:
 
 ```
@@ -24,17 +21,6 @@ border: @width * 2 solid black;
 
 The `spin()` function produces slightly different results.
 
-There is an `imgwidth()` and a `imgheight()` function which can be used
-with image variables to access their dimensions. e.g.
-
-```
-    img.thumbup {
-       content: url(browser/path/to/thumbup.png);
-       @image: url('compile/time/path/to/thumbup.png');
-       width: imgwidth(@image);
-       height: imgheight(@image);
-    }
-```
 
 # Installation
 
