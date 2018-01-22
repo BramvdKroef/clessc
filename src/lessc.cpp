@@ -36,11 +36,9 @@ indentation. By default the output is unformatted.\n"
     "\n"
     "   -m, --source-map=[FILE]	Generate a source map.\n"
     "       --source-map-rootpath=<PATH>   PATH is prepended to the \
-source file references in the source map, and also to the source map \
-reference in the css output. \n"
+source file references in the source map. \n"
     "       --source-map-basepath=<PATH>   PATH is removed from the \
-source file references in the source map, and also from the source \
-map reference in the css output.\n"
+source file references in the source map.\n"
     "       --rootpath=<PATH>           Prefix PATH to urls and import \
 statements in output. \n"
     "   -I, --include-path=<FILE>       Specify paths to look for \
@@ -63,7 +61,7 @@ void version () {
 /**
  * Copy a given path to a new string and add a trailing slash if necessary.
  */
-char* createPath(const char* path, size_t len) {
+char* path_create(const char* path, size_t len) {
   size_t newlen = len +
     (path[len - 1] != '/' ? 1 : 0);
   char* p = new char[newlen + 1];
@@ -73,7 +71,7 @@ char* createPath(const char* path, size_t len) {
   return p;
 }
 
-void parsePathList(const char* path, std::list<const char*>& paths) {
+void path_parse_list(const char* path, std::list<const char*>& paths) {
   const char* start = path;
   const char* end = path;
   size_t len;
@@ -82,15 +80,47 @@ void parsePathList(const char* path, std::list<const char*>& paths) {
     len = (end - start);
     // skip empty paths
     if (len > 0)
-      paths.push_back(createPath(start, len));
+      paths.push_back(path_create(start, len));
 
     start = end + 1;
   }
   len = std::strlen(start);
   if (len > 0) 
-    paths.push_back(createPath(start, len));
+    paths.push_back(path_create(start, len));
 }
 
+char* path_create_relative(const char* path, const char* relative) {
+  const char* p_root;
+  const char* r_root;
+  size_t desc_n;
+  char* ret, *ret_p;
+
+  // strip common directories
+  while ((p_root = strchr(path, '/')) != NULL &&
+         (r_root = strchr(relative, '/')) != NULL &&
+         p_root - path == r_root - relative &&
+         strncmp(path, relative, p_root - path) == 0) {
+    path = p_root + 1;
+    relative = r_root + 1;
+  }
+
+  // count how many folders to go up.
+  for (desc_n = 0; relative != NULL; desc_n++) {
+    relative = strchr(relative + 1, '/');
+  }
+  desc_n--;
+
+  ret = new char[strlen(path) + 3 * desc_n + 1];
+  ret_p = ret;
+  while (desc_n > 0) {
+    memcpy(ret_p, "../", 3);
+    ret_p += 3;
+    desc_n--;
+  }
+  
+  strcpy(ret_p, path);
+  return ret;
+}
 
 bool parseInput(LessStylesheet &stylesheet,
                 istream &in,
@@ -152,23 +182,35 @@ void writeOutput(Stylesheet &css,
                  bool formatoutput,
                  const char* rootpath,
                  std::list<const char*> &sources,
-                 std::string sourcemap_file,
+                 const char* sourcemap_file,
                  const char* sourcemap_rootpath,
                  const char* sourcemap_basepath) {
   ostream* out = &cout;
   CssWriter* writer;
   ostream* sourcemap_s = NULL;
   SourceMapWriter* sourcemap = NULL;
+  char* tmp;
   
-  
-  if (strcmp(output, "-") != 0)
+  if (strcmp(output, "-") != 0) 
     out = new ofstream(output);
-      
-  if (!sourcemap_file.empty()) {
+
+  if (sourcemap_file != NULL) {
+    if (strcmp(sourcemap_file, "-") == 0) {
+      if (strcmp(output, "-") == 0) {
+        throw new IOException("source-map option requires that \
+a file name is specified for either the source map or the css  \
+output file.");
+      } else {
+        tmp = new char[strlen(output) + 5];
+        sprintf(tmp, "%s.map", output);
+        sourcemap_file = tmp;
+      }
+    }
+    
     sourcemap_s = new ofstream(sourcemap_file);
     sourcemap = new SourceMapWriter(*sourcemap_s,
                                     sources,
-                                    output,
+                                    path_create_relative(output, sourcemap_file),
                                     sourcemap_rootpath,
                                     sourcemap_basepath);
 
@@ -183,15 +225,8 @@ void writeOutput(Stylesheet &css,
   css.write(*writer);
       
   if (sourcemap != NULL) {
-    if (sourcemap_basepath != NULL &&
-        sourcemap_file.compare(0, std::strlen(sourcemap_basepath),
-                               sourcemap_basepath) == 0) {
-      sourcemap_file.erase(0, std::strlen(sourcemap_basepath));
-    }
-    if (sourcemap_rootpath != NULL)
-      sourcemap_file.insert(0, sourcemap_rootpath);
-        
-    writer->writeSourceMapUrl(sourcemap_file.c_str());
+    writer->writeSourceMapUrl(path_create_relative(sourcemap_file, output));
+    
     sourcemap->close();
     delete sourcemap;
     if (sourcemap_s != NULL)
@@ -219,13 +254,13 @@ int main(int argc, char * argv[]){
   istream* in = &cin;
   bool formatoutput = false;
   char* source = NULL;
-  string output = "-";
+  const char* output = "-";
   LessStylesheet stylesheet;
   std::list<const char*> sources;
   Stylesheet css;
   bool depends = false, lint = false;
 
-  std::string sourcemap_file = "";
+  const char* sourcemap_file = NULL;
 
   const char* sourcemap_rootpath = NULL;
   const char* sourcemap_basepath = NULL;
@@ -277,19 +312,19 @@ int main(int argc, char * argv[]){
         break;
         
       case 2:
-        sourcemap_rootpath = createPath(optarg, std::strlen(optarg));
+        sourcemap_rootpath = path_create(optarg, std::strlen(optarg));
         break;
         
       case 3:
-        sourcemap_basepath = createPath(optarg, std::strlen(optarg));
+        sourcemap_basepath = path_create(optarg, std::strlen(optarg));
         break;
 
       case 'I':
-        parsePathList(optarg, includePaths);
+        path_parse_list(optarg, includePaths);
         break;
 
       case 4:
-        rootpath = createPath(optarg, std::strlen(optarg));
+        rootpath = path_create(optarg, std::strlen(optarg));
         break;
 
       case 'M':
@@ -323,34 +358,23 @@ int main(int argc, char * argv[]){
       std::strcpy(source, "-");
       
     }
-
-    if (sourcemap_file == "-") {
-      if (output == "-") {
-        throw new IOException("source-map option requires that \
-a file name is specified for either the source map or the css \
-output file.");
-      } else {
-        sourcemap_file = output;
-        sourcemap_file += ".map";
-      }
-    }
     
     sources.push_back(source);
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (depends) {
-        writeDependencies(output.c_str(), sources);
+        writeDependencies(output, sources);
         return EXIT_SUCCESS;
       }
 
       if (!processStylesheet(stylesheet, css))
         return EXIT_FAILURE;
      
-      if (!lint) 
+      if (lint) 
         return EXIT_SUCCESS;
      
       writeOutput(css,
-                  output.c_str(),
+                  output,
                   formatoutput,
                   rootpath,
                   sources,
