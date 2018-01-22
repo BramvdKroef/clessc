@@ -192,6 +192,10 @@ void writeOutput(Stylesheet &css,
   char* tmp;
   std::list<const char*> relative_sources;
   std::list<const char*>::iterator it;
+  size_t bp_l = 0;
+
+  if (sourcemap_basepath != NULL)
+    bp_l = strlen(sourcemap_basepath);
   
   if (strcmp(output, "-") != 0) 
     out = new ofstream(output);
@@ -209,7 +213,11 @@ output file.");
       }
     }
     for (it = sources.begin(); it != sources.end(); it++) {
-      relative_sources.push_back(path_create_relative(*it, sourcemap_file));
+      if (sourcemap_basepath == NULL) {
+        relative_sources.push_back(path_create_relative(*it, sourcemap_file));
+      } else if (strncmp(*it, sourcemap_basepath, bp_l) == 0) {
+        relative_sources.push_back(*it + bp_l);
+      }
     }
     
     sourcemap_s = new ofstream(sourcemap_file);
@@ -217,8 +225,7 @@ output file.");
                                     sources,
                                     relative_sources,
                                     path_create_relative(output, sourcemap_file),
-                                    sourcemap_rootpath,
-                                    sourcemap_basepath);
+                                    sourcemap_rootpath);
 
     writer = formatoutput ? new CssPrettyWriter(*out, *sourcemap) :
       new CssWriter(*out, *sourcemap);

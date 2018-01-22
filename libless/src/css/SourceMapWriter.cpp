@@ -7,14 +7,13 @@ SourceMapWriter::SourceMapWriter(std::ostream& sourcemap,
                                  std::list<const char*>& sources,
                                  std::list<const char*>& relative_sources,
                                  const char* out_filename,
-                                 const char* rootpath,
-                                 const char* basepath)
+                                 const char* rootpath)
     : sourcemap_h(sourcemap), sources(sources) {
   lastDstColumn = 0;
   lastSrcFile = 0;
   lastSrcLine = 0;
   lastSrcColumn = 0;
-  writePreamble(out_filename, relative_sources, rootpath, basepath);
+  writePreamble(out_filename, relative_sources, rootpath);
 }
 
 SourceMapWriter::~SourceMapWriter() {
@@ -22,14 +21,9 @@ SourceMapWriter::~SourceMapWriter() {
 
 void SourceMapWriter::writePreamble(const char* out_filename,
                                     std::list<const char*>& sources,
-                                    const char* rootpath,
-                                    const char* basepath) {
+                                    const char* rootpath) {
   std::list<const char*>::iterator it;
   const char* source;
-  size_t bp_l = 0;
-
-  if (basepath != NULL)
-    bp_l = strlen(basepath);
 
   sourcemap_h << "{";
 
@@ -46,9 +40,6 @@ void SourceMapWriter::writePreamble(const char* out_filename,
       sourcemap_h << ",";
     source = *it;
 
-    if (basepath != NULL && strncmp(source, basepath, bp_l) == 0) {
-      source += bp_l;
-    }
     sourcemap_h << "\"";
     if (rootpath != NULL) {
       sourcemap_h << rootpath;

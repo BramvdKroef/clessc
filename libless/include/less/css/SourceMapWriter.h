@@ -22,8 +22,7 @@ private:
 
   void writePreamble(const char* out_filename,
                      std::list<const char*>& sources,
-                     const char* rootpath = NULL,
-                     const char* basepath = NULL);
+                     const char* rootpath = NULL);
 
 public:
   static const char* base64;
@@ -32,8 +31,7 @@ public:
                   std::list<const char*>& sources,
                   std::list<const char*>& relative_sources,
                   const char* out_filename,
-                  const char* rootpath = NULL,
-                  const char* basepath = NULL);
+                  const char* rootpath = NULL);
   virtual ~SourceMapWriter();
 
   bool writeMapping(unsigned int column, const Token& source);
