@@ -234,17 +234,17 @@ int main(int argc, char * argv[]){
   std::list<const char*> includePaths;
 
   static struct option long_options[] = {
-    {"version",    no_argument,       0, 1},
-    {"help",       no_argument,       0, 'h'},
-    {"output",     required_argument, 0, 'o'},
-    {"format",     no_argument,       0, 'f'},
-    {"source-map", optional_argument, 0, 'm'},
+    {"version",             no_argument,       0, 1},
+    {"help",                no_argument,       0, 'h'},
+    {"output",              required_argument, 0, 'o'},
+    {"format",              no_argument,       0, 'f'},
+    {"source-map",          optional_argument, 0, 'm'},
     {"source-map-rootpath", required_argument, 0, 2},
     {"source-map-basepath", required_argument, 0, 3},
-    {"include-path", required_argument,        0, 'I'},
-    {"rootpath",   required_argument, 0, 4},
-    {"depends",    no_argument,       0,  'M'},
-    {"lint",       no_argument,       0,  'l'},
+    {"include-path",        required_argument, 0, 'I'},
+    {"rootpath",            required_argument, 0, 4},
+    {"depends",             no_argument,       0, 'M'},
+    {"lint",                no_argument,       0, 'l'},
     {0,0,0,0}
   };
   
