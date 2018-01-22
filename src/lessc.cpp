@@ -184,7 +184,8 @@ void writeOutput(Stylesheet &css,
                  std::list<const char*> &sources,
                  const char* sourcemap_file,
                  const char* sourcemap_rootpath,
-                 const char* sourcemap_basepath) {
+                 const char* sourcemap_basepath,
+                 const char* sourcemap_url) {
   ostream* out = &cout;
   CssWriter* writer;
   ostream* sourcemap_s = NULL;
@@ -238,7 +239,10 @@ output file.");
   css.write(*writer);
       
   if (sourcemap != NULL) {
-    writer->writeSourceMapUrl(path_create_relative(sourcemap_file, output));
+    if (sourcemap_url != NULL)
+      writer->writeSourceMapUrl(sourcemap_url);
+    else
+      writer->writeSourceMapUrl(path_create_relative(sourcemap_file, output));
     
     sourcemap->close();
     delete sourcemap;
@@ -277,6 +281,7 @@ int main(int argc, char * argv[]){
 
   const char* sourcemap_rootpath = NULL;
   const char* sourcemap_basepath = NULL;
+  const char* sourcemap_url = NULL;
   const char* rootpath = NULL;
 
   std::list<const char*> includePaths;
@@ -289,6 +294,7 @@ int main(int argc, char * argv[]){
     {"source-map",          optional_argument, 0, 'm'},
     {"source-map-rootpath", required_argument, 0, 2},
     {"source-map-basepath", required_argument, 0, 3},
+    {"source-map-url",      required_argument, 0, 5},
     {"include-path",        required_argument, 0, 'I'},
     {"rootpath",            required_argument, 0, 4},
     {"depends",             no_argument,       0, 'M'},
@@ -330,6 +336,10 @@ int main(int argc, char * argv[]){
         
       case 3:
         sourcemap_basepath = path_create(optarg, std::strlen(optarg));
+        break;
+
+      case 5:
+        sourcemap_url = path_create(optarg, std::strlen(optarg));
         break;
 
       case 'I':
@@ -393,7 +403,8 @@ int main(int argc, char * argv[]){
                   sources,
                   sourcemap_file,
                   sourcemap_rootpath,
-                  sourcemap_basepath);
+                  sourcemap_basepath,
+                  sourcemap_url);
     } else
       return EXIT_FAILURE;
     delete [] source;
