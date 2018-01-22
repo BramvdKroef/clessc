@@ -21,6 +21,7 @@ private:
   size_t encodeField(int field, char* buffer);
 
   void writePreamble(const char* out_filename,
+                     std::list<const char*>& sources,
                      const char* rootpath = NULL,
                      const char* basepath = NULL);
 
@@ -29,6 +30,7 @@ public:
 
   SourceMapWriter(std::ostream& sourcemap,
                   std::list<const char*>& sources,
+                  std::list<const char*>& relative_sources,
                   const char* out_filename,
                   const char* rootpath = NULL,
                   const char* basepath = NULL);

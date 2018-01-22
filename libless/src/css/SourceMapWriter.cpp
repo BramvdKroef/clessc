@@ -5,6 +5,7 @@ const char* SourceMapWriter::base64 =
 
 SourceMapWriter::SourceMapWriter(std::ostream& sourcemap,
                                  std::list<const char*>& sources,
+                                 std::list<const char*>& relative_sources,
                                  const char* out_filename,
                                  const char* rootpath,
                                  const char* basepath)
@@ -13,13 +14,14 @@ SourceMapWriter::SourceMapWriter(std::ostream& sourcemap,
   lastSrcFile = 0;
   lastSrcLine = 0;
   lastSrcColumn = 0;
-  writePreamble(out_filename, rootpath, basepath);
+  writePreamble(out_filename, relative_sources, rootpath, basepath);
 }
 
 SourceMapWriter::~SourceMapWriter() {
 }
 
 void SourceMapWriter::writePreamble(const char* out_filename,
+                                    std::list<const char*>& sources,
                                     const char* rootpath,
                                     const char* basepath) {
   std::list<const char*>::iterator it;

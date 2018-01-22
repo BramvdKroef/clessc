@@ -190,6 +190,8 @@ void writeOutput(Stylesheet &css,
   ostream* sourcemap_s = NULL;
   SourceMapWriter* sourcemap = NULL;
   char* tmp;
+  std::list<const char*> relative_sources;
+  std::list<const char*>::iterator it;
   
   if (strcmp(output, "-") != 0) 
     out = new ofstream(output);
@@ -206,10 +208,14 @@ output file.");
         sourcemap_file = tmp;
       }
     }
+    for (it = sources.begin(); it != sources.end(); it++) {
+      relative_sources.push_back(path_create_relative(*it, sourcemap_file));
+    }
     
     sourcemap_s = new ofstream(sourcemap_file);
     sourcemap = new SourceMapWriter(*sourcemap_s,
                                     sources,
+                                    relative_sources,
                                     path_create_relative(output, sourcemap_file),
                                     sourcemap_rootpath,
                                     sourcemap_basepath);
