@@ -147,6 +147,61 @@ bool processStylesheet (LessStylesheet &stylesheet,
   return true;
 }
 
+void writeOutput(Stylesheet &css,
+                 const char* output,
+                 bool formatoutput,
+                 const char* rootpath,
+                 std::list<const char*> &sources,
+                 std::string sourcemap_file,
+                 const char* sourcemap_rootpath,
+                 const char* sourcemap_basepath) {
+  ostream* out = &cout;
+  CssWriter* writer;
+  ostream* sourcemap_s = NULL;
+  SourceMapWriter* sourcemap = NULL;
+  
+  
+  if (strcmp(output, "-") != 0)
+    out = new ofstream(output);
+      
+  if (!sourcemap_file.empty()) {
+    sourcemap_s = new ofstream(sourcemap_file);
+    sourcemap = new SourceMapWriter(*sourcemap_s,
+                                    sources,
+                                    output,
+                                    sourcemap_rootpath,
+                                    sourcemap_basepath);
+
+    writer = formatoutput ? new CssPrettyWriter(*out, *sourcemap) :
+      new CssWriter(*out, *sourcemap);
+  } else {
+    writer = formatoutput ? new CssPrettyWriter(*out) :
+      new CssWriter(*out);
+  }
+  writer->rootpath = rootpath;
+      
+  css.write(*writer);
+      
+  if (sourcemap != NULL) {
+    if (sourcemap_basepath != NULL &&
+        sourcemap_file.compare(0, std::strlen(sourcemap_basepath),
+                               sourcemap_basepath) == 0) {
+      sourcemap_file.erase(0, std::strlen(sourcemap_basepath));
+    }
+    if (sourcemap_rootpath != NULL)
+      sourcemap_file.insert(0, sourcemap_rootpath);
+        
+    writer->writeSourceMapUrl(sourcemap_file.c_str());
+    sourcemap->close();
+    delete sourcemap;
+    if (sourcemap_s != NULL)
+      delete sourcemap_s;
+  }
+      
+  delete writer;
+  *out << endl;
+}
+
 void writeDependencies(const char* output, const std::list<const char*> &sources) {
   std::list<const char *>::const_iterator i;
 
@@ -162,19 +217,16 @@ void writeDependencies(const char* output, const std::list<const char*> &sources
 
 int main(int argc, char * argv[]){
   istream* in = &cin;
-  ostream* out = &cout;
   bool formatoutput = false;
   char* source = NULL;
   string output = "-";
   LessStylesheet stylesheet;
   std::list<const char*> sources;
   Stylesheet css;
-  CssWriter* writer;
   bool depends = false, lint = false;
 
   std::string sourcemap_file = "";
-  ostream* sourcemap_s = NULL;
-  SourceMapWriter* sourcemap = NULL;
+
   const char* sourcemap_rootpath = NULL;
   const char* sourcemap_basepath = NULL;
   const char* rootpath = NULL;
@@ -250,8 +302,8 @@ int main(int argc, char * argv[]){
         
       default:
         cerr << "Unrecognized option. " << endl;
-                                           usage();
-                                           return 1;
+        usage();
+        return 1;
                                          
       }
     }
@@ -286,9 +338,6 @@ output file.");
     sources.push_back(source);
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
-      if (lint) {
-        return 0;
-      }
       if (depends) {
         writeDependencies(output.c_str(), sources);
         return 0;
@@ -297,46 +346,19 @@ output file.");
       if (!processStylesheet(stylesheet, css)) {
         return 1;
       }
-
-      if (output != "-")
-        out = new ofstream(output.c_str());
       
-      if (sourcemap_file != "") {
-        sourcemap_s = new ofstream(sourcemap_file.c_str());
-        sourcemap = new SourceMapWriter(*sourcemap_s,
-                                        sources,
-                                        output.c_str(),
-                                        sourcemap_rootpath,
-                                        sourcemap_basepath);
-
-        writer = formatoutput ? new CssPrettyWriter(*out, *sourcemap) :
-          new CssWriter(*out, *sourcemap);
-      } else {
-        writer = formatoutput ? new CssPrettyWriter(*out) :
-          new CssWriter(*out);
+      if (lint) {
+        return 0;
       }
-      writer->rootpath = rootpath;
-      
-      css.write(*writer);
-      
-      if (sourcemap != NULL) {
-        if (sourcemap_basepath != NULL &&
-            sourcemap_file.compare(0, std::strlen(sourcemap_basepath),
-                                   sourcemap_basepath) == 0) {
-          sourcemap_file.erase(0, std::strlen(sourcemap_basepath));
-        }
-        if (sourcemap_rootpath != NULL)
-          sourcemap_file.insert(0, sourcemap_rootpath);
-        
-        writer->writeSourceMapUrl(sourcemap_file.c_str());
-        sourcemap->close();
-        delete sourcemap;
-        if (sourcemap_s != NULL)
-          delete sourcemap_s;
-      }
-      
-      delete writer;
-      *out << endl;
+
+      writeOutput(css,
+                  output.c_str(),
+                  formatoutput,
+                  rootpath,
+                  sources,
+                  sourcemap_file,
+                  sourcemap_rootpath,
+                  sourcemap_basepath);
     } else
       return 1;
     delete [] source;
