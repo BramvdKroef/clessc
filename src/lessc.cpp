@@ -255,11 +255,11 @@ int main(int argc, char * argv[]){
       switch (c) {
       case 1:
         version();
-        return 0;
+        return EXIT_SUCCESS;
         
       case 'h':
         usage();
-        return 0;
+        return EXIT_SUCCESS;
         
       case 'o':
         output = optarg;
@@ -303,7 +303,7 @@ int main(int argc, char * argv[]){
       default:
         cerr << "Unrecognized option. " << endl;
         usage();
-        return 1;
+        return EXIT_FAILURE;
                                          
       }
     }
@@ -340,17 +340,15 @@ output file.");
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (depends) {
         writeDependencies(output.c_str(), sources);
-        return 0;
+        return EXIT_SUCCESS;
       }
 
-      if (!processStylesheet(stylesheet, css)) {
-        return 1;
-      }
-      
-      if (lint) {
-        return 0;
-      }
-
+      if (!processStylesheet(stylesheet, css))
+        return EXIT_FAILURE;
+     
+      if (!lint) 
+        return EXIT_SUCCESS;
+     
       writeOutput(css,
                   output.c_str(),
                   formatoutput,
@@ -360,13 +358,13 @@ output file.");
                   sourcemap_rootpath,
                   sourcemap_basepath);
     } else
-      return 1;
+      return EXIT_FAILURE;
     delete [] source;
     
   } catch (IOException* e) {
     cerr << " Error: " << e->what() << endl;
-    return 1;
+    return EXIT_FAILURE;
   }
 		
-  return 0;
+  return EXIT_SUCCESS;
 }
