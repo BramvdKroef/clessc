@@ -211,7 +211,6 @@ int main(int argc, char * argv[]){
         
       case 'o':
         output = optarg;
-        out = new ofstream(optarg);
         break;
         
       case 'f':
@@ -294,10 +293,19 @@ output file.");
         writeDependencies(output.c_str(), sources);
         return 0;
       }
+
+      if (!processStylesheet(stylesheet, css)) {
+        return 1;
+      }
+
+      if (output != "-")
+        out = new ofstream(output.c_str());
       
       if (sourcemap_file != "") {
         sourcemap_s = new ofstream(sourcemap_file.c_str());
-        sourcemap = new SourceMapWriter(*sourcemap_s, sources, output.c_str(),
+        sourcemap = new SourceMapWriter(*sourcemap_s,
+                                        sources,
+                                        output.c_str(),
                                         sourcemap_rootpath,
                                         sourcemap_basepath);
 
@@ -309,9 +317,6 @@ output file.");
       }
       writer->rootpath = rootpath;
       
-      if (!processStylesheet(stylesheet, css)) {
-        return 1;
-      }
       css.write(*writer);
       
       if (sourcemap != NULL) {
