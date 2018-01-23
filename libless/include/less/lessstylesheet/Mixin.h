@@ -20,13 +20,13 @@ class LessStylesheet;
 class LessRuleset;
 class ProcessingContext;
 
-class Mixin : public StylesheetStatement {
+class Mixin : public StylesheetStatement, public RulesetStatement {
 private:
   std::vector<TokenList> arguments;
   std::map<std::string, TokenList> namedArguments;
 
   LessStylesheet *lessStylesheet;
-  void parseArguments(TokenList::const_iterator i, const Selector &s);
+  LessRuleset *lessRuleset;
 
 public:
   Selector name;
@@ -40,15 +40,21 @@ public:
 
   const TokenList *getArgument(const std::string &name) const;
 
+  void addArgument(TokenList &argument);
+  void addArgument(std::string name, TokenList &argument);
+  
   bool call(Stylesheet &s,
             ProcessingContext &context,
             Ruleset *ruleset,
             LessRuleset *parent);
-  bool parse(const Selector &selector);
 
   virtual void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet *getLessStylesheet();
 
+  virtual void setLessRuleset(LessRuleset &ruleset);
+  LessRuleset *getLessRuleset();
+
+  virtual void process(Ruleset& r);
   virtual void process(Stylesheet &s);
   virtual void write(CssWriter &writer){};
 };

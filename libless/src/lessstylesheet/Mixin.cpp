@@ -7,6 +7,8 @@ Mixin::Mixin() {
 
 Mixin::Mixin(const Selector &name) {
   this->name = name;
+  lessStylesheet = NULL;
+  lessRuleset = NULL;
 }
 
 Mixin::~Mixin() {
@@ -32,19 +34,13 @@ const TokenList *Mixin::getArgument(const std::string &name) const {
     return NULL;
 }
 
-bool Mixin::parse(const Selector &selector) {
-  TokenList::const_iterator i = selector.begin();
-
-  for (; i != selector.end() && (*i).type != Token::PAREN_OPEN; i++) {
-    this->name.push_back(*i);
-  }
-
-  this->name.rtrim();
-
-  parseArguments(i, selector);
-
-  return true;
+void Mixin::addArgument(TokenList &argument) {
+  arguments.push_back(argument);
 }
+void Mixin::addArgument(std::string name, TokenList &argument) {
+  namedArguments.insert(std::pair<std::string, TokenList>(name, argument));
+}
+
 
 bool Mixin::call(Stylesheet &s,
                  ProcessingContext &context,
@@ -108,71 +104,20 @@ void Mixin::setLessStylesheet(LessStylesheet &s) {
 LessStylesheet *Mixin::getLessStylesheet() {
   return lessStylesheet;
 }
+void Mixin::setLessRuleset(LessRuleset &r) {
+  lessRuleset = &r;
+}
+LessRuleset *Mixin::getLessRuleset() {
+  return lessRuleset;
+}
 
 void Mixin::process(Stylesheet &s) {
-  call(s, *getLessStylesheet()->getContext(), NULL, NULL);
+  call(s, *getLessStylesheet()->getContext(), NULL, getLessRuleset());
+}
+void Mixin::process(Ruleset &r) {
+  call(*r.getStylesheet(),
+       *getLessRuleset()->getContext(),
+       &r,
+       getLessRuleset());
 }
 
-void Mixin::parseArguments(TokenList::const_iterator i,
-                           const Selector &selector) {
-  TokenList::const_iterator j;
-  std::string delimiter = ",";
-
-  TokenList argument;
-  size_t nestedParenthesis = 0;
-  std::string argName;
-
-  if (i != selector.end() && (*i).type == Token::PAREN_OPEN) {
-    i++;
-  }
-
-  // if a ';' token occurs then that is the delimiter instead of the ','.
-  for (j = i; j != selector.end(); j++) {
-    if (*j == ";") {
-      delimiter = ";";
-      break;
-    }
-  }
-
-  while (i != selector.end() && (*i).type != Token::PAREN_CLOSED) {
-    while (i != selector.end() && (*i).type == Token::WHITESPACE) {
-      i++;
-    }
-
-    if ((*i).type == Token::ATKEYWORD) {
-      argName = (*i);
-      i++;
-      if (i != selector.end() && (*i).type == Token::COLON) {
-        i++;
-      } else {
-        argName = "";
-        i--;
-      }
-    }
-
-    while (i != selector.end() &&
-           (nestedParenthesis > 0 ||
-            ((*i) != delimiter && (*i).type != Token::PAREN_CLOSED))) {
-      if ((*i).type == Token::PAREN_OPEN)
-        nestedParenthesis++;
-
-      if ((*i).type == Token::PAREN_CLOSED)
-        nestedParenthesis--;
-
-      argument.push_back(*i);
-
-      i++;
-    }
-
-    if (*i == delimiter)
-      i++;
-
-    if (argName == "")
-      this->arguments.push_back(argument);
-    else {
-      this->namedArguments.insert(std::pair<std::string, TokenList>(argName, argument));
-      argName = "";
-    }
-    argument.clear();
-  }
-}

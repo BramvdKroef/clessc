@@ -20,7 +20,8 @@
 #include "less/lessstylesheet/LessSelector.h"
 #include "less/lessstylesheet/Mixin.h"
 #include "less/lessstylesheet/ProcessingContext.h"
-#include "less/lessstylesheet/UnprocessedStatement.h"
+#include "less/lessstylesheet/LessDeclaration.h"
+#include "less/lessstylesheet/LessAtRule.h"
 
 class LessStylesheet;
 class MediaQueryRuleset;
@@ -31,8 +32,11 @@ protected:
   VariableMap variables;
   list<LessRuleset *> nestedRules;
   std::list<Closure *> closures;
+  std::list<TokenList> extensions;
 
-  list<UnprocessedStatement *> unprocessedStatements;
+  std::list<LessDeclaration *> lessDeclarations;
+  std::list<Mixin *> mixins;
+  std::list<LessAtRule *> lessAtRules;
 
   LessRuleset *parent;
   LessStylesheet *lessStylesheet;
@@ -55,14 +59,20 @@ public:
   virtual void setSelector(const Selector &selector);
   virtual LessSelector *getLessSelector() const;
 
-  UnprocessedStatement *createUnprocessedStatement();
+  void addExtension(TokenList &extension);
+    
+  LessDeclaration *createLessDeclaration();
+  Mixin *createMixin();
+  LessAtRule *createLessAtRule(const Token& keyword);
   LessRuleset *createNestedRule();
   MediaQueryRuleset *createMediaQuery();
 
   void deleteNestedRule(LessRuleset &ruleset);
-  void deleteUnprocessedStatement(UnprocessedStatement &statement);
 
-  const list<UnprocessedStatement *> &getUnprocessedStatements() const;
+
+  const list<LessDeclaration *> &getLessDeclarations() const;
+  const list<Mixin *> &getMixins() const;
+  const list<LessAtRule *> &getLessAtRules() const;
   const list<LessRuleset *> &getNestedRules() const;
 
   void putVariable(const std::string &key, const TokenList &value);

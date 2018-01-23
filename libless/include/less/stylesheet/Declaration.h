@@ -9,7 +9,7 @@
 #include "less/TokenList.h"
 
 class Declaration : public RulesetStatement {
-private:
+protected:
   Token property;
   TokenList value;
 

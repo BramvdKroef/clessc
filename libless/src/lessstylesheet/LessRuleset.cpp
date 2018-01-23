@@ -17,7 +17,9 @@ LessRuleset::~LessRuleset() {
     delete nestedRules.back();
     nestedRules.pop_back();
   }
-  unprocessedStatements.clear();
+  lessDeclarations.clear();
+  mixins.clear();
+  lessAtRules.clear();
   if (selector != NULL)
     delete selector;
 }
@@ -30,18 +32,50 @@ LessSelector* LessRuleset::getLessSelector() const {
   return selector;
 }
 
-UnprocessedStatement* LessRuleset::createUnprocessedStatement() {
-  UnprocessedStatement* s = new UnprocessedStatement();
-
-  Ruleset::addStatement(*s);
-  s->setLessRuleset(*this);
-  unprocessedStatements.push_back(s);
-  return s;
+void LessRuleset::addExtension(TokenList &extension) {
+  extensions.push_back(extension);
 }
 
-const std::list<UnprocessedStatement*>& LessRuleset::getUnprocessedStatements()
-    const {
-  return unprocessedStatements;
+LessDeclaration* LessRuleset::createLessDeclaration() {
+  LessDeclaration* d = new LessDeclaration();
+
+  Ruleset::addStatement(*d);
+  d->setLessRuleset(*this);
+  lessDeclarations.push_back(d);
+  return d;
+}
+
+const std::list<LessDeclaration*>& LessRuleset::getLessDeclarations()
+  const {
+  return lessDeclarations;
+}
+
+Mixin* LessRuleset::createMixin() {
+  Mixin* m = new Mixin();
+
+  Ruleset::addStatement(*m);
+  m->setLessRuleset(*this);
+  mixins.push_back(m);
+  return m;
+}
+
+const std::list<Mixin*>& LessRuleset::getMixins()
+  const {
+  return mixins;
+}
+
+LessAtRule* LessRuleset::createLessAtRule(const Token& keyword) {
+  LessAtRule* r = new LessAtRule(keyword);
+
+  Ruleset::addStatement(*r);
+  r->setLessStylesheet(*this->getLessStylesheet());
+  lessAtRules.push_back(r);
+  return r;
+}
+
+const std::list<LessAtRule*>& LessRuleset::getLessAtRules()
+  const {
+  return lessAtRules;
 }
 
 LessRuleset* LessRuleset::createNestedRule() {
@@ -65,11 +99,6 @@ MediaQueryRuleset* LessRuleset::createMediaQuery() {
 void LessRuleset::deleteNestedRule(LessRuleset& ruleset) {
   nestedRules.remove(&ruleset);
   delete &ruleset;
-}
-
-void LessRuleset::deleteUnprocessedStatement(UnprocessedStatement& statement) {
-  unprocessedStatements.remove(&statement);
-  deleteStatement(statement);
 }
 
 const std::list<LessRuleset*>& LessRuleset::getNestedRules() const {
@@ -221,15 +250,15 @@ void LessRuleset::processStatements(Ruleset& target,
 
 void LessRuleset::processStatements(Stylesheet& target,
                                     ProcessingContext& context) const {
-  const list<UnprocessedStatement*>& unprocessedStatements =
-      getUnprocessedStatements();
-  list<UnprocessedStatement*>::const_iterator up_it;
+  const list<Mixin*>& mixins =
+    getMixins();
+  list<Mixin*>::const_iterator mixin_it;
 
   // insert mixins
-  for (up_it = unprocessedStatements.begin();
-       up_it != unprocessedStatements.end();
-       up_it++) {
-    (*up_it)->process(target);
+  for (mixin_it = mixins.begin();
+       mixin_it != mixins.end();
+       mixin_it++) {
+    (*mixin_it)->process(target);
   }
 
   // insert nested rules
