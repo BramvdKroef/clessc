@@ -339,7 +339,7 @@ int main(int argc, char * argv[]){
         break;
 
       case 5:
-        sourcemap_url = path_create(optarg, std::strlen(optarg));
+        sourcemap_url = optarg;
         break;
 
       case 'I':
