@@ -26,6 +26,7 @@ void CssWriter::writeStr(const char *str, size_t len) {
 }
 void CssWriter::writeToken(const Token &token) {
   std::string url;
+  size_t pos = 0;
 
   if (rootpath != NULL && token.type == Token::URL) {
     url = token.getUrlString();
@@ -40,6 +41,14 @@ void CssWriter::writeToken(const Token &token) {
       writeStr(token.c_str(), token.size());
     }
   } else {
+    if (sourcemap != NULL &&
+        token.type == Token::COMMENT) {
+      while ((pos = token.find('\n', pos)) != std::string::npos) {
+        sourcemap->writeNewline();
+        pos++;
+      }
+    }
+    
     writeStr(token.c_str(), token.size());
   }
 }
