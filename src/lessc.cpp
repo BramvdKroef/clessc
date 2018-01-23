@@ -218,6 +218,8 @@ output file.");
         relative_sources.push_back(path_create_relative(*it, sourcemap_file));
       } else if (strncmp(*it, sourcemap_basepath, bp_l) == 0) {
         relative_sources.push_back(*it + bp_l);
+      } else {
+        relative_sources.push_back(*it);
       }
     }
     
