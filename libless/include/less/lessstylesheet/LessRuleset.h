@@ -54,6 +54,10 @@ protected:
 
   void addClosures(ProcessingContext &context) const;
 
+  bool call(MixinArguments& args,
+            ProcessingContext& context,
+            Ruleset* ruleset,
+            Stylesheet* stylesheet) const;
 public:
   LessRuleset();
   LessRuleset(const Selector &selector);

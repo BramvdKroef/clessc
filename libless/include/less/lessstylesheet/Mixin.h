@@ -28,16 +28,15 @@ public:
   Mixin(const Selector &name);
   virtual ~Mixin();
 
-  bool call(Stylesheet &s,
-            ProcessingContext &context,
+  bool call(ProcessingContext &context,
             Ruleset *ruleset,
-            LessRuleset *parent) const;
+            Stylesheet *stylesheet) const;
 
   virtual void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet *getLessStylesheet() const;
 
   virtual void setLessRuleset(LessRuleset &ruleset);
-  LessRuleset *getLessRuleset();
+  LessRuleset *getLessRuleset() const;
 
   virtual void process(Ruleset& r);
   virtual void process(Stylesheet &s);

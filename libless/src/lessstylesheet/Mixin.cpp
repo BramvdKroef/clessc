@@ -18,22 +18,19 @@ Mixin::~Mixin() {
 }
 
 
-bool Mixin::call(Stylesheet &s,
-                 ProcessingContext &context,
-                 Ruleset *target,
-                 LessRuleset *parent) const {
+bool Mixin::call(ProcessingContext &context,
+                 Ruleset *r_target,
+                 Stylesheet *s_target) const {
 
+  LessRuleset *parent = getLessRuleset();
+  
   std::list<const Function *>::iterator i;
   std::list<const Function *> functionList;
   const Function *function;
   
   MixinArguments arguments_p;
   
-
-  if (parent != NULL)
-    context.getFunctions(functionList, *this);
-  else
-    getLessStylesheet()->getFunctions(functionList, *this);
+  context.getFunctions(functionList, *this);
 
   if (functionList.empty())
     return false;
@@ -48,10 +45,10 @@ bool Mixin::call(Stylesheet &s,
         !context.isInStack(*function)) {
       context.pushMixinCall(*function);
 
-      if (target != NULL)
-        function->call(arguments_p, *target, context);
+      if (r_target != NULL)
+        function->call(arguments_p, *r_target, context);
       else
-        function->call(arguments_p, s, context);
+        function->call(arguments_p, *s_target, context);
 
       context.popMixinCall();
       if (parent != NULL) {
@@ -75,20 +72,25 @@ void Mixin::setLessStylesheet(LessStylesheet &s) {
 LessStylesheet *Mixin::getLessStylesheet() const {
   return lessStylesheet;
 }
+
 void Mixin::setLessRuleset(LessRuleset &r) {
   lessRuleset = &r;
 }
-LessRuleset *Mixin::getLessRuleset() {
+
+LessRuleset *Mixin::getLessRuleset() const {
   return lessRuleset;
 }
 
 void Mixin::process(Stylesheet &s) {
-  call(s, *getLessStylesheet()->getContext(), NULL, getLessRuleset());
+  ProcessingContext *c;
+  if (getLessStylesheet() != NULL)
+    c = getLessStylesheet()->getContext();
+  else
+    c = getLessRuleset()->getContext();
+  call(*c, NULL, &s);
 }
+
 void Mixin::process(Ruleset &r) {
-  call(*r.getStylesheet(),
-       *getLessRuleset()->getContext(),
-       &r,
-       getLessRuleset());
+  call(*getLessRuleset()->getContext(), &r, NULL);
 }
 

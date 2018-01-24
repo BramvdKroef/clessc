@@ -195,29 +195,28 @@ void LessRuleset::processExtensions(ProcessingContext& context,
 bool LessRuleset::call(MixinArguments& args,
                        Ruleset& target,
                        ProcessingContext& context) const {
-  bool ret = false;
-
-  if (putArguments(args, *context.getStackArguments()) &&
-      matchConditions(context)) {
-    processStatements(target, context);
-
-    addClosures(context);
-    // process variables and add to context.variables
-    context.addVariables(variables);
-
-    ret = true;
-  }
-  return ret;
+  return call(args, context, &target, NULL);
 }
 
 bool LessRuleset::call(MixinArguments& args,
                        Stylesheet& target,
                        ProcessingContext& context) const {
+  return call(args, context, NULL, &target);
+}
+
+bool LessRuleset::call(MixinArguments& args,
+                       ProcessingContext& context,
+                       Ruleset* ruleset,
+                       Stylesheet* stylesheet) const {
   bool ret = false;
 
   if (putArguments(args, *context.getStackArguments()) &&
       matchConditions(context)) {
-    processStatements(target, context);
+    
+    if (ruleset != NULL)
+      processStatements(*ruleset, context);
+    else 
+      processStatements(*stylesheet, context);
 
     addClosures(context);
     // process variables and add to context.variables
