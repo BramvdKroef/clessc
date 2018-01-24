@@ -64,6 +64,9 @@ public:
 
   virtual void parseStylesheet(LessStylesheet &stylesheet);
 
+  bool parseRuleset(Selector &selector,
+                    LessStylesheet *stylesheet,
+                    LessRuleset *parentRuleset);
 protected:
   std::list<const char *> &sources;
   bool reference;
@@ -85,28 +88,33 @@ protected:
    * value. Otherwise parse the usual at-rule.
    */
   bool parseAtRuleOrVariable(LessStylesheet &stylesheet);
-
+  bool parseAtRuleOrVariable(LessRuleset &ruleset);
+    
   bool parseAtRuleValue(TokenList &rule);
 
   bool parseVariable(TokenList &value);
   bool parseSelector(Selector &selector);
   bool parseSelectorVariable(Selector &selector);
 
-  bool parseRuleset(LessStylesheet &stylesheet,
-                    Selector &selector,
-                    LessRuleset *parent = NULL);
-
-  void parseRulesetStatements(LessStylesheet &stylesheet, LessRuleset &ruleset);
+  bool parseRuleset(LessStylesheet &parent, Selector &selector);
+  bool parseRuleset(LessRuleset &parent, Selector &selector);
 
   void parseMediaQueryRuleset(Token &mediatoken,
-                              LessStylesheet &stylesheet,
                               LessRuleset &parent);
 
   bool parsePropertyVariable(Selector &selector);
-  UnprocessedStatement *parseRulesetStatement(LessRuleset &parent);
+  bool parseRulesetStatement(LessRuleset &parent);
 
-  Declaration *parseDeclaration(TokenList &property, TokenList &value);
-
+  bool parseComment(LessRuleset& ruleset);
+  bool parseExtension(Selector &statement, LessRuleset &ruleset);
+  bool parseDeclaration(Selector &tokens,
+                        size_t property_i,
+                        LessRuleset &ruleset);
+  bool parseMixin(TokenList &tokens, LessStylesheet &stylesheet);
+  bool parseMixin(TokenList &tokens, LessRuleset &ruleset);
+  void parseMixinArguments(TokenList::const_iterator i,
+                           const TokenList &tokens,
+                           Mixin &mixin);
   bool parseVariable(std::string &keyword, TokenList &value);
 
   void parseList(std::list<TokenList *> *list, TokenList *tokens);

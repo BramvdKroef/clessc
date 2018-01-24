@@ -17,7 +17,9 @@ LessRuleset::~LessRuleset() {
     delete nestedRules.back();
     nestedRules.pop_back();
   }
-  unprocessedStatements.clear();
+  lessDeclarations.clear();
+  mixins.clear();
+  lessAtRules.clear();
   if (selector != NULL)
     delete selector;
 }
@@ -30,18 +32,57 @@ LessSelector* LessRuleset::getLessSelector() const {
   return selector;
 }
 
-UnprocessedStatement* LessRuleset::createUnprocessedStatement() {
-  UnprocessedStatement* s = new UnprocessedStatement();
-
-  Ruleset::addStatement(*s);
-  s->setLessRuleset(*this);
-  unprocessedStatements.push_back(s);
-  return s;
+void LessRuleset::addExtension(Extension &extension) {
+  extensions.push_back(extension);
 }
 
-const std::list<UnprocessedStatement*>& LessRuleset::getUnprocessedStatements()
-    const {
-  return unprocessedStatements;
+LessDeclaration* LessRuleset::createLessDeclaration() {
+  LessDeclaration* d = new LessDeclaration();
+
+  Ruleset::addStatement(*d);
+  d->setLessRuleset(*this);
+  lessDeclarations.push_back(d);
+  return d;
+}
+
+const std::list<LessDeclaration*>& LessRuleset::getLessDeclarations()
+  const {
+  return lessDeclarations;
+}
+
+Mixin* LessRuleset::createMixin() {
+  Mixin* m = new Mixin();
+
+  Ruleset::addStatement(*m);
+  m->setLessRuleset(*this);
+  mixins.push_back(m);
+  stylesheetStatements.push_back(m);
+  return m;
+}
+
+const std::list<Mixin*>& LessRuleset::getMixins()
+  const {
+  return mixins;
+}
+
+LessAtRule* LessRuleset::createLessAtRule(const Token& keyword) {
+  LessAtRule* r = new LessAtRule(keyword);
+
+  Ruleset::addStatement(*r);
+  r->setLessStylesheet(*this->getLessStylesheet());
+  lessAtRules.push_back(r);
+  stylesheetStatements.push_back(r);
+  return r;
+}
+
+const std::list<LessAtRule*>& LessRuleset::getLessAtRules()
+  const {
+  return lessAtRules;
+}
+
+const std::list<StylesheetStatement*>& LessRuleset::getStylesheetStatements()
+  const {
+  return stylesheetStatements;
 }
 
 LessRuleset* LessRuleset::createNestedRule() {
@@ -65,11 +106,6 @@ MediaQueryRuleset* LessRuleset::createMediaQuery() {
 void LessRuleset::deleteNestedRule(LessRuleset& ruleset) {
   nestedRules.remove(&ruleset);
   delete &ruleset;
-}
-
-void LessRuleset::deleteUnprocessedStatement(UnprocessedStatement& statement) {
-  unprocessedStatements.remove(&statement);
-  deleteStatement(statement);
 }
 
 const std::list<LessRuleset*>& LessRuleset::getNestedRules() const {
@@ -143,34 +179,44 @@ void LessRuleset::processExtensions(ProcessingContext& context,
       extension.getExtension().addPrefix(*prefix);
     context.addExtension(extension);
   }
+
+  for (e_it = extensions.begin(); e_it != extensions.end(); e_it++) {
+    extension = *e_it;
+
+    extension.setExtension(*getLessSelector());
+    
+    if (prefix != NULL)
+      extension.getExtension().addPrefix(*prefix);
+
+    context.addExtension(extension);
+  }
 }
 
-bool LessRuleset::call(Mixin& mixin,
+bool LessRuleset::call(MixinArguments& args,
                        Ruleset& target,
                        ProcessingContext& context) const {
-  bool ret = false;
-
-  if (putArguments(mixin, *context.getStackArguments()) &&
-      matchConditions(context)) {
-    processStatements(target, context);
-
-    addClosures(context);
-    // process variables and add to context.variables
-    context.addVariables(variables);
-
-    ret = true;
-  }
-  return ret;
+  return call(args, context, &target, NULL);
 }
 
-bool LessRuleset::call(Mixin& mixin,
+bool LessRuleset::call(MixinArguments& args,
                        Stylesheet& target,
                        ProcessingContext& context) const {
+  return call(args, context, NULL, &target);
+}
+
+bool LessRuleset::call(MixinArguments& args,
+                       ProcessingContext& context,
+                       Ruleset* ruleset,
+                       Stylesheet* stylesheet) const {
   bool ret = false;
 
-  if (putArguments(mixin, *context.getStackArguments()) &&
+  if (putArguments(args, *context.getStackArguments()) &&
       matchConditions(context)) {
-    processStatements(target, context);
+    
+    if (ruleset != NULL)
+      processStatements(*ruleset, context);
+    else 
+      processStatements(*stylesheet, context);
 
     addClosures(context);
     // process variables and add to context.variables
@@ -221,15 +267,15 @@ void LessRuleset::processStatements(Ruleset& target,
 
 void LessRuleset::processStatements(Stylesheet& target,
                                     ProcessingContext& context) const {
-  const list<UnprocessedStatement*>& unprocessedStatements =
-      getUnprocessedStatements();
-  list<UnprocessedStatement*>::const_iterator up_it;
+  const std::list<StylesheetStatement*>& stylesheetStatements =
+    getStylesheetStatements();
+  std::list<StylesheetStatement*>::const_iterator it;
 
   // insert mixins
-  for (up_it = unprocessedStatements.begin();
-       up_it != unprocessedStatements.end();
-       up_it++) {
-    (*up_it)->process(target);
+  for (it = stylesheetStatements.begin();
+       it != stylesheetStatements.end();
+       it++) {
+    (*it)->process(target);
   }
 
   // insert nested rules
@@ -261,7 +307,7 @@ void LessRuleset::getFunctions(list<const Function*>& functionList,
     offset++;
   }
 
-  if (!selector->needsArguments() || selector->matchArguments(mixin)) {
+  if (!selector->needsArguments() || selector->matchArguments(mixin.arguments)) {
     if (offset == mixin.name.end()) {
       functionList.push_back(this);
     } else {
@@ -347,7 +393,7 @@ bool LessRuleset::matchConditions(ProcessingContext& context) const {
   return false;
 }
 
-bool LessRuleset::putArguments(const Mixin& mixin, VariableMap& scope) const {
+bool LessRuleset::putArguments(MixinArguments& args, VariableMap& scope) const {
   std::list<std::string>& parameters = selector->getParameters();
   std::list<std::string>::iterator pit;
   TokenList argsCombined;
@@ -357,10 +403,10 @@ bool LessRuleset::putArguments(const Mixin& mixin, VariableMap& scope) const {
 
   // combine with parameter names and add to local scope
   for (pit = parameters.begin(); pit != parameters.end(); pit++) {
-    variable = mixin.getArgument(*pit);
+    variable = args.get(*pit);
 
     if (variable == NULL)
-      variable = mixin.getArgument(pos++);
+      variable = args.get(pos++);
 
     if (variable == NULL)
       variable = selector->getDefault(*pit);
@@ -377,8 +423,8 @@ bool LessRuleset::putArguments(const Mixin& mixin, VariableMap& scope) const {
   argsCombined.trim();
 
   if (selector->unlimitedArguments() && selector->getRestIdentifier() != "") {
-    while (pos < mixin.getArgumentCount()) {
-      variable = mixin.getArgument(pos++);
+    while (pos < args.count()) {
+      variable = args.get(pos++);
       restVar.insert(restVar.end(), variable->begin(), variable->end());
       restVar.push_back(Token::BUILTIN_SPACE);
     }

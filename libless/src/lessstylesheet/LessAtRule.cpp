@@ -21,3 +21,8 @@ void LessAtRule::process(Stylesheet &s) {
 
   getLessStylesheet()->getContext()->processValue(target->getRule());
 }
+
+void LessAtRule::process(Ruleset &r) {
+  // Can't add @-rules to rulesets so ignore the statement.
+
+}

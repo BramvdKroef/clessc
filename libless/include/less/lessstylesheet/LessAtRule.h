@@ -8,7 +8,7 @@
 
 class LessStylesheet;
 
-class LessAtRule : public AtRule {
+class LessAtRule : public AtRule, public RulesetStatement {
 private:
   LessStylesheet *lessStylesheet;
 
@@ -20,6 +20,8 @@ public:
   LessStylesheet *getLessStylesheet();
 
   virtual void process(Stylesheet &s);
+  virtual void process(Ruleset& r);
+  virtual void write(CssWriter &writer){};
 };
 
 #endif  // __less_lessstylesheet_LessAtRule_h__

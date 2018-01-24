@@ -19,8 +19,10 @@
 #include "less/lessstylesheet/Function.h"
 #include "less/lessstylesheet/LessSelector.h"
 #include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/MixinArguments.h"
 #include "less/lessstylesheet/ProcessingContext.h"
-#include "less/lessstylesheet/UnprocessedStatement.h"
+#include "less/lessstylesheet/LessDeclaration.h"
+#include "less/lessstylesheet/LessAtRule.h"
 
 class LessStylesheet;
 class MediaQueryRuleset;
@@ -31,8 +33,13 @@ protected:
   VariableMap variables;
   list<LessRuleset *> nestedRules;
   std::list<Closure *> closures;
+  std::list<Extension> extensions;
 
-  list<UnprocessedStatement *> unprocessedStatements;
+  std::list<StylesheetStatement *> stylesheetStatements;
+  
+  std::list<LessDeclaration *> lessDeclarations;
+  std::list<Mixin *> mixins;
+  std::list<LessAtRule *> lessAtRules;
 
   LessRuleset *parent;
   LessStylesheet *lessStylesheet;
@@ -47,6 +54,10 @@ protected:
 
   void addClosures(ProcessingContext &context) const;
 
+  bool call(MixinArguments& args,
+            ProcessingContext& context,
+            Ruleset* ruleset,
+            Stylesheet* stylesheet) const;
 public:
   LessRuleset();
   LessRuleset(const Selector &selector);
@@ -55,14 +66,22 @@ public:
   virtual void setSelector(const Selector &selector);
   virtual LessSelector *getLessSelector() const;
 
-  UnprocessedStatement *createUnprocessedStatement();
+  void addExtension(Extension &extension);
+    
+  LessDeclaration *createLessDeclaration();
+  Mixin *createMixin();
+  LessAtRule *createLessAtRule(const Token& keyword);
   LessRuleset *createNestedRule();
   MediaQueryRuleset *createMediaQuery();
 
   void deleteNestedRule(LessRuleset &ruleset);
-  void deleteUnprocessedStatement(UnprocessedStatement &statement);
 
-  const list<UnprocessedStatement *> &getUnprocessedStatements() const;
+
+  const list<LessDeclaration *> &getLessDeclarations() const;
+  const list<Mixin *> &getMixins() const;
+  const list<LessAtRule *> &getLessAtRules() const;
+  const list<StylesheetStatement *> &getStylesheetStatements() const;
+
   const list<LessRuleset *> &getNestedRules() const;
 
   void putVariable(const std::string &key, const TokenList &value);
@@ -84,10 +103,10 @@ public:
 
   void processExtensions(ProcessingContext &context, Selector *prefix);
 
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Ruleset &target,
                     ProcessingContext &context) const;
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Stylesheet &s,
                     ProcessingContext &context) const;
 
@@ -115,7 +134,7 @@ public:
                          const LessRuleset *exclude = NULL) const;
 
   bool matchConditions(ProcessingContext &context) const;
-  bool putArguments(const Mixin &mixin, VariableMap &scope) const;
+  bool putArguments(MixinArguments &args, VariableMap &scope) const;
 };
 
 #endif  // __less_lessstylesheet_LessRuleset_h__

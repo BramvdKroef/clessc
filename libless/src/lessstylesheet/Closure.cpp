@@ -7,16 +7,16 @@ Closure::Closure(const LessRuleset& ruleset, const MixinCall& stack) {
   this->stack = &stack;
 }
 
-bool Closure::call(Mixin& mixin,
+bool Closure::call(MixinArguments& args,
                    Ruleset& target,
                    ProcessingContext& context) const {
-  return ruleset->call(mixin, target, context);
+  return ruleset->call(args, target, context);
 }
 
-bool Closure::call(Mixin& mixin,
+bool Closure::call(MixinArguments& args,
                    Stylesheet& s,
                    ProcessingContext& context) const {
-  return ruleset->call(mixin, s, context);
+  return ruleset->call(args, s, context);
 }
 
 void Closure::getFunctions(std::list<const Function*>& functionList,
@@ -37,7 +37,7 @@ void Closure::getFunctions(std::list<const Function*>& functionList,
     offset++;
   }
 
-  if (getLessSelector()->matchArguments(mixin)) {
+  if (getLessSelector()->matchArguments(mixin.arguments)) {
     if (offset == mixin.name.end()) {
       functionList.push_back(this);
     } else {

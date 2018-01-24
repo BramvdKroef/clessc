@@ -17,13 +17,14 @@ set(less_SOURCES
         src/lessstylesheet/LessAtRule.cpp
         src/lessstylesheet/LessMediaQuery.cpp
         src/lessstylesheet/LessRuleset.cpp
+        src/lessstylesheet/LessDeclaration.cpp
         src/lessstylesheet/LessSelector.cpp
         src/lessstylesheet/LessStylesheet.cpp
         src/lessstylesheet/MediaQueryRuleset.cpp
         src/lessstylesheet/Mixin.cpp
+        src/lessstylesheet/MixinArguments.cpp
         src/lessstylesheet/MixinCall.cpp
         src/lessstylesheet/ProcessingContext.cpp
-        src/lessstylesheet/UnprocessedStatement.cpp
         src/stylesheet/AtRule.cpp
         src/stylesheet/CssComment.cpp
         src/stylesheet/Declaration.cpp

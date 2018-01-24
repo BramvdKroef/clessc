@@ -3,88 +3,52 @@
 #include "less/lessstylesheet/LessStylesheet.h"
 
 Mixin::Mixin() {
+  lessStylesheet = NULL;
+  lessRuleset = NULL;
+
 }
 
 Mixin::Mixin(const Selector &name) {
   this->name = name;
+  lessStylesheet = NULL;
+  lessRuleset = NULL;
 }
 
 Mixin::~Mixin() {
 }
 
-const TokenList *Mixin::getArgument(const size_t i) const {
-  if (i < arguments.size())
-    return &arguments[i];
-  else
-    return NULL;
-}
-size_t Mixin::getArgumentCount() const {
-  return arguments.size();
-}
-const TokenList *Mixin::getArgument(const std::string &name) const {
-  std::map<std::string, TokenList>::const_iterator i;
 
-  i = namedArguments.find(name);
+bool Mixin::call(ProcessingContext &context,
+                 Ruleset *r_target,
+                 Stylesheet *s_target) const {
 
-  if (i != namedArguments.end())
-    return &i->second;
-  else
-    return NULL;
-}
-
-bool Mixin::parse(const Selector &selector) {
-  TokenList::const_iterator i = selector.begin();
-
-  for (; i != selector.end() && (*i).type != Token::PAREN_OPEN; i++) {
-    this->name.push_back(*i);
-  }
-
-  this->name.rtrim();
-
-  parseArguments(i, selector);
-
-  return true;
-}
-
-bool Mixin::call(Stylesheet &s,
-                 ProcessingContext &context,
-                 Ruleset *target,
-                 LessRuleset *parent) {
-  std::vector<TokenList>::iterator arg_i;
-  std::map<std::string, TokenList>::iterator argn_i;
+  LessRuleset *parent = getLessRuleset();
+  
   std::list<const Function *>::iterator i;
   std::list<const Function *> functionList;
   const Function *function;
-
-  if (parent != NULL)
-    context.getFunctions(functionList, *this);
-  else
-    getLessStylesheet()->getFunctions(functionList, *this);
+  
+  MixinArguments arguments_p;
+  
+  context.getFunctions(functionList, *this);
 
   if (functionList.empty())
     return false;
 
-  for (arg_i = arguments.begin(); arg_i != arguments.end(); arg_i++) {
-    context.processValue(*arg_i);
-  }
-
-  for (argn_i = namedArguments.begin(); argn_i != namedArguments.end();
-       argn_i++) {
-    context.processValue(argn_i->second);
-  }
-
+  arguments_p = arguments;
+  arguments_p.process(context);
+    
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
-
 
     if (function->getLessSelector()->needsArguments() ||
         !context.isInStack(*function)) {
       context.pushMixinCall(*function);
 
-      if (target != NULL)
-        function->call(*this, *target, context);
+      if (r_target != NULL)
+        function->call(arguments_p, *r_target, context);
       else
-        function->call(*this, s, context);
+        function->call(arguments_p, *s_target, context);
 
       context.popMixinCall();
       if (parent != NULL) {
@@ -105,74 +69,28 @@ void Mixin::setLessStylesheet(LessStylesheet &s) {
   stylesheet = &s;
 }
 
-LessStylesheet *Mixin::getLessStylesheet() {
+LessStylesheet *Mixin::getLessStylesheet() const {
   return lessStylesheet;
 }
 
+void Mixin::setLessRuleset(LessRuleset &r) {
+  lessRuleset = &r;
+}
+
+LessRuleset *Mixin::getLessRuleset() const {
+  return lessRuleset;
+}
+
 void Mixin::process(Stylesheet &s) {
-  call(s, *getLessStylesheet()->getContext(), NULL, NULL);
+  ProcessingContext *c;
+  if (getLessStylesheet() != NULL)
+    c = getLessStylesheet()->getContext();
+  else
+    c = getLessRuleset()->getContext();
+  call(*c, NULL, &s);
 }
 
-void Mixin::parseArguments(TokenList::const_iterator i,
-                           const Selector &selector) {
-  TokenList::const_iterator j;
-  std::string delimiter = ",";
-
-  TokenList argument;
-  size_t nestedParenthesis = 0;
-  std::string argName;
-
-  if (i != selector.end() && (*i).type == Token::PAREN_OPEN) {
-    i++;
-  }
-
-  // if a ';' token occurs then that is the delimiter instead of the ','.
-  for (j = i; j != selector.end(); j++) {
-    if (*j == ";") {
-      delimiter = ";";
-      break;
-    }
-  }
-
-  while (i != selector.end() && (*i).type != Token::PAREN_CLOSED) {
-    while (i != selector.end() && (*i).type == Token::WHITESPACE) {
-      i++;
-    }
-
-    if ((*i).type == Token::ATKEYWORD) {
-      argName = (*i);
-      i++;
-      if (i != selector.end() && (*i).type == Token::COLON) {
-        i++;
-      } else {
-        argName = "";
-        i--;
-      }
-    }
-
-    while (i != selector.end() &&
-           (nestedParenthesis > 0 ||
-            ((*i) != delimiter && (*i).type != Token::PAREN_CLOSED))) {
-      if ((*i).type == Token::PAREN_OPEN)
-        nestedParenthesis++;
-
-      if ((*i).type == Token::PAREN_CLOSED)
-        nestedParenthesis--;
-
-      argument.push_back(*i);
-
-      i++;
-    }
-
-    if (*i == delimiter)
-      i++;
-
-    if (argName == "")
-      this->arguments.push_back(argument);
-    else {
-      this->namedArguments.insert(std::pair<std::string, TokenList>(argName, argument));
-      argName = "";
-    }
-    argument.clear();
-  }
+void Mixin::process(Ruleset &r) {
+  call(*getLessRuleset()->getContext(), &r, NULL);
 }
+

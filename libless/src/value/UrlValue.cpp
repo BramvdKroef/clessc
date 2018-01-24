@@ -334,7 +334,7 @@ void UrlValue::loadFunctions(FunctionLibrary& lib) {
   lib.push("imgheight", "R", &UrlValue::imgheight);
   lib.push("imgwidth", "R", &UrlValue::imgwidth);
   lib.push("imgbackground", "R", &UrlValue::imgbackground);
-  lib.push("image-width", "R", &UrlValue::imgheight);
+  lib.push("image-width", "R", &UrlValue::imgwidth);
   lib.push("image-height", "R", &UrlValue::imgheight);
 }
 

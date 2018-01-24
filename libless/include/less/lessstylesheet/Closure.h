@@ -17,10 +17,10 @@ public:
 
   Closure(const LessRuleset &ruleset, const MixinCall &stack);
 
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Ruleset &target,
                     ProcessingContext &context) const;
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Stylesheet &s,
                     ProcessingContext &context) const;
   virtual void getFunctions(std::list<const Function *> &functionList,

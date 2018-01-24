@@ -8,16 +8,17 @@
 
 class LessSelector;
 class Mixin;
+class MixinArguments;
 class ProcessingContext;
 class LessSelector;
 class MixinCall;
 
 class Function {
 public:
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Ruleset &target,
                     ProcessingContext &context) const = 0;
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Stylesheet &s,
                     ProcessingContext &context) const = 0;
   virtual void getFunctions(

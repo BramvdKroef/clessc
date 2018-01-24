@@ -13,6 +13,10 @@ Extension::~Extension() {
 Selector &Extension::getTarget() {
   return target;
 }
+void Extension::setTarget(Selector &selector) {
+  target = selector;
+}
+
 Selector &Extension::getExtension() {
   return extension;
 }
