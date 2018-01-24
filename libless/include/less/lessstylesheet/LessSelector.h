@@ -6,10 +6,9 @@
 #include <map>
 
 #include "less/lessstylesheet/Extension.h"
-#include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/MixinArguments.h"
 #include "less/stylesheet/Selector.h"
 
-class Mixin;
 
 class LessSelector : public Selector {
 private:
@@ -41,7 +40,7 @@ public:
   TokenList *getDefault(const std::string &parameter);
 
   std::list<TokenList> &getConditions();
-  bool matchArguments(const Mixin &arguments);
+  bool matchArguments(const MixinArguments &arguments);
 
   bool needsArguments();
   bool unlimitedArguments();

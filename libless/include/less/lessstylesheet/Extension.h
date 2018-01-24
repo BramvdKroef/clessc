@@ -18,6 +18,8 @@ public:
   virtual ~Extension();
 
   Selector& getTarget();
+  void setTarget(Selector& target);
+
   Selector& getExtension();
 
   void setExtension(Selector& selector);

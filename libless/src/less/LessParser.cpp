@@ -359,15 +359,16 @@ bool LessParser::parseComment(LessRuleset& ruleset) {
 bool LessParser::parseExtension(Selector &statement, LessRuleset &ruleset) {
   TokenList::iterator i = statement.begin();
   int parentheses = 1;
-  TokenList extension;
+  Extension extension;
 
   if ((*i) != "&" ||
       (*++i).type != Token::COLON ||
       (*++i).type != Token::IDENTIFIER ||
-      (*i) != "extend" &&
+      (*i) != "extend" ||
       (*++i).type != Token::PAREN_OPEN)
     return false;
 
+  i++;
   for (; i != statement.end() && parentheses > 0; i++) {
     switch ((*i).type) {
     case Token::PAREN_OPEN:
@@ -380,7 +381,7 @@ bool LessParser::parseExtension(Selector &statement, LessRuleset &ruleset) {
       break;
     }
     if (parentheses > 0)
-      extension.push_back(*i);
+      extension.getTarget().push_back(*i);
   }
 
   if (parentheses > 0) {
@@ -420,10 +421,15 @@ bool LessParser::parseDeclaration(Selector &tokens,
   keyword.assign(property.toString());
   d->setProperty(keyword);
 
-  i++;
-  while (i != tokens.end() && (*i).type == Token::WHITESPACE) {
+  while (i != tokens.end() && (*i).type == Token::WHITESPACE) 
     i++;
-  }
+  
+  if (i != tokens.end() && (*i).type == Token::COLON)
+    i++;
+  
+  while (i != tokens.end() && (*i).type == Token::WHITESPACE) 
+    i++;
+  
   d->getValue().insert(d->getValue().begin(), i, tokens.end());
 
   return true;
@@ -515,9 +521,9 @@ void LessParser::parseMixinArguments(TokenList::const_iterator i,
       i++;
 
     if (argName == "")
-      mixin.addArgument(argument);
+      mixin.arguments.add(argument);
     else {
-      mixin.addArgument(argName, argument);
+      mixin.arguments.add(argName, argument);
       argName = "";
     }
     argument.clear();

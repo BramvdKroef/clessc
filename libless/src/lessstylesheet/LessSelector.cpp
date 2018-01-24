@@ -312,18 +312,18 @@ std::list<Extension> &LessSelector::getExtensions() {
   return extensions;
 }
 
-bool LessSelector::matchArguments(const Mixin &mixin) {
+bool LessSelector::matchArguments(const MixinArguments &args) {
   std::list<std::string>::iterator p_it = parameters.begin();
   std::list<TokenList>::iterator d_it = defaults.begin();
   size_t pos = 0;
 
   for (; p_it != parameters.end(); p_it++, d_it++) {
-    if (mixin.getArgument(*p_it) == NULL && mixin.getArgument(pos++) == NULL &&
+    if (args.get(*p_it) == NULL && args.get(pos++) == NULL &&
         (*d_it).empty()) {
       return false;
     }
   }
-  return (pos >= mixin.getArgumentCount() || unlimitedArguments());
+  return (pos >= args.count() || unlimitedArguments());
 }
 
 bool LessSelector::needsArguments() {

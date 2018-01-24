@@ -22,6 +22,7 @@ set(less_SOURCES
         src/lessstylesheet/LessStylesheet.cpp
         src/lessstylesheet/MediaQueryRuleset.cpp
         src/lessstylesheet/Mixin.cpp
+        src/lessstylesheet/MixinArguments.cpp
         src/lessstylesheet/MixinCall.cpp
         src/lessstylesheet/ProcessingContext.cpp
         src/stylesheet/AtRule.cpp

@@ -19,6 +19,7 @@
 #include "less/lessstylesheet/Function.h"
 #include "less/lessstylesheet/LessSelector.h"
 #include "less/lessstylesheet/Mixin.h"
+#include "less/lessstylesheet/MixinArguments.h"
 #include "less/lessstylesheet/ProcessingContext.h"
 #include "less/lessstylesheet/LessDeclaration.h"
 #include "less/lessstylesheet/LessAtRule.h"
@@ -32,8 +33,10 @@ protected:
   VariableMap variables;
   list<LessRuleset *> nestedRules;
   std::list<Closure *> closures;
-  std::list<TokenList> extensions;
+  std::list<Extension> extensions;
 
+  std::list<StylesheetStatement *> stylesheetStatements;
+  
   std::list<LessDeclaration *> lessDeclarations;
   std::list<Mixin *> mixins;
   std::list<LessAtRule *> lessAtRules;
@@ -59,7 +62,7 @@ public:
   virtual void setSelector(const Selector &selector);
   virtual LessSelector *getLessSelector() const;
 
-  void addExtension(TokenList &extension);
+  void addExtension(Extension &extension);
     
   LessDeclaration *createLessDeclaration();
   Mixin *createMixin();
@@ -73,6 +76,8 @@ public:
   const list<LessDeclaration *> &getLessDeclarations() const;
   const list<Mixin *> &getMixins() const;
   const list<LessAtRule *> &getLessAtRules() const;
+  const list<StylesheetStatement *> &getStylesheetStatements() const;
+
   const list<LessRuleset *> &getNestedRules() const;
 
   void putVariable(const std::string &key, const TokenList &value);
@@ -94,10 +99,10 @@ public:
 
   void processExtensions(ProcessingContext &context, Selector *prefix);
 
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Ruleset &target,
                     ProcessingContext &context) const;
-  virtual bool call(Mixin &mixin,
+  virtual bool call(MixinArguments &args,
                     Stylesheet &s,
                     ProcessingContext &context) const;
 
@@ -125,7 +130,7 @@ public:
                          const LessRuleset *exclude = NULL) const;
 
   bool matchConditions(ProcessingContext &context) const;
-  bool putArguments(const Mixin &mixin, VariableMap &scope) const;
+  bool putArguments(MixinArguments &args, VariableMap &scope) const;
 };
 
 #endif  // __less_lessstylesheet_LessRuleset_h__
