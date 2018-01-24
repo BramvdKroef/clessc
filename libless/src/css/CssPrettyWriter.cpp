@@ -8,13 +8,6 @@ void CssPrettyWriter::indent() {
     writeStr("  ", 2);
 }
 
-void CssPrettyWriter::newline() {
-  out->write("\n", 1);
-  column = 0;
-
-  if (sourcemap != NULL)
-    sourcemap->writeNewline();
-}
 
 void CssPrettyWriter::writeSelector(const TokenList &selector) {
   TokenList::const_iterator it;
@@ -79,11 +72,6 @@ void CssPrettyWriter::writeDeclaration(const Token &property,
 
 void CssPrettyWriter::writeDeclarationDeliminator() {
   writeStr(";", 1);
-  newline();
-}
-
-void CssPrettyWriter::writeComment(const Token &comment) {
-  writeToken(comment);
   newline();
 }
 

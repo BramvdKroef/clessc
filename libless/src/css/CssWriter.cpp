@@ -20,13 +20,20 @@ unsigned int CssWriter::getColumn() {
   return column;
 }
 
+void CssWriter::newline() {
+  out->write("\n", 1);
+  column = 0;
+
+  if (sourcemap != NULL)
+    sourcemap->writeNewline();
+}
+
 void CssWriter::writeStr(const char *str, size_t len) {
   out->write(str, len);
   column += len;
 }
 void CssWriter::writeToken(const Token &token) {
   std::string url;
-  size_t pos = 0;
 
   if (rootpath != NULL && token.type == Token::URL) {
     url = token.getUrlString();
@@ -37,21 +44,14 @@ void CssWriter::writeToken(const Token &token) {
 
       writeStr(url.c_str(), url.size());
       writeStr("\")", 2);
-    } else {
+    } else 
       writeStr(token.c_str(), token.size());
-    }
-  } else {
-    if (sourcemap != NULL &&
-        token.type == Token::COMMENT) {
-      while ((pos = token.find('\n', pos)) != std::string::npos) {
-        sourcemap->writeNewline();
-        pos++;
-      }
-    }
-    
+
+  } else 
     writeStr(token.c_str(), token.size());
-  }
+
 }
+
 void CssWriter::writeTokenList(const TokenList &tokens) {
   TokenList::const_iterator i = tokens.begin();
 
@@ -143,7 +143,21 @@ void CssWriter::writeDeclarationDeliminator() {
 }
 
 void CssWriter::writeComment(const Token &comment) {
+  size_t pos = 0;
+  if (column > 0)
+    newline();
+
   writeToken(comment);
+  
+  // Check comments for newlines and compensate in source map and column
+  // attribute.
+  if (sourcemap != NULL) {
+    while ((pos = comment.find('\n', pos)) != std::string::npos) {
+      sourcemap->writeNewline();
+      pos++;
+    }
+  }
+  newline();
 }
 
 void CssWriter::writeMediaQueryStart(const TokenList &selector) {

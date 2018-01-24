@@ -20,6 +20,8 @@ protected:
   virtual void writeSelector(const TokenList &selector);
   virtual void writeValue(const TokenList &value);
 
+  void newline();
+
 public:
   CssWriter();
   CssWriter(std::ostream &out);
