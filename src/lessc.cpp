@@ -150,12 +150,12 @@ bool parseInput(LessStylesheet &stylesheet,
   return true;
 }
 
-bool processStylesheet (LessStylesheet &stylesheet,
+bool processStylesheet (const LessStylesheet &stylesheet,
                         Stylesheet &css) {
   ProcessingContext context;
 
   try{
-    stylesheet.process(css, context);
+    stylesheet.process(css, &context);
 
   } catch(ParseException* e) {
     
@@ -263,7 +263,7 @@ void writeDependencies(const char* output, const std::list<const char*> &sources
 
   for (i = sources.begin(); i != sources.end(); i++) {
     if (i != sources.begin())
-      cout << ", ";
+      cout << " ";
     cout << (*i);
   }
   cout << endl;
