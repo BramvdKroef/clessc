@@ -13,6 +13,7 @@ SourceMapWriter::SourceMapWriter(std::ostream& sourcemap,
   lastSrcFile = 0;
   lastSrcLine = 0;
   lastSrcColumn = 0;
+  firstSegment = true;
   writePreamble(out_filename, relative_sources, rootpath);
 }
 
@@ -61,8 +62,12 @@ bool SourceMapWriter::writeMapping(unsigned int column, const Token& source) {
   char buffer[10];
   size_t len = encodeMapping(column, source, buffer);
   if (len > 0) {
+    if (firstSegment)
+      firstSegment = false;
+    else 
+      sourcemap_h.write(",", 1);
     sourcemap_h.write(buffer, len);
-    sourcemap_h.write(",", 1);
+
     return true;
   } else 
     return false;
@@ -71,6 +76,7 @@ bool SourceMapWriter::writeMapping(unsigned int column, const Token& source) {
 void SourceMapWriter::writeNewline() {
   sourcemap_h.write(";", 1);
   lastDstColumn = 0;
+  firstSegment = true;
 }
 
 size_t SourceMapWriter::sourceFileIndex(const char* file) {
@@ -93,7 +99,7 @@ size_t SourceMapWriter::encodeMapping(unsigned int column,
   if (srcFileIndex == sources.size())
     return 0;
 
-  buffer += encodeField(column, buffer);
+  buffer += encodeField(column - lastDstColumn, buffer);
   buffer += encodeField(srcFileIndex - lastSrcFile, buffer);
   buffer += encodeField(source.line - lastSrcLine, buffer);
   buffer += encodeField(source.column - lastSrcColumn, buffer);

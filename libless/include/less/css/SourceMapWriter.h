@@ -15,7 +15,8 @@ private:
 
   unsigned int lastDstColumn;
   unsigned int lastSrcFile, lastSrcLine, lastSrcColumn;
-
+  bool firstSegment;
+  
   size_t sourceFileIndex(const char* file);
   size_t encodeMapping(unsigned int column, const Token& source, char* buffer);
   size_t encodeField(int field, char* buffer);
