@@ -47,7 +47,7 @@ TEST_F(LessParserTest, Variable) {
 #header { color: @blue; }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#header{color:#5B83AD}", out->str().c_str());
 }
@@ -60,7 +60,7 @@ TEST_F(LessParserTest, DeepVariable) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class{content:value}", out->str().c_str());
 }
@@ -75,7 +75,7 @@ TEST_F(LessParserTest, Mixin) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".bordered{border:dotted 1px black}\
 #menu a{color:#111;border:dotted 1px black}", out->str().c_str());
@@ -94,7 +94,7 @@ TEST_F(LessParserTest, ParameterMixin) {
    }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#header{border-radius:4px}\
 .button{border-radius:6px}", out->str().c_str());
@@ -107,7 +107,7 @@ TEST_F(LessParserTest, HiddenMixin) {
 pre { .wrap  }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("pre{text-wrap:wrap}", out->str().c_str());
 }
@@ -130,7 +130,7 @@ TEST_F(LessParserTest, DefaultArguments) {
  }\
 ");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".some .selector div{color-1:#008000;color-2:#008000;\
 padding-2:2}", out->str().c_str());
@@ -151,7 +151,7 @@ TEST_F(LessParserTest, ParameterMatching) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test mixin2a{color:#000}.test mixin2b{color:rgba(0,0,0,0.5)}", out->str().c_str());
 }
@@ -172,7 +172,7 @@ TEST_F(LessParserTest, Arguments) {
   .box-shadow3(8px, 20px); \
 } ");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class{box-shadow:2px 5px 1px #000;\
 box-shadow:4px 10px 2px #000;\
@@ -195,7 +195,7 @@ TEST_F(LessParserTest, RestArgument) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test mixin3{border1:1px #000 solid;\
 border2:4px #000 solid;border3:4px #456 dashed}", out->str().c_str());
@@ -227,7 +227,7 @@ color: black; \
  } \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#header{color:black}#header .navigation{font-size:12px}#header .logo{width:300px}#header .logo:hover{text-decoration:none}#header .logo:hover,#header .logo:focus{text-decoration:none}#header .logo h2 a{height:10px}#header .logo a:hover{text-decoration:underline}#header .logo div,#header .logo span{color:#FFF}", out->str().c_str());
 }
@@ -241,7 +241,7 @@ TEST_F(LessParserTest, PrefixTest) {
  } \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#header .class1 a,#header .class2 a{font-weight:bold}", out->str().c_str());
 } 
@@ -270,7 +270,7 @@ TEST_F(LessParserTest, Operations) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class{background-color:#161616;width:28px;border:18px solid black;height:60%;top:14em;transform:rotate(45deg);left:-3.636363636px}", out->str().c_str());
 } 
@@ -294,7 +294,7 @@ TEST_F(LessParserTest, ColorOps) {
 } ");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class{color:#ed2c2c;color:#a50e0e;color:#e00606;color:#c91d1d;color:#d41212;color:rgba(212,18,18,0.9);color:#d43212;color:#d41232;color:#f1dada;clip:rect(1px, 1px, 1px, 1px)}", out->str().c_str());
 } 
@@ -322,7 +322,7 @@ TEST_F(LessParserTest, Namespace) {
   #bundle > .button; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#header a{color:orange;display:block;border:1px solid black;background-color:grey}#header a:hover{background-color:white}#header a span a{display:none}#header2 a{display:block;border:1px solid black;background-color:grey}#header2 a:hover{background-color:white}#header2 a span a{display:none}", out->str().c_str());
 } 
@@ -340,7 +340,7 @@ TEST_F(LessParserTest, VariableScope) {
   color: @scopevar; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#page #header{color:white}#footer{color:red}", out->str().c_str());
 } 
@@ -349,9 +349,9 @@ TEST_F(LessParserTest, CssComment) {
   in->str("/* comments */");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
-  ASSERT_STREQ("/* comments */", out->str().c_str());
+  ASSERT_STREQ("/* comments */\n", out->str().c_str());
 } 
   
 TEST_F(LessParserTest, LessComment) {
@@ -360,7 +360,7 @@ TEST_F(LessParserTest, LessComment) {
 
   p->parseStylesheet(stylesheet);
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("", out->str().c_str());
 } 
@@ -380,7 +380,7 @@ TEST_F(LessParserTest, UrlInterpolation) {
   background-image: url(\"@{base-url}/images/bg.png\"); \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class{background-image:url(\"http://assets.fnord.com/images/bg.png\")}", out->str().c_str());
 } 
@@ -390,7 +390,7 @@ TEST_F(LessParserTest, Escape) {
 filter: ~\"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')\"; \
 } ");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class{filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='image.png')}", out->str().c_str());
 } 
@@ -401,7 +401,7 @@ TEST_F(LessParserTest, NotAFunction) {
                                     rgb(255,130,95) 50%); \
 } ");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("mixin{background-image:linear-gradient(bottom, #e83f19 0%, #ff825f 50%)}", out->str().c_str());
 }
@@ -411,7 +411,7 @@ TEST_F(LessParserTest, Minus) {
  width: 10-1; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("mixin{width:10-1}", out->str().c_str());
 } 
@@ -421,7 +421,7 @@ TEST_F(LessParserTest, Equals) {
  x: 4 = 1; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
 css->write(*writer);
 ASSERT_STREQ("mixin{x:4 = 1}", out->str().c_str());
 }
@@ -432,7 +432,7 @@ TEST_F(LessParserTest, NotAFunction2) {
 } ");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
 ASSERT_STREQ("body{filter:progid:DXImageTransform.Microsoft.gradient(enabled='false',startColorstr=#57ba52,endColorstr=#2c9027,GradientType=0)}", out->str().c_str());
 }
@@ -442,7 +442,7 @@ TEST_F(LessParserTest, PropertyAsterisk) {
   *zoom: 1; \
 } ");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("video{*zoom:1}", out->str().c_str());
 }
@@ -452,7 +452,7 @@ TEST_F(LessParserTest, NotAFunction3) {
  display: none; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("audio:not([controls]){display:none}", out->str().c_str());
 }
@@ -471,7 +471,7 @@ TEST_F(LessParserTest, MixinGuards) {
 .class2 { .mixin5(#555) } ");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class1{background-color:black;color:#ddd}.class2{background-color:white;color:#555}", out->str().c_str());
 }
@@ -485,7 +485,7 @@ TEST_F(LessParserTest, MixinGuards2) {
  } ");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class1a{width:10px}", out->str().c_str());
 } 
@@ -513,7 +513,7 @@ body { \
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("body{test2:1px;test1:1px}body footer,body .push{height:60px}body header{height:90px}", out->str().c_str());
 }
@@ -534,7 +534,7 @@ TEST_F(LessParserTest, MediaQuery) {
  .test(10px); \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("@media (width: 400px){.test6{width:400px;color:#00F}.test6 h1{height:1px}.test6 .test7{width:100px}h1{height:10px}}", out->str().c_str());
 }
@@ -545,7 +545,7 @@ TEST_F(LessParserTest, InterpolateSelector) {
   color: #000; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".name{color:#000}", out->str().c_str());
 }
@@ -555,7 +555,7 @@ TEST_F(LessParserTest, InterpolateProperty) {
   property-@{name}: 10px; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{property-name:10px}", out->str().c_str());
 }
@@ -569,7 +569,7 @@ TEST_F(LessParserTest, InterpolateNestedRuleset) {
    .mixin6('name', #FFF);\
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class .name{color:#FFF}", out->str().c_str());
 } 
@@ -584,7 +584,7 @@ div { \
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("div{width:10px;width:20px;width:30px;width:40px;width:50px}", out->str().c_str());
 } 
@@ -604,7 +604,7 @@ TEST_F(LessParserTest, NestedLoop) {
  } \
 .test-nested-loop();");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".nested-loop-abc-3-2{c:1}.nested-loop-abc-3{c:2}.nested-loop-abc{c:3}", out->str().c_str());
 }
@@ -619,7 +619,7 @@ TEST_F(LessParserTest, NestedMedia) {
   } \
  }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("@media screen{.test8{width:300px}}@media screen and print{.test8{color:#000}}", out->str().c_str());
  }
@@ -633,7 +633,7 @@ TEST_F(LessParserTest, ExtendSelector) {
    background-color: #000; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test9{color:#FFF}.test10,.test10a,.test9{background-color:#000}", out->str().c_str());
 }
@@ -647,7 +647,7 @@ TEST_F(LessParserTest, ExtendStatement) {
   width: 100px; \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test10b,.test11{background-color:#111}.test11{width:100px}", out->str().c_str());
 }
@@ -661,7 +661,7 @@ div.test11b { \
   &:extend(.test11b all); \
 }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test11b:a,div.test11b,.extension11b:a,div.extension11b{height:1px}", out->str().c_str());
 } 
@@ -675,7 +675,7 @@ TEST_F(LessParserTest, DefaultFunctionArguments) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".mixin12{color:#010203}", out->str().c_str());
 }
@@ -691,7 +691,7 @@ TEST_F(LessParserTest, NamedArguments) {
  }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".mixin13{background-image:-webkit-linear-gradient(left, #FFF 0%, #000 100%)}", out->str().c_str());
 }
@@ -709,7 +709,7 @@ TEST_F(LessParserTest, SelectorAmpReplacement) {
   } \
  }");
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test14:hover{color:#FFF}p .test14{color:#123}.test14.class > .test14[checked]{color:#432}", out->str().c_str());
 }
@@ -723,7 +723,7 @@ TEST_F(LessParserTest, EscapedStringArgument) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".class15{width:1px solid blue}", out->str().c_str());
 }
@@ -732,7 +732,7 @@ TEST_F(LessParserTest, UrlImport) {
   in->str("@import url(\"http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic\");");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("@import url(\"http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic\");", out->str().c_str());
 }
@@ -741,7 +741,7 @@ TEST_F(LessParserTest, NotAFunction4) {
   in->str(".icon.dim { opacity: 0.3;filter:alpha(opacity=30); }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".icon.dim{opacity:0.3;filter:alpha(opacity=30)}", out->str().c_str());
 }
@@ -753,16 +753,16 @@ TEST_F(LessParserTest, Comments) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
-  ASSERT_STREQ("div  .class{/* comment */;color:#fff}", out->str().c_str());
+  ASSERT_STREQ("div  .class{\n/* comment */\n;color:#fff}", out->str().c_str());
 }
 
 TEST_F(LessParserTest, EmptyStatement) {
   in->str("  ;");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("", out->str().c_str());
 }
@@ -777,7 +777,7 @@ TEST_F(LessParserTest, NestedAtRule) {
 .declare-font('test'); ");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("@font-face { font-family: \"test\" ; src: url('fonts/test.eot') ; }", out->str().c_str());
 }
@@ -794,7 +794,7 @@ TEST_F(LessParserTest, ReturnMixin) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#namespace{declaration:5}", out->str().c_str());
 }
@@ -805,7 +805,7 @@ TEST_F(LessParserTest, NotAParameterMixin) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("non-parameter-mixin(odd){color:#000}", out->str().c_str());
 }
@@ -816,7 +816,7 @@ TEST_F(LessParserTest, HashMixin) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("", out->str().c_str());
 }
@@ -832,7 +832,7 @@ TEST_F(LessParserTest, SameNameMixin) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#namespace .same-name{height:100%}", out->str().c_str());
 }
@@ -846,7 +846,7 @@ TEST_F(LessParserTest, OperatorOrder) {
 }");
 
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{width:100%}", out->str().c_str());
 }
@@ -854,10 +854,10 @@ TEST_F(LessParserTest, OperatorOrder) {
 TEST_F(LessParserTest, CommentAtEndOfString) {
   in->str(" \
 /* \
-**/");
+**/\n");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("/* **/", out->str().c_str());
 }
@@ -874,7 +874,7 @@ TEST_F(LessParserTest, NamespaceGuardTrue) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("#namespace .mixin{x:x}.test{x:x}", out->str().c_str());
 }
@@ -890,7 +890,7 @@ TEST_F(LessParserTest, NamespaceGuardFalse) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("", out->str().c_str());
 }
@@ -907,7 +907,7 @@ TEST_F(LessParserTest, Default) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{default:1}", out->str().c_str());
 }
@@ -924,7 +924,7 @@ TEST_F(LessParserTest, NotDefault) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{a:1}", out->str().c_str());
 }
@@ -938,7 +938,7 @@ TEST_F(LessParserTest, ImportantMixin) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:1 !important}", out->str().c_str());
 }
@@ -953,7 +953,7 @@ TEST_F(LessParserTest, MergeComma) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:4, 1}", out->str().c_str());
 }
@@ -968,7 +968,7 @@ TEST_F(LessParserTest, MergeSpace) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:4 1}", out->str().c_str());
 }
@@ -982,7 +982,7 @@ TEST_F(LessParserTest, SwitchArgument) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:1}", out->str().c_str());
 }
@@ -996,7 +996,7 @@ TEST_F(LessParserTest, NotGuard) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:1}", out->str().c_str());
 }
@@ -1010,7 +1010,7 @@ TEST_F(LessParserTest, DetachedRuleset) {
   }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:1}", out->str().c_str());
 }
@@ -1025,7 +1025,7 @@ TEST_F(LessParserTest, AttributeSelectorMatch) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".x[a='b'],.y{x:x}.y{y:y}", out->str().c_str());
 }
@@ -1040,7 +1040,7 @@ TEST_F(LessParserTest, ExtendInterpolatedSelector) {
 @var:.y;");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".x,.y,.y{x:x}", out->str().c_str());
 }
@@ -1062,7 +1062,7 @@ TEST_F(LessParserTest, ExtendOutsideMedia) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, *context);
+  less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("@media print{.selector,.screenClass{color:black;}}\
 .selector{color:red;}@media screen{.selector{color: blue;}}", out->str().c_str());
