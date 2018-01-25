@@ -76,18 +76,18 @@ void Stylesheet::deleteMediaQuery(MediaQuery& query) {
   deleteStatement(query);
 }
 
-std::list<AtRule*>& Stylesheet::getAtRules() {
+const std::list<AtRule*>& Stylesheet::getAtRules() const {
   return atrules;
 }
-std::list<Ruleset*>& Stylesheet::getRulesets() {
+const std::list<Ruleset*>& Stylesheet::getRulesets() const {
   return rulesets;
 }
-std::list<StylesheetStatement*>& Stylesheet::getStatements() {
+const std::list<StylesheetStatement*>& Stylesheet::getStatements() const {
   return statements;
 }
 
-Ruleset* Stylesheet::getRuleset(const Selector& selector) {
-  std::list<Ruleset*>::iterator it;
+Ruleset* Stylesheet::getRuleset(const Selector& selector) const {
+  std::list<Ruleset*>::const_iterator it;
 
   for (it = rulesets.begin(); it != rulesets.end(); it++) {
     if ((*it)->getSelector().match(selector))
@@ -96,17 +96,17 @@ Ruleset* Stylesheet::getRuleset(const Selector& selector) {
   return NULL;
 }
 
-void Stylesheet::process(Stylesheet& s) {
+void Stylesheet::process(Stylesheet& s, void* context) const {
   std::list<StylesheetStatement*> statements = getStatements();
   std::list<StylesheetStatement*>::iterator i;
 
   for (i = statements.begin(); i != statements.end(); i++) {
     if ((*i)->isReference() == false)
-      (*i)->process(s);
+      (*i)->process(s, context);
   }
 }
 
-void Stylesheet::write(CssWriter& writer) {
+void Stylesheet::write(CssWriter& writer) const {
   std::list<StylesheetStatement*> statements = getStatements();
   std::list<StylesheetStatement*>::iterator i;
 

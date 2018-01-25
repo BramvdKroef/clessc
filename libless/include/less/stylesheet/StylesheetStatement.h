@@ -13,12 +13,12 @@ public:
   StylesheetStatement() : reference(false){};
   virtual ~StylesheetStatement(){};
   virtual void setStylesheet(Stylesheet* s);
-  Stylesheet* getStylesheet();
+  Stylesheet* getStylesheet() const;
 
   void setReference(bool ref);
-  bool isReference();
+  bool isReference() const;
 
-  virtual void process(Stylesheet& s) = 0;
+  virtual void process(Stylesheet& s, void* context) const = 0;
 };
 
 #endif  // __less_stylesheet_StylesheetStatement_h__

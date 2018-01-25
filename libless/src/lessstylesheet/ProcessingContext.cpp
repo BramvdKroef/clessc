@@ -8,10 +8,10 @@ ProcessingContext::ProcessingContext() {
   contextStylesheet = NULL;
 }
 
-void ProcessingContext::setLessStylesheet(LessStylesheet &stylesheet) {
+void ProcessingContext::setLessStylesheet(const LessStylesheet &stylesheet) {
   contextStylesheet = &stylesheet;
 }
-LessStylesheet *ProcessingContext::getLessStylesheet() {
+const LessStylesheet *ProcessingContext::getLessStylesheet() {
   return contextStylesheet;
 }
 
@@ -49,6 +49,7 @@ VariableMap *ProcessingContext::getStackArguments() {
 bool ProcessingContext::isStackEmpty() const {
   return stack == NULL;
 }
+
 bool ProcessingContext::isSavePoint() const {
   return (stack != NULL && stack->savepoint);
 }

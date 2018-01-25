@@ -13,18 +13,22 @@ void AtRule::setKeyword(const Token &keyword) {
 void AtRule::setRule(const TokenList &rule) {
   this->rule = rule;
 }
-Token &AtRule::getKeyword() {
+const Token &AtRule::getKeyword() const {
   return keyword;
 }
 TokenList &AtRule::getRule() {
   return rule;
 }
 
-void AtRule::process(Stylesheet &s) {
+const TokenList &AtRule::getRule() const {
+  return rule;
+}
+
+void AtRule::process(Stylesheet &s, void* context) const {
   AtRule *target = s.createAtRule(keyword);
   target->setRule(rule);
 }
 
-void AtRule::write(CssWriter &writer) {
+void AtRule::write(CssWriter &writer) const {
   writer.writeAtRule(keyword, rule);
 }

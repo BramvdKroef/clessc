@@ -13,7 +13,7 @@ public:
   void setLessRuleset(LessRuleset &r);
   LessRuleset *getLessRuleset();
 
-  virtual void process(Ruleset &r);
+  virtual void process(Ruleset &r, void* context) const;
 
 };
 

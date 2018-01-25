@@ -27,7 +27,7 @@ private:
   ValueProcessor processor;
   std::list<Extension> extensions;
 
-  LessStylesheet *contextStylesheet;
+  const LessStylesheet *contextStylesheet;
 
   // return values
   std::list<Closure *> closures;
@@ -36,8 +36,8 @@ private:
 public:
   ProcessingContext();
 
-  void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet *getLessStylesheet();
+  void setLessStylesheet(const LessStylesheet &stylesheet);
+  const LessStylesheet *getLessStylesheet();
 
   virtual const TokenList *getVariable(const std::string &key) const;
 

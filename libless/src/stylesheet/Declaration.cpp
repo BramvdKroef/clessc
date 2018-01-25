@@ -20,16 +20,25 @@ void Declaration::setValue(const TokenList &value) {
 Token &Declaration::getProperty() {
   return property;
 }
+
+const Token &Declaration::getProperty() const {
+  return property;
+}
+
 TokenList &Declaration::getValue() {
   return value;
 }
 
-void Declaration::process(Ruleset &r) {
+const TokenList &Declaration::getValue() const {
+  return value;
+}
+
+void Declaration::process(Ruleset &r, void* context) const {
   Declaration *d = r.createDeclaration();
   d->setProperty(property);
   d->setValue(value);
 }
 
-void Declaration::write(CssWriter &writer) {
+void Declaration::write(CssWriter &writer) const {
   writer.writeDeclaration(property, value);
 }

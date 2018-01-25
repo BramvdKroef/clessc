@@ -163,14 +163,10 @@ LessStylesheet* LessRuleset::getLessStylesheet() const {
   return lessStylesheet;
 }
 
-ProcessingContext* LessRuleset::getContext() {
-  return getLessStylesheet()->getContext();
-}
-
 void LessRuleset::processExtensions(ProcessingContext& context,
-                                    Selector* prefix) {
+                                    Selector* prefix) const {
   std::list<Extension>& e = getLessSelector()->getExtensions();
-  std::list<Extension>::iterator e_it;
+  std::list<Extension>::const_iterator e_it;
   Extension extension;
 
   for (e_it = e.begin(); e_it != e.end(); e_it++) {
@@ -214,9 +210,9 @@ bool LessRuleset::call(MixinArguments& args,
       matchConditions(context)) {
     
     if (ruleset != NULL)
-      processStatements(*ruleset, context);
+      processStatements(*ruleset, &context);
     else 
-      processStatements(*stylesheet, context);
+      processStatements(*stylesheet, &context);
 
     addClosures(context);
     // process variables and add to context.variables
@@ -228,12 +224,12 @@ bool LessRuleset::call(MixinArguments& args,
   return ret;
 }
 
-void LessRuleset::process(Stylesheet& s) {
-  process(s, NULL, *getLessStylesheet()->getContext());
+void LessRuleset::process(Stylesheet& s, void* context) const {
+  process(s, NULL, *((ProcessingContext*)context));
 }
 void LessRuleset::process(Stylesheet& s,
                           Selector* prefix,
-                          ProcessingContext& context) {
+                          ProcessingContext& context) const {
   Ruleset* target;
   std::list<Closure*> closureScope;
 
@@ -250,23 +246,24 @@ void LessRuleset::process(Stylesheet& s,
 
   processExtensions(context, prefix);
   context.pushMixinCall(*this, true);
-  processStatements(*target, context);
+  processStatements(*target, &context);
   context.popMixinCall();
 
   saveReturnValues(context);
 }
 
 void LessRuleset::processStatements(Ruleset& target,
-                                    ProcessingContext& context) const {
+                                    void* context) const {
   // process statements
-  Ruleset::processStatements(target);
+  Ruleset::processStatements(target, context);
 
   // insert nested rules
-  insertNestedRules(*target.getStylesheet(), &target.getSelector(), context);
+  insertNestedRules(*target.getStylesheet(), &target.getSelector(),
+                    *(ProcessingContext*)context);
 }
 
 void LessRuleset::processStatements(Stylesheet& target,
-                                    ProcessingContext& context) const {
+                                    void* context) const {
   const std::list<StylesheetStatement*>& stylesheetStatements =
     getStylesheetStatements();
   std::list<StylesheetStatement*>::const_iterator it;
@@ -275,19 +272,22 @@ void LessRuleset::processStatements(Stylesheet& target,
   for (it = stylesheetStatements.begin();
        it != stylesheetStatements.end();
        it++) {
-    (*it)->process(target);
+    (*it)->process(target, context);
   }
 
   // insert nested rules
-  insertNestedRules(target, NULL, context);
+  insertNestedRules(target, NULL, *(ProcessingContext*)context);
 }
 
-void LessRuleset::saveReturnValues(ProcessingContext& context) {
+void LessRuleset::saveReturnValues(ProcessingContext& context) const {
+  VariableMap variables;
+  std::list<Closure *> closures;
+  
   // move closures from context to this->closures
-  context.saveClosures(this->closures);
+  context.saveClosures(closures);
 
-  // move variables from context to this->variables
-  context.saveVariables(this->variables);
+  // move variables from context txbo this->variables
+  context.saveVariables(variables);
 }
 
 void LessRuleset::getFunctions(list<const Function*>& functionList,

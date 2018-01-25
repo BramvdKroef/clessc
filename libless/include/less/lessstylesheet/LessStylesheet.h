@@ -24,7 +24,6 @@ private:
   std::list<Closure *> closures;
 
   VariableMap variables;
-  ProcessingContext *context;
 
 public:
   LessStylesheet();
@@ -38,9 +37,6 @@ public:
   void deleteLessRuleset(LessRuleset &ruleset);
   void deleteMixin(Mixin &mixin);
 
-  void setContext(ProcessingContext *context);
-  virtual ProcessingContext *getContext();
-
   void putVariable(const std::string &key, const TokenList &value);
 
   virtual void getFunctions(std::list<const Function *> &functionList,
@@ -48,8 +44,8 @@ public:
 
   virtual const TokenList *getVariable(const std::string &key) const;
 
-  virtual void process(Stylesheet &s, ProcessingContext &context);
-  void saveReturnValues(ProcessingContext &context);
+  virtual void process(Stylesheet &s, void *context) const;
+  void saveReturnValues(ProcessingContext &context) const;
 };
 
 #endif  // __less_lessstylesheet_LessStylesheet_h__

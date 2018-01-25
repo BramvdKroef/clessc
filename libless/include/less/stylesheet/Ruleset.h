@@ -41,13 +41,13 @@ public:
   Selector &getSelector();
   const Selector &getSelector() const;
   const std::list<RulesetStatement *> &getStatements() const;
-  std::list<Declaration *> &getDeclarations();
+  const std::list<Declaration *> &getDeclarations() const;
 
   void clearStatements();
 
-  virtual void processStatements(Ruleset &target) const;
-  virtual void process(Stylesheet &s);
-  virtual void write(CssWriter &writer);
+  virtual void processStatements(Ruleset &target, void* context) const;
+  virtual void process(Stylesheet &s, void* context) const;
+  virtual void write(CssWriter &writer) const;
 };
 
 #include "less/stylesheet/Declaration.h"

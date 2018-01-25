@@ -46,14 +46,14 @@ public:
   void deleteAtRule(AtRule &atrule);
   void deleteMediaQuery(MediaQuery &query);
 
-  std::list<AtRule *> &getAtRules();
-  std::list<Ruleset *> &getRulesets();
-  std::list<StylesheetStatement *> &getStatements();
+  const std::list<AtRule *> &getAtRules() const;
+  const std::list<Ruleset *> &getRulesets() const;
+  const std::list<StylesheetStatement *> &getStatements() const;
 
-  virtual Ruleset *getRuleset(const Selector &selector);
+  virtual Ruleset *getRuleset(const Selector &selector) const;
 
-  virtual void process(Stylesheet &s);
-  virtual void write(CssWriter &writer);
+  virtual void process(Stylesheet &s, void* context) const;
+  virtual void write(CssWriter &writer) const;
 };
 
 #include "less/stylesheet/AtRule.h"

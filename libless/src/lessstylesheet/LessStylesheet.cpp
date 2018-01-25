@@ -57,13 +57,6 @@ void LessStylesheet::getFunctions(std::list<const Function*>& rulesetList,
   }
 }
 
-void LessStylesheet::setContext(ProcessingContext* context) {
-  this->context = context;
-}
-ProcessingContext* LessStylesheet::getContext() {
-  return context;
-}
-
 void LessStylesheet::putVariable(const std::string& key,
                                  const TokenList& value) {
   variables[key] = value;
@@ -72,22 +65,20 @@ const TokenList* LessStylesheet::getVariable(const std::string& key) const {
   return variables.getVariable(key);
 }
 
-void LessStylesheet::process(Stylesheet& s, ProcessingContext& context) {
+void LessStylesheet::process(Stylesheet& s, void* context) const {
   std::list<Extension>* extensions;
 
-  std::list<Ruleset*>::iterator r_it;
+  std::list<Ruleset*>::const_iterator r_it;
   std::list<Extension>::iterator e_it;
   std::list<Closure*> closureScope;
 
-  this->context = &context;
+  ((ProcessingContext*)context)->setLessStylesheet(*this);
+  Stylesheet::process(s, context);
 
-  context.setLessStylesheet(*this);
-  Stylesheet::process(s);
-
-  saveReturnValues(context);
+  saveReturnValues(*(ProcessingContext*)context);
 
   // post processing
-  extensions = &context.getExtensions();
+  extensions = &((ProcessingContext*)context)->getExtensions();
 
   for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
     for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
@@ -96,10 +87,13 @@ void LessStylesheet::process(Stylesheet& s, ProcessingContext& context) {
   }
 }
 
-void LessStylesheet::saveReturnValues(ProcessingContext& context) {
+void LessStylesheet::saveReturnValues(ProcessingContext& context) const {
+  VariableMap variables;
+  std::list<Closure *> closures;
+  
   // move closures from context to this->closures
-  context.saveClosures(this->closures);
+  context.saveClosures(closures);
 
   // move variables from context to this->variables
-  context.saveVariables(this->variables);
+  context.saveVariables(variables);
 }

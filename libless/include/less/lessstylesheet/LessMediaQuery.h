@@ -24,6 +24,7 @@ public:
   virtual ~LessMediaQuery();
 
   Selector *getSelector();
+  const Selector *getSelector() const;
   void setSelector(const Selector &s);
 
   virtual void setLessStylesheet(LessStylesheet &parent);
@@ -33,9 +34,8 @@ public:
                             const Mixin &mixin) const;
   virtual const TokenList *getVariable(const std::string &key) const;
 
-  virtual ProcessingContext *getContext();
-  virtual void process(Stylesheet &s);
-  virtual void write(CssWriter &writer);
+  virtual void process(Stylesheet &s, void* context) const;
+  virtual void write(CssWriter &writer) const;
 };
 
 #endif  // __less_lessstylesheet_LessMediaQuery_h__

@@ -9,12 +9,11 @@ LessRuleset *LessDeclaration::getLessRuleset() {
 }
 
 
-void LessDeclaration::process(Ruleset &r) {
+void LessDeclaration::process(Ruleset &r, void* context) const {
   Declaration *d = r.createDeclaration();
   d->setProperty(property);
   d->setValue(value);
 
-  getLessRuleset()->getContext()->interpolate(d->getProperty());
-  getLessRuleset()->getContext()->processValue(d->getValue());
-  
+  ((ProcessingContext*)context)->interpolate(d->getProperty());
+  ((ProcessingContext*)context)->processValue(d->getValue());
 }

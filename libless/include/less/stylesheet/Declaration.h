@@ -21,10 +21,12 @@ public:
   void setValue(const TokenList &value);
 
   Token &getProperty();
+  const Token &getProperty() const;
   TokenList &getValue();
+  const TokenList &getValue() const;
 
-  virtual void process(Ruleset &r);
-  virtual void write(CssWriter &writer);
+  virtual void process(Ruleset &r, void* context) const;
+  virtual void write(CssWriter &writer) const;
 };
 
 #endif  // __less_stylesheet_Declaration_h__

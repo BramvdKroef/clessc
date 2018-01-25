@@ -65,7 +65,7 @@ const std::list<RulesetStatement*>& Ruleset::getStatements() const {
   return statements;
 }
 
-std::list<Declaration*>& Ruleset::getDeclarations() {
+const std::list<Declaration*>& Ruleset::getDeclarations() const {
   return declarations;
 }
 
@@ -77,22 +77,22 @@ void Ruleset::clearStatements() {
   }
 }
 
-void Ruleset::processStatements(Ruleset& target) const {
+void Ruleset::processStatements(Ruleset& target, void *context) const {
   std::list<RulesetStatement*> statements = getStatements();
   std::list<RulesetStatement*>::iterator i;
   for (i = statements.begin(); i != statements.end(); i++) {
-    (*i)->process(target);
+    (*i)->process(target, context);
   }
 }
 
-void Ruleset::process(Stylesheet& s) {
+void Ruleset::process(Stylesheet& s, void* context) const {
   Ruleset* target = s.createRuleset();
 
   target->setSelector(getSelector());
-  processStatements(*target);
+  processStatements(*target, context);
 }
 
-void Ruleset::write(CssWriter& writer) {
+void Ruleset::write(CssWriter& writer) const {
   std::list<RulesetStatement*> statements = getStatements();
   std::list<RulesetStatement*>::iterator i;
 

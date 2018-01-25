@@ -13,8 +13,8 @@ public:
   virtual ~RulesetStatement(){};
 
   virtual void setRuleset(Ruleset* r);
-  Ruleset* getRuleset();
-  virtual void process(Ruleset& r) = 0;
+  Ruleset* getRuleset() const;
+  virtual void process(Ruleset& r, void* context) const = 0;
 };
 
 #include "less/stylesheet/Ruleset.h"

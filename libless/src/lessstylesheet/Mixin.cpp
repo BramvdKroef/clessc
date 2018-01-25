@@ -81,16 +81,11 @@ LessRuleset *Mixin::getLessRuleset() const {
   return lessRuleset;
 }
 
-void Mixin::process(Stylesheet &s) {
-  ProcessingContext *c;
-  if (getLessStylesheet() != NULL)
-    c = getLessStylesheet()->getContext();
-  else
-    c = getLessRuleset()->getContext();
-  call(*c, NULL, &s);
+void Mixin::process(Stylesheet &s, void* context) const {
+  call(*((ProcessingContext*)context), NULL, &s);
 }
 
-void Mixin::process(Ruleset &r) {
-  call(*getLessRuleset()->getContext(), &r, NULL);
+void Mixin::process(Ruleset &r, void* context) const {
+  call(*((ProcessingContext*)context), &r, NULL);
 }
 

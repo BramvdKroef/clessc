@@ -99,9 +99,7 @@ public:
   void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet *getLessStylesheet() const;
 
-  ProcessingContext *getContext();
-
-  void processExtensions(ProcessingContext &context, Selector *prefix);
+  void processExtensions(ProcessingContext &context, Selector *prefix) const;
 
   virtual bool call(MixinArguments &args,
                     Ruleset &target,
@@ -111,18 +109,18 @@ public:
                     ProcessingContext &context) const;
 
   virtual void processStatements(Ruleset &target,
-                                 ProcessingContext &context) const;
-  void processStatements(Stylesheet &target, ProcessingContext &context) const;
-  virtual void process(Stylesheet &s);
+                                 void* context) const;
+  void processStatements(Stylesheet &target, void* context) const;
+  virtual void process(Stylesheet &s, void* context) const;
   virtual void process(Stylesheet &s,
                        Selector *prefix,
-                       ProcessingContext &context);
+                       ProcessingContext &context) const;
 
   virtual void getFunctions(list<const Function *> &functionList,
                             const Mixin &mixin,
                             TokenList::const_iterator selector_offset) const;
 
-  void saveReturnValues(ProcessingContext &context);
+  void saveReturnValues(ProcessingContext &context) const;
   /**
    * Look for a ruleset inside this ruleset and scope up to
    * getParent(), or getLessStylesheet() if getParent() is NULL.

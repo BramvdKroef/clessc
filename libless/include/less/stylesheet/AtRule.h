@@ -20,11 +20,12 @@ public:
   void setKeyword(const Token &keyword);
   void setRule(const TokenList &rule);
 
-  Token &getKeyword();
+  const Token &getKeyword() const;
   TokenList &getRule();
+  const TokenList &getRule() const;
 
-  virtual void process(Stylesheet &s);
-  virtual void write(CssWriter &writer);
+  virtual void process(Stylesheet &s, void* context) const;
+  virtual void write(CssWriter &writer) const;
 };
 
 #endif  // __less_stylesheet_AtRule_h__

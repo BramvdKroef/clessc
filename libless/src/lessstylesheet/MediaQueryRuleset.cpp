@@ -36,7 +36,7 @@ void MediaQueryRuleset::process(Stylesheet& s,
 
     context.interpolate(target->getSelector());
 
-    processStatements(*target, context);
+    processStatements(*target, &context);
   } else
-    processStatements(*query, context);
+    processStatements(*query, &context);
 }

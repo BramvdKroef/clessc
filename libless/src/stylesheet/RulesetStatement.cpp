@@ -3,6 +3,6 @@
 void RulesetStatement::setRuleset(Ruleset* r) {
   ruleset = r;
 }
-Ruleset* RulesetStatement::getRuleset() {
+Ruleset* RulesetStatement::getRuleset() const {
   return ruleset;
 }

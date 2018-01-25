@@ -14,15 +14,15 @@ LessStylesheet *LessAtRule::getLessStylesheet() {
   return lessStylesheet;
 }
 
-void LessAtRule::process(Stylesheet &s) {
+void LessAtRule::process(Stylesheet &s, void* context) const {
   AtRule *target = s.createAtRule(getKeyword());
 
   target->setRule(getRule());
 
-  getLessStylesheet()->getContext()->processValue(target->getRule());
+  ((ProcessingContext*)context)->processValue(target->getRule());
 }
 
-void LessAtRule::process(Ruleset &r) {
+void LessAtRule::process(Ruleset &r, void* context) const {
   // Can't add @-rules to rulesets so ignore the statement.
 
 }

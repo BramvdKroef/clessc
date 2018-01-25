@@ -9,6 +9,9 @@ LessMediaQuery::~LessMediaQuery() {
 Selector *LessMediaQuery::getSelector() {
   return &selector;
 }
+const Selector *LessMediaQuery::getSelector() const {
+  return &selector;
+}
 void LessMediaQuery::setSelector(const Selector &s) {
   selector = s;
 }
@@ -33,19 +36,16 @@ const TokenList *LessMediaQuery::getVariable(const std::string &key) const {
   return t;
 }
 
-ProcessingContext *LessMediaQuery::getContext() {
-  return getLessStylesheet()->getContext();
-}
-void LessMediaQuery::process(Stylesheet &s) {
+void LessMediaQuery::process(Stylesheet &s, void* context) const {
   MediaQuery *query = s.createMediaQuery();
 
   query->setSelector(*getSelector());
-  getContext()->processValue(query->getSelector());
-
-  LessStylesheet::process(*query, *parent->getContext());
-  getContext()->setLessStylesheet(*parent);
+  ((ProcessingContext*)context)->processValue(query->getSelector());
+  
+  LessStylesheet::process(*query, ((ProcessingContext*)context));
+  ((ProcessingContext*)context)->setLessStylesheet(*parent);
 }
 
-void LessMediaQuery::write(CssWriter &writer) {
+void LessMediaQuery::write(CssWriter &writer) const {
   LessStylesheet::write(writer);
 }

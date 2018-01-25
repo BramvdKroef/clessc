@@ -16,12 +16,12 @@ public:
   CssComment(const Token &comment);
 
   void setComment(const Token &comment);
-  Token &getComment();
+  const Token &getComment() const;
 
-  virtual void process(Ruleset &r);
-  virtual void process(Stylesheet &s);
+  virtual void process(Ruleset &r, void* context) const;
+  virtual void process(Stylesheet &s, void* context) const;
 
-  virtual void write(CssWriter &writer);
+  virtual void write(CssWriter &writer) const;
 };
 
 #endif  // __less_stylesheet_CssComment_h__

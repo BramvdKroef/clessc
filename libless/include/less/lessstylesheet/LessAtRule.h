@@ -19,9 +19,9 @@ public:
   void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet *getLessStylesheet();
 
-  virtual void process(Stylesheet &s);
-  virtual void process(Ruleset& r);
-  virtual void write(CssWriter &writer){};
+  virtual void process(Stylesheet &s, void* context) const;
+  virtual void process(Ruleset& r, void* context) const;
+  virtual void write(CssWriter &writer) const {};
 };
 
 #endif  // __less_lessstylesheet_LessAtRule_h__
