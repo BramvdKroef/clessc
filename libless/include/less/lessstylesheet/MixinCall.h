@@ -6,6 +6,7 @@
 
 class Function;
 class Mixin;
+class ProcessingContext;
 
 class MixinCall {
 public:
@@ -18,9 +19,11 @@ public:
             const Function& function,
             bool savepoint = false);
 
-  const TokenList* getVariable(const std::string& key) const;
+  const TokenList* getVariable(const std::string& key,
+                               const ProcessingContext &context) const;
   void getFunctions(std::list<const Function*>& functionList,
-                    const Mixin& mixin) const;
+                    const Mixin& mixin,
+                    const ProcessingContext &context) const;
   bool isInStack(const Function& function) const;
   const VariableMap* getArguments(const Function& function) const;
 };

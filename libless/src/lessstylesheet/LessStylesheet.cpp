@@ -48,12 +48,20 @@ void LessStylesheet::deleteMixin(Mixin& mixin) {
   deleteStatement(mixin);
 }
 
-void LessStylesheet::getFunctions(std::list<const Function*>& rulesetList,
-                                  const Mixin& mixin) const {
+void LessStylesheet::getFunctions(std::list<const Function*>& functionList,
+                                  const Mixin& mixin,
+                                  const ProcessingContext &context) const {
   std::list<LessRuleset*>::const_iterator i;
+  const std::list<Closure*>* closures;
+  std::list<Closure*>::const_iterator c_it;
 
   for (i = lessrulesets.begin(); i != lessrulesets.end(); i++) {
-    (*i)->getFunctions(rulesetList, mixin, mixin.name.begin());
+    (*i)->getFunctions(functionList, mixin, mixin.name.begin(), context);
+  }
+  
+  closures = context.getBaseClosures();
+  for (c_it = closures->begin(); c_it != closures->end(); c_it++) {
+    (*c_it)->getFunctions(functionList, mixin, mixin.name.begin(), context);
   }
 }
 
@@ -63,6 +71,15 @@ void LessStylesheet::putVariable(const std::string& key,
 }
 const TokenList* LessStylesheet::getVariable(const std::string& key) const {
   return variables.getVariable(key);
+}
+const TokenList* LessStylesheet::getVariable(const std::string& key,
+                                             const ProcessingContext &context) const {
+  const TokenList* t;
+
+  if ((t = getVariable(key)) != NULL)
+    return t;
+
+  return context.getBaseVariable(key);
 }
 
 void LessStylesheet::process(Stylesheet& s, void* context) const {
@@ -75,8 +92,6 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   ((ProcessingContext*)context)->setLessStylesheet(*this);
   Stylesheet::process(s, context);
 
-  saveReturnValues(*(ProcessingContext*)context);
-
   // post processing
   extensions = &((ProcessingContext*)context)->getExtensions();
 
@@ -87,13 +102,3 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   }
 }
 
-void LessStylesheet::saveReturnValues(ProcessingContext& context) const {
-  VariableMap variables;
-  std::list<Closure *> closures;
-  
-  // move closures from context to this->closures
-  context.saveClosures(closures);
-
-  // move variables from context to this->variables
-  context.saveVariables(variables);
-}

@@ -25,15 +25,16 @@ public:
                     ProcessingContext &context) const;
   virtual void getFunctions(std::list<const Function *> &functionList,
                             const Mixin &mixin,
-                            TokenList::const_iterator selector_offset) const;
+                            TokenList::const_iterator selector_offset,
+                            const ProcessingContext &context) const;
   virtual void getLocalFunctions(std::list<const Function *> &functionList,
-                                 const Mixin &mixin) const;
+                                 const Mixin &mixin,
+                                 const ProcessingContext &context) const;
 
   virtual LessSelector *getLessSelector() const;
 
-  virtual const TokenList *getVariable(const std::string &key) const;
-  virtual const TokenList *getInheritedVariable(const std::string &key,
-                                                const MixinCall &stack) const;
+  virtual const TokenList *getVariable(const std::string &key,
+                                       const ProcessingContext &context) const;
 
   bool isInStack(const LessRuleset &ruleset);
 };

@@ -21,7 +21,7 @@ public:
 
   virtual void process(Stylesheet &s,
                        Selector *prefix,
-                       ProcessingContext &context);
+                       ProcessingContext &context) const;
 };
 
 #endif  // __less_lessstylesheet_MediaQueryRuleset_h__

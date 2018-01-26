@@ -28,7 +28,7 @@ class LessStylesheet;
 class MediaQueryRuleset;
 class Closure;
 
-class LessRuleset : public Ruleset, Function {
+class LessRuleset : public Ruleset, public Function {
 protected:
   VariableMap variables;
   list<LessRuleset *> nestedRules;
@@ -41,7 +41,7 @@ protected:
   std::list<Mixin *> mixins;
   std::list<LessAtRule *> lessAtRules;
 
-  LessRuleset *parent;
+  const LessRuleset *parent;
   LessStylesheet *lessStylesheet;
   LessSelector *selector;
 
@@ -93,8 +93,8 @@ public:
 
   const list<Closure *> &getClosures() const;
 
-  void setParent(LessRuleset *r);
-  LessRuleset *getParent() const;
+  void setParent(const LessRuleset *r);
+  const LessRuleset *getParent() const;
 
   void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet *getLessStylesheet() const;
@@ -116,22 +116,27 @@ public:
                        Selector *prefix,
                        ProcessingContext &context) const;
 
+  const TokenList* getVariable(const std::string& key,
+                               const ProcessingContext &context) const ;
+
   virtual void getFunctions(list<const Function *> &functionList,
                             const Mixin &mixin,
-                            TokenList::const_iterator selector_offset) const;
+                            TokenList::const_iterator selector_offset,
+                            const ProcessingContext &context) const;
 
-  void saveReturnValues(ProcessingContext &context) const;
   /**
    * Look for a ruleset inside this ruleset and scope up to
    * getParent(), or getLessStylesheet() if getParent() is NULL.
    */
   void getLocalFunctions(std::list<const Function *> &functionList,
-                         const Mixin &mixin) const;
+                         const Mixin &mixin,
+                         const ProcessingContext &context) const;
   void getLocalFunctions(std::list<const Function *> &functionList,
                          const Mixin &mixin,
-                         const LessRuleset *exclude = NULL) const;
+                         const LessRuleset *exclude,
+                         const ProcessingContext &context) const;
 
-  bool matchConditions(ProcessingContext &context) const;
+  bool matchConditions(const ProcessingContext &context) const;
   bool putArguments(MixinArguments &args, VariableMap &scope) const;
 };
 

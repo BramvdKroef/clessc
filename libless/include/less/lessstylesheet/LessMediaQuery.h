@@ -31,8 +31,10 @@ public:
   LessStylesheet *getLessStylesheet() const;
 
   virtual void getFunctions(std::list<const Function *> &functionList,
-                            const Mixin &mixin) const;
-  virtual const TokenList *getVariable(const std::string &key) const;
+                            const Mixin &mixin,
+                            const ProcessingContext &context) const;
+  virtual const TokenList *getVariable(const std::string &key,
+                                       const ProcessingContext &context) const;
 
   virtual void process(Stylesheet &s, void* context) const;
   virtual void write(CssWriter &writer) const;

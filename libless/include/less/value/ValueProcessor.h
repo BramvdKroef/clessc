@@ -106,10 +106,10 @@ public:
 
   void processValue(TokenList &value, const ValueScope &scope) const;
 
-  bool validateCondition(const TokenList &value, const ValueScope &scope);
+  bool validateCondition(const TokenList &value, const ValueScope &scope) const;
   bool validateValue(TokenList::const_iterator &i,
                      TokenList::const_iterator &end,
-                     const ValueScope &scope);
+                     const ValueScope &scope) const;
 
   bool functionExists(const char *function) const;
 

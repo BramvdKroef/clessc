@@ -30,32 +30,39 @@ private:
   const LessStylesheet *contextStylesheet;
 
   // return values
-  std::list<Closure *> closures;
-  VariableMap variables;
-
+  std::map<const Function*, std::list<Closure *>> closures;
+  std::map<const Function*, VariableMap> variables;
+  std::list<Closure *> base_closures;
+  VariableMap base_variables;
 public:
   ProcessingContext();
 
   void setLessStylesheet(const LessStylesheet &stylesheet);
-  const LessStylesheet *getLessStylesheet();
+  const LessStylesheet *getLessStylesheet() const;
 
   virtual const TokenList *getVariable(const std::string &key) const;
 
+  const TokenList *getFunctionVariable(const std::string &key,
+                                       const Function* function) const;
+
+  const TokenList *getBaseVariable (const std::string &key) const;
+  
+  
   void pushMixinCall(const Function &function, bool savepoint = false);
   void popMixinCall();
   bool isInStack(const Function &function) const;
-  VariableMap *getStackArguments();
+  VariableMap *getStackArguments() const;
+  VariableMap *getStackArguments(const Function *function) const;
   bool isStackEmpty() const;
   bool isSavePoint() const;
+  const Function* getSavePoint() const;
 
   void getFunctions(std::list<const Function *> &functionList,
                     const Mixin &mixin) const;
-  void getClosures(std::list<const Function *> &closureList,
-                   const Mixin &mixin) const;
 
-  void saveClosures(std::list<Closure *> &closures);
-  void saveVariables(VariableMap &variables);
-
+  const std::list<Closure *> *getClosures(const Function *function) const ;
+  const std::list<Closure *> *getBaseClosures() const;
+  
   void addClosure(const LessRuleset &ruleset);
   void addVariables(const VariableMap &variables);
 
@@ -67,7 +74,7 @@ public:
   void interpolate(TokenList &tokens);
   void interpolate(std::string &str);
   void processValue(TokenList &value);
-  bool validateCondition(TokenList &value);
+  bool validateCondition(TokenList &value) const;
 };
 
 #endif  // __less_lessstylesheet_ProcessingContext_h__

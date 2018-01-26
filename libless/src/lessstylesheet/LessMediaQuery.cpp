@@ -24,15 +24,17 @@ LessStylesheet *LessMediaQuery::getLessStylesheet() const {
 }
 
 void LessMediaQuery::getFunctions(std::list<const Function *> &functionList,
-                                  const Mixin &mixin) const {
-  LessStylesheet::getFunctions(functionList, mixin);
-  getLessStylesheet()->getFunctions(functionList, mixin);
+                                  const Mixin &mixin,
+                                  const ProcessingContext &context) const {
+  LessStylesheet::getFunctions(functionList, mixin, context);
+  getLessStylesheet()->getFunctions(functionList, mixin, context);
 }
 
-const TokenList *LessMediaQuery::getVariable(const std::string &key) const {
-  const TokenList *t = LessStylesheet::getVariable(key);
+const TokenList *LessMediaQuery::getVariable(const std::string &key,
+                                             const ProcessingContext &context) const {
+  const TokenList *t = LessStylesheet::getVariable(key, context);
   if (t == NULL)
-    t = getLessStylesheet()->getVariable(key);
+    t = getLessStylesheet()->getVariable(key, context);
   return t;
 }
 

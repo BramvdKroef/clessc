@@ -40,12 +40,14 @@ public:
   void putVariable(const std::string &key, const TokenList &value);
 
   virtual void getFunctions(std::list<const Function *> &functionList,
-                            const Mixin &mixin) const;
+                            const Mixin &mixin,
+                            const ProcessingContext &context) const;
 
-  virtual const TokenList *getVariable(const std::string &key) const;
+  const TokenList *getVariable(const std::string &key) const;
+  virtual const TokenList *getVariable(const std::string &key,
+                                       const ProcessingContext &context) const;
 
   virtual void process(Stylesheet &s, void *context) const;
-  void saveReturnValues(ProcessingContext &context) const;
 };
 
 #endif  // __less_lessstylesheet_LessStylesheet_h__

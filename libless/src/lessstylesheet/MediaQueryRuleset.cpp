@@ -11,7 +11,7 @@ MediaQueryRuleset::~MediaQueryRuleset() {
 
 void MediaQueryRuleset::process(Stylesheet& s,
                                 Selector* prefix,
-                                ProcessingContext& context) {
+                                ProcessingContext& context) const {
   MediaQuery* query;
   Ruleset* target;
   Selector selector;

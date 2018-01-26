@@ -21,19 +21,19 @@ public:
   virtual bool call(MixinArguments &args,
                     Stylesheet &s,
                     ProcessingContext &context) const = 0;
+
   virtual void getFunctions(
       std::list<const Function *> &functionList,
       const Mixin &mixin,
-      TokenList::const_iterator selector_offset) const = 0;
+      TokenList::const_iterator selector_offset,
+      const ProcessingContext &context) const = 0;
 
   virtual void getLocalFunctions(std::list<const Function *> &functionList,
-                                 const Mixin &mixin) const = 0;
+                                 const Mixin &mixin,
+                                 const ProcessingContext &context) const = 0;
 
-  virtual const TokenList *getVariable(const std::string &key) const = 0;
-  virtual const TokenList *getInheritedVariable(
-      const std::string &key, const MixinCall &stack) const = 0;
-
-  void saveReturnValues(ProcessingContext &context);
+  virtual const TokenList *getVariable(const std::string &key,
+                                       const ProcessingContext &context) const = 0;
 
   virtual LessSelector *getLessSelector() const = 0;
 };

@@ -22,8 +22,6 @@ bool Mixin::call(ProcessingContext &context,
                  Ruleset *r_target,
                  Stylesheet *s_target) const {
 
-  LessRuleset *parent = getLessRuleset();
-  
   std::list<const Function *>::iterator i;
   std::list<const Function *> functionList;
   const Function *function;
@@ -51,13 +49,6 @@ bool Mixin::call(ProcessingContext &context,
         function->call(arguments_p, *s_target, context);
 
       context.popMixinCall();
-      if (parent != NULL) {
-        if (context.isSavePoint())
-          parent->saveReturnValues(context);
-
-      } else {
-        getLessStylesheet()->saveReturnValues(context);
-      }
     }
   }
 

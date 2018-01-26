@@ -123,36 +123,12 @@ VariableMap& LessRuleset::getVariables() {
 const TokenList* LessRuleset::getVariable(const std::string& key) const {
   return variables.getVariable(key);
 }
-const TokenList* LessRuleset::getInheritedVariable(
-    const std::string& key, const MixinCall& stack) const {
-  const TokenList* t;
-  const VariableMap* m;
 
-  if (parent != NULL) {
-    if ((t = parent->getVariable(key)) != NULL)
-      return t;
-
-    if (parent->getLessSelector()->needsArguments()) {
-      m = stack.getArguments(*parent);
-      if (m != NULL) {
-        if ((t = m->getVariable(key)) != NULL)
-          return t;
-      }
-    }
-
-    return parent->getInheritedVariable(key, stack);
-  } else
-    return lessStylesheet->getVariable(key);
-}
-
-void LessRuleset::setParent(LessRuleset* r) {
+void LessRuleset::setParent(const LessRuleset* r) {
   parent = r;
 }
-LessRuleset* LessRuleset::getParent() const {
+const LessRuleset* LessRuleset::getParent() const {
   return parent;
-}
-const list<Closure*>& LessRuleset::getClosures() const {
-  return closures;
 }
 
 void LessRuleset::setLessStylesheet(LessStylesheet& s) {
@@ -216,6 +192,8 @@ bool LessRuleset::call(MixinArguments& args,
 
     addClosures(context);
     // process variables and add to context.variables
+    if (context.getStackArguments() != NULL)
+      context.addVariables(*context.getStackArguments());
     context.addVariables(variables);
 
     ret = true;
@@ -231,7 +209,6 @@ void LessRuleset::process(Stylesheet& s,
                           Selector* prefix,
                           ProcessingContext& context) const {
   Ruleset* target;
-  std::list<Closure*> closureScope;
 
   if (selector->needsArguments())
     return;
@@ -248,8 +225,6 @@ void LessRuleset::process(Stylesheet& s,
   context.pushMixinCall(*this, true);
   processStatements(*target, &context);
   context.popMixinCall();
-
-  saveReturnValues(context);
 }
 
 void LessRuleset::processStatements(Ruleset& target,
@@ -279,23 +254,36 @@ void LessRuleset::processStatements(Stylesheet& target,
   insertNestedRules(target, NULL, *(ProcessingContext*)context);
 }
 
-void LessRuleset::saveReturnValues(ProcessingContext& context) const {
-  VariableMap variables;
-  std::list<Closure *> closures;
-  
-  // move closures from context to this->closures
-  context.saveClosures(closures);
+const TokenList* LessRuleset::getVariable(const std::string& key,
+                                          const ProcessingContext &context) const {
+  const TokenList* t;
+  const VariableMap* m;
 
-  // move variables from context txbo this->variables
-  context.saveVariables(variables);
+  if ((t = getVariable(key)) != NULL)
+    return t;
+
+  if ((m = context.getStackArguments(this)) != NULL) {
+    if ((t = m->getVariable(key)) != NULL)
+      return t;
+  }
+  
+  if ((t = context.getFunctionVariable(key, this)) != NULL)
+    return t;
+
+  if (parent != NULL)
+    return parent->getVariable(key, context);
+  else
+    return getLessStylesheet()->getVariable(key, context);
 }
 
 void LessRuleset::getFunctions(list<const Function*>& functionList,
                                const Mixin& mixin,
-                               TokenList::const_iterator offset) const {
-  const list<LessRuleset*>& nestedRules = getNestedRules();
-  list<LessRuleset*>::const_iterator r_it;
-  list<Closure*>::const_iterator c_it;
+                               TokenList::const_iterator offset,
+                               const ProcessingContext &context) const {
+  const std::list<LessRuleset*>& nestedRules = getNestedRules();
+  std::list<LessRuleset*>::const_iterator r_it;
+  const std::list<Closure*>* closures;
+  std::list<Closure*>::const_iterator c_it;
 
   offset = mixin.name.walk(getSelector(), offset);
 
@@ -307,50 +295,65 @@ void LessRuleset::getFunctions(list<const Function*>& functionList,
     offset++;
   }
 
-  if (!selector->needsArguments() || selector->matchArguments(mixin.arguments)) {
-    if (offset == mixin.name.end()) {
+  if (offset == mixin.name.end()) {
+    if (!selector->needsArguments() ||
+        selector->matchArguments(mixin.arguments)) {
       functionList.push_back(this);
-    } else {
+    }
+  } else {
+    if (!selector->needsArguments() && matchConditions(context)) {
+      
       for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
-        (*r_it)->getFunctions(functionList, mixin, offset);
+        (*r_it)->getFunctions(functionList, mixin, offset, context);
       }
-      for (c_it = closures.begin(); c_it != closures.end(); c_it++) {
-        (*c_it)->getFunctions(functionList, mixin, mixin.name.begin());
+      closures = context.getClosures(this);
+      if (closures != NULL) {
+        for (c_it = closures->begin(); c_it != closures->end(); c_it++) {
+          (*c_it)->getFunctions(functionList, mixin, mixin.name.begin(), context);
+        }
       }
     }
   }
-}
-
-void LessRuleset::getLocalFunctions(std::list<const Function*>& functionList,
-                                    const Mixin& mixin) const {
-  getLocalFunctions(functionList, mixin, NULL);
 }
 
 void LessRuleset::getLocalFunctions(std::list<const Function*>& functionList,
                                     const Mixin& mixin,
-                                    const LessRuleset* exclude) const {
+                                    const ProcessingContext &context) const {
+  getLocalFunctions(functionList, mixin, NULL, context);
+}
+
+void LessRuleset::getLocalFunctions(std::list<const Function*>& functionList,
+                                    const Mixin& mixin,
+                                    const LessRuleset* exclude,
+                                    const ProcessingContext &context) const {
   const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
+  const std::list<Closure*>* closures;
   std::list<Closure*>::const_iterator c_it;
 
   for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
     if ((*r_it) != exclude) {
-      (*r_it)->getFunctions(functionList, mixin, mixin.name.begin());
+      (*r_it)->getFunctions(functionList, mixin, mixin.name.begin(), context);
     }
   }
-
-  for (c_it = closures.begin(); c_it != closures.end(); c_it++) {
-    (*c_it)->getFunctions(functionList, mixin, mixin.name.begin());
+  
+  closures = context.getClosures(this);
+  if (closures != NULL) {
+    for (c_it = closures->begin(); c_it != closures->end(); c_it++) {
+      (*c_it)->getFunctions(functionList, mixin, mixin.name.begin(), context);
+    }
   }
-
+  
   if (!functionList.empty())
     return;
 
   if (getParent() != NULL) {
-    getParent()->getLocalFunctions(
-        functionList, mixin, selector->needsArguments() ? NULL : this);
+    getParent()->getLocalFunctions(functionList,
+                                   mixin,
+                                   selector->needsArguments() ? NULL : this,
+                                   context);
   } else
-    getLessStylesheet()->getFunctions(functionList, mixin);
+    getLessStylesheet()->getFunctions(functionList, mixin, context);
 }
 
 void LessRuleset::insertNestedRules(Stylesheet& s,
@@ -375,7 +378,7 @@ void LessRuleset::addClosures(ProcessingContext& context) const {
   }
 }
 
-bool LessRuleset::matchConditions(ProcessingContext& context) const {
+bool LessRuleset::matchConditions(const ProcessingContext& context) const {
   std::list<TokenList>& conditions = selector->getConditions();
   std::list<TokenList>::iterator cit;
   TokenList condition;
