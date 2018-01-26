@@ -125,7 +125,7 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
 }
 
 bool ValueProcessor::validateCondition(const TokenList &value,
-                                       const ValueScope &scope) {
+                                       const ValueScope &scope) const {
   TokenList::const_iterator i = value.begin();
   TokenList::const_iterator end = value.end();
 
@@ -147,7 +147,7 @@ bool ValueProcessor::validateCondition(const TokenList &value,
 }
 bool ValueProcessor::validateValue(TokenList::const_iterator &i,
                                    TokenList::const_iterator &end,
-                                   const ValueScope &scope) {
+                                   const ValueScope &scope) const {
   const Token *reference;
   Value *v;
   const BooleanValue trueVal(true);
