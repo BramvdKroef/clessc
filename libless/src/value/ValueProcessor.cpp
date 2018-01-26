@@ -128,8 +128,17 @@ bool ValueProcessor::validateCondition(const TokenList &value,
                                        const ValueScope &scope) const {
   TokenList::const_iterator i = value.begin();
   TokenList::const_iterator end = value.end();
+  bool negate = false;
+  bool ret;
 
-  bool ret = validateValue(i, end, scope);
+  skipWhitespace(i, end);
+
+  if (*i == "not") {
+    negate = true;
+    i++;
+  }
+    
+  ret = validateValue(i, end, scope);
 
   skipWhitespace(i, end);
 
@@ -143,8 +152,9 @@ bool ValueProcessor::validateCondition(const TokenList &value,
     skipWhitespace(i, end);
   }
 
-  return ret;
+  return negate ? !ret : ret;
 }
+
 bool ValueProcessor::validateValue(TokenList::const_iterator &i,
                                    TokenList::const_iterator &end,
                                    const ValueScope &scope) const {
