@@ -367,6 +367,7 @@ color or a number.",
 
 BooleanValue* Color::equals(const Value& v) const {
   const Color* c;
+  const BooleanValue* b;
 
   switch (v.type) {
     case COLOR:
@@ -374,7 +375,13 @@ BooleanValue* Color::equals(const Value& v) const {
       return new BooleanValue(color[RGB_RED] == c->getRed() &&
                               color[RGB_GREEN] == c->getGreen() &&
                               color[RGB_BLUE] == c->getBlue());
-    default:
+
+  case BOOLEAN:
+    // any color is falsy.
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(false == b->getValue());
+    
+  default:
       throw new ValueException("You can only compare a color with a *color*.",
                                *this->getTokens());
   }
@@ -382,6 +389,7 @@ BooleanValue* Color::equals(const Value& v) const {
 
 BooleanValue* Color::lessThan(const Value& v) const {
   const Color* c;
+  const BooleanValue* b;
 
   switch (v.type) {
     case COLOR:
@@ -389,7 +397,11 @@ BooleanValue* Color::lessThan(const Value& v) const {
       return new BooleanValue(color[RGB_RED] < c->getRed() ||
                               color[RGB_GREEN] < c->getGreen() ||
                               color[RGB_BLUE] < c->getBlue());
-    default:
+  case BOOLEAN:
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(b->getValue());
+
+  default:
       throw new ValueException("You can only compare a color with a *color*.",
                                *this->getTokens());
   }

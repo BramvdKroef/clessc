@@ -42,10 +42,16 @@ Value *UnitValue::divide(const Value &v) const {
 
 BooleanValue *UnitValue::lessThan(const Value &v) const {
   const UnitValue *u;
+  const BooleanValue* b;
 
   if (v.type == UNIT) {
     u = static_cast<const UnitValue *>(&v);
     return new BooleanValue(getUnit() < u->getUnit());
+
+  } else if (v.type == BOOLEAN) {
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(b->getValue());
+
   } else {
     throw new ValueException("You can only compare a unit with a *unit*.",
                              *this->getTokens());
@@ -53,10 +59,17 @@ BooleanValue *UnitValue::lessThan(const Value &v) const {
 }
 BooleanValue *UnitValue::equals(const Value &v) const {
   const UnitValue *u;
+  const BooleanValue* b;
 
   if (v.type == UNIT) {
     u = static_cast<const UnitValue *>(&v);
     return new BooleanValue(getUnit() == u->getUnit());
+
+  } else if (v.type == BOOLEAN) {
+    // any unit is falsy.
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(false == b->getValue());
+
   } else {
     throw new ValueException("You can only compare a unit with a *unit*.",
                              *this->getTokens());

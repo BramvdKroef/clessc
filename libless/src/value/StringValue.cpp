@@ -132,10 +132,16 @@ Value* StringValue::divide(const Value& v) const {
 
 BooleanValue* StringValue::equals(const Value& v) const {
   const StringValue* s;
+  const BooleanValue* b;
 
   if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
     return new BooleanValue(getString() == s->getString());
+    
+  } else if (v.type == BOOLEAN) {
+    // any string is falsy.
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(false == b->getValue());
   } else {
     throw new ValueException("You can only compare a string with a *string*.",
                              *this->getTokens());
@@ -143,10 +149,14 @@ BooleanValue* StringValue::equals(const Value& v) const {
 }
 BooleanValue* StringValue::lessThan(const Value& v) const {
   const StringValue* s;
+  const BooleanValue* b;
 
   if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
     return new BooleanValue(getString() < s->getString());
+  } else if (v.type == BOOLEAN) {
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(b->getValue());
   } else {
     throw new ValueException("You can only compare a string with a *string*.",
                              *this->getTokens());

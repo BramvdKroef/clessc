@@ -218,10 +218,15 @@ Value* NumberValue::divide(const Value& v) const {
 
 BooleanValue* NumberValue::equals(const Value& v) const {
   const NumberValue* n;
+  const BooleanValue* b;
 
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
     return new BooleanValue(convert(n->getUnit()) == n->getValue());
+  } else if (v.type == BOOLEAN) {
+    // any number is falsy.
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(false == b->getValue());
   } else {
     throw new ValueException(
         "You can only compare a number "
@@ -232,10 +237,14 @@ BooleanValue* NumberValue::equals(const Value& v) const {
 
 BooleanValue* NumberValue::lessThan(const Value& v) const {
   const NumberValue* n;
+  const BooleanValue* b;
 
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
     return new BooleanValue(convert(n->getUnit()) < n->getValue());
+  } else if (v.type == BOOLEAN) {
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(b->getValue());
   } else {
     throw new ValueException(
         "You can only compare a number "

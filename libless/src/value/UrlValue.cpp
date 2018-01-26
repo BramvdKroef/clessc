@@ -83,9 +83,16 @@ Value* UrlValue::divide(const Value& v) const {
 
 BooleanValue* UrlValue::lessThan(const Value& v) const {
   const UrlValue* u;
+  const BooleanValue* b;
+
   if (v.type == URL) {
     u = static_cast<const UrlValue*>(&v);
     return new BooleanValue(path < u->getPath());
+
+  } else if (v.type == BOOLEAN) {
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(b->getValue());
+
   } else {
     throw new ValueException("You can only compare urls with urls.",
                              *this->getTokens());
@@ -93,10 +100,17 @@ BooleanValue* UrlValue::lessThan(const Value& v) const {
 }
 BooleanValue* UrlValue::equals(const Value& v) const {
   const UrlValue* u;
+  const BooleanValue* b;
 
   if (v.type == URL) {
     u = static_cast<const UrlValue*>(&v);
     return new BooleanValue(path == u->getPath());
+
+  } else if (v.type == BOOLEAN) {
+    // any url is falsy.
+    b = static_cast<const BooleanValue*>(&v);
+    return new BooleanValue(false == b->getValue());
+  
   } else {
     throw new ValueException("You can only compare urls with urls.",
                              *this->getTokens());
