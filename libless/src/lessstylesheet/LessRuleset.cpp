@@ -213,6 +213,9 @@ void LessRuleset::process(Stylesheet& s,
   if (selector->needsArguments())
     return;
 
+  if (!matchConditions(context))
+    return;
+  
   target = s.createRuleset();
   target->setSelector(getSelector());
 
