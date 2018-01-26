@@ -854,12 +854,12 @@ TEST_F(LessParserTest, OperatorOrder) {
 TEST_F(LessParserTest, CommentAtEndOfString) {
   in->str(" \
 /* \
-**/\n");
+**/");
   
   p->parseStylesheet(*less);
   less->process(*css, context);
   css->write(*writer);
-  ASSERT_STREQ("/* **/", out->str().c_str());
+  ASSERT_STREQ("/* **/\n", out->str().c_str());
 }
 
 TEST_F(LessParserTest, NamespaceGuardTrue) {
@@ -1064,6 +1064,6 @@ TEST_F(LessParserTest, ExtendOutsideMedia) {
   p->parseStylesheet(*less);
   less->process(*css, context);
   css->write(*writer);
-  ASSERT_STREQ("@media print{.selector,.screenClass{color:black;}}\
-.selector{color:red;}@media screen{.selector{color: blue;}}", out->str().c_str());
+  ASSERT_STREQ("@media print{.selector,.screenClass{color:black}}\
+.selector{color:red}@media screen{.selector{color: blue}}", out->str().c_str());
 }
