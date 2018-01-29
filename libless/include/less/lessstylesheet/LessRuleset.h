@@ -57,7 +57,8 @@ protected:
   bool call(MixinArguments& args,
             ProcessingContext& context,
             Ruleset* ruleset,
-            Stylesheet* stylesheet) const;
+            Stylesheet* stylesheet,
+            bool defaultVal = false) const;
 public:
   LessRuleset();
   LessRuleset(const Selector &selector);
@@ -100,13 +101,17 @@ public:
   LessStylesheet *getLessStylesheet() const;
 
   void processExtensions(ProcessingContext &context, Selector *prefix) const;
+  void processInlineExtensions(ProcessingContext& context,
+                               Selector &selector) const;
 
   virtual bool call(MixinArguments &args,
                     Ruleset &target,
-                    ProcessingContext &context) const;
+                    ProcessingContext &context,
+                    bool defaultVal = false) const;
   virtual bool call(MixinArguments &args,
                     Stylesheet &s,
-                    ProcessingContext &context) const;
+                    ProcessingContext &context,
+                    bool defaultVal = false) const;
 
   virtual void processStatements(Ruleset &target,
                                  void* context) const;
@@ -136,7 +141,8 @@ public:
                          const LessRuleset *exclude,
                          const ProcessingContext &context) const;
 
-  bool matchConditions(const ProcessingContext &context) const;
+  bool matchConditions(const ProcessingContext &context,
+                       bool defaultVal = false) const;
   bool putArguments(MixinArguments &args, VariableMap &scope) const;
 };
 

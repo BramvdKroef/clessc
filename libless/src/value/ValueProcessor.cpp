@@ -125,7 +125,8 @@ bool ValueProcessor::needsProcessing(const TokenList &value) const {
 }
 
 bool ValueProcessor::validateCondition(const TokenList &value,
-                                       const ValueScope &scope) const {
+                                       const ValueScope &scope,
+                                       bool defaultVal) const {
   TokenList::const_iterator i = value.begin();
   TokenList::const_iterator end = value.end();
   bool negate = false;
@@ -138,7 +139,7 @@ bool ValueProcessor::validateCondition(const TokenList &value,
     i++;
   }
     
-  ret = validateValue(i, end, scope);
+  ret = validateValue(i, end, scope, defaultVal);
 
   skipWhitespace(i, end);
 
@@ -147,7 +148,7 @@ bool ValueProcessor::validateCondition(const TokenList &value,
 
     skipWhitespace(i, end);
 
-    ret = validateValue(i, end, scope);
+    ret = validateValue(i, end, scope, defaultVal);
 
     skipWhitespace(i, end);
   }
@@ -157,7 +158,8 @@ bool ValueProcessor::validateCondition(const TokenList &value,
 
 bool ValueProcessor::validateValue(TokenList::const_iterator &i,
                                    TokenList::const_iterator &end,
-                                   const ValueScope &scope) const {
+                                   const ValueScope &scope,
+                                   bool defaultVal) const {
   const Token *reference;
   Value *v;
   const BooleanValue trueVal(true);
@@ -168,7 +170,7 @@ bool ValueProcessor::validateValue(TokenList::const_iterator &i,
     return false;
 
   reference = &(*i);
-  v = processStatement(i, end, scope);
+  v = processStatement(i, end, scope, defaultVal);
 
   if (v == NULL) {
     throw new ParseException(*reference,
@@ -200,16 +202,17 @@ Value *ValueProcessor::processStatement(const TokenList &tokens,
 
 Value *ValueProcessor::processStatement(TokenList::const_iterator &i,
                                         TokenList::const_iterator &end,
-                                        const ValueScope &scope) const {
+                                        const ValueScope &scope,
+                                        bool defaultVal) const {
   Value *op, *v;
 
   skipWhitespace(i, end);
-  v = processConstant(i, end, scope);
+  v = processConstant(i, end, scope, defaultVal);
 
   if (v != NULL) {
     skipWhitespace(i, end);
 
-    while ((op = processOperation(i, end, *v, scope, OP_NONE)) != NULL) {
+    while ((op = processOperation(i, end, *v, scope, OP_NONE, defaultVal)) != NULL) {
       delete v;
       v = op;
 
@@ -225,7 +228,8 @@ Value *ValueProcessor::processOperation(TokenList::const_iterator &i,
                                         TokenList::const_iterator &end,
                                         const Value &operand1,
                                         const ValueScope &scope,
-                                        ValueProcessor::Operator lastop) const {
+                                        ValueProcessor::Operator lastop,
+                                        bool defaultVal) const {
   TokenList::const_iterator tmp;
   const Value *operand2;
   Value *result;
@@ -245,7 +249,7 @@ Value *ValueProcessor::processOperation(TokenList::const_iterator &i,
   i = tmp;
   skipWhitespace(i, end);
 
-  operand2 = processConstant(i, end, scope);
+  operand2 = processConstant(i, end, scope, defaultVal);
   if (operand2 == NULL) {
     if (i == end)
       throw new ParseException("end of line",
@@ -260,7 +264,7 @@ Value *ValueProcessor::processOperation(TokenList::const_iterator &i,
 
   skipWhitespace(i, end);
 
-  while ((result = processOperation(i, end, *operand2, scope, op))) {
+  while ((result = processOperation(i, end, *operand2, scope, op, defaultVal))) {
     delete operand2;
     operand2 = result;
 
@@ -357,7 +361,8 @@ const char *ValueProcessor::operatorToString(ValueProcessor::Operator o) const {
 
 Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
                                        TokenList::const_iterator &end,
-                                       const ValueScope &scope) const {
+                                       const ValueScope &scope,
+                                       bool defaultVal) const {
   Token token;
   Value *ret;
   const TokenList *var;
@@ -415,7 +420,15 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
       i++;
 
       if (i != end && (*i).type == Token::PAREN_OPEN) {
-        if (functionExists(token.c_str())) {
+        if (token == "default") {
+          i++;
+          if ((*i).type != Token::PAREN_CLOSED) {
+            throw new ParseException(*i,
+                                     ")",
+                                     (*i).line, (*i).column, (*i).source);
+          }
+          return new BooleanValue(token, defaultVal);
+        } else if (functionExists(token.c_str())) {
           i++;
 
           ret = processFunction(token, i, end, scope);
@@ -442,7 +455,7 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
       }
 
     case Token::PAREN_OPEN:
-      return processSubstatement(i, end, scope);
+      return processSubstatement(i, end, scope, defaultVal);
 
     default:
       break;
@@ -478,7 +491,8 @@ Value *ValueProcessor::processConstant(TokenList::const_iterator &i,
 
 Value *ValueProcessor::processSubstatement(TokenList::const_iterator &i,
                                            TokenList::const_iterator &end,
-                                           const ValueScope &scope) const {
+                                           const ValueScope &scope,
+                                           bool defaultVal) const {
   Value *ret;
   TokenList::const_iterator i2 = i;
 
@@ -487,7 +501,7 @@ Value *ValueProcessor::processSubstatement(TokenList::const_iterator &i,
 
   i2++;
 
-  ret = processStatement(i2, end, scope);
+  ret = processStatement(i2, end, scope, defaultVal);
 
   if (ret == NULL)
     return NULL;

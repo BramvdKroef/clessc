@@ -19,10 +19,12 @@ public:
 
   virtual bool call(MixinArguments &args,
                     Ruleset &target,
-                    ProcessingContext &context) const;
+                    ProcessingContext &context,
+                    bool defaultVal = false) const;
   virtual bool call(MixinArguments &args,
                     Stylesheet &s,
-                    ProcessingContext &context) const;
+                    ProcessingContext &context,
+                    bool defaultVal = false) const;
   virtual void getFunctions(std::list<const Function *> &functionList,
                             const Mixin &mixin,
                             TokenList::const_iterator selector_offset,

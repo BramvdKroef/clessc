@@ -43,24 +43,28 @@ private:
 
   Value *processStatement(TokenList::const_iterator &it,
                           TokenList::const_iterator &end,
-                          const ValueScope &scope) const;
+                          const ValueScope &scope,
+                          bool defaultVal = false) const;
 
   Value *processOperation(TokenList::const_iterator &i,
                           TokenList::const_iterator &end,
                           const Value &operand1,
                           const ValueScope &scope,
-                          ValueProcessor::Operator lastop) const;
+                          ValueProcessor::Operator lastop,
+                          bool defaultVal = false) const;
 
   Operator processOperator(TokenList::const_iterator &i,
                            TokenList::const_iterator &end) const;
 
   Value *processConstant(TokenList::const_iterator &it,
                          TokenList::const_iterator &end,
-                         const ValueScope &scope) const;
+                         const ValueScope &scope,
+                         bool defaultVal = false) const;
 
   Value *processSubstatement(TokenList::const_iterator &i,
                              TokenList::const_iterator &end,
-                             const ValueScope &scope) const;
+                             const ValueScope &scope,
+                             bool defaultVal = false) const;
 
   const TokenList *processDeepVariable(TokenList::const_iterator &it,
                                        TokenList::const_iterator &end,
@@ -106,10 +110,13 @@ public:
 
   void processValue(TokenList &value, const ValueScope &scope) const;
 
-  bool validateCondition(const TokenList &value, const ValueScope &scope) const;
+  bool validateCondition(const TokenList &value,
+                         const ValueScope &scope,
+                         bool defaultVal = false) const;
   bool validateValue(TokenList::const_iterator &i,
                      TokenList::const_iterator &end,
-                     const ValueScope &scope) const;
+                     const ValueScope &scope,
+                     bool defaultVal = false) const;
 
   bool functionExists(const char *function) const;
 

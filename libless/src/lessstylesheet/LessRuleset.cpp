@@ -149,41 +149,52 @@ void LessRuleset::processExtensions(ProcessingContext& context,
     extension = *e_it;
     if (prefix != NULL)
       extension.getExtension().addPrefix(*prefix);
+    context.interpolate(extension.getExtension());
+    
     context.addExtension(extension);
   }
+}
+
+void LessRuleset::processInlineExtensions(ProcessingContext& context,
+                                          Selector &selector) const {
+  std::list<Extension>::const_iterator e_it;
+  Extension extension;
 
   for (e_it = extensions.begin(); e_it != extensions.end(); e_it++) {
     extension = *e_it;
-
-    extension.setExtension(*getLessSelector());
     
-    if (prefix != NULL)
-      extension.getExtension().addPrefix(*prefix);
-
+    extension.setExtension(selector);
+    
     context.addExtension(extension);
   }
 }
 
 bool LessRuleset::call(MixinArguments& args,
                        Ruleset& target,
-                       ProcessingContext& context) const {
-  return call(args, context, &target, NULL);
+                       ProcessingContext& context,
+                       bool defaultVal) const {
+  if (call(args, context, &target, NULL, defaultVal)) {
+    processInlineExtensions(context, target.getSelector());
+    return true;
+  } else
+    return false;
 }
 
 bool LessRuleset::call(MixinArguments& args,
                        Stylesheet& target,
-                       ProcessingContext& context) const {
-  return call(args, context, NULL, &target);
+                       ProcessingContext& context,
+                       bool defaultVal) const {
+  return call(args, context, NULL, &target, defaultVal);
 }
 
 bool LessRuleset::call(MixinArguments& args,
                        ProcessingContext& context,
                        Ruleset* ruleset,
-                       Stylesheet* stylesheet) const {
-  bool ret = false;
+                       Stylesheet* stylesheet,
+                       bool defaultVal) const {
 
   if (putArguments(args, *context.getStackArguments()) &&
-      matchConditions(context)) {
+      matchConditions(context, defaultVal)) {
     
     if (ruleset != NULL)
       processStatements(*ruleset, &context);
@@ -196,10 +207,9 @@ bool LessRuleset::call(MixinArguments& args,
       context.addVariables(*context.getStackArguments());
     context.addVariables(variables);
 
-    ret = true;
-  }
-
-  return ret;
+    return true;
+  } else
+    return false;
 }
 
 void LessRuleset::process(Stylesheet& s, void* context) const {
@@ -225,6 +235,7 @@ void LessRuleset::process(Stylesheet& s,
   context.interpolate(target->getSelector());
 
   processExtensions(context, prefix);
+  processInlineExtensions(context, target->getSelector());
   context.pushMixinCall(*this, true);
   processStatements(*target, &context);
   context.popMixinCall();
@@ -299,8 +310,7 @@ void LessRuleset::getFunctions(list<const Function*>& functionList,
   }
 
   if (offset == mixin.name.end()) {
-    if (!selector->needsArguments() ||
-        selector->matchArguments(mixin.arguments)) {
+    if (selector->matchArguments(mixin.arguments)) {
       functionList.push_back(this);
     }
   } else {
@@ -381,7 +391,8 @@ void LessRuleset::addClosures(ProcessingContext& context) const {
   }
 }
 
-bool LessRuleset::matchConditions(const ProcessingContext& context) const {
+bool LessRuleset::matchConditions(const ProcessingContext& context,
+                                  bool defaultVal) const {
   std::list<TokenList>& conditions = selector->getConditions();
   std::list<TokenList>::iterator cit;
   TokenList condition;
@@ -392,7 +403,7 @@ bool LessRuleset::matchConditions(const ProcessingContext& context) const {
   for (cit = conditions.begin(); cit != conditions.end(); cit++) {
     condition = (*cit);
 
-    if (context.validateCondition(condition)) {
+    if (context.validateCondition(condition, defaultVal)) {
       return true;
     }
   }

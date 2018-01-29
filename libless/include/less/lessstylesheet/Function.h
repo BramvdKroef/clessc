@@ -17,10 +17,12 @@ class Function {
 public:
   virtual bool call(MixinArguments &args,
                     Ruleset &target,
-                    ProcessingContext &context) const = 0;
+                    ProcessingContext &context,
+                    bool defaultVal = false) const = 0;
   virtual bool call(MixinArguments &args,
                     Stylesheet &s,
-                    ProcessingContext &context) const = 0;
+                    ProcessingContext &context,
+                    bool defaultVal = false) const = 0;
 
   virtual void getFunctions(
       std::list<const Function *> &functionList,

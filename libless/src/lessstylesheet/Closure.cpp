@@ -9,14 +9,16 @@ Closure::Closure(const LessRuleset& ruleset, const MixinCall& stack) {
 
 bool Closure::call(MixinArguments& args,
                    Ruleset& target,
-                   ProcessingContext& context) const {
-  return ruleset->call(args, target, context);
+                   ProcessingContext& context,
+                   bool defaultVal) const {
+  return ruleset->call(args, target, context, defaultVal);
 }
 
 bool Closure::call(MixinArguments& args,
                    Stylesheet& s,
-                   ProcessingContext& context) const {
-  return ruleset->call(args, s, context);
+                   ProcessingContext& context,
+                   bool defaultVal) const {
+  return ruleset->call(args, s, context, defaultVal);
 }
 
 void Closure::getFunctions(std::list<const Function*>& functionList,

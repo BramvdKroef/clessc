@@ -25,6 +25,7 @@ bool Mixin::call(ProcessingContext &context,
   std::list<const Function *>::iterator i;
   std::list<const Function *> functionList;
   const Function *function;
+  bool success;
   
   MixinArguments arguments_p;
   
@@ -35,7 +36,8 @@ bool Mixin::call(ProcessingContext &context,
 
   arguments_p = arguments;
   arguments_p.process(context);
-    
+
+  
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
 
@@ -44,11 +46,30 @@ bool Mixin::call(ProcessingContext &context,
       context.pushMixinCall(*function);
 
       if (r_target != NULL)
-        function->call(arguments_p, *r_target, context);
+        success = function->call(arguments_p, *r_target, context) || success;
       else
-        function->call(arguments_p, *s_target, context);
+        success = function->call(arguments_p, *s_target, context) || success;
 
       context.popMixinCall();
+    }
+  }
+
+  // if no functions matched, try it with 'default()' set to true.
+  if (!success) {
+    for (i = functionList.begin(); i != functionList.end(); i++) {
+      function = *i;
+
+      if (function->getLessSelector()->needsArguments() ||
+          !context.isInStack(*function)) {
+        context.pushMixinCall(*function);
+
+        if (r_target != NULL)
+          function->call(arguments_p, *r_target, context, true);
+        else
+          function->call(arguments_p, *s_target, context, true);
+
+        context.popMixinCall();
+      }
     }
   }
 
