@@ -90,8 +90,8 @@ status:
     - Mixins
       - Selectors in mixins: yes
       - Namespaces: yes
-      - Guarded namespaces: no
-      - `default()`: no
+      - Guarded namespaces: yes
+      - `default()`: yes
       - `!important` keyword: no
       - merge: no
         - `+` append with comma: no
@@ -110,8 +110,8 @@ status:
       - Mixin guards: yes
         - `and` keyword: yes
         - multiple conditions with `,`: yes
-        - `not` keyword: no
-        - `default()`: no
+        - `not` keyword: yes
+        - `default()`: yes
     - Detached rulesets: no
         
     - Operations
@@ -135,7 +135,7 @@ status:
       - `image-height`: yes
       - `convert`: yes
       - `data-uri`: no
-      - `default`: no
+      - `default`: yes
       - `unit`: yes
       - `get-unit`: yes
       - `svg-gradient`: no
@@ -197,7 +197,7 @@ status:
       - `darken`: yes
       - `fadein`: yes
       - `fadeout`: yes
-      - `fade`: no
+      - `fade`: yes
       - `spin`: yes
       - `mix`: no
       - `tint`: no
