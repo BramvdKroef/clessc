@@ -14,7 +14,6 @@
 #include "less/lessstylesheet/LessRuleset.h"
 #include "less/lessstylesheet/Mixin.h"
 #include "less/lessstylesheet/ProcessingContext.h"
-#include "less/lessstylesheet/UnprocessedStatement.h"
 
 class LessMediaQuery;
 
@@ -30,8 +29,10 @@ public:
   virtual ~LessStylesheet();
 
   LessRuleset *createLessRuleset();
+  
   Mixin *createMixin();
   LessAtRule *createLessAtRule(const Token &keyword);
+
   LessMediaQuery *createLessMediaQuery();
 
   void deleteLessRuleset(LessRuleset &ruleset);
