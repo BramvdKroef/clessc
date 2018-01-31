@@ -30,7 +30,7 @@ private:
   const LessStylesheet *contextStylesheet;
 
   // return values
-  std::map<const Function*, std::list<Closure *>> closures;
+  std::map<const Function*, std::list<Closure *> > closures;
   std::map<const Function*, VariableMap> variables;
   std::list<Closure *> base_closures;
   VariableMap base_variables;
