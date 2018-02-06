@@ -1,6 +1,7 @@
 #include "less/lessstylesheet/Mixin.h"
 #include "less/lessstylesheet/LessRuleset.h"
 #include "less/lessstylesheet/LessStylesheet.h"
+#include "less/lessstylesheet/MixinException.h"
 
 Mixin::Mixin() {
   lessStylesheet = NULL;
@@ -31,8 +32,9 @@ bool Mixin::call(ProcessingContext &context,
   
   context.getFunctions(functionList, *this);
 
-  if (functionList.empty())
-    return false;
+  if (functionList.empty()) {
+    throw new MixinException(*this);
+  }
 
   arguments_p = arguments;
   arguments_p.process(context);

@@ -1,6 +1,7 @@
 #include <list>
 #include <gtest/gtest.h>
 #include <less/less/LessParser.h>
+#include <less/lessstylesheet/MixinException.h>
 
 class LessParserTest : public ::testing::Test {
 public:
@@ -890,9 +891,7 @@ TEST_F(LessParserTest, NamespaceGuardFalse) {
 }");
   
   p->parseStylesheet(*less);
-  less->process(*css, context);
-  css->write(*writer);
-  ASSERT_STREQ("", out->str().c_str());
+  EXPECT_THROW(less->process(*css, context), MixinException*);
 }
 
 TEST_F(LessParserTest, Default) {
@@ -985,6 +984,18 @@ TEST_F(LessParserTest, SwitchArgument) {
   less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ(".test{x:1}", out->str().c_str());
+}
+
+TEST_F(LessParserTest, SwitchArgumentMisMatch) {
+  in->str(".mixin(x) { \
+  x: 1; \
+} \
+.test { \
+  .mixin(y); \
+}");
+  
+  p->parseStylesheet(*less);
+  EXPECT_THROW(less->process(*css, context), MixinException*);
 }
 
 TEST_F(LessParserTest, NotGuard) {
