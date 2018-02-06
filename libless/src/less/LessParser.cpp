@@ -19,7 +19,6 @@ void LessParser::skipWhitespace() {
 
 bool LessParser::parseStatement(Stylesheet &stylesheet) {
   Selector selector;
-  Mixin *mixin;
   CssComment *comment;
   LessStylesheet *ls = (LessStylesheet *)&stylesheet;
 
@@ -43,7 +42,6 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
       }
       return true;
     } else {
-      ls->deleteMixin(*mixin);
       throw new ParseException(
           tokenizer->getToken(),
           "a declaration block ('{...}') following selector");
