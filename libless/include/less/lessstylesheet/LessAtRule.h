@@ -21,7 +21,7 @@ public:
 
   virtual void process(Stylesheet &s, void* context) const;
   virtual void process(Ruleset& r, void* context) const;
-  virtual void write(CssWriter &writer) const {};
+  virtual void write(CssWriter &writer) const;
 };
 
 #endif  // __less_lessstylesheet_LessAtRule_h__

@@ -101,3 +101,5 @@ void Mixin::process(Ruleset &r, void* context) const {
   call(*((ProcessingContext*)context), &r, NULL);
 }
 
+void Mixin::write(CssWriter &writer) const {
+}

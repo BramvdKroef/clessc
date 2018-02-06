@@ -26,3 +26,5 @@ void LessAtRule::process(Ruleset &r, void* context) const {
   // Can't add @-rules to rulesets so ignore the statement.
 
 }
+void LessAtRule::write(CssWriter &writer) const {
+}
