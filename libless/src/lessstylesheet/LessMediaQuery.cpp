@@ -2,7 +2,7 @@
 
 LessMediaQuery::LessMediaQuery(const Selector &selector,
                                const LessStylesheet &parent) :
-  parent(&parent), selector(selector) {
+  selector(selector), parent(&parent) {
 
 }
 LessMediaQuery::~LessMediaQuery() {

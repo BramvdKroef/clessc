@@ -93,12 +93,16 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   extensions = &((ProcessingContext*)context)->getExtensions();
 
   for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
-    s->find((*e_it).getTarget());
+    if ((*e_it).isAll()) {
+      // go through all rulesets and look for occurances of the extension target.
+    } else {
+      // look for a ruleset that matches the extension target
+      s.find((*e_it).getTarget());
     
       selector = new Selector((*r_it)->getSelector());
       (*e_it).updateSelector(*selector);
       (*r_it)->setSelector(*selector);
-  
+    }
   }
 }
 

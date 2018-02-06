@@ -20,20 +20,28 @@ public:
 
   void addPrefix(const Selector &prefix);
 
+  void appendSelector(const TokenList &selector);
  
-  TokenList::const_iterator walk(TokenList::const_iterator t_begin,
-                                 TokenList::const_iterator t_end) const;
+  const TokenList::const_iterator walk(const TokenList::const_iterator &t_begin,
+                                       const TokenList::const_iterator &t_end) const;
 
-  const_iterator find(const TokenList &list,
-                                 const_iterator offset,
-                                 const_iterator limit) const;
+  void walk(TokenList::const_iterator &it1,
+            const TokenList::const_iterator &it1_end,
+            TokenList::const_iterator &it2,
+            const TokenList::const_iterator &it2_end) const;
+
+  TokenList::const_iterator find(const TokenList &list,
+                                 TokenList::const_iterator offset,
+                                 const TokenList::const_iterator limit) const;
 
   bool match(const TokenList &tokens) const;
-  int compare(const TokenList &tokens, const_iterator offset);
-  
+  int compare(const TokenList &tokens,
+              const_iterator offset,
+              const const_iterator end) const;
+    
   const_iterator findComma(const_iterator offset) const;
   const_iterator findComma(const_iterator offset,
-                                      const_iterator limit) const;
+                           const const_iterator &limit) const;
 };
 
 #endif  // __less_stylesheet_Selector_h__

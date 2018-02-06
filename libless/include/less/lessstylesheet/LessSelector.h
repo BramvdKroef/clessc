@@ -4,6 +4,7 @@
 #include <iterator>
 #include <list>
 #include <map>
+#include <string>
 
 #include "less/lessstylesheet/Extension.h"
 #include "less/lessstylesheet/MixinArguments.h"
@@ -13,7 +14,7 @@
 class LessSelector : public Selector {
 private:
   std::list<Extension> extensions;
-  std::list<string> parameters;
+  std::list<std::string> parameters;
   std::list<TokenList> defaults;
   std::list<TokenList> conditions;
 

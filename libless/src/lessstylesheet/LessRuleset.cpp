@@ -5,13 +5,13 @@
 LessRuleset::LessRuleset(const LessSelector& selector,
                          const LessRuleset& parent) :
   Ruleset(selector),
-  selector(&selector), parent(&parent), lessStylesheet(NULL) {
+  parent(&parent), lessStylesheet(NULL), selector(&selector) {
 
 }
 LessRuleset::LessRuleset(const LessSelector& selector,
                          const LessStylesheet& parent) :
   Ruleset(selector),
-  selector(&selector), lessStylesheet(&parent), parent(NULL) {
+  parent(NULL), lessStylesheet(&parent), selector(&selector) {
 }
 
 LessRuleset::~LessRuleset() {

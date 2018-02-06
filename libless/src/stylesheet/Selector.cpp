@@ -61,12 +61,19 @@ void Selector::addPrefix(const Selector &prefix) {
   }
 }
 
+void Selector::appendSelector(const TokenList &selector) {
+  if (!empty()) 
+    push_back(Token::BUILTIN_COMMA);
+  
+  insert(end(), selector.begin(), selector.end());
+}
 
-TokenList::const_iterator Selector::findComma(const_iterator offset) const {
+Selector::const_iterator Selector::findComma(Selector::const_iterator offset) const {
   return findComma(offset, end());
 }
-TokenList::const_iterator Selector::findComma(const_iterator offset,
-                                              const const_iterator &limit) const {
+
+Selector::const_iterator Selector::findComma(Selector::const_iterator offset,
+                                             const Selector::const_iterator &limit) const {
   unsigned int parentheses = 0;
 
   for (; offset != limit; offset++) {
@@ -89,7 +96,7 @@ const TokenList::const_iterator Selector::walk(const TokenList::const_iterator &
   Selector::const_iterator end, it, t_it;
   it = begin();
   
-  while (it != end()) {
+  while (it != this->end()) {
     end = findComma(it);
 
     t_it = t_begin;
@@ -107,16 +114,9 @@ const TokenList::const_iterator Selector::walk(const TokenList::const_iterator &
 void Selector::walk(TokenList::const_iterator &it1,
                     const TokenList::const_iterator &it1_end,
                     TokenList::const_iterator &it2,
-                    const TokenList::const_iterator &it2_end,
-                    ) const {
+                    const TokenList::const_iterator &it2_end) const {
 
   while (it1 != it1_end && it2 != it2_end) {
-    if (*it1 != *it2)
-        return;
-
-    it1++;
-    it2++;
-
     if (it1 != it1_end && *it1 == ">") {
       it1++;
       while (it1 != it1_end && (*it1).type == Token::WHITESPACE)
@@ -125,20 +125,26 @@ void Selector::walk(TokenList::const_iterator &it1,
 
     if (it2 != it2_end && *it2 == ">") {
       it2++;
-      while (it2 != end && (*it2).type == Token::WHITESPACE)
+      while (it2 != it2_end && (*it2).type == Token::WHITESPACE)
         it2++;
     }
+
+    if (*it1 != *it2)
+        return;
+
+    it1++;
+    it2++;
   }
 }
 
-bool TokenList::match(const TokenList &tokens) const {
+bool Selector::match(const TokenList &tokens) const {
   return walk(tokens.begin(), tokens.end()) == tokens.end();
 }
 
-int TokenList::compare(const TokenList &tokens,
-                       const_iterator offset,
-                       const_iterator end) const {
-  const_iterator it1 = tokens.begin();
+int Selector::compare(const TokenList &tokens,
+                      const_iterator offset,
+                      const const_iterator end) const {
+  const_iterator it = tokens.begin();
 
   walk(it, tokens.end(), offset, end);
   
@@ -147,13 +153,13 @@ int TokenList::compare(const TokenList &tokens,
   if (offset == end)
     return -1;
 
-  return (*it < *offset) 1 : -1;
+  return (*it < *offset) ? 1 : -1;
 }
 
 TokenList::const_iterator Selector::find(
     const TokenList &list,
     TokenList::const_iterator offset,
-    TokenList::const_iterator limit) const {
+    const TokenList::const_iterator limit) const {
   TokenList::const_iterator it;
   
   for (; offset != limit; offset++) {
