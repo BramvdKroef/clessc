@@ -1,10 +1,11 @@
 #include "less/less/LessSelectorParser.h"
+#include "less/css/ParseException.h"
 
 bool LessSelectorParser::parse(TokenList& tokens,
                                LessSelector& selector) {
   TokenList::iterator it, begin;
   
-  bool args = (t.front().type == Token::HASH ||
+  bool args = (tokens.front().type == Token::HASH ||
                tokens.front() == ".");
 
   begin = tokens.begin();
@@ -19,24 +20,24 @@ bool LessSelectorParser::parse(TokenList& tokens,
     
     if (begin == tokens.begin()) {
       if (args) {
-        if (parseArguments(tokens, it, begin)) {
+        if (parseArguments(tokens, it, selector)) {
           while (it != tokens.end() && (*it).type == Token::WHITESPACE)
             it++;
           selector.setNeedsArguments(false);
-          parseConditions(tokens, it, begin);
+          parseConditions(tokens, it, selector);
 
-        } else if (*it.type == Token::COLON) 
+        } else if ((*it).type == Token::COLON) 
           args = false;
       }
       
-      if (parseConditions(tokens, it, begin)) 
+      if (parseConditions(tokens, it, selector)) 
         break;
     }
     
     if (*it == Token::BUILTIN_COMMA) 
       begin = it;
   }
-  selector.setTokens(tokens);
+  selector.assign(tokens.begin(), tokens.end());
   return true;
 }
 
@@ -65,16 +66,23 @@ bool LessSelectorParser::parseExtension(TokenList &tokens,
   }
   
   if (parentheses > 0) {
-    throw new ParseException(tokenizer->getToken(),
+    throw new ParseException(*offset,
                              "end of extension (')')");
   }
   
   extension.getTarget().splice(extension.getTarget().begin(),
-                               offset, it);
+                               tokens, offset, it);
   extension.getExtension().insert(extension.getExtension().begin(),
                                   begin, offset);
+  if (extension.getTarget().back() == "all") {
+    extension.setAll(true);
+    extension.getTarget().pop_back();
+    extension.getTarget().rtrim();
+  }
+
   s.addExtension(extension);
   tokens.erase(--it);
+  return true;
 }
 
 bool LessSelectorParser::isArguments(TokenList &selector,
@@ -82,23 +90,23 @@ bool LessSelectorParser::isArguments(TokenList &selector,
                                      std::string &delimiter) {
   unsigned int parentheses = 0;
 
-  if (*it.type != Token::PAREN_OPEN)
+  if ((*it).type != Token::PAREN_OPEN)
     return false;
   it++;
 
   while (it != selector.end() &&
-         (parentheses > 0 || *it.type != Token::PAREN_CLOSED)) {
-    if (*it.type == Token::PAREN_OPEN)
+         (parentheses > 0 || (*it).type != Token::PAREN_CLOSED)) {
+    if ((*it).type == Token::PAREN_OPEN)
       parentheses++;
-    if (*it.type == Token::PAREN_CLOSED)
+    if ((*it).type == Token::PAREN_CLOSED)
       parentheses--;
     
-    if (*it.type == Token::DELIMITER)
+    if ((*it).type == Token::DELIMITER)
       delimiter = ";";
     it++;
   }
   
-  if (*it != Token::PAREN_CLOSED)
+  if ((*it).type != Token::PAREN_CLOSED)
     return false;
   
   while (it != selector.end() && (*it).type == Token::WHITESPACE)
@@ -107,7 +115,7 @@ bool LessSelectorParser::isArguments(TokenList &selector,
   return (it == selector.end() || *it == "when");
 }
 
-bool LessParser::parseArguments(TokenList &selector,
+bool LessSelectorParser::parseArguments(TokenList &selector,
                                 TokenList::iterator offset,
                                 LessSelector &s) {
   string delimiter = ",";
@@ -151,7 +159,7 @@ bool LessParser::parseArguments(TokenList &selector,
   while (it != selector.end() && (*it).type == Token::WHITESPACE)
     it++;
 
-  if (it == selector.end() || *it.type != Token::PAREN_CLOSED) {
+  if (it == selector.end() || (*it).type != Token::PAREN_CLOSED) {
     s.eraseArguments();
     return false;
   } else {
@@ -171,11 +179,11 @@ bool LessSelectorParser::parseParameter(TokenList &selector,
   if (it == selector.end())
     return false;
 
-  if (*it.type == Token::IDENTIFIER) {
+  if ((*it).type == Token::IDENTIFIER) {
     keyword = *it;
     it++;
 
-  } else if (*it.type == Token::ATKEYWORD) {
+  } else if ((*it).type == Token::ATKEYWORD) {
     keyword = *it;
     it++;
 
@@ -194,35 +202,36 @@ bool LessSelectorParser::parseDefaultValue(TokenList &arguments,
   unsigned int parentheses = 0;
   TokenList::iterator begin;
 
-  if (it == arguments.end() || *it.type != Token::COLON)
+  if (it == arguments.end() || (*it).type != Token::COLON)
     return false;
 
   it++;
   begin = it;
 
   while (it != arguments.end() &&
-         (parentheses > 0 || (*it.type != Token::PAREN_CLOSED &&
+         (parentheses > 0 || ((*it).type != Token::PAREN_CLOSED &&
                               *it != delimiter))) {
-    if (*it.type == Token::PAREN_OPEN)
+    if ((*it).type == Token::PAREN_OPEN)
       parentheses++;
-    if (*it.type == Token::PAREN_CLOSED)
+    if ((*it).type == Token::PAREN_CLOSED)
       parentheses--;
 
     it++;
   }
 
   if (it == begin || it == arguments.end()) 
-    return false
-    else
-      value.insert(value.begin(), begin, it);
+    return false;
+  else
+    value.insert(value.begin(), begin, it);
   
   return true;
 }
 
 bool LessSelectorParser::parseConditions(TokenList &selector,
-                                         TokenList::iterator it) {
+                                         const TokenList::iterator &offset,
+                                         LessSelector &s) {
   TokenList condition;
-  TokenList::iterator begin;
+  TokenList::iterator it = offset;
   
   if (it == selector.end() || *it != "when")
     return false;
@@ -232,20 +241,17 @@ bool LessSelectorParser::parseConditions(TokenList &selector,
     selector.erase(it);
   }
   
-  begin = it;
   while (it != selector.end()) {
     while (it != selector.end() && *it != ",") {
       it++;
     }
     
-    condition.insert(condition.begin(), offset, it);
+    condition.splice(condition.begin(), selector, offset, it);
     condition.trim();
     s.addCondition(condition);
     
     if (it != selector.end()) 
       selector.erase(it);
-    
-    begin = it;
   }
   return true;
 }
