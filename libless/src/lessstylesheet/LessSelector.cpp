@@ -316,10 +316,16 @@ bool LessSelector::matchArguments(const MixinArguments &args) {
   std::list<std::string>::iterator p_it = parameters.begin();
   std::list<TokenList>::iterator d_it = defaults.begin();
   size_t pos = 0;
+  const TokenList *a;
 
   for (; p_it != parameters.end(); p_it++, d_it++) {
-    if (args.get(*p_it) == NULL && args.get(pos++) == NULL &&
-        (*d_it).empty()) {
+    if ((a = args.get(*p_it)) == NULL &&
+        (a = args.get(pos++)) == NULL &&
+        (a = &(*d_it))->empty()) {
+      return false;
+    } else if ((*p_it)[0] != '@' &&
+               a->size() == 1 &&
+               (*p_it) != a->front()) {
       return false;
     }
   }
