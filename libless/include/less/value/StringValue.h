@@ -40,15 +40,15 @@ public:
   virtual BooleanValue *equals(const Value &v) const;
   virtual BooleanValue *lessThan(const Value &v) const;
 
-  static string escape(string rawstr, string extraUnreserved = "");
+  static std::string escape(std::string rawstr, std::string extraUnreserved = "");
 
   static void loadFunctions(FunctionLibrary &lib);
-  static Value *escape(const vector<const Value *> &arguments);
-  static Value *e(const vector<const Value *> &arguments);
-  static Value *format(const vector<const Value *> &arguments);
-  static Value *replace(const vector<const Value *> &arguments);
-  static Value *color(const vector<const Value *> &arguments);
-  static Value *data_uri(const vector<const Value *> &arguments);
+  static Value *escape(const std::vector<const Value *> &arguments);
+  static Value *e(const std::vector<const Value *> &arguments);
+  static Value *format(const std::vector<const Value *> &arguments);
+  static Value *replace(const std::vector<const Value *> &arguments);
+  static Value *color(const std::vector<const Value *> &arguments);
+  static Value *data_uri(const std::vector<const Value *> &arguments);
 };
 
 #endif  // __less_value_StringValue_h__
