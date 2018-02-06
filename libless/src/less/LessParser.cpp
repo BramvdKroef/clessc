@@ -41,7 +41,7 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
         tokenizer->readNextToken();
         skipWhitespace();
       }
-
+      return true;
     } else {
       ls->deleteMixin(*mixin);
       throw new ParseException(
