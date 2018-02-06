@@ -1,6 +1,6 @@
 #include "less/lessstylesheet/Extension.h"
 
-Extension::Extension() {
+Extension::Extension(): all(false){
 }
 
 Extension::~Extension() {
@@ -21,8 +21,16 @@ void Extension::setExtension(const Selector &selector) {
   extension = selector;
 }
 
+void Extension::setAll(bool b) {
+  all = b;
+}
+bool Extension::isAll() const {
+  return all;
+}
+
+
 void Extension::updateSelector(Selector &s) const {
-  if (target.back() == "all") {
+  if (isAll()) {
     replaceInSelector(s);
     
   } else if (s.match(target)) {

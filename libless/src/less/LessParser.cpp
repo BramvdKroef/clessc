@@ -395,6 +395,13 @@ bool LessParser::parseExtension(TokenList &statement, LessRuleset &ruleset) {
                              statement.front().column,
                              statement.front().source);
   }
+
+  if (extension.getTarget().back() == "all") {
+    extension.setAll(true);
+    extension.getTarget().pop_back();
+    extension.getTarget().rtrim();
+  }
+
   ruleset.addExtension(extension);
   
   return true;
