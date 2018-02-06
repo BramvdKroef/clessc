@@ -4,6 +4,7 @@
 #include <sstream>
 #include <getopt.h>
 #include <cstring>
+#include <exception>
 
 #include <less/less/LessTokenizer.h>
 #include <less/less/LessParser.h>
@@ -163,7 +164,7 @@ bool processStylesheet (const LessStylesheet &stylesheet,
       e->getColumn() << " Parse Error: " << e->what() << endl;
     return false;
 
-  } catch(ValueException* e) {
+  } catch(LessException* e) {
 
     cerr << e->getSource() << ": Line " << e->getLineNumber() << ", Column " << 
       e->getColumn() << " Error: " << e->what() << endl;
