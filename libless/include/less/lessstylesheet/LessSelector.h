@@ -32,19 +32,28 @@ private:
   bool parseConditions(TokenList &selector);
 
 public:
+  LessSelector();
   LessSelector(const Selector &original);
   virtual ~LessSelector();
 
-  std::list<Extension> &getExtensions();
-  std::list<std::string> &getParameters();
-  TokenList *getDefault(const std::string &parameter);
+  void addExtension(Extension &extension);
+  void addParameter(Token &keyword, TokenList &value);
+  void setUnlimitedArguments(bool b);
+  void setUnlimitedArguments(bool b, Token restKeyword);
+  void eraseArguments();
+  void addCondition(TokenList &condition);
+  void setNeedsArguments(bool b);
+    
+  const std::list<Extension> &getExtensions() const;
+  const std::list<std::string> &getParameters() const;
+  const TokenList *getDefault(const std::string &parameter) const;
 
-  std::list<TokenList> &getConditions();
-  bool matchArguments(const MixinArguments &arguments);
+  const std::list<TokenList> &getConditions() const;
+  bool matchArguments(const MixinArguments &arguments) const;
 
-  bool needsArguments();
-  bool unlimitedArguments();
-  std::string getRestIdentifier();
+  bool needsArguments() const;
+  bool unlimitedArguments() const;
+  std::string getRestIdentifier() const;
 };
 
 #endif  // __less_lessstylesheet_LessSelector_h__

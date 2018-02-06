@@ -22,19 +22,14 @@ void Stylesheet::addAtRule(AtRule& rule) {
   atrules.push_back(&rule);
 }
 
-Ruleset* Stylesheet::createRuleset() {
-  Ruleset* r = new Ruleset();
-
+Ruleset* Stylesheet::createRuleset(const TokenList& selector) {
+  Ruleset* r = new Ruleset(selector);
   addRuleset(*r);
-
   return r;
 }
-
 Ruleset* Stylesheet::createRuleset(const Selector& selector) {
   Ruleset* r = new Ruleset(selector);
-
   addRuleset(*r);
-
   return r;
 }
 
@@ -52,8 +47,14 @@ CssComment* Stylesheet::createComment() {
   return c;
 }
 
-MediaQuery* Stylesheet::createMediaQuery() {
-  MediaQuery* q = new MediaQuery();
+MediaQuery* Stylesheet::createMediaQuery(const TokenList &selector) {
+  MediaQuery* q = new MediaQuery(selector);
+
+  addStatement(*q);
+  return q;
+}
+MediaQuery* Stylesheet::createMediaQuery(const Selector &selector) {
+  MediaQuery* q = new MediaQuery(selector);
 
   addStatement(*q);
   return q;

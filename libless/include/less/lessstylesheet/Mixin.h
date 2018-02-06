@@ -3,7 +3,6 @@
 
 
 #include "less/stylesheet/Ruleset.h"
-#include "less/stylesheet/Selector.h"
 #include "less/stylesheet/Stylesheet.h"
 #include "less/stylesheet/StylesheetStatement.h"
 #include "less/stylesheet/RulesetStatement.h"
@@ -17,26 +16,24 @@ class ProcessingContext;
 class Mixin : public StylesheetStatement, public RulesetStatement {
 private:
 
-  LessStylesheet *lessStylesheet;
-  LessRuleset *lessRuleset;
+  const LessStylesheet *lessStylesheet;
+  const LessRuleset *lessRuleset;
 
 public:
-  Selector name;
+  TokenList name;
   MixinArguments arguments;
-  
-  Mixin();
-  Mixin(const Selector &name);
+
+  Mixin(const TokenList &name, const LessStylesheet &parent);
+  Mixin(const TokenList &name, const LessRuleset &parent);
   virtual ~Mixin();
 
   bool call(ProcessingContext &context,
             Ruleset *ruleset,
             Stylesheet *stylesheet) const;
 
-  virtual void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet *getLessStylesheet() const;
+  const LessStylesheet *getLessStylesheet() const;
 
-  virtual void setLessRuleset(LessRuleset &ruleset);
-  LessRuleset *getLessRuleset() const;
+  const LessRuleset *getLessRuleset() const;
 
   virtual void process(Ruleset& r, void* context) const;
   virtual void process(Stylesheet &s, void *context) const;

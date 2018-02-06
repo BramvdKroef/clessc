@@ -2,16 +2,18 @@
 #include "less/lessstylesheet/LessStylesheet.h"
 #include "less/lessstylesheet/MediaQueryRuleset.h"
 
-LessRuleset::LessRuleset() : Ruleset() {
-  parent = NULL;
-  lessStylesheet = NULL;
-  selector = NULL;
+LessRuleset::LessRuleset(const LessSelector& selector,
+                         const LessRuleset& parent) :
+  Ruleset(selector),
+  selector(&selector), parent(&parent), lessStylesheet(NULL) {
+
 }
-LessRuleset::LessRuleset(const Selector& selector) : Ruleset() {
-  parent = NULL;
-  lessStylesheet = NULL;
-  setSelector(selector);
+LessRuleset::LessRuleset(const LessSelector& selector,
+                         const LessStylesheet& parent) :
+  Ruleset(selector),
+  selector(&selector), lessStylesheet(&parent), parent(NULL) {
 }
+
 LessRuleset::~LessRuleset() {
   while (!nestedRules.empty()) {
     delete nestedRules.back();
@@ -24,12 +26,8 @@ LessRuleset::~LessRuleset() {
     delete selector;
 }
 
-void LessRuleset::setSelector(const Selector& selector) {
-  this->selector = new LessSelector(selector);
-  Ruleset::setSelector(*this->selector);
-}
-LessSelector* LessRuleset::getLessSelector() const {
-  return selector;
+const LessSelector& LessRuleset::getLessSelector() const {
+  return *selector;
 }
 
 void LessRuleset::addExtension(Extension &extension) {
@@ -50,11 +48,10 @@ const std::list<LessDeclaration*>& LessRuleset::getLessDeclarations()
   return lessDeclarations;
 }
 
-Mixin* LessRuleset::createMixin() {
-  Mixin* m = new Mixin();
+Mixin* LessRuleset::createMixin(const Selector &selector) {
+  Mixin* m = new Mixin(selector, *this);
 
   Ruleset::addStatement(*m);
-  m->setLessRuleset(*this);
   mixins.push_back(m);
   stylesheetStatements.push_back(m);
   return m;
@@ -69,7 +66,6 @@ LessAtRule* LessRuleset::createLessAtRule(const Token& keyword) {
   LessAtRule* r = new LessAtRule(keyword);
 
   Ruleset::addStatement(*r);
-  r->setLessStylesheet(*this->getLessStylesheet());
   lessAtRules.push_back(r);
   stylesheetStatements.push_back(r);
   return r;
@@ -85,21 +81,17 @@ const std::list<StylesheetStatement*>& LessRuleset::getStylesheetStatements()
   return stylesheetStatements;
 }
 
-LessRuleset* LessRuleset::createNestedRule() {
-  LessRuleset* r = new LessRuleset();
+LessRuleset* LessRuleset::createNestedRule(const LessSelector& selector) {
+  LessRuleset* r = new LessRuleset(selector, *this);
 
   nestedRules.push_back(r);
-  r->setParent(this);
-  r->setLessStylesheet(*getLessStylesheet());
   return r;
 }
 
-MediaQueryRuleset* LessRuleset::createMediaQuery() {
-  MediaQueryRuleset* r = new MediaQueryRuleset();
+MediaQueryRuleset* LessRuleset::createMediaQuery(const LessSelector &selector) {
+  MediaQueryRuleset* r = new MediaQueryRuleset(selector, *this);
 
   nestedRules.push_back(r);
-  r->setParent(this);
-  r->setLessStylesheet(*getLessStylesheet());
   return r;
 }
 
@@ -131,17 +123,22 @@ const LessRuleset* LessRuleset::getParent() const {
   return parent;
 }
 
-void LessRuleset::setLessStylesheet(LessStylesheet& s) {
+void LessRuleset::setLessStylesheet(const LessStylesheet& s) {
   lessStylesheet = &s;
 }
 
-LessStylesheet* LessRuleset::getLessStylesheet() const {
-  return lessStylesheet;
+const LessStylesheet* LessRuleset::getLessStylesheet() const {
+  if (lessStylesheet != NULL)
+    return lessStylesheet;
+  else if (parent != NULL)
+    return parent->getLessStylesheet();
+  else
+    return NULL;
 }
 
 void LessRuleset::processExtensions(ProcessingContext& context,
-                                    Selector* prefix) const {
-  std::list<Extension>& e = getLessSelector()->getExtensions();
+                                    const Selector* prefix) const {
+  const std::list<Extension>& e = getLessSelector().getExtensions();
   std::list<Extension>::const_iterator e_it;
   Extension extension;
 
@@ -156,7 +153,7 @@ void LessRuleset::processExtensions(ProcessingContext& context,
 }
 
 void LessRuleset::processInlineExtensions(ProcessingContext& context,
-                                          Selector &selector) const {
+                                          const Selector &selector) const {
   std::list<Extension>::const_iterator e_it;
   Extension extension;
 
@@ -216,23 +213,23 @@ void LessRuleset::process(Stylesheet& s, void* context) const {
   process(s, NULL, *((ProcessingContext*)context));
 }
 void LessRuleset::process(Stylesheet& s,
-                          Selector* prefix,
+                          const Selector* prefix,
                           ProcessingContext& context) const {
   Ruleset* target;
+  Selector selector;
 
-  if (selector->needsArguments())
+  if (getLessSelector().needsArguments())
     return;
 
   if (!matchConditions(context))
     return;
-  
-  target = s.createRuleset();
-  target->setSelector(getSelector());
 
+  selector = getSelector();
   if (prefix != NULL)
-    target->getSelector().addPrefix(*prefix);
-
-  context.interpolate(target->getSelector());
+    selector.addPrefix(*prefix);
+  context.interpolate(selector);
+  
+  target = s.createRuleset(selector);
 
   processExtensions(context, prefix);
   processInlineExtensions(context, target->getSelector());
@@ -294,22 +291,22 @@ void LessRuleset::getFunctions(list<const Function*>& functionList,
                                const Mixin& mixin,
                                TokenList::const_iterator offset,
                                const ProcessingContext &context) const {
-  const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
   const std::list<Closure*>* closures;
   std::list<Closure*>::const_iterator c_it;
+  TokenList::const_iterator offset2;
+  
+  offset2 = getSelector().walk(offset, mixin.name.end());
 
-  offset = mixin.name.walk(getSelector(), offset);
-
-  if (offset == mixin.name.begin())
+  if (offset2 == offset)
     return;
 
-  while (offset != mixin.name.end() &&
-         ((*offset).type == Token::WHITESPACE || *offset == ">")) {
-    offset++;
+  while (offset2 != mixin.name.end() &&
+         ((*offset2).type == Token::WHITESPACE || *offset2 == ">")) {
+    offset2++;
   }
 
-  if (offset == mixin.name.end()) {
+  if (offset2 == mixin.name.end()) {
     if (selector->matchArguments(mixin.arguments)) {
       functionList.push_back(this);
     }
@@ -317,12 +314,12 @@ void LessRuleset::getFunctions(list<const Function*>& functionList,
     if (!selector->needsArguments() && matchConditions(context)) {
       
       for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
-        (*r_it)->getFunctions(functionList, mixin, offset, context);
+        (*r_it)->getFunctions(functionList, mixin, offset2, context);
       }
       closures = context.getClosures(this);
       if (closures != NULL) {
         for (c_it = closures->begin(); c_it != closures->end(); c_it++) {
-          (*c_it)->getFunctions(functionList, mixin, mixin.name.begin(), context);
+          (*c_it)->getFunctions(functionList, mixin, offset2, context);
         }
       }
     }
@@ -339,7 +336,6 @@ void LessRuleset::getLocalFunctions(std::list<const Function*>& functionList,
                                     const Mixin& mixin,
                                     const LessRuleset* exclude,
                                     const ProcessingContext &context) const {
-  const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
   const std::list<Closure*>* closures;
   std::list<Closure*>::const_iterator c_it;
@@ -370,9 +366,8 @@ void LessRuleset::getLocalFunctions(std::list<const Function*>& functionList,
 }
 
 void LessRuleset::insertNestedRules(Stylesheet& s,
-                                    Selector* prefix,
+                                    const Selector* prefix,
                                     ProcessingContext& context) const {
-  const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
 
   for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
@@ -381,7 +376,6 @@ void LessRuleset::insertNestedRules(Stylesheet& s,
 }
 
 void LessRuleset::addClosures(ProcessingContext& context) const {
-  const std::list<LessRuleset*>& nestedRules = getNestedRules();
   std::list<LessRuleset*>::const_iterator r_it;
 
   for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
@@ -393,17 +387,15 @@ void LessRuleset::addClosures(ProcessingContext& context) const {
 
 bool LessRuleset::matchConditions(const ProcessingContext& context,
                                   bool defaultVal) const {
-  std::list<TokenList>& conditions = selector->getConditions();
-  std::list<TokenList>::iterator cit;
-  TokenList condition;
+  const std::list<TokenList>& conditions = selector->getConditions();
+  std::list<TokenList>::const_iterator it;
 
   if (conditions.empty())
     return true;
 
-  for (cit = conditions.begin(); cit != conditions.end(); cit++) {
-    condition = (*cit);
+  for (it = conditions.begin(); it != conditions.end(); it++) {
 
-    if (context.validateCondition(condition, defaultVal)) {
+    if (context.validateCondition(*it, defaultVal)) {
       return true;
     }
   }
@@ -411,8 +403,8 @@ bool LessRuleset::matchConditions(const ProcessingContext& context,
 }
 
 bool LessRuleset::putArguments(MixinArguments& args, VariableMap& scope) const {
-  std::list<std::string>& parameters = selector->getParameters();
-  std::list<std::string>::iterator pit;
+  const std::list<std::string>& parameters = selector->getParameters();
+  std::list<std::string>::const_iterator pit;
   TokenList argsCombined;
   TokenList restVar;
   const TokenList* variable;

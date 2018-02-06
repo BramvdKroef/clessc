@@ -28,12 +28,12 @@ public:
   LessStylesheet();
   virtual ~LessStylesheet();
 
-  LessRuleset *createLessRuleset();
+  LessRuleset *createLessRuleset(const LessSelector &selector);
   
-  Mixin *createMixin();
+  Mixin *createMixin(const Selector &selector);
   LessAtRule *createLessAtRule(const Token &keyword);
 
-  LessMediaQuery *createLessMediaQuery();
+  LessMediaQuery *createLessMediaQuery(const Selector &selector);
 
   void deleteLessRuleset(LessRuleset &ruleset);
   void deleteMixin(Mixin &mixin);

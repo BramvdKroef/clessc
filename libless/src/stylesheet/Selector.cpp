@@ -1,81 +1,72 @@
 #include "less/stylesheet/Selector.h"
 #include <iostream>
 
+Selector::Selector(const TokenList &tokens) : TokenList(tokens) {
+}
+
 Selector::~Selector() {
-  clear();
 }
 
 void Selector::addPrefix(const Selector &prefix) {
-  list<Selector> prefixParts;
-  list<Selector> sepParts;
-  list<Selector>::iterator prefixIt;
-  list<Selector>::iterator sepIt;
-  Selector::iterator prefixPartIt;
+  const_iterator start;
+  const_iterator end;
 
-  Selector *tmp, *prefixPart;
-  TokenList::iterator i;
+  const_iterator prefix_start;
+  const_iterator prefix_end;
+
+  TokenList tmp;
+  TokenList::iterator tmp_it;
+  
   bool containsAmp;
 
-  split(sepParts);
-  prefix.split(prefixParts);
-
-  clear();
-
-  for (sepIt = sepParts.begin(); sepIt != sepParts.end(); sepIt++) {
-    tmp = &(*sepIt);
-    tmp->ltrim();
-    containsAmp = tmp->contains(Token::OTHER, "&");
-
-    for (prefixIt = prefixParts.begin(); prefixIt != prefixParts.end();
-         prefixIt++) {
-      prefixPart = &(*prefixIt);
-
-      for (prefixPartIt = prefixPart->begin();
-           prefixPartIt != prefixPart->end();
-           prefixPartIt++) {
-        (*prefixPartIt).setLocation(tmp->front());
-      }
-
+  start = begin();
+  
+  while (start != this->end()) {
+    end = findComma(start);
+    
+    tmp.clear();
+    tmp.splice(tmp.begin(), *this, start, end);
+    containsAmp = tmp.contains(Token::OTHER, "&");
+    erase(start, end);
+    
+    prefix_start = prefix.begin();
+    prefix_end = prefix.findComma(prefix_start);
+    
+    do {
       if (containsAmp) {
-        for (i = tmp->begin(); i != tmp->end(); i++) {
-          if (*i == "&")
-            insert(end(), prefixPart->begin(), prefixPart->end());
+        for (tmp_it = tmp.begin(); tmp_it != tmp.end(); tmp_it++) {
+          if (*tmp_it == "&")
+            insert(end, prefix_start, prefix_end);
           else
-            push_back(*i);
+            insert(end, *tmp_it);
         }
-
       } else {
-        insert(end(), prefixPart->begin(), prefixPart->end());
-        push_back(Token::BUILTIN_SPACE);
-        insert(end(), tmp->begin(), tmp->end());
+        insert(end, prefix_start, prefix_end);
+        insert(end, Token::BUILTIN_SPACE);
+        insert(end, tmp.begin(), tmp.end());
       }
-      push_back(Token::BUILTIN_COMMA);
-    }
-  }
-  pop_back();
-}
+      
+      if (prefix_start != prefix.begin()) 
+        insert(end, Token::BUILTIN_COMMA);
+      else
+        end++;
+      
+      prefix_start = prefix_end;
+      prefix_end = prefix.findComma(prefix_start);
+      
+    } while(prefix_start != prefix.end());
 
-void Selector::split(std::list<Selector> &l) const {
-  TokenList::const_iterator first, last;
-  Selector current;
+    start = end;
 
-  for (first = begin(); first != end();) {
-    last = findComma(first);
-
-    current.assign(first, last);
-    l.push_back(current);
-
-    first = last;
-    if (first != end())
-      first++;
   }
 }
+
 
 TokenList::const_iterator Selector::findComma(const_iterator offset) const {
   return findComma(offset, end());
 }
 TokenList::const_iterator Selector::findComma(const_iterator offset,
-                                              const_iterator limit) const {
+                                              const const_iterator &limit) const {
   unsigned int parentheses = 0;
 
   for (; offset != limit; offset++) {
@@ -92,96 +83,84 @@ TokenList::const_iterator Selector::findComma(const_iterator offset,
   return offset;
 }
 
-bool Selector::match(const Selector &list) const {
-  TokenList::const_iterator first, last;
-  TokenList::const_iterator l_first, l_last;
 
-  for (first = begin(); first != end();) {
-    last = findComma(first);
+const TokenList::const_iterator Selector::walk(const TokenList::const_iterator &t_begin,
+                                               const TokenList::const_iterator &t_end) const {
+  Selector::const_iterator end, it, t_it;
+  it = begin();
+  
+  while (it != end()) {
+    end = findComma(it);
 
-    for (l_first = list.begin(); l_first != list.end();) {
-      l_last = list.findComma(l_first);
+    t_it = t_begin;
 
-      if (walk(l_first, l_last, first) == last)
-        return true;
+    walk(t_it, t_end, it, end);
 
-      l_first = l_last;
-      if (l_first != list.end()) {
-        l_first++;
-        while (l_first != list.end() && (*l_first).type == Token::WHITESPACE)
-          l_first++;
-      }
-    }
-
-    first = last;
-    if (first != end()) {
-      first++;
-      while (first != end() && (*first).type == Token::WHITESPACE)
-        first++;
-    }
+    if (it == end)
+      return t_it;
+    
+    it = end;
   }
-  return false;
+  return t_begin;
 }
 
-TokenList::const_iterator Selector::walk(const Selector &list,
-                                         const_iterator offset) const {
-  TokenList::const_iterator first, last, pos;
+void Selector::walk(TokenList::const_iterator &it1,
+                    const TokenList::const_iterator &it1_end,
+                    TokenList::const_iterator &it2,
+                    const TokenList::const_iterator &it2_end,
+                    ) const {
 
-  for (first = list.begin(); first != list.end();) {
-    last = list.findComma(first);
+  while (it1 != it1_end && it2 != it2_end) {
+    if (*it1 != *it2)
+        return;
 
-    pos = walk(first, last, offset);
+    it1++;
+    it2++;
 
-    if (pos != begin())
-      return pos;
+    if (it1 != it1_end && *it1 == ">") {
+      it1++;
+      while (it1 != it1_end && (*it1).type == Token::WHITESPACE)
+        it1++;
+    }
 
-    first = last;
-    if (first != list.end()) {
-      first++;
-      while (first != list.end() && (*first).type == Token::WHITESPACE)
-        first++;
+    if (it2 != it2_end && *it2 == ">") {
+      it2++;
+      while (it2 != end && (*it2).type == Token::WHITESPACE)
+        it2++;
     }
   }
-  return begin();
 }
 
-TokenList::const_iterator Selector::walk(const const_iterator &list_begin,
-                                         const const_iterator &list_end,
-                                         const_iterator offset) const {
-  TokenList::const_iterator li = list_begin;
+bool TokenList::match(const TokenList &tokens) const {
+  return walk(tokens.begin(), tokens.end()) == tokens.end();
+}
 
-  while (offset != end() && li != list_end) {
-    if (*offset != *li)
-      return begin();
+int TokenList::compare(const TokenList &tokens,
+                       const_iterator offset,
+                       const_iterator end) const {
+  const_iterator it1 = tokens.begin();
 
-    offset++;
-    li++;
+  walk(it, tokens.end(), offset, end);
+  
+  if (it == tokens.end())
+    return 1;
+  if (offset == end)
+    return -1;
 
-    if (offset != end() && *offset == ">") {
-      offset++;
-      if (offset != end() && (*offset).type == Token::WHITESPACE)
-        offset++;
-    }
-    if (li != list_end && *li == ">") {
-      li++;
-      if (li != list_end && (*li).type == Token::WHITESPACE)
-        li++;
-    }
-  }
-
-  if (li != list_end)
-    offset = begin();
-
-  return offset;
+  return (*it < *offset) 1 : -1;
 }
 
 TokenList::const_iterator Selector::find(
     const TokenList &list,
     TokenList::const_iterator offset,
     TokenList::const_iterator limit) const {
+  TokenList::const_iterator it;
+  
   for (; offset != limit; offset++) {
-    if (walk(list.begin(), list.end(), offset) != begin())
-      return offset;
+    it = list.begin();
+    walk(it, list.end(), offset, limit);
+    if (it == list.end())
+      return it;
   }
   return limit;
 }

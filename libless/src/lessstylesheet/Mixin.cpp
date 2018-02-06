@@ -2,16 +2,11 @@
 #include "less/lessstylesheet/LessRuleset.h"
 #include "less/lessstylesheet/LessStylesheet.h"
 
-Mixin::Mixin() {
-  lessStylesheet = NULL;
-  lessRuleset = NULL;
-
+Mixin::Mixin(const TokenList &name, const LessStylesheet &parent)
+  : name(name), lessStylesheet(&parent), lessRuleset(NULL) {
 }
-
-Mixin::Mixin(const Selector &name) {
-  this->name = name;
-  lessStylesheet = NULL;
-  lessRuleset = NULL;
+Mixin::Mixin(const TokenList &name, const LessRuleset &parent)
+  : name(name), lessStylesheet(NULL), lessRuleset(&parent){
 }
 
 Mixin::~Mixin() {
@@ -41,7 +36,7 @@ bool Mixin::call(ProcessingContext &context,
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
 
-    if (function->getLessSelector()->needsArguments() ||
+    if (function->getLessSelector().needsArguments() ||
         !context.isInStack(*function)) {
       context.pushMixinCall(*function);
 
@@ -59,7 +54,7 @@ bool Mixin::call(ProcessingContext &context,
     for (i = functionList.begin(); i != functionList.end(); i++) {
       function = *i;
 
-      if (function->getLessSelector()->needsArguments() ||
+      if (function->getLessSelector().needsArguments() ||
           !context.isInStack(*function)) {
         context.pushMixinCall(*function);
 
@@ -76,20 +71,11 @@ bool Mixin::call(ProcessingContext &context,
   return true;
 }
 
-void Mixin::setLessStylesheet(LessStylesheet &s) {
-  lessStylesheet = &s;
-  stylesheet = &s;
-}
-
-LessStylesheet *Mixin::getLessStylesheet() const {
+const LessStylesheet *Mixin::getLessStylesheet() const {
   return lessStylesheet;
 }
 
-void Mixin::setLessRuleset(LessRuleset &r) {
-  lessRuleset = &r;
-}
-
-LessRuleset *Mixin::getLessRuleset() const {
+const LessRuleset *Mixin::getLessRuleset() const {
   return lessRuleset;
 }
 

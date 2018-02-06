@@ -74,7 +74,7 @@ public:
   void interpolate(TokenList &tokens);
   void interpolate(std::string &str);
   void processValue(TokenList &value);
-  bool validateCondition(TokenList &value,
+  bool validateCondition(const TokenList &value,
                          bool defaultVal = false) const;
 };
 

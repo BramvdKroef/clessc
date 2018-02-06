@@ -1,40 +1,30 @@
 #include "less/lessstylesheet/MediaQueryRuleset.h"
 #include "less/lessstylesheet/LessStylesheet.h"
 
-const Token MediaQueryRuleset::BUILTIN_AND(
-    "and", Token::IDENTIFIER, 0, 0, Token::BUILTIN_SOURCE);
 
-MediaQueryRuleset::MediaQueryRuleset() : LessRuleset() {
+MediaQueryRuleset::MediaQueryRuleset(const LessSelector &selector,
+                                     const LessRuleset &parent) :
+                                     LessRuleset(selector, parent) {
 }
 MediaQueryRuleset::~MediaQueryRuleset() {
 }
 
 void MediaQueryRuleset::process(Stylesheet& s,
-                                Selector* prefix,
+                                const Selector* prefix,
                                 ProcessingContext& context) const {
   MediaQuery* query;
   Ruleset* target;
   Selector selector;
+  Selector ruleSelector;
 
-  query = s.createMediaQuery();
   selector = getSelector();
   context.processValue(selector);
-
-  if (query->getSelector().size() > 0) {
-    selector.pop_front();
-
-    query->getSelector().push_back(Token::BUILTIN_SPACE);
-    query->getSelector().push_back(BUILTIN_AND);
-    query->getSelector().insert(
-        query->getSelector().end(), selector.begin(), selector.end());
-  } else
-    query->setSelector(selector);
-
+  query = s.createMediaQuery(selector);
+  
   if (prefix != NULL) {
-    target = query->createRuleset();
-    target->setSelector(*prefix);
-
-    context.interpolate(target->getSelector());
+    ruleSelector = *prefix;
+    context.interpolate(ruleSelector);
+    target = query->createRuleset(ruleSelector);
 
     processStatements(*target, &context);
   } else

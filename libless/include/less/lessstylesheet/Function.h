@@ -37,7 +37,7 @@ public:
   virtual const TokenList *getVariable(const std::string &key,
                                        const ProcessingContext &context) const = 0;
 
-  virtual LessSelector *getLessSelector() const = 0;
+  virtual const LessSelector& getLessSelector() const = 0;
 };
 
 #endif  // __less_lessstylesheet_Function_h__

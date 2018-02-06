@@ -5,36 +5,35 @@
 #include "less/TokenList.h"
 
 /**
+ * If the selector contains commas then it is split up into multiple
+ * selectors.
  *
+ * For example <code>p .class, a:hover</code> is split up into
+ * <code>p .class</code> and <code>a:hover</code>.
  */
 class Selector : public TokenList {
+
 public:
+  Selector();
+  Selector(const TokenList &tokens);
   virtual ~Selector();
 
   void addPrefix(const Selector &prefix);
 
-  /**
-   * If the selector contains commas then it is split up into multiple
-   * selectors.
-   *
-   * For example <code>p .class, a:hover</code> is split up into
-   * <code>p .class</code> and <code>a:hover</code>.
-   */
-  void split(std::list<Selector> &l) const;
-
-  bool match(const Selector &list) const;
-
-  const_iterator walk(const Selector &list, const_iterator offset) const;
-  const_iterator walk(const const_iterator &list_begin,
-                      const const_iterator &list_end,
-                      const_iterator offset) const;
+ 
+  TokenList::const_iterator walk(TokenList::const_iterator t_begin,
+                                 TokenList::const_iterator t_end) const;
 
   const_iterator find(const TokenList &list,
-                      const_iterator offset,
-                      const_iterator limit) const;
+                                 const_iterator offset,
+                                 const_iterator limit) const;
 
+  bool match(const TokenList &tokens) const;
+  int compare(const TokenList &tokens, const_iterator offset);
+  
   const_iterator findComma(const_iterator offset) const;
-  const_iterator findComma(const_iterator offset, const_iterator limit) const;
+  const_iterator findComma(const_iterator offset,
+                                      const_iterator limit) const;
 };
 
 #endif  // __less_stylesheet_Selector_h__

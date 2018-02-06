@@ -12,6 +12,7 @@ set(less_SOURCES
         src/css/SourceMapWriter.cpp
         src/less/LessParser.cpp
         src/less/LessTokenizer.cpp
+        src/less/LessSelectorParser.cpp
         src/lessstylesheet/Closure.cpp
         src/lessstylesheet/Extension.cpp
         src/lessstylesheet/LessAtRule.cpp

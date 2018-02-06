@@ -29,34 +29,35 @@ void Closure::getFunctions(std::list<const Function*>& functionList,
   const std::list<Closure*> *closures = context.getClosures(ruleset);
   std::list<LessRuleset*>::const_iterator r_it;
   std::list<Closure*>::const_iterator c_it;
+  TokenList::const_iterator offset2;
 
-  offset = mixin.name.walk(*getLessSelector(), offset);
+  offset2 = getLessSelector().walk(offset, mixin.name.end());
 
-  if (offset == mixin.name.begin())
+  if (offset2 == offset)
     return;
 
-  while (offset != mixin.name.end() &&
-         ((*offset).type == Token::WHITESPACE || *offset == ">")) {
-    offset++;
+  while (offset2 != mixin.name.end() &&
+         ((*offset2).type == Token::WHITESPACE || *offset2 == ">")) {
+    offset2++;
   }
 
-  if (getLessSelector()->matchArguments(mixin.arguments)) {
-    if (offset == mixin.name.end()) {
+  if (getLessSelector().matchArguments(mixin.arguments)) {
+    if (offset2 == mixin.name.end()) {
       functionList.push_back(this);
     } else {
       for (r_it = nestedRules.begin(); r_it != nestedRules.end(); r_it++) {
-        (*r_it)->getFunctions(functionList, mixin, offset, context);
+        (*r_it)->getFunctions(functionList, mixin, offset2, context);
       }
       if (closures != NULL) {
         for (c_it = closures->begin(); c_it != closures->end(); c_it++) {
-          (*c_it)->getFunctions(functionList, mixin, offset, context);
+          (*c_it)->getFunctions(functionList, mixin, offset2, context);
         }
       }
     }
   }
 }
 
-LessSelector* Closure::getLessSelector() const {
+const LessSelector &Closure::getLessSelector() const {
   return ruleset->getLessSelector();
 }
 

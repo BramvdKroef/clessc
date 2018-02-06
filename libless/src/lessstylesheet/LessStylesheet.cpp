@@ -7,35 +7,31 @@ LessStylesheet::LessStylesheet() {
 LessStylesheet::~LessStylesheet() {
 }
 
-LessRuleset* LessStylesheet::createLessRuleset() {
-  LessRuleset* r = new LessRuleset();
+LessRuleset* LessStylesheet::createLessRuleset(const LessSelector &selector) {
+  LessRuleset* r = new LessRuleset(selector, *this);
 
   addRuleset(*r);
   lessrulesets.push_back(r);
-  r->setLessStylesheet(*this);
   return r;
 }
 
-Mixin* LessStylesheet::createMixin() {
-  Mixin* m = new Mixin();
+Mixin* LessStylesheet::createMixin(const Selector &selector) {
+  Mixin* m = new Mixin(selector, *this);
 
   addStatement(*m);
-  m->setLessStylesheet(*this);
   return m;
 }
 
 LessAtRule* LessStylesheet::createLessAtRule(const Token& keyword) {
   LessAtRule* atrule = new LessAtRule(keyword);
   addAtRule(*atrule);
-  atrule->setLessStylesheet(*this);
   return atrule;
 }
 
-LessMediaQuery* LessStylesheet::createLessMediaQuery() {
-  LessMediaQuery* q = new LessMediaQuery();
+LessMediaQuery* LessStylesheet::createLessMediaQuery(const Selector &selector) {
+  LessMediaQuery* q = new LessMediaQuery(selector, *this);
 
   addStatement(*q);
-  q->setLessStylesheet(*this);
   return q;
 }
 
@@ -88,6 +84,7 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   std::list<Ruleset*>::const_iterator r_it;
   std::list<Extension>::iterator e_it;
   std::list<Closure*> closureScope;
+  Selector* selector;
 
   ((ProcessingContext*)context)->setLessStylesheet(*this);
   Stylesheet::process(s, context);
@@ -95,10 +92,13 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   // post processing
   extensions = &((ProcessingContext*)context)->getExtensions();
 
-  for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
-    for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
-      (*e_it).updateSelector((*r_it)->getSelector());
-    }
+  for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
+    s->find((*e_it).getTarget());
+    
+      selector = new Selector((*r_it)->getSelector());
+      (*e_it).updateSelector(*selector);
+      (*r_it)->setSelector(*selector);
+  
   }
 }
 

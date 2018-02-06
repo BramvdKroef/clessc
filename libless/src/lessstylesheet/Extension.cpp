@@ -1,19 +1,15 @@
 #include "less/lessstylesheet/Extension.h"
 
 Extension::Extension() {
-  all = false;
 }
 
-Extension::Extension(bool all) {
-  all = true;
-}
 Extension::~Extension() {
 }
 
 Selector &Extension::getTarget() {
   return target;
 }
-void Extension::setTarget(Selector &selector) {
+void Extension::setTarget(const Selector &selector) {
   target = selector;
 }
 
@@ -21,15 +17,16 @@ Selector &Extension::getExtension() {
   return extension;
 }
 
-void Extension::setExtension(Selector &selector) {
+void Extension::setExtension(const Selector &selector) {
   extension = selector;
 }
 
 void Extension::updateSelector(Selector &s) const {
   if (target.back() == "all") {
     replaceInSelector(s);
+    
   } else if (s.match(target)) {
-
+    
     // add comma and selector
     s.push_back(Token::BUILTIN_COMMA);
     s.insert(s.end(), extension.begin(), extension.end());
@@ -59,7 +56,7 @@ void Extension::replaceInSelector(Selector &s) const {
 
       s.insert(s.end(), first, pos);
       s.insert(s.end(), extension.begin(), extension.end());
-      pos = s.walk(t, pos);
+      pos = t.walk(s.begin(), pos);
       s.insert(s.end(), pos, last);
     }
 

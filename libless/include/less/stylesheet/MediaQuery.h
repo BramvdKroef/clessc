@@ -7,13 +7,15 @@
 class MediaQuery : public Stylesheet, public StylesheetStatement {
 private:
   Selector selector;
+  static const Token BUILTIN_AND;
 
 public:
-  Selector& getSelector();
-  const Selector& getSelector() const;
-  void setSelector(const Selector& s);
+  MediaQuery(const Selector &selector);
 
-  virtual MediaQuery* createMediaQuery();
+  const Selector& getSelector() const;
+
+  virtual MediaQuery *createMediaQuery(const TokenList &selector);
+  virtual MediaQuery *createMediaQuery(const Selector &selector);
 
   virtual void process(Stylesheet& s, void* context) const;
   virtual void write(CssWriter& writer) const;

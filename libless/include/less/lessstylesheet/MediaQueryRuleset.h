@@ -12,15 +12,14 @@
 #include "less/lessstylesheet/LessRuleset.h"
 
 class MediaQueryRuleset : public LessRuleset {
-private:
-  static const Token BUILTIN_AND;
 
 public:
-  MediaQueryRuleset();
+  MediaQueryRuleset(const LessSelector &selector,
+                    const LessRuleset& parent);
   virtual ~MediaQueryRuleset();
 
   virtual void process(Stylesheet &s,
-                       Selector *prefix,
+                       const Selector *prefix,
                        ProcessingContext &context) const;
 };
 

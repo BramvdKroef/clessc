@@ -10,19 +10,17 @@ class Extension {
 private:
   Selector target;
   Selector extension;
-  bool all;
 
 public:
   Extension();
-  Extension(bool all);
   virtual ~Extension();
 
   Selector& getTarget();
-  void setTarget(Selector& target);
+  void setTarget(const Selector& target);
 
   Selector& getExtension();
 
-  void setExtension(Selector& selector);
+  void setExtension(const Selector& selector);
 
   void updateSelector(Selector& s) const;
   void replaceInSelector(Selector& s) const;

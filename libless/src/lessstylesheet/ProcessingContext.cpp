@@ -155,6 +155,6 @@ void ProcessingContext::processValue(TokenList &value) {
   processor.processValue(value, *this);
 }
 
-bool ProcessingContext::validateCondition(TokenList &value, bool defaultVal) const {
+bool ProcessingContext::validateCondition(const TokenList &value, bool defaultVal) const {
   return processor.validateCondition(value, *this, defaultVal);
 }
