@@ -6,15 +6,13 @@
 
 #include "less/Token.h"
 #include "less/TokenList.h"
+#include "less/LessException.h"
 
 using namespace std;
 
-class ParseException : public exception {
+class ParseException : public LessException {
 public:
   string err;
-
-  string source;
-  unsigned int line, column;
 
   ParseException(string found,
                  string& expected,
@@ -37,16 +35,6 @@ public:
 
   ~ParseException() throw(){};
 
-  void setLocation(unsigned int line, unsigned int column);
-  unsigned int getLineNumber();
-  unsigned int getColumn();
-
-  /**
-   * URL or file name where the Less code is located.
-   */
-  void setSource(string source);
-
-  string getSource();
   virtual const char* what() const throw();
 
 protected:

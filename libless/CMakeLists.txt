@@ -24,6 +24,7 @@ set(less_SOURCES
         src/lessstylesheet/Mixin.cpp
         src/lessstylesheet/MixinArguments.cpp
         src/lessstylesheet/MixinCall.cpp
+        src/lessstylesheet/MixinException.cpp
         src/lessstylesheet/ProcessingContext.cpp
         src/stylesheet/AtRule.cpp
         src/stylesheet/CssComment.cpp
@@ -46,6 +47,7 @@ set(less_SOURCES
         src/Token.cpp
         src/TokenList.cpp
         src/VariableMap.cpp
+        src/LessException.cpp
         )
 
 add_library(less SHARED ${less_SOURCES})
