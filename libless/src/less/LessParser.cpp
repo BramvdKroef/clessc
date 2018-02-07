@@ -462,10 +462,23 @@ bool LessParser::parseMixin(TokenList &tokens, LessRuleset &ruleset) {
 
   parseMixinArguments(i, tokens, *mixin);
 
+  while(i != tokens.end() && (*i).type == Token::WHITESPACE)
+    i++;
+
+  if (i != tokens.end() && *i == "!") {
+    if (++i != tokens.end() && *i == "important") {
+      mixin->setImportant(true);
+      i++;
+    } else
+      i--;
+  }
+
+  if (i != tokens.end())
+    throw new ParseException(*i, "end of mixin statement");
   return true;
 }
 
-void LessParser::parseMixinArguments(TokenList::const_iterator i,
+void LessParser::parseMixinArguments(TokenList::const_iterator &i,
                                      const TokenList &tokens,
                                      Mixin &mixin) {
   TokenList::const_iterator j;
@@ -526,6 +539,9 @@ void LessParser::parseMixinArguments(TokenList::const_iterator i,
     }
     argument.clear();
   }
+  
+  if (i != tokens.end())
+    i++;
 }
 
 bool LessParser::parseImportStatement(TokenList &statement,

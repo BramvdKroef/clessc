@@ -9,6 +9,8 @@ const Token Token::BUILTIN_PAREN_OPEN(
 const Token Token::BUILTIN_PAREN_CLOSED(
     ")", Token::PAREN_CLOSED, 0, 0, BUILTIN_SOURCE);
 
+const Token Token::BUILTIN_IMPORTANT("!important", Token::IDENTIFIER, 0,0, BUILTIN_SOURCE);
+
 Token::Token() : line(0), column(0), source(BUILTIN_SOURCE), type(OTHER) {
 }
 

@@ -3,16 +3,11 @@
 #include "less/lessstylesheet/LessStylesheet.h"
 #include "less/lessstylesheet/MixinException.h"
 
-Mixin::Mixin() {
-  lessStylesheet = NULL;
-  lessRuleset = NULL;
-
+Mixin::Mixin() : lessStylesheet(NULL), lessRuleset(NULL), important(false) {
 }
 
-Mixin::Mixin(const Selector &name) {
-  this->name = name;
-  lessStylesheet = NULL;
-  lessRuleset = NULL;
+Mixin::Mixin(const Selector &name) :
+  name(name), lessStylesheet(NULL), lessRuleset(NULL), important(false) {
 }
 
 Mixin::~Mixin() {
@@ -38,14 +33,13 @@ bool Mixin::call(ProcessingContext &context,
 
   arguments_p = arguments;
   arguments_p.process(context);
-
   
   for (i = functionList.begin(); i != functionList.end(); i++) {
     function = *i;
 
     if (function->getLessSelector()->needsArguments() ||
         !context.isInStack(*function)) {
-      context.pushMixinCall(*function);
+      context.pushMixinCall(*function, false, isImportant());
 
       if (r_target != NULL)
         success = function->call(arguments_p, *r_target, context) || success;
@@ -63,7 +57,7 @@ bool Mixin::call(ProcessingContext &context,
 
       if (function->getLessSelector()->needsArguments() ||
           !context.isInStack(*function)) {
-        context.pushMixinCall(*function);
+        context.pushMixinCall(*function, false, isImportant());
 
         if (r_target != NULL)
           function->call(arguments_p, *r_target, context, true);
@@ -76,6 +70,13 @@ bool Mixin::call(ProcessingContext &context,
   }
 
   return true;
+}
+
+void Mixin::setImportant(bool b) {
+  important = b;
+}
+bool Mixin::isImportant() const {
+  return important;
 }
 
 void Mixin::setLessStylesheet(LessStylesheet &s) {

@@ -19,6 +19,7 @@ private:
 
   LessStylesheet *lessStylesheet;
   LessRuleset *lessRuleset;
+  bool important;
 
 public:
   Selector name;
@@ -32,6 +33,9 @@ public:
             Ruleset *ruleset,
             Stylesheet *stylesheet) const;
 
+  void setImportant(bool b);
+  bool isImportant() const;
+  
   virtual void setLessStylesheet(LessStylesheet &stylesheet);
   LessStylesheet *getLessStylesheet() const;
 

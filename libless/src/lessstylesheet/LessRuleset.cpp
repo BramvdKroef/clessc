@@ -245,7 +245,7 @@ void LessRuleset::processStatements(Ruleset& target,
                                     void* context) const {
   // process statements
   Ruleset::processStatements(target, context);
-
+  
   // insert nested rules
   insertNestedRules(*target.getStylesheet(), &target.getSelector(),
                     *(ProcessingContext*)context);

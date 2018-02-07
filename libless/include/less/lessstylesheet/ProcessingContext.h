@@ -48,7 +48,9 @@ public:
   const TokenList *getBaseVariable (const std::string &key) const;
   
   
-  void pushMixinCall(const Function &function, bool savepoint = false);
+  void pushMixinCall(const Function &function,
+                     bool savepoint = false,
+                     bool important = false);
   void popMixinCall();
   bool isInStack(const Function &function) const;
   VariableMap *getStackArguments() const;
@@ -56,6 +58,7 @@ public:
   bool isStackEmpty() const;
   bool isSavePoint() const;
   const Function* getSavePoint() const;
+  bool isImportant() const;
 
   void getFunctions(std::list<const Function *> &functionList,
                     const Mixin &mixin) const;

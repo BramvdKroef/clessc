@@ -16,4 +16,15 @@ void LessDeclaration::process(Ruleset &r, void* context) const {
 
   ((ProcessingContext*)context)->interpolate(d->getProperty());
   ((ProcessingContext*)context)->processValue(d->getValue());
+
+  // If the `important` flag is set, append '!important'
+  if(((ProcessingContext*)context)->isImportant()) {
+    
+    if (d->getValue().size() < 3 ||
+        d->getValue().back() == "important") {
+      d->getValue().push_back(Token::BUILTIN_SPACE);
+      d->getValue().push_back(Token::BUILTIN_IMPORTANT);
+    }
+    
+  }
 }

@@ -13,11 +13,12 @@ public:
   MixinCall* parent;
   const Function* function;
   VariableMap arguments;
-  bool savepoint;
+  bool savepoint, important;
 
   MixinCall(MixinCall* parent,
             const Function& function,
-            bool savepoint = false);
+            bool savepoint = false,
+            bool important = false);
 
   const TokenList* getVariable(const std::string& key,
                                const ProcessingContext &context) const;

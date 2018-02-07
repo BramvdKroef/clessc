@@ -5,10 +5,11 @@
 
 MixinCall::MixinCall(MixinCall* parent,
                      const Function& function,
-                     bool savepoint) {
-  this->parent = parent;
-  this->function = &function;
-  this->savepoint = savepoint;
+                     bool savepoint,
+                     bool important) :
+  parent(parent), function(&function), savepoint(savepoint) {
+  
+  this->important = important || (parent != NULL && parent->important);
 }
 
 const TokenList* MixinCall::getVariable(const std::string& key,

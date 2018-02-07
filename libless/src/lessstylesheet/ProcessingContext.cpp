@@ -44,8 +44,9 @@ const TokenList *ProcessingContext::getBaseVariable
 }
 
 void ProcessingContext::pushMixinCall(const Function &function,
-                                      bool savepoint) {
-  stack = new MixinCall(stack, function, savepoint);
+                                      bool savepoint,
+                                      bool important) {
+  stack = new MixinCall(stack, function, savepoint, important);
 }
 
 void ProcessingContext::popMixinCall() {
@@ -83,6 +84,10 @@ const Function* ProcessingContext::getSavePoint() const {
   while (tmp != NULL && !tmp->savepoint) 
     tmp = tmp->parent;
   return (tmp == NULL) ? NULL : tmp->function;
+}
+
+bool ProcessingContext::isImportant() const {
+  return (stack != NULL && stack->important);
 }
 
 void ProcessingContext::getFunctions(std::list<const Function *> &functionList,

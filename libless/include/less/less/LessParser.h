@@ -112,7 +112,7 @@ protected:
                         LessRuleset &ruleset);
   bool parseMixin(TokenList &tokens, LessStylesheet &stylesheet);
   bool parseMixin(TokenList &tokens, LessRuleset &ruleset);
-  void parseMixinArguments(TokenList::const_iterator i,
+  void parseMixinArguments(TokenList::const_iterator &i,
                            const TokenList &tokens,
                            Mixin &mixin);
   bool parseVariable(std::string &keyword, TokenList &value);
