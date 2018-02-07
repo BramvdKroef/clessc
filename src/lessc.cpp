@@ -191,7 +191,7 @@ void writeOutput(Stylesheet &css,
   CssWriter* writer;
   ostream* sourcemap_s = NULL;
   SourceMapWriter* sourcemap = NULL;
-  char* tmp;
+
   std::list<const char*> relative_sources;
   std::list<const char*>::iterator it;
   size_t bp_l = 0;
@@ -203,17 +203,6 @@ void writeOutput(Stylesheet &css,
     out = new ofstream(output);
 
   if (sourcemap_file != NULL) {
-    if (strcmp(sourcemap_file, "-") == 0) {
-      if (strcmp(output, "-") == 0) {
-        throw new IOException("source-map option requires that \
-a file name is specified for either the source map or the css  \
-output file.");
-      } else {
-        tmp = new char[strlen(output) + 5];
-        sprintf(tmp, "%s.map", output);
-        sourcemap_file = tmp;
-      }
-    }
     for (it = sources.begin(); it != sources.end(); it++) {
       if (sourcemap_basepath == NULL) {
         relative_sources.push_back(path_create_relative(*it, sourcemap_file));
@@ -279,6 +268,7 @@ int main(int argc, char * argv[]){
   std::list<const char*> sources;
   Stylesheet css;
   bool depends = false, lint = false;
+  char* tmp;
 
   const char* sourcemap_file = NULL;
 
@@ -375,14 +365,28 @@ int main(int argc, char * argv[]){
       std::strcpy(source, argv[optind]);
       
       in = new ifstream(source);
-      if (in->fail() || in->bad())
-        throw new IOException("Error opening file.");
-
+      if (in->fail() || in->bad()) {
+        cerr << "Error opening file." << endl;
+        return EXIT_FAILURE;
+      }
     }  else {
       
       source = new char[2];
       std::strcpy(source, "-");
       
+    }
+    
+    if (sourcemap_file != NULL && strcmp(sourcemap_file, "-") == 0) {
+      if (strcmp(output, "-") == 0) {
+        cerr << "source-map option requires that \
+a file name is specified for either the source map or the css  \
+output file." << endl;
+        return EXIT_FAILURE;
+      } else {
+        tmp = new char[strlen(output) + 5];
+        sprintf(tmp, "%s.map", output);
+        sourcemap_file = tmp;
+      }
     }
     
     sources.push_back(source);
