@@ -92,7 +92,7 @@ status:
       - Namespaces: yes
       - Guarded namespaces: yes
       - `default()`: yes
-      - `!important` keyword: no
+      - `!important` keyword: yes
       - merge: no
         - `+` append with comma: no
         - `+_` append with space: no
@@ -103,7 +103,7 @@ status:
         - named parameters: yes
         - `@arguments` variable: yes
         - `...` rest variable: yes
-        - switch argument: no
+        - switch argument: yes
       - Return values
         - Variables: yes
         - Mixins: yes
