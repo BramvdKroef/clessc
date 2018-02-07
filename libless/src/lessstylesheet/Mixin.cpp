@@ -21,7 +21,7 @@ bool Mixin::call(ProcessingContext &context,
   std::list<const Function *>::iterator i;
   std::list<const Function *> functionList;
   const Function *function;
-  bool success;
+  bool success = false;
   
   MixinArguments arguments_p;
   
