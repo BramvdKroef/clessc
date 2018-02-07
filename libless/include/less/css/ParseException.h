@@ -8,37 +8,35 @@
 #include "less/TokenList.h"
 #include "less/LessException.h"
 
-using namespace std;
-
 class ParseException : public LessException {
 public:
-  string err;
+  std::string err;
 
-  ParseException(string found,
-                 string& expected,
+  ParseException(const std::string found,
+                 const std::string& expected,
                  unsigned int line,
                  unsigned int column,
-                 string source);
-  ParseException(string found,
+                 const std::string source);
+  ParseException(const std::string found,
                  const char* expected,
                  unsigned int line,
                  unsigned int column,
-                 string source);
+                 const std::string source);
   ParseException(const char* found,
                  const char* expected,
                  unsigned int line,
                  unsigned int column,
-                 string source);
+                 const std::string source);
 
-  ParseException(Token& found, const char* expected);
-  ParseException(TokenList& found, const char* expected);
+  ParseException(const Token& found, const char* expected);
+  ParseException(const TokenList& found, const char* expected);
 
   ~ParseException() throw(){};
 
   virtual const char* what() const throw();
 
 protected:
-  string translate(string found);
+  std::string translate(std::string found);
 };
 
 #endif  // __less_css_ParseException_h__

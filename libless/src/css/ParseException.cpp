@@ -1,25 +1,23 @@
 #include "less/css/ParseException.h"
 
-ParseException::ParseException(string found,
-                               string& expected,
+ParseException::ParseException(const std::string found,
+                               const std::string& expected,
                                unsigned int line,
                                unsigned int column,
-                               string source) :
+                               const std::string source) :
   LessException(line, column, source) {
   
   err.append("Found \"");
   err.append(translate(found));
   err.append("\" when expecting ");
   err.append(expected);
-  setLocation(line, column);
-  this->source = source;
 }
 
-ParseException::ParseException(string found,
+ParseException::ParseException(const std::string found,
                                const char* expected,
                                unsigned int line,
                                unsigned int column,
-                               string source) :
+                               const std::string source) :
   LessException(line, column, source) {
   err.append("Found \"");
   err.append(translate(found));
@@ -30,17 +28,17 @@ ParseException::ParseException(const char* found,
                                const char* expected,
                                unsigned int line,
                                unsigned int column,
-                               string source) :
+                               const std::string source) :
   LessException(line, column, source) {
   err.append("Found \"");
   if (found[0] == -1)
     err.append("end of file");
   else
-    err.append(translate(string(found)));
+    err.append(translate(std::string(found)));
   err.append("\" when expecting ");
   err.append(expected);
 }
-ParseException::ParseException(Token& found, const char* expected) :
+ParseException::ParseException(const Token& found, const char* expected) :
   LessException(found) {
   err.append("Found \"");
   err.append(translate(found));
@@ -48,7 +46,7 @@ ParseException::ParseException(Token& found, const char* expected) :
   err.append(expected);
 }
 
-ParseException::ParseException(TokenList& found, const char* expected) :
+ParseException::ParseException(const TokenList& found, const char* expected) :
   LessException(found.front()) {
   err.append("Found \"");
   err.append(translate(found.toString()));
@@ -61,7 +59,7 @@ const char* ParseException::what() const throw() {
   return err.c_str();
 }
 
-string ParseException::translate(string found) {
+std::string ParseException::translate(std::string found) {
   if (found == "\n")
     return "newline";
   return found;
