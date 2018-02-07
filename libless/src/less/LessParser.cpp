@@ -703,16 +703,18 @@ bool LessParser::findFile(Token &uri, std::string &filename) {
     return true;
   }
 
-  for (i = includePaths->begin(); i != includePaths->end(); i++) {
-    filename.clear();
+  if (includePaths != NULL) {
+    for (i = includePaths->begin(); i != includePaths->end(); i++) {
+      filename.clear();
 
-    filename.append((*i));
-    filename.append(uri);
+      filename.append((*i));
+      filename.append(uri);
 
-    in = new ifstream(filename.c_str());
-    if (in->good()) {
-      in->close();
-      return true;
+      in = new ifstream(filename.c_str());
+      if (in->good()) {
+        in->close();
+        return true;
+      }
     }
   }
   return false;
