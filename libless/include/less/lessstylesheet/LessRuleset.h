@@ -43,7 +43,7 @@ protected:
 
   const LessRuleset *parent;
   const LessStylesheet *lessStylesheet;
-  const LessSelector *selector;
+  LessSelector *selector;
 
   ProcessingContext *context;
 
@@ -60,23 +60,22 @@ protected:
             Stylesheet* stylesheet,
             bool defaultVal = false) const;
 public:
-  LessRuleset(const LessSelector &selector,
+  LessRuleset(LessSelector &selector,
               const LessRuleset& parent);
-  LessRuleset(const LessSelector &selector,
+  LessRuleset(LessSelector &selector,
               const LessStylesheet& parent);
   
   virtual ~LessRuleset();
 
-  virtual void setSelector(const Selector &selector);
   virtual const LessSelector& getLessSelector() const;
 
   void addExtension(Extension &extension);
     
   LessDeclaration *createLessDeclaration();
-  Mixin *createMixin(const Selector &selector);
+  Mixin *createMixin(const TokenList &selector);
   LessAtRule *createLessAtRule(const Token& keyword);
-  LessRuleset *createNestedRule(const LessSelector &selector);
-  MediaQueryRuleset *createMediaQuery(const LessSelector &selector);
+  LessRuleset *createNestedRule(LessSelector &selector);
+  MediaQueryRuleset *createMediaQuery(TokenList &selector);
 
   void deleteNestedRule(LessRuleset &ruleset);
 

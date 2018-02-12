@@ -1,21 +1,22 @@
 #ifndef __less_stylesheet_MediaQuery_h__
 #define __less_stylesheet_MediaQuery_h__
 
-#include "less/stylesheet/Selector.h"
+#include "less/TokenList.h"
 #include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/StylesheetStatement.h"
 
 class MediaQuery : public Stylesheet, public StylesheetStatement {
 private:
-  Selector selector;
+  TokenList selector;
   static const Token BUILTIN_AND;
 
 public:
-  MediaQuery(const Selector &selector);
+  MediaQuery(const TokenList &selector);
 
-  const Selector& getSelector() const;
+  TokenList& getSelector();
+  const TokenList& getSelector() const;
 
   virtual MediaQuery *createMediaQuery(const TokenList &selector);
-  virtual MediaQuery *createMediaQuery(const Selector &selector);
 
   virtual void process(Stylesheet& s, void* context) const;
   virtual void write(CssWriter& writer) const;

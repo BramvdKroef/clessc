@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
 #include <less/css/CssParser.h>
+#include <less/stylesheet/Stylesheet.h>
+#include <less/stylesheet/AtRule.h>
+#include <less/stylesheet/Ruleset.h>
+#include <less/stylesheet/Declaration.h>
 
 class CssParserTest : public ::testing::Test {
 public:

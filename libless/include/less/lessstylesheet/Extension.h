@@ -17,10 +17,12 @@ public:
   virtual ~Extension();
 
   Selector& getTarget();
-  void setTarget(const Selector& target);
-
   Selector& getExtension();
-  void setExtension(const Selector& selector);
+  
+  const Selector& getTarget() const;
+  const Selector& getExtension() const;
+
+  void setExtension(const Selector &extension);
 
   void setAll(bool b);
   bool isAll() const;

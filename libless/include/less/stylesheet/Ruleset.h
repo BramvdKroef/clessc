@@ -20,14 +20,13 @@ private:
   std::list<Declaration *> declarations;
 
 protected:
-  const Selector* selector;
+  Selector* selector;
   virtual void addStatement(RulesetStatement &statement);
   virtual void deleteStatement(RulesetStatement &statement);
 
 public:
   Ruleset();
-  Ruleset(const Selector &selector);
-  Ruleset(const TokenList &selector);
+  Ruleset(Selector &selector);
   virtual ~Ruleset();
 
   Declaration *createDeclaration();
@@ -38,8 +37,9 @@ public:
 
   void addDeclarations(std::list<Declaration> &declarations);
 
+  Selector &getSelector();
   const Selector &getSelector() const;
-  void setSelector(const Selector &selector);
+  void setSelector(Selector &selector);
   const std::list<RulesetStatement *> &getStatements() const;
   const std::list<Declaration *> &getDeclarations() const;
 

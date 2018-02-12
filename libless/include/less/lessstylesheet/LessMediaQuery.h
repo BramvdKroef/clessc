@@ -16,16 +16,16 @@
 
 class LessMediaQuery : public LessStylesheet, public StylesheetStatement {
 private:
-  const Selector selector;
+  TokenList selector;
   const LessStylesheet *parent;
 
 public:
-  LessMediaQuery(const Selector &selector, const LessStylesheet &parent);
+  LessMediaQuery(const TokenList &selector, const LessStylesheet &parent);
   virtual ~LessMediaQuery();
 
-  Selector *getSelector();
-  const Selector *getSelector() const;
-  void setSelector(const Selector &s);
+  TokenList &getSelector();
+  const TokenList &getSelector() const;
+  void setSelector(const TokenList &s);
 
   const LessStylesheet &getLessStylesheet() const;
 

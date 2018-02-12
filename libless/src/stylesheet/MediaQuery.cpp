@@ -3,11 +3,15 @@
 const Token MediaQuery::BUILTIN_AND(
                                     "and", Token::IDENTIFIER, 0, 0, Token::BUILTIN_SOURCE);
 
-MediaQuery::MediaQuery(const Selector &selector) : selector(selector) {
+MediaQuery::MediaQuery(const TokenList &selector) : selector(selector) {
 }
 
 
-const Selector& MediaQuery::getSelector() const {
+TokenList& MediaQuery::getSelector() {
+  return selector;
+}
+
+const TokenList& MediaQuery::getSelector() const {
   return selector;
 }
 
@@ -20,10 +24,6 @@ MediaQuery* MediaQuery::createMediaQuery(const TokenList &selector) {
   s.insert(s.begin(), getSelector().begin(), getSelector().end());
   
   return getStylesheet()->createMediaQuery(s);
-}
-
-MediaQuery* MediaQuery::createMediaQuery(const Selector &selector) {
-  return createMediaQuery((TokenList)selector);
 }
 
 void MediaQuery::process(Stylesheet& s, void* context) const {

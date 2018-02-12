@@ -1,11 +1,19 @@
 #include "less/lessstylesheet/LessMediaQuery.h"
+#include "less/stylesheet/MediaQuery.h"
 
-LessMediaQuery::LessMediaQuery(const Selector &selector,
+LessMediaQuery::LessMediaQuery(const TokenList &selector,
                                const LessStylesheet &parent) :
   selector(selector), parent(&parent) {
 
 }
 LessMediaQuery::~LessMediaQuery() {
+}
+
+TokenList &LessMediaQuery::getSelector() {
+  return selector;
+}
+const TokenList &LessMediaQuery::getSelector() const {
+  return selector;
 }
 
 const LessStylesheet &LessMediaQuery::getLessStylesheet() const {
@@ -28,12 +36,10 @@ const TokenList *LessMediaQuery::getVariable(const std::string &key,
 }
 
 void LessMediaQuery::process(Stylesheet &s, void* context) const {
-  Selector selector = *getSelector();
   MediaQuery *query;
-
-  ((ProcessingContext*)context)->processValue(selector);
-
-  query = s.createMediaQuery(selector);
+  
+  query = s.createMediaQuery(getSelector());
+  ((ProcessingContext*)context)->processValue(query->getSelector());
     
   LessStylesheet::process(*query, ((ProcessingContext*)context));
   ((ProcessingContext*)context)->setLessStylesheet(*parent);

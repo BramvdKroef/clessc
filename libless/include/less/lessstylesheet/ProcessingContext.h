@@ -71,9 +71,10 @@ public:
 
   ValueProcessor *getValueProcessor();
 
-  void interpolate(TokenList &tokens);
-  void interpolate(std::string &str);
-  void processValue(TokenList &value);
+  void interpolate(Selector &selector) const;
+  void interpolate(TokenList &tokens) const;
+  void interpolate(std::string &str) const;
+  void processValue(TokenList &value) const;
   bool validateCondition(const TokenList &value,
                          bool defaultVal = false) const;
 };

@@ -1,5 +1,8 @@
 #include "less/css/CssParser.h"
 #include <iostream>
+#include "less/stylesheet/MediaQuery.h"
+#include "less/stylesheet/AtRule.h"
+#include "less/stylesheet/Ruleset.h"
 
 CssParser::CssParser(CssTokenizer& tokenizer) {
   this->tokenizer = &tokenizer;
@@ -169,6 +172,7 @@ bool CssParser::parseBlock(TokenList& tokens) {
 Ruleset* CssParser::parseRuleset(Stylesheet& stylesheet) {
   Ruleset* ruleset;
   TokenList selector;
+  Selector* s;
 
   if (!parseSelector(selector)) {
     if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
@@ -180,7 +184,9 @@ Ruleset* CssParser::parseRuleset(Stylesheet& stylesheet) {
   }
   tokenizer->readNextToken();
 
-  ruleset = stylesheet.createRuleset(selector);
+  s = new Selector();
+  selectorParser.parse(selector, *s);
+  ruleset = stylesheet.createRuleset(*s);
 
   skipWhitespace();
   parseDeclaration(*ruleset);

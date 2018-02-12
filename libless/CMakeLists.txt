@@ -10,6 +10,7 @@ set(less_SOURCES
         src/css/CssWriter.cpp
         src/css/ParseException.cpp
         src/css/SourceMapWriter.cpp
+        src/css/CssSelectorParser.cpp
         src/less/LessParser.cpp
         src/less/LessTokenizer.cpp
         src/less/LessSelectorParser.cpp

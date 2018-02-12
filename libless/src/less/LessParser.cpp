@@ -208,7 +208,7 @@ bool LessParser::parseRuleset(TokenList &selector,
   skipWhitespace();
 
   s = new LessSelector();
-  selectorParser.parse(selector, *s);
+  lessSelectorParser.parse(selector, *s);
   
   // Create the ruleset and parse ruleset statements.
   if (parentRuleset == NULL)
@@ -239,7 +239,7 @@ bool LessParser::parseRuleset(LessRuleset &parent, TokenList &selector) {
 void LessParser::parseMediaQueryRuleset(Token &mediatoken,
                                         LessRuleset &parent) {
   MediaQueryRuleset *query;
-  LessSelector selector;
+  TokenList selector;
 
   selector.push_back(mediatoken);
   selector.push_back(Token::BUILTIN_SPACE);
@@ -364,6 +364,7 @@ bool LessParser::parseExtension(TokenList &statement, LessRuleset &ruleset) {
   TokenList::iterator i = statement.begin();
   int parentheses = 1;
   Extension extension;
+  TokenList target;
 
   if ((*i) != "&" ||
       (*++i).type != Token::COLON ||
@@ -385,7 +386,7 @@ bool LessParser::parseExtension(TokenList &statement, LessRuleset &ruleset) {
       break;
     }
     if (parentheses > 0)
-      extension.getTarget().push_back(*i);
+      target.push_back(*i);
   }
 
   if (parentheses > 0) {
@@ -396,11 +397,12 @@ bool LessParser::parseExtension(TokenList &statement, LessRuleset &ruleset) {
                              statement.front().source);
   }
 
-  if (extension.getTarget().back() == "all") {
+  if (target.back() == "all") {
     extension.setAll(true);
-    extension.getTarget().pop_back();
-    extension.getTarget().rtrim();
+    target.pop_back();
+    target.rtrim();
   }
+  selectorParser.parse(target, extension.getTarget());
 
   ruleset.addExtension(extension);
   
@@ -707,7 +709,7 @@ bool LessParser::findFile(Token &uri, std::string &filename) {
 void LessParser::parseLessMediaQuery(Token &mediatoken,
                                      LessStylesheet &stylesheet) {
   LessMediaQuery *query;
-  Selector selector;
+  TokenList selector;
   
   selector.push_back(mediatoken);
   selector.push_back(Token::BUILTIN_SPACE);

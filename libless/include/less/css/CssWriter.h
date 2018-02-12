@@ -7,6 +7,9 @@
 #include "less/TokenList.h"
 #include "less/css/SourceMapWriter.h"
 
+class Selector;
+
+
 class CssWriter {
 protected:
   std::ostream *out;
@@ -17,7 +20,7 @@ protected:
   void writeToken(const Token &token);
   void writeTokenList(const TokenList &tokens);
 
-  virtual void writeSelector(const TokenList &selector);
+  virtual void writeSelector(const Selector &selector);
   virtual void writeValue(const TokenList &value);
 
   void newline();
@@ -33,7 +36,7 @@ public:
 
   virtual ~CssWriter();
   virtual void writeAtRule(const Token &keyword, const TokenList &rule);
-  virtual void writeRulesetStart(const TokenList &selector);
+  virtual void writeRulesetStart(const Selector &selector);
   virtual void writeRulesetEnd();
   virtual void writeDeclaration(const Token &property, const TokenList &value);
   virtual void writeDeclarationDeliminator();

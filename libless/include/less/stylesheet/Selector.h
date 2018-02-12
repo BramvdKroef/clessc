@@ -11,16 +11,23 @@
  * For example <code>p .class, a:hover</code> is split up into
  * <code>p .class</code> and <code>a:hover</code>.
  */
-class Selector : public TokenList {
+class Selector {
+protected:
+  std::list<TokenList> selectors;
 
 public:
   Selector();
-  Selector(const TokenList &tokens);
   virtual ~Selector();
 
-  void addPrefix(const Selector &prefix);
+  std::list<TokenList> &getSelectors();
+  const std::list<TokenList> &getSelectors() const;
 
-  void appendSelector(const TokenList &selector);
+  TokenList &appendSelector(const TokenList &selector);
+  void appendSelector(const Selector &selector);
+  TokenList &insertSelector(const std::list<TokenList>::const_iterator &pos,
+                            const TokenList &selector);
+
+  void removeSelector(const std::list<TokenList>::iterator &pos);
  
   const TokenList::const_iterator walk(const TokenList::const_iterator &t_begin,
                                        const TokenList::const_iterator &t_end) const;
@@ -35,13 +42,16 @@ public:
                                  const TokenList::const_iterator limit) const;
 
   bool match(const TokenList &tokens) const;
+  bool match(const Selector &selector) const;
   int compare(const TokenList &tokens,
-              const_iterator offset,
-              const const_iterator end) const;
-    
-  const_iterator findComma(const_iterator offset) const;
-  const_iterator findComma(const_iterator offset,
-                           const const_iterator &limit) const;
+              TokenList::const_iterator offset,
+              const TokenList::const_iterator end) const;
+  void replace(const TokenList &search,
+               const Selector &replace);
+
+  void addPrefix(const Selector &prefix);
+
+  std::string toString() const;
 };
 
 #endif  // __less_stylesheet_Selector_h__

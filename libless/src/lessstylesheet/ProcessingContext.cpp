@@ -144,14 +144,22 @@ ValueProcessor *ProcessingContext::getValueProcessor() {
   return &processor;
 }
 
-void ProcessingContext::interpolate(TokenList &tokens) {
+void ProcessingContext::interpolate(Selector &selector) const {
+  std::list<TokenList>::iterator it;
+  
+  for (it = selector.getSelectors().begin(); it != selector.getSelectors().end(); it++) {
+    processor.interpolate(*it, *this);
+  }
+}
+
+void ProcessingContext::interpolate(TokenList &tokens) const {
   processor.interpolate(tokens, *this);
 }
-void ProcessingContext::interpolate(std::string &str) {
+void ProcessingContext::interpolate(std::string &str) const {
   processor.interpolate(str, *this);
 }
 
-void ProcessingContext::processValue(TokenList &value) {
+void ProcessingContext::processValue(TokenList &value) const {
   processor.processValue(value, *this);
 }
 

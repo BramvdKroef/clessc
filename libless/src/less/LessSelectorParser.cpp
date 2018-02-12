@@ -1,53 +1,63 @@
 #include "less/less/LessSelectorParser.h"
 #include "less/css/ParseException.h"
+#include "less/lessstylesheet/Extension.h"
+
 
 bool LessSelectorParser::parse(TokenList& tokens,
                                LessSelector& selector) {
-  TokenList::iterator it, begin;
+  std::list<TokenList>::iterator it;
+  TokenList::iterator offset;
   
   bool args = (tokens.front().type == Token::HASH ||
                tokens.front() == ".");
 
-  begin = tokens.begin();
-  
-  for (it = begin; it != tokens.end(); it++) {
-
-    if (parseExtension(tokens, it, begin, selector)) {
-      while (parseExtension(tokens, it, begin, selector));
-
-      break;
-    }
-    
-    if (begin == tokens.begin()) {
-      if (args) {
-        if (parseArguments(tokens, it, selector)) {
-          while (it != tokens.end() && (*it).type == Token::WHITESPACE)
-            it++;
-          selector.setNeedsArguments(false);
-          parseConditions(tokens, it, selector);
-
-        } else if ((*it).type == Token::COLON) 
-          args = false;
-      }
-      
-      if (parseConditions(tokens, it, selector)) 
-        break;
-    }
-    
-    if (*it == Token::BUILTIN_COMMA) 
-      begin = it;
+  if (tokens.contains(Token::IDENTIFIER, "when")) {
+    selector.appendSelector(tokens);
+  } else {
+    CssSelectorParser::parse(tokens, selector);
   }
-  selector.assign(tokens.begin(), tokens.end());
+
+  for (it = selector.getSelectors().begin();
+       it != selector.getSelectors().end();
+       it++) {
+
+    for (offset = (*it).begin(); offset != (*it).end(); offset++) {
+      
+      if (parseExtension(*it, offset, selector)) {
+        while (parseExtension(*it, offset, selector));
+        break;
+      }
+
+      if (selector.getSelectors().size() == 1) {
+        
+        if (args) {
+          if (parseArguments(*it, offset, selector)) {
+            while (offset != (*it).end() && (*offset).type == Token::WHITESPACE)
+              offset++;
+            
+            selector.setNeedsArguments(true);
+            parseConditions(*it, offset, selector);
+            
+          } else if ((*offset).type == Token::COLON) 
+            args = false;
+        }
+
+        parseConditions(*it, offset, selector);
+      }
+    }
+    (*it).trim();
+  }
+
   return true;
 }
 
 bool LessSelectorParser::parseExtension(TokenList &tokens,
-                                        TokenList::iterator offset,
-                                        TokenList::iterator begin,
+                                        TokenList::iterator &offset,
                                         LessSelector &s) {
   TokenList::iterator it = offset;
   int parentheses = 1;
   Extension extension;
+  TokenList target, ext;
   
   if ((*it).type != Token::COLON ||
       (*++it).type != Token::IDENTIFIER ||
@@ -57,6 +67,7 @@ bool LessSelectorParser::parseExtension(TokenList &tokens,
   
   it++;
   tokens.erase(offset, it);
+  offset = it;
   
   for (; it != tokens.end() && parentheses > 0; it++) {
     if ((*it).type == Token::PAREN_OPEN)
@@ -69,19 +80,23 @@ bool LessSelectorParser::parseExtension(TokenList &tokens,
     throw new ParseException(*offset,
                              "end of extension (')')");
   }
+  it--;
   
-  extension.getTarget().splice(extension.getTarget().begin(),
-                               tokens, offset, it);
-  extension.getExtension().insert(extension.getExtension().begin(),
-                                  begin, offset);
-  if (extension.getTarget().back() == "all") {
+  target.splice(target.begin(), tokens, offset, it);
+  offset = it;
+  ext.insert(ext.begin(), tokens.begin(), offset);
+    
+  if (!target.empty() && target.back() == "all") {
     extension.setAll(true);
-    extension.getTarget().pop_back();
-    extension.getTarget().rtrim();
+    target.pop_back();
+    target.rtrim();
   }
-
+  selectorParser.parse(target, extension.getTarget());
+  selectorParser.parse(ext, extension.getExtension());
   s.addExtension(extension);
-  tokens.erase(--it);
+
+  offset++;
+  tokens.erase(it);
   return true;
 }
 
@@ -108,6 +123,7 @@ bool LessSelectorParser::isArguments(TokenList &selector,
   
   if ((*it).type != Token::PAREN_CLOSED)
     return false;
+  it++;
   
   while (it != selector.end() && (*it).type == Token::WHITESPACE)
     it++;
@@ -116,7 +132,7 @@ bool LessSelectorParser::isArguments(TokenList &selector,
 }
 
 bool LessSelectorParser::parseArguments(TokenList &selector,
-                                TokenList::iterator offset,
+                                TokenList::iterator &offset,
                                 LessSelector &s) {
   string delimiter = ",";
   TokenList::iterator it;
@@ -127,14 +143,15 @@ bool LessSelectorParser::parseArguments(TokenList &selector,
     return false;
 
   it = offset;
+  it++;
   while (parseParameter(selector, it, keyword, value, delimiter)) {
-
     if (value.empty() &&
         it != selector.end() && *it == "." &&
         ++it != selector.end() && *it == "." &&
         ++it != selector.end() && *it == ".") {
 
       s.setUnlimitedArguments(true, keyword);
+      it++;
     } else {
       s.addParameter(keyword, value);
       value.clear();
@@ -154,6 +171,7 @@ bool LessSelectorParser::parseArguments(TokenList &selector,
       ++it != selector.end() && *it == "." &&
       ++it != selector.end() && *it == ".") {
     s.setUnlimitedArguments(true);
+    it++;
   }
   
   while (it != selector.end() && (*it).type == Token::WHITESPACE)
@@ -165,7 +183,7 @@ bool LessSelectorParser::parseArguments(TokenList &selector,
   } else {
     it++;
     selector.erase(offset, it);
-    
+    offset = it;
     return true;
   }
 }
@@ -221,25 +239,23 @@ bool LessSelectorParser::parseDefaultValue(TokenList &arguments,
 
   if (it == begin || it == arguments.end()) 
     return false;
-  else
+  else {
     value.insert(value.begin(), begin, it);
-  
+    value.trim();
+  }
   return true;
 }
 
 bool LessSelectorParser::parseConditions(TokenList &selector,
-                                         const TokenList::iterator &offset,
+                                         TokenList::iterator &offset,
                                          LessSelector &s) {
   TokenList condition;
   TokenList::iterator it = offset;
   
   if (it == selector.end() || *it != "when")
     return false;
-  selector.erase(it);
-  
-  while (it != selector.end() && (*it).type == Token::WHITESPACE) {
-    selector.erase(it);
-  }
+  it = selector.erase(it);
+  offset = it;
   
   while (it != selector.end()) {
     while (it != selector.end() && *it != ",") {
@@ -249,9 +265,11 @@ bool LessSelectorParser::parseConditions(TokenList &selector,
     condition.splice(condition.begin(), selector, offset, it);
     condition.trim();
     s.addCondition(condition);
+    condition.clear();
     
     if (it != selector.end()) 
-      selector.erase(it);
+      it = selector.erase(it);
+    offset = it;
   }
   return true;
 }

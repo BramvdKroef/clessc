@@ -12,9 +12,11 @@
 #include "less/lessstylesheet/LessRuleset.h"
 
 class MediaQueryRuleset : public LessRuleset {
+private:
+  TokenList selector;
 
 public:
-  MediaQueryRuleset(const LessSelector &selector,
+  MediaQueryRuleset(TokenList &selector,
                     const LessRuleset& parent);
   virtual ~MediaQueryRuleset();
 

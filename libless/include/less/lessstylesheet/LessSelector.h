@@ -6,10 +6,9 @@
 #include <map>
 #include <string>
 
-#include "less/lessstylesheet/Extension.h"
 #include "less/lessstylesheet/MixinArguments.h"
+#include "less/lessstylesheet/Extension.h"
 #include "less/stylesheet/Selector.h"
-
 
 class LessSelector : public Selector {
 private:
@@ -22,19 +21,8 @@ private:
   bool _needsArguments;
   std::string restIdentifier;
 
-  bool parseExtension(Selector &selector, Selector &extension);
-  bool parseArguments(TokenList &selector);
-  bool validateArguments(const TokenList &arguments,
-                         const std::string &delimiter);
-  bool parseParameter(TokenList &selector, const std::string &delimiter);
-  bool parseDefaultValue(TokenList &arguments,
-                         const std::string &delimiter,
-                         TokenList &value);
-  bool parseConditions(TokenList &selector);
-
 public:
   LessSelector();
-  LessSelector(const Selector &original);
   virtual ~LessSelector();
 
   void addExtension(Extension &extension);
@@ -55,6 +43,7 @@ public:
   bool needsArguments() const;
   bool unlimitedArguments() const;
   std::string getRestIdentifier() const;
+
 };
 
 #endif  // __less_lessstylesheet_LessSelector_h__

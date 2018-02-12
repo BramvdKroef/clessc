@@ -2,13 +2,13 @@
 #include "less/lessstylesheet/LessStylesheet.h"
 #include "less/lessstylesheet/MediaQueryRuleset.h"
 
-LessRuleset::LessRuleset(const LessSelector& selector,
+LessRuleset::LessRuleset(LessSelector& selector,
                          const LessRuleset& parent) :
   Ruleset(selector),
   parent(&parent), lessStylesheet(NULL), selector(&selector) {
 
 }
-LessRuleset::LessRuleset(const LessSelector& selector,
+LessRuleset::LessRuleset(LessSelector& selector,
                          const LessStylesheet& parent) :
   Ruleset(selector),
   parent(NULL), lessStylesheet(&parent), selector(&selector) {
@@ -19,11 +19,6 @@ LessRuleset::~LessRuleset() {
     delete nestedRules.back();
     nestedRules.pop_back();
   }
-  lessDeclarations.clear();
-  mixins.clear();
-  lessAtRules.clear();
-  if (selector != NULL)
-    delete selector;
 }
 
 const LessSelector& LessRuleset::getLessSelector() const {
@@ -48,7 +43,7 @@ const std::list<LessDeclaration*>& LessRuleset::getLessDeclarations()
   return lessDeclarations;
 }
 
-Mixin* LessRuleset::createMixin(const Selector &selector) {
+Mixin* LessRuleset::createMixin(const TokenList &selector) {
   Mixin* m = new Mixin(selector, *this);
 
   Ruleset::addStatement(*m);
@@ -81,14 +76,14 @@ const std::list<StylesheetStatement*>& LessRuleset::getStylesheetStatements()
   return stylesheetStatements;
 }
 
-LessRuleset* LessRuleset::createNestedRule(const LessSelector& selector) {
+LessRuleset* LessRuleset::createNestedRule(LessSelector& selector) {
   LessRuleset* r = new LessRuleset(selector, *this);
 
   nestedRules.push_back(r);
   return r;
 }
 
-MediaQueryRuleset* LessRuleset::createMediaQuery(const LessSelector &selector) {
+MediaQueryRuleset* LessRuleset::createMediaQuery(TokenList &selector) {
   MediaQueryRuleset* r = new MediaQueryRuleset(selector, *this);
 
   nestedRules.push_back(r);
@@ -146,6 +141,7 @@ void LessRuleset::processExtensions(ProcessingContext& context,
     extension = *e_it;
     if (prefix != NULL)
       extension.getExtension().addPrefix(*prefix);
+
     context.interpolate(extension.getExtension());
     
     context.addExtension(extension);
@@ -159,7 +155,7 @@ void LessRuleset::processInlineExtensions(ProcessingContext& context,
 
   for (e_it = extensions.begin(); e_it != extensions.end(); e_it++) {
     extension = *e_it;
-    
+
     extension.setExtension(selector);
     
     context.addExtension(extension);
@@ -216,7 +212,7 @@ void LessRuleset::process(Stylesheet& s,
                           const Selector* prefix,
                           ProcessingContext& context) const {
   Ruleset* target;
-  Selector selector;
+  Selector* selector;
 
   if (getLessSelector().needsArguments())
     return;
@@ -224,12 +220,13 @@ void LessRuleset::process(Stylesheet& s,
   if (!matchConditions(context))
     return;
 
-  selector = getSelector();
+  selector = new Selector(getSelector());
   if (prefix != NULL)
-    selector.addPrefix(*prefix);
-  context.interpolate(selector);
+    selector->addPrefix(*prefix);
+
+  context.interpolate(*selector);
   
-  target = s.createRuleset(selector);
+  target = s.createRuleset(*selector);
 
   processExtensions(context, prefix);
   processInlineExtensions(context, target->getSelector());

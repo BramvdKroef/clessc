@@ -86,3 +86,4 @@ bool LessSelector::unlimitedArguments() const {
 string LessSelector::getRestIdentifier() const {
   return restIdentifier;
 }
+

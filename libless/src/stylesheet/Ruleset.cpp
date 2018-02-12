@@ -3,14 +3,12 @@
  
 Ruleset::Ruleset() {
 }
-Ruleset::Ruleset(const Selector& selector): selector(&selector) {
-}
-Ruleset::Ruleset(const TokenList& selector) {
-  this->selector = new Selector(selector);
+Ruleset::Ruleset(Selector& selector): selector(&selector) {
 }
 
 Ruleset::~Ruleset() {
-  delete selector;
+  if (selector != NULL)
+    delete selector;
   clearStatements();
 }
 
@@ -55,13 +53,14 @@ void Ruleset::addDeclarations(std::list<Declaration>& declarations) {
   }
 }
 
-void Ruleset::setSelector(const Selector &selector) {
+void Ruleset::setSelector(Selector &selector) {
   delete this->selector;
   this->selector = &selector;
-  if (getStylesheet() != NULL)
-    getStylesheet()->updateRulesetSelector(*this);
 }
 
+Selector& Ruleset::getSelector() {
+  return *selector;
+}
 const Selector& Ruleset::getSelector() const {
   return *selector;
 }

@@ -3,6 +3,7 @@
 
 #include "less/stylesheet/AtRule.h"
 #include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/RulesetStatement.h"
 
 #include "less/Token.h"
 

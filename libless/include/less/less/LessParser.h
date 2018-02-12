@@ -71,7 +71,7 @@ public:
 protected:
   std::list<const char *> &sources;
   bool reference;
-  LessSelectorParser selectorParser;
+  LessSelectorParser lessSelectorParser;
   
   /**
    * Skip comments only if they are LESS comments, not CSS comments.

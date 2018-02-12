@@ -1,113 +1,57 @@
 #include "less/stylesheet/Selector.h"
-#include <iostream>
 
-Selector::Selector(const TokenList &tokens) : TokenList(tokens) {
+
+Selector::Selector() {
 }
 
 Selector::~Selector() {
 }
 
-void Selector::addPrefix(const Selector &prefix) {
-  const_iterator start;
-  const_iterator end;
+std::list<TokenList> &Selector::getSelectors() {
+  return selectors;
+}
+const std::list<TokenList> &Selector::getSelectors() const {
+  return selectors;
+}
 
-  const_iterator prefix_start;
-  const_iterator prefix_end;
-
-  TokenList tmp;
-  TokenList::iterator tmp_it;
+TokenList &Selector::appendSelector(const TokenList &selector) {
+  selectors.push_back(selector);
+  return selectors.back();
+}
+void Selector::appendSelector(const Selector &selector) {
+  std::list<TokenList>::const_iterator it;
   
-  bool containsAmp;
-
-  start = begin();
-  
-  while (start != this->end()) {
-    end = findComma(start);
+  for (it = selector.getSelectors().begin();
+       it != selector.getSelectors().end();
+       it++) {
     
-    tmp.clear();
-    tmp.splice(tmp.begin(), *this, start, end);
-    containsAmp = tmp.contains(Token::OTHER, "&");
-    erase(start, end);
-    
-    prefix_start = prefix.begin();
-    prefix_end = prefix.findComma(prefix_start);
-    
-    do {
-      if (containsAmp) {
-        for (tmp_it = tmp.begin(); tmp_it != tmp.end(); tmp_it++) {
-          if (*tmp_it == "&")
-            insert(end, prefix_start, prefix_end);
-          else
-            insert(end, *tmp_it);
-        }
-      } else {
-        insert(end, prefix_start, prefix_end);
-        insert(end, Token::BUILTIN_SPACE);
-        insert(end, tmp.begin(), tmp.end());
-      }
-      
-      if (prefix_start != prefix.begin()) 
-        insert(end, Token::BUILTIN_COMMA);
-      else
-        end++;
-      
-      prefix_start = prefix_end;
-      prefix_end = prefix.findComma(prefix_start);
-      
-    } while(prefix_start != prefix.end());
-
-    start = end;
-
+    selectors.push_back(*it);
   }
 }
 
-void Selector::appendSelector(const TokenList &selector) {
-  if (!empty()) 
-    push_back(Token::BUILTIN_COMMA);
-  
-  insert(end(), selector.begin(), selector.end());
+TokenList &Selector::insertSelector(const std::list<TokenList>::const_iterator &pos,
+                                    const TokenList &selector) {
+  return *(selectors.insert(pos, selector));
 }
 
-Selector::const_iterator Selector::findComma(Selector::const_iterator offset) const {
-  return findComma(offset, end());
+void Selector::removeSelector(const std::list<TokenList>::iterator &pos) {
+  selectors.erase(pos);
 }
-
-Selector::const_iterator Selector::findComma(Selector::const_iterator offset,
-                                             const Selector::const_iterator &limit) const {
-  unsigned int parentheses = 0;
-
-  for (; offset != limit; offset++) {
-    if (parentheses == 0 && (*offset) == Token::BUILTIN_COMMA) {
-      return offset;
-
-    } else {
-      if (*offset == Token::BUILTIN_PAREN_OPEN)
-        parentheses++;
-      else if (*offset == Token::BUILTIN_PAREN_CLOSED)
-        parentheses--;
-    }
-  }
-  return offset;
-}
-
 
 const TokenList::const_iterator Selector::walk(const TokenList::const_iterator &t_begin,
                                                const TokenList::const_iterator &t_end) const {
-  Selector::const_iterator end, it, t_it;
-  it = begin();
+  std::list<TokenList>::const_iterator it;
+  TokenList::const_iterator t_it1, t_it2;
   
-  while (it != this->end()) {
-    end = findComma(it);
-
-    t_it = t_begin;
-
-    walk(t_it, t_end, it, end);
-
-    if (it == end)
-      return t_it;
+  for (it = selectors.begin(); it != selectors.end(); it++) {
+    t_it1 = (*it).begin();
+    t_it2 = t_begin;
     
-    it = end;
+    walk(t_it2, t_end, t_it1, (*it).end());
+    if (t_it1 == (*it).end())
+      return t_it2;
   }
+
   return t_begin;
 }
 
@@ -140,20 +84,16 @@ void Selector::walk(TokenList::const_iterator &it1,
 bool Selector::match(const TokenList &tokens) const {
   return walk(tokens.begin(), tokens.end()) == tokens.end();
 }
-
-int Selector::compare(const TokenList &tokens,
-                      const_iterator offset,
-                      const const_iterator end) const {
-  const_iterator it = tokens.begin();
-
-  walk(it, tokens.end(), offset, end);
+bool Selector::match(const Selector &selector) const {
+  std::list<TokenList>::const_iterator it;
   
-  if (it == tokens.end())
-    return 1;
-  if (offset == end)
-    return -1;
-
-  return (*it < *offset) ? 1 : -1;
+  for (it = selector.getSelectors().begin();
+       it != selector.getSelectors().end();
+       it++) {
+    if (match(*it))
+      return true;
+  }
+  return false;
 }
 
 TokenList::const_iterator Selector::find(
@@ -170,3 +110,60 @@ TokenList::const_iterator Selector::find(
   }
   return limit;
 }
+void Selector::replace(const TokenList &search,
+                       const Selector &replace) {
+  
+}
+
+void Selector::addPrefix(const Selector &prefix) {
+  std::list<TokenList>::iterator it;
+  std::list<TokenList>::const_iterator it2;
+  TokenList tl;
+  TokenList *inserted;
+
+  const TokenList* tmp;
+  TokenList::const_iterator tmp_it;
+  
+  
+  bool containsAmp;
+
+  for (it = selectors.begin(); it != selectors.end(); ) {
+    tmp = &(*it);
+    containsAmp = tmp->contains(Token::OTHER, "&");
+    
+    for (it2 = prefix.getSelectors().begin();
+         it2 != prefix.getSelectors().end();
+         it2++) {
+      inserted = &insertSelector(it, tl);
+      
+      if (containsAmp) {
+        for (tmp_it = tmp->begin(); tmp_it != tmp->end(); tmp_it++) {
+          if (*tmp_it == "&")
+            inserted->insert(inserted->end(), (*it2).begin(), (*it2).end());
+          else
+            inserted->push_back(*tmp_it);
+        }
+      } else {
+        inserted->insert(inserted->end(), (*it2).begin(), (*it2).end());
+        inserted->push_back(Token::BUILTIN_SPACE);
+        inserted->insert(inserted->end(), tmp->begin(), tmp->end());
+      }
+    }
+    it = selectors.erase(it);
+  }
+
+}
+
+std::string Selector::toString() const {
+  std::string str;
+  std::list<TokenList>::const_iterator it;
+
+  for (it = selectors.begin(); it != selectors.end(); it++) {
+    if (it != selectors.begin())
+      str.append(", ");
+    
+    str.append((*it).toString());
+  }
+  return str;
+}
+

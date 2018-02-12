@@ -4,17 +4,19 @@
 #include "less/Token.h"
 #include "less/TokenList.h"
 #include "less/lessstylesheet/LessSelector.h"
+#include "less/css/CssSelectorParser.h"
 
 
-class LessSelectorParser {
+class LessSelectorParser : public CssSelectorParser {
 public:
   bool parse(TokenList& tokens,
              LessSelector& selector);
 
 protected:
+  CssSelectorParser selectorParser;
+  
   bool parseExtension(TokenList &tokens,
-                      TokenList::iterator offset,
-                      TokenList::iterator begin,
+                      TokenList::iterator &offset,
                       LessSelector &s);
 
   bool isArguments(TokenList &selector,
@@ -22,7 +24,7 @@ protected:
                    std::string &delimiter);
 
   bool parseArguments(TokenList &selector,
-                      TokenList::iterator offset,
+                      TokenList::iterator &offset,
                       LessSelector &s);
 
   bool parseParameter(TokenList &selector,
@@ -37,7 +39,7 @@ protected:
                          TokenList &value);
 
   bool parseConditions(TokenList &selector,
-                       const TokenList::iterator &offset,
+                       TokenList::iterator &offset,
                        LessSelector &s);
 
 
