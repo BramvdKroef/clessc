@@ -9,23 +9,25 @@ void CssPrettyWriter::indent() {
 }
 
 
-void CssPrettyWriter::writeSelector(const TokenList &selector) {
-  TokenList::const_iterator it;
-  bool newselector = true;
-  
-  for (it = selector.begin(); it != selector.end(); it++) {
-    if (newselector && sourcemap != NULL) {
-      sourcemap->writeMapping(column, *it);
-      newselector = false;
-    }
+void CssPrettyWriter::writeSelector(const Selector &selector) {
+  std::list<TokenList>::const_iterator s_it;
+  TokenList::const_iterator token;
 
-    writeToken(*it);
+  for(s_it = selector.begin();
+      s_it != selector.end();
+      s_it++) {
 
-    if ((*it) == ",") {
+    if (s_it != selector.begin()) {
+      writeStr(",", 1);
       newline();
-      
       indent();
-      newselector = true;
+    }
+    
+    for (token = (*s_it).begin(); token != (*s_it).end(); token++) {
+      if (sourcemap != NULL && token == (*s_it).begin()) 
+        sourcemap->writeMapping(column, *token);
+      
+      writeToken(*token);
     }
   }
 }
@@ -37,11 +39,10 @@ void CssPrettyWriter::writeAtRule(const Token &keyword, const TokenList &rule) {
   newline();
 }
 
-void CssPrettyWriter::writeRulesetStart(const TokenList &selector) {
+void CssPrettyWriter::writeRulesetStart(const Selector &selector) {
   indent();
 
   writeSelector(selector);
-
   writeStr(" {", 2);
   newline();
   indent_size++;
@@ -76,9 +77,16 @@ void CssPrettyWriter::writeDeclarationDeliminator() {
 }
 
 void CssPrettyWriter::writeMediaQueryStart(const TokenList &selector) {
+  TokenList::const_iterator token;
+
   indent();
 
-  writeSelector(selector);
+  for (token = selector.begin(); token != selector.end(); token++) {
+    if (sourcemap != NULL && token == selector.begin()) 
+      sourcemap->writeMapping(column, *token);
+      
+    writeToken(*token);
+  }
 
   writeStr(" {", 2);
   newline();

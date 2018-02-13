@@ -2,9 +2,10 @@
 #define __less_css_CssPrettyWriter_h__
 
 #include <iostream>
-#include "less//Token.h"
+#include "less/Token.h"
 #include "less/TokenList.h"
 #include "less/css/CssWriter.h"
+#include "less/stylesheet/Selector.h"
 
 class CssPrettyWriter : public CssWriter {
 private:
@@ -13,7 +14,7 @@ private:
 protected:
   void indent();
 
-  virtual void writeSelector(const TokenList &selector);
+  virtual void writeSelector(const Selector &selector);
 
 public:
   CssPrettyWriter(std::ostream &out) : CssWriter(out) {
@@ -25,7 +26,7 @@ public:
   }
 
   virtual void writeAtRule(const Token &keyword, const TokenList &rule);
-  virtual void writeRulesetStart(const TokenList &selector);
+  virtual void writeRulesetStart(const Selector &selector);
   virtual void writeRulesetEnd();
   virtual void writeDeclaration(const Token &property, const TokenList &value);
   virtual void writeDeclarationDeliminator();
