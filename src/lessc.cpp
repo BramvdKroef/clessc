@@ -40,10 +40,16 @@ indentation. By default the output is unformatted.\n"
 source file references in the source map. \n"
     "       --source-map-basepath=<PATH>   PATH is removed from the \
 source file references in the source map.\n"
+    "       --source-map-url=<PATH>        Manually specify sourcemap \
+url in css output.\n"
     "       --rootpath=<PATH>           Prefix PATH to urls and import \
 statements in output. \n"
     "   -I, --include-path=<FILE>       Specify paths to look for \
 imported .less files.\n"
+    "   -M, --depends                   Output dependencies for source \
+file.\n"
+    "   -l, --lint                      Don't generate output. Just display \
+parse errors.\n"
     "\n"
     "Example:\n"
     "   lessc in.less -o out.css\n"
