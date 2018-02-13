@@ -134,7 +134,7 @@ bool LessSelectorParser::isArguments(TokenList &selector,
 bool LessSelectorParser::parseArguments(TokenList &selector,
                                 TokenList::iterator &offset,
                                 LessSelector &s) {
-  string delimiter = ",";
+  std::string delimiter = ",";
   TokenList::iterator it;
   Token keyword;
   TokenList value;
