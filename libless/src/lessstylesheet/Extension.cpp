@@ -46,11 +46,11 @@ void Extension::updateSelector(Selector &s) const {
 void Extension::replaceInSelector(Selector &s) const {
   std::list<TokenList>::const_iterator it1, it2;
 
-  for (it1 = target.getSelectors().begin();
-       it1 != target.getSelectors().end(); it1++) {
+  for (it1 = target.begin();
+       it1 != target.end(); it1++) {
 
-    for (it2 = extension.getSelectors().begin();
-         it2 != extension.getSelectors().end(); it2++) {
+    for (it2 = extension.begin();
+         it2 != extension.end(); it2++) {
 
       // If no matches are found, there is no need to try other extension
       // selectors.

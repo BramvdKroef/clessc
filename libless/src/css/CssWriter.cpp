@@ -65,11 +65,11 @@ void CssWriter::writeSelector(const Selector &selector) {
   std::list<TokenList>::const_iterator s_it;
   TokenList::const_iterator token;
 
-  for(s_it = selector.getSelectors().begin();
-      s_it != selector.getSelectors().end();
+  for(s_it = selector.begin();
+      s_it != selector.end();
       s_it++) {
 
-    if (s_it != selector.getSelectors().begin())
+    if (s_it != selector.begin())
         writeStr(",", 1);
 
     for (token = (*s_it).begin(); token != (*s_it).end(); token++) {

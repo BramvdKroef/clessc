@@ -11,24 +11,15 @@
  * For example <code>p .class, a:hover</code> is split up into
  * <code>p .class</code> and <code>a:hover</code>.
  */
-class Selector {
+class Selector: public std::list<TokenList> {
 protected:
-  std::list<TokenList> selectors;
-
+  
 public:
   Selector();
   virtual ~Selector();
 
-  std::list<TokenList> &getSelectors();
-  const std::list<TokenList> &getSelectors() const;
-
-  TokenList &appendSelector(const TokenList &selector);
   void appendSelector(const Selector &selector);
-  TokenList &insertSelector(const std::list<TokenList>::const_iterator &pos,
-                            const TokenList &selector);
-
-  void removeSelector(const std::list<TokenList>::iterator &pos);
- 
+  
   const TokenList::const_iterator walk(const TokenList::const_iterator &t_begin,
                                        const TokenList::const_iterator &t_end) const;
 

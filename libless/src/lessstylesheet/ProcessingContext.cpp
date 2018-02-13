@@ -147,7 +147,7 @@ ValueProcessor *ProcessingContext::getValueProcessor() {
 void ProcessingContext::interpolate(Selector &selector) const {
   std::list<TokenList>::iterator it;
   
-  for (it = selector.getSelectors().begin(); it != selector.getSelectors().end(); it++) {
+  for (it = selector.begin(); it != selector.end(); it++) {
     processor.interpolate(*it, *this);
   }
 }

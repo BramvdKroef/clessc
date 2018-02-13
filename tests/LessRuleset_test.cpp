@@ -15,7 +15,7 @@ public:
     tokens.push_back(Token("test", Token::IDENTIFIER, 0, 0, "-"));
     
     selector = new LessSelector();
-    selector->appendSelector(tokens);
+    selector->push_back(tokens);
     stylesheet = new LessStylesheet();
     ruleset = stylesheet->createLessRuleset(*selector);
   }

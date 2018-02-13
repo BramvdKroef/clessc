@@ -12,13 +12,13 @@ bool LessSelectorParser::parse(TokenList& tokens,
                tokens.front() == ".");
 
   if (tokens.contains(Token::IDENTIFIER, "when")) {
-    selector.appendSelector(tokens);
+    selector.push_back(tokens);
   } else {
     CssSelectorParser::parse(tokens, selector);
   }
 
-  for (it = selector.getSelectors().begin();
-       it != selector.getSelectors().end();
+  for (it = selector.begin();
+       it != selector.end();
        it++) {
 
     for (offset = (*it).begin(); offset != (*it).end(); offset++) {
@@ -28,7 +28,7 @@ bool LessSelectorParser::parse(TokenList& tokens,
         break;
       }
 
-      if (selector.getSelectors().size() == 1) {
+      if (selector.size() == 1) {
         
         if (args) {
           if (parseArguments(*it, offset, selector)) {

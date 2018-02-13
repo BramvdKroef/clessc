@@ -12,9 +12,7 @@ LessRuleset* LessStylesheet::createLessRuleset(LessSelector &selector) {
   LessRuleset* r = new LessRuleset(selector, *this);
 
   addRuleset(*r);
-  for(it = selector.getSelectors().begin();
-      it != selector.getSelectors().end();
-      it++) {
+  for(it = selector.begin(); it != selector.end(); it++) {
     lessrulesets.insert(std::pair<TokenList, LessRuleset*>((*it), r));
   }
   return r;
@@ -42,8 +40,8 @@ LessMediaQuery* LessStylesheet::createLessMediaQuery(const TokenList &selector) 
 
 void LessStylesheet::deleteLessRuleset(LessRuleset& ruleset) {
   std::list<TokenList>::const_iterator it;
-  for(it = ruleset.getLessSelector().getSelectors().begin();
-      it != ruleset.getLessSelector().getSelectors().end();
+  for(it = ruleset.getLessSelector().begin();
+      it != ruleset.getLessSelector().end();
       it++) {
     lessrulesets.erase(*it);
   }
@@ -118,14 +116,6 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
     for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
       (*e_it).updateSelector((*r_it)->getSelector());
-      if ((*e_it).isAll()) {
-        // go through all rulesets and look for occurances of the extension target.
-        (*e_it).replaceInSelector((*r_it)->getSelector());
-
-      } else if ((*r_it)->getSelector().match((*e_it).getTarget())) {
-        // look for a ruleset that matches the extension target
-        (*r_it)->getSelector().appendSelector((*e_it).getExtension());
-      }
     }
   }
 }

@@ -7,43 +7,17 @@ Selector::Selector() {
 Selector::~Selector() {
 }
 
-std::list<TokenList> &Selector::getSelectors() {
-  return selectors;
-}
-const std::list<TokenList> &Selector::getSelectors() const {
-  return selectors;
-}
-
-TokenList &Selector::appendSelector(const TokenList &selector) {
-  selectors.push_back(selector);
-  return selectors.back();
-}
 void Selector::appendSelector(const Selector &selector) {
-  std::list<TokenList>::const_iterator it;
-  
-  for (it = selector.getSelectors().begin();
-       it != selector.getSelectors().end();
-       it++) {
-    
-    selectors.push_back(*it);
-  }
+  insert(end(), selector.begin(), selector.end());
 }
 
-TokenList &Selector::insertSelector(const std::list<TokenList>::const_iterator &pos,
-                                    const TokenList &selector) {
-  return *(selectors.insert(pos, selector));
-}
-
-void Selector::removeSelector(const std::list<TokenList>::iterator &pos) {
-  selectors.erase(pos);
-}
 
 const TokenList::const_iterator Selector::walk(const TokenList::const_iterator &t_begin,
                                                const TokenList::const_iterator &t_end) const {
-  std::list<TokenList>::const_iterator it;
+  const_iterator it;
   TokenList::const_iterator t_it1, t_it2;
   
-  for (it = selectors.begin(); it != selectors.end(); it++) {
+  for (it = begin(); it != end(); it++) {
     t_it1 = (*it).begin();
     t_it2 = t_begin;
     
@@ -85,10 +59,10 @@ bool Selector::match(const TokenList &tokens) const {
   return walk(tokens.begin(), tokens.end()) == tokens.end();
 }
 bool Selector::match(const Selector &selector) const {
-  std::list<TokenList>::const_iterator it;
+  const_iterator it;
   
-  for (it = selector.getSelectors().begin();
-       it != selector.getSelectors().end();
+  for (it = selector.begin();
+       it != selector.end();
        it++) {
     if (match(*it))
       return true;
@@ -98,14 +72,14 @@ bool Selector::match(const Selector &selector) const {
 
 bool Selector::replace(const TokenList &find,
                        const TokenList &replace) {
-  std::list<TokenList>::const_iterator s_it;
+  const_iterator s_it;
   
   TokenList::const_iterator t_it, t_match, t_start;
   TokenList newselector;
   bool ret = false;
 
-  for (s_it = getSelectors().begin();
-       s_it != getSelectors().end();
+  for (s_it = begin();
+       s_it != end();
        s_it++) {
 
     t_it = t_start = (*s_it).begin();
@@ -122,7 +96,7 @@ bool Selector::replace(const TokenList &find,
         t_it = t_start = t_match;
       }
       newselector.insert(newselector.end(), t_start, (*s_it).end());
-      appendSelector(newselector);
+      push_back(newselector);
       newselector.clear();
       ret = true;
     }
@@ -131,8 +105,8 @@ bool Selector::replace(const TokenList &find,
 }
 
 void Selector::addPrefix(const Selector &prefix) {
-  std::list<TokenList>::iterator it;
-  std::list<TokenList>::const_iterator it2;
+  iterator it;
+  const_iterator it2;
   TokenList tl;
   TokenList *inserted;
 
@@ -142,14 +116,14 @@ void Selector::addPrefix(const Selector &prefix) {
   
   bool containsAmp;
 
-  for (it = selectors.begin(); it != selectors.end(); ) {
+  for (it = begin(); it != end(); ) {
     tmp = &(*it);
     containsAmp = tmp->contains(Token::OTHER, "&");
     
-    for (it2 = prefix.getSelectors().begin();
-         it2 != prefix.getSelectors().end();
+    for (it2 = prefix.begin();
+         it2 != prefix.end();
          it2++) {
-      inserted = &insertSelector(it, tl);
+      inserted = &(*insert(it, tl));
       
       if (containsAmp) {
         for (tmp_it = tmp->begin(); tmp_it != tmp->end(); tmp_it++) {
@@ -164,17 +138,17 @@ void Selector::addPrefix(const Selector &prefix) {
         inserted->insert(inserted->end(), tmp->begin(), tmp->end());
       }
     }
-    it = selectors.erase(it);
+    it = erase(it);
   }
 
 }
 
 std::string Selector::toString() const {
   std::string str;
-  std::list<TokenList>::const_iterator it;
+  const_iterator it;
 
-  for (it = selectors.begin(); it != selectors.end(); it++) {
-    if (it != selectors.begin())
+  for (it = begin(); it != end(); it++) {
+    if (it != begin())
       str.append(", ");
     
     str.append((*it).toString());

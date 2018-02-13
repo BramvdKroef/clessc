@@ -25,8 +25,8 @@ TEST_F(CssSelectorParserTest, Simple) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  ASSERT_STREQ(".test", selector->getSelectors().back().toString().c_str());
+  ASSERT_EQ(1, selector->size());
+  ASSERT_STREQ(".test", selector->back().toString().c_str());
 }
 
 // .test1, .test2
@@ -41,9 +41,9 @@ TEST_F(CssSelectorParserTest, Multiple) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(2, selector->getSelectors().size());
-  ASSERT_STREQ(".test1", selector->getSelectors().front().toString().c_str());
-  ASSERT_STREQ(".test2", selector->getSelectors().back().toString().c_str());
+  ASSERT_EQ(2, selector->size());
+  ASSERT_STREQ(".test1", selector->front().toString().c_str());
+  ASSERT_STREQ(".test2", selector->back().toString().c_str());
 }
 
 // .test1(,) .test2
@@ -61,6 +61,6 @@ TEST_F(CssSelectorParserTest, Parentheses) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  ASSERT_STREQ(".test1(,) .test2", selector->getSelectors().front().toString().c_str());
+  ASSERT_EQ(1, selector->size());
+  ASSERT_STREQ(".test1(,) .test2", selector->front().toString().c_str());
 }

@@ -10,8 +10,9 @@ bool CssSelectorParser::parse(TokenList& tokens,
   
   while (begin != tokens.end()) {
     end = findComma(tokens, begin);
-    
-    newSelector = &selector.appendSelector(tmp);
+
+    selector.push_back(tmp);
+    newSelector = &selector.back();
     newSelector->assign(begin, end);
     newSelector->trim();
     

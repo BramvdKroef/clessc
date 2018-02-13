@@ -30,8 +30,8 @@ TEST_F(LessSelectorParserTest, Extension) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  ASSERT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  ASSERT_EQ(".test", selector->front().toString());
 
   ASSERT_EQ(1, selector->getExtensions().size());
   ASSERT_EQ(".mixin", selector->getExtensions().back().getTarget().toString());
@@ -56,13 +56,13 @@ TEST_F(LessSelectorParserTest, ExtensionMultiple1) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  ASSERT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  ASSERT_EQ(".test", selector->front().toString());
 
   ASSERT_EQ(1, selector->getExtensions().size());
   ASSERT_EQ(".test", selector->getExtensions().back().getExtension().toString());
 
-  ASSERT_EQ(2, selector->getExtensions().back().getTarget().getSelectors().size());
+  ASSERT_EQ(2, selector->getExtensions().back().getTarget().size());
   ASSERT_EQ(".mixin1, .mixin2", selector->getExtensions().back().getTarget().toString());
 }
 
@@ -86,8 +86,8 @@ TEST_F(LessSelectorParserTest, ExtensionMultiple2) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  ASSERT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  ASSERT_EQ(".test", selector->front().toString());
 
   ASSERT_EQ(2, selector->getExtensions().size());
   ASSERT_EQ(".mixin1", selector->getExtensions().front().getTarget().toString());
@@ -120,9 +120,9 @@ TEST_F(LessSelectorParserTest, ExtensionMultiple3) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(2, selector->getSelectors().size());
-  ASSERT_EQ(".test1", selector->getSelectors().front().toString());
-  ASSERT_EQ(".test2", selector->getSelectors().back().toString());
+  ASSERT_EQ(2, selector->size());
+  ASSERT_EQ(".test1", selector->front().toString());
+  ASSERT_EQ(".test2", selector->back().toString());
 
   ASSERT_EQ(2, selector->getExtensions().size());
   ASSERT_EQ(".mixin1", selector->getExtensions().front().getTarget().toString());
@@ -142,8 +142,8 @@ TEST_F(LessSelectorParserTest, Parameters) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   ASSERT_EQ(true, selector->needsArguments());
   ASSERT_EQ(0, selector->getParameters().size());
@@ -163,8 +163,8 @@ TEST_F(LessSelectorParserTest, Parameters2) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(true, selector->needsArguments());
   ASSERT_EQ(2, selector->getParameters().size());
@@ -187,8 +187,8 @@ TEST_F(LessSelectorParserTest, Defaults) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(true, selector->needsArguments());
   ASSERT_EQ(1, selector->getParameters().size());
@@ -211,8 +211,8 @@ TEST_F(LessSelectorParserTest, ParametersUnlimited) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(true, selector->needsArguments());
   ASSERT_EQ(1, selector->getParameters().size());
@@ -236,8 +236,8 @@ TEST_F(LessSelectorParserTest, ParametersRest) {
 
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(true, selector->needsArguments());
   ASSERT_EQ(1, selector->getParameters().size());
@@ -261,8 +261,8 @@ TEST_F(LessSelectorParserTest, Condition) {
   
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(false, selector->needsArguments());
   ASSERT_EQ(1, selector->getConditions().size());
@@ -286,8 +286,8 @@ TEST_F(LessSelectorParserTest, ParameterCondition) {
   
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(true, selector->needsArguments());
   ASSERT_EQ(1, selector->getConditions().size());
@@ -316,8 +316,8 @@ TEST_F(LessSelectorParserTest, ConditionMultiple) {
   
   parser.parse(tokens, *selector);
 
-  ASSERT_EQ(1, selector->getSelectors().size());
-  EXPECT_EQ(".test", selector->getSelectors().front().toString());
+  ASSERT_EQ(1, selector->size());
+  EXPECT_EQ(".test", selector->front().toString());
 
   EXPECT_EQ(false, selector->needsArguments());
   ASSERT_EQ(2, selector->getConditions().size());
