@@ -29,13 +29,7 @@ std::string TokenList::toString() const {
 }
 
 bool TokenList::contains(const Token &t) const {
-  std::list<Token>::const_iterator it;
-
-  for (it = begin(); it != end(); it++) {
-    if (*it == t)
-      return true;
-  }
-  return false;
+  return (find(t, begin()) != end());
 }
 
 bool TokenList::contains(Token::Type type, const std::string &str) const {
@@ -56,4 +50,31 @@ bool TokenList::containsType(Token::Type type) const {
       return true;
   }
   return false;
+}
+
+TokenList::const_iterator TokenList::find(const Token &search,
+                                    TokenList::const_iterator offset) const {
+  for (; offset != end(); offset++) {
+    if (*offset == search)
+      return offset;
+  }
+  return end();
+}
+
+TokenList::const_iterator TokenList::find(const TokenList &search,
+                                          TokenList::const_iterator &offset) const {
+  TokenList::const_iterator it, it2;
+  
+  while ((it = find(search.front(), offset)) != end()) {
+
+    for (it2 = search.begin();
+         it != end() && it2 != search.end() && *it == *it2;
+         it++, it2++) {
+    }
+    if (it2 == search.end())
+      return it;
+    else
+      offset++;
+  }
+  return begin();
 }

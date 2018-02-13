@@ -28,6 +28,11 @@ public:
   bool contains(const Token &t) const;
   bool contains(Token::Type t, const std::string &str) const;
   bool containsType(Token::Type t) const;
+
+  const_iterator find(const Token &find,
+                      const_iterator offset) const;
+  const_iterator find(const TokenList &find,
+                      const_iterator &offset) const;
 };
 
 #endif  // __less_TokenList_h__
