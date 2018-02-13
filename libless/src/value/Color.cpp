@@ -46,6 +46,7 @@ void Color::updateTokens() {
       stm << (color[i] & 0xFF);
       tokens.push_back(Token(stm.str(), Token::NUMBER, 0, 0, "generated"));
       tokens.push_back(Token::BUILTIN_COMMA);
+      tokens.push_back(Token::BUILTIN_SPACE);
     }
     stm.str("");
     stm << alpha;
