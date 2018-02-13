@@ -1,29 +1,33 @@
 #include "less/stylesheet/MediaQuery.h"
 
-Selector& MediaQuery::getSelector() {
+const Token MediaQuery::BUILTIN_AND(
+                                    "and", Token::IDENTIFIER, 0, 0, Token::BUILTIN_SOURCE);
+
+MediaQuery::MediaQuery(const TokenList &selector) : selector(selector) {
+}
+
+
+TokenList& MediaQuery::getSelector() {
   return selector;
 }
 
-const Selector& MediaQuery::getSelector() const {
+const TokenList& MediaQuery::getSelector() const {
   return selector;
 }
 
-void MediaQuery::setSelector(const Selector& s) {
-  selector = s;
-}
+MediaQuery* MediaQuery::createMediaQuery(const TokenList &selector) {
+  TokenList s = selector;
+  s.pop_front();
 
-MediaQuery* MediaQuery::createMediaQuery() {
-  MediaQuery* q = getStylesheet()->createMediaQuery();
-
-  q->setSelector(getSelector());
-
-  return q;
+  s.push_front(BUILTIN_AND);
+  s.push_front(Token::BUILTIN_SPACE);
+  s.insert(s.begin(), getSelector().begin(), getSelector().end());
+  
+  return getStylesheet()->createMediaQuery(s);
 }
 
 void MediaQuery::process(Stylesheet& s, void* context) const {
-  MediaQuery* query = s.createMediaQuery();
-
-  query->setSelector(getSelector());
+  MediaQuery* query = s.createMediaQuery(getSelector());
 
   Stylesheet::process(*query, context);
 }

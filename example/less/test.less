@@ -11,6 +11,13 @@
     content: @@var;
 }
 
+/*
+Multi-line comment
+*/
+.test-class {
+    color: #000;
+}
+
 /* Mixins */
 
 .bordered {
@@ -252,7 +259,7 @@ pre { .wrap  }
 
 /* Importing */
 
-@import "lib.less";
+@import "lib/lib.less";
 @import "lib.css";
 
 .lib-test {
@@ -287,6 +294,28 @@ video {
 audio:not([controls]) {
     display: none;
 }
+:dir(rtl) {
+    text-align: left;
+}
+p:lang(en) {
+    quotes: '\201C' '\201D' '\2018' '\2019';
+}
+:not(p) {
+  color: blue;
+}
+:nth-child(4n) {
+  color: lime;
+}
+:nth-last-child(4n) {
+  color: lime;
+}
+p:nth-last-of-type(4n) {
+  color: lime;
+}
+p:nth-of-type(even) {
+  color: lime;
+}
+
 
 .mixin5 (@a) when (lightness(@a) >= 50%) {
   background-color: black;
@@ -340,15 +369,15 @@ body {
 }
 
 .test5 {
-    @image: url('test.png');
-    background: url(test.png) no-repeat;
-    width: imgwidth(@image);
-    height: imgheight(@image);
+    @image: url('../test.png');
+    background: url(../test.png) no-repeat;
+    width-png: image-width(@image);
+    heigh-png: image-height(@image);
     background-color: imgbackground(@image);
 
-    @image2: url('test.jpg');
-    width-jpg: imgwidth(@image2);
-    height-jpg: imgheight(@image2);
+    @image2: url('../test.jpg');
+    width-jpg: image-width(@image2);
+    height-jpg: image-height(@image2);
     background-color-jpg: imgbackground(@image2);
 }
 
@@ -367,7 +396,7 @@ body {
     .test(10px);
 }
 
-@name: "blocked";
+@name: blocked;
 
 .@{name}{
     color: #000;
@@ -379,7 +408,7 @@ body {
     }
 }
 .class {
-    .mixin6('blocked', #FFF);
+    .mixin6(blocked, #FFF);
 }
 
 /* Reference a mixin before it is declared. */
@@ -396,8 +425,8 @@ body {
 }
 
 .loop(@counter) when (@counter > 0) {
-  .loop((@counter - 1));    // next iteration
-  width: (10px * @counter); // code for each iteration
+    .loop((@counter - 1));    // next iteration
+    width: (10px * @counter); // code for each iteration
 }
 
 div {

@@ -13,14 +13,15 @@
 
 class MediaQueryRuleset : public LessRuleset {
 private:
-  static const Token BUILTIN_AND;
+  TokenList selector;
 
 public:
-  MediaQueryRuleset();
+  MediaQueryRuleset(TokenList &selector,
+                    const LessRuleset& parent);
   virtual ~MediaQueryRuleset();
 
   virtual void process(Stylesheet &s,
-                       Selector *prefix,
+                       const Selector *prefix,
                        ProcessingContext &context) const;
 };
 

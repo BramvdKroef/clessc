@@ -6,6 +6,9 @@
 #include "less/TokenList.h"
 #include "less/css/CssTokenizer.h"
 #include "less/stylesheet/Stylesheet.h"
+#include "less/css/CssSelectorParser.h"
+
+class Declaration;
 
 using namespace std;
 
@@ -34,7 +37,8 @@ using namespace std;
 class CssParser {
 protected:
   CssTokenizer *tokenizer;
-
+  CssSelectorParser selectorParser;
+  
   /**
    * Parse whitespace tokens and comments and skip them.
    */
@@ -96,7 +100,7 @@ protected:
    * @return a list of tokens or NULL if no
    *    selector was found.
    */
-  virtual bool parseSelector(Selector &selector);
+  virtual bool parseSelector(TokenList &selector);
 
   /**
    * Parses a 'property: value' pair.

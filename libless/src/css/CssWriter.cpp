@@ -1,4 +1,5 @@
 #include "less/css/CssWriter.h"
+#include "less/stylesheet/Selector.h"
 
 CssWriter::CssWriter() {
   out = NULL;
@@ -60,20 +61,23 @@ void CssWriter::writeTokenList(const TokenList &tokens) {
   }
 }
 
-void CssWriter::writeSelector(const TokenList &selector) {
-  TokenList::const_iterator it;
-  bool newselector = true;
+void CssWriter::writeSelector(const Selector &selector) {
+  std::list<TokenList>::const_iterator s_it;
+  TokenList::const_iterator token;
 
-  for (it = selector.begin(); it != selector.end(); it++) {
-    if (newselector && sourcemap != NULL) {
-      sourcemap->writeMapping(column, *it);
-      newselector = false;
+  for(s_it = selector.begin();
+      s_it != selector.end();
+      s_it++) {
+
+    if (s_it != selector.begin())
+        writeStr(",", 1);
+
+    for (token = (*s_it).begin(); token != (*s_it).end(); token++) {
+      if (sourcemap != NULL && token == (*s_it).begin()) 
+        sourcemap->writeMapping(column, *token);
+      
+      writeToken(*token);
     }
-
-    writeToken(*it);
-
-    if ((*it) == ",")
-      newselector = true;
   }
 }
 
@@ -117,9 +121,9 @@ void CssWriter::writeAtRule(const Token &keyword, const TokenList &rule) {
     writeStr(";", 1);
 }
 
-void CssWriter::writeRulesetStart(const TokenList &selector) {
+void CssWriter::writeRulesetStart(const Selector &selector) {
   writeSelector(selector);
-
+  
   writeStr("{", 1);
 }
 
@@ -161,7 +165,15 @@ void CssWriter::writeComment(const Token &comment) {
 }
 
 void CssWriter::writeMediaQueryStart(const TokenList &selector) {
-  writeSelector(selector);
+  TokenList::const_iterator token;
+
+  for (token = selector.begin(); token != selector.end(); token++) {
+    if (sourcemap != NULL && token == selector.begin()) 
+      sourcemap->writeMapping(column, *token);
+      
+    writeToken(*token);
+  }
+
   writeStr("{", 1);
 }
 

@@ -31,7 +31,7 @@ class Closure;
 class LessRuleset : public Ruleset, public Function {
 protected:
   VariableMap variables;
-  list<LessRuleset *> nestedRules;
+  std::list<LessRuleset *> nestedRules;
   std::list<Closure *> closures;
   std::list<Extension> extensions;
 
@@ -42,14 +42,14 @@ protected:
   std::list<LessAtRule *> lessAtRules;
 
   const LessRuleset *parent;
-  LessStylesheet *lessStylesheet;
+  const LessStylesheet *lessStylesheet;
   LessSelector *selector;
 
   ProcessingContext *context;
 
   void processVariables();
   void insertNestedRules(Stylesheet &s,
-                         Selector *prefix,
+                         const Selector *prefix,
                          ProcessingContext &context) const;
 
   void addClosures(ProcessingContext &context) const;
@@ -60,20 +60,22 @@ protected:
             Stylesheet* stylesheet,
             bool defaultVal = false) const;
 public:
-  LessRuleset();
-  LessRuleset(const Selector &selector);
+  LessRuleset(LessSelector &selector,
+              const LessRuleset& parent);
+  LessRuleset(LessSelector &selector,
+              const LessStylesheet& parent);
+  
   virtual ~LessRuleset();
 
-  virtual void setSelector(const Selector &selector);
-  virtual LessSelector *getLessSelector() const;
+  virtual const LessSelector& getLessSelector() const;
 
   void addExtension(Extension &extension);
     
   LessDeclaration *createLessDeclaration();
-  Mixin *createMixin();
+  Mixin *createMixin(const TokenList &selector);
   LessAtRule *createLessAtRule(const Token& keyword);
-  LessRuleset *createNestedRule();
-  MediaQueryRuleset *createMediaQuery();
+  LessRuleset *createNestedRule(LessSelector &selector);
+  MediaQueryRuleset *createMediaQuery(TokenList &selector);
 
   void deleteNestedRule(LessRuleset &ruleset);
 
@@ -97,12 +99,13 @@ public:
   void setParent(const LessRuleset *r);
   const LessRuleset *getParent() const;
 
-  void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet *getLessStylesheet() const;
+  void setLessStylesheet(const LessStylesheet &stylesheet);
+  const LessStylesheet *getLessStylesheet() const;
 
-  void processExtensions(ProcessingContext &context, Selector *prefix) const;
+  void processExtensions(ProcessingContext &context,
+                         const Selector *prefix) const;
   void processInlineExtensions(ProcessingContext& context,
-                               Selector &selector) const;
+                               const Selector &selector) const;
 
   virtual bool call(MixinArguments &args,
                     Ruleset &target,
@@ -118,7 +121,7 @@ public:
   void processStatements(Stylesheet &target, void* context) const;
   virtual void process(Stylesheet &s, void* context) const;
   virtual void process(Stylesheet &s,
-                       Selector *prefix,
+                       const Selector *prefix,
                        ProcessingContext &context) const;
 
   const TokenList* getVariable(const std::string& key,

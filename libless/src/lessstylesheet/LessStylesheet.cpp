@@ -7,40 +7,45 @@ LessStylesheet::LessStylesheet() {
 LessStylesheet::~LessStylesheet() {
 }
 
-LessRuleset* LessStylesheet::createLessRuleset() {
-  LessRuleset* r = new LessRuleset();
+LessRuleset* LessStylesheet::createLessRuleset(LessSelector &selector) {
+  std::list<TokenList>::iterator it;
+  LessRuleset* r = new LessRuleset(selector, *this);
 
   addRuleset(*r);
-  lessrulesets.push_back(r);
-  r->setLessStylesheet(*this);
+  for(it = selector.begin(); it != selector.end(); it++) {
+    lessrulesets.insert(std::pair<TokenList, LessRuleset*>((*it), r));
+  }
   return r;
 }
 
-Mixin* LessStylesheet::createMixin() {
-  Mixin* m = new Mixin();
+Mixin* LessStylesheet::createMixin(const TokenList &selector) {
+  Mixin* m = new Mixin(selector, *this);
 
   addStatement(*m);
-  m->setLessStylesheet(*this);
   return m;
 }
 
 LessAtRule* LessStylesheet::createLessAtRule(const Token& keyword) {
   LessAtRule* atrule = new LessAtRule(keyword);
   addAtRule(*atrule);
-  atrule->setLessStylesheet(*this);
   return atrule;
 }
 
-LessMediaQuery* LessStylesheet::createLessMediaQuery() {
-  LessMediaQuery* q = new LessMediaQuery();
+LessMediaQuery* LessStylesheet::createLessMediaQuery(const TokenList &selector) {
+  LessMediaQuery* q = new LessMediaQuery(selector, *this);
 
   addStatement(*q);
-  q->setLessStylesheet(*this);
   return q;
 }
 
 void LessStylesheet::deleteLessRuleset(LessRuleset& ruleset) {
-  lessrulesets.remove(&ruleset);
+  std::list<TokenList>::const_iterator it;
+  for(it = ruleset.getLessSelector().begin();
+      it != ruleset.getLessSelector().end();
+      it++) {
+    lessrulesets.erase(*it);
+  }
+
   deleteStatement(ruleset);
 }
 
@@ -51,12 +56,24 @@ void LessStylesheet::deleteMixin(Mixin& mixin) {
 void LessStylesheet::getFunctions(std::list<const Function*>& functionList,
                                   const Mixin& mixin,
                                   const ProcessingContext &context) const {
-  std::list<LessRuleset*>::const_iterator i;
+  std::multimap<TokenList,LessRuleset*>::const_iterator i, low, up;
   const std::list<Closure*>* closures;
   std::list<Closure*>::const_iterator c_it;
+  TokenList::const_iterator t_it;
+  TokenList search;
+  for(t_it = mixin.name.begin();
+      t_it != mixin.name.end() &&
+        (*t_it).type != Token::WHITESPACE &&
+        (*t_it) != ">";
+      t_it++) {
+    search.push_back(*t_it);
+  }
 
-  for (i = lessrulesets.begin(); i != lessrulesets.end(); i++) {
-    (*i)->getFunctions(functionList, mixin, mixin.name.begin(), context);
+  low = lessrulesets.lower_bound(search);
+  up = lessrulesets.upper_bound(search);
+
+  for (i = low; i != up; i++) {
+    (*i).second->getFunctions(functionList, mixin, mixin.name.begin(), context);
   }
   
   closures = context.getBaseClosures();
@@ -88,6 +105,7 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   std::list<Ruleset*>::const_iterator r_it;
   std::list<Extension>::iterator e_it;
   std::list<Closure*> closureScope;
+  Selector* selector;
 
   ((ProcessingContext*)context)->setLessStylesheet(*this);
   Stylesheet::process(s, context);
@@ -95,8 +113,8 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   // post processing
   extensions = &((ProcessingContext*)context)->getExtensions();
 
-  for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
-    for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
+  for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
+    for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
       (*e_it).updateSelector((*r_it)->getSelector());
     }
   }

@@ -1,4 +1,9 @@
 #include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/AtRule.h"
+#include "less/stylesheet/CssComment.h"
+#include "less/stylesheet/MediaQuery.h"
+#include "less/stylesheet/Ruleset.h"
+#include "less/stylesheet/StylesheetStatement.h"
 
 Stylesheet::~Stylesheet() {
   rulesets.clear();
@@ -22,19 +27,9 @@ void Stylesheet::addAtRule(AtRule& rule) {
   atrules.push_back(&rule);
 }
 
-Ruleset* Stylesheet::createRuleset() {
-  Ruleset* r = new Ruleset();
-
-  addRuleset(*r);
-
-  return r;
-}
-
-Ruleset* Stylesheet::createRuleset(const Selector& selector) {
+Ruleset* Stylesheet::createRuleset(Selector& selector) {
   Ruleset* r = new Ruleset(selector);
-
   addRuleset(*r);
-
   return r;
 }
 
@@ -52,8 +47,8 @@ CssComment* Stylesheet::createComment() {
   return c;
 }
 
-MediaQuery* Stylesheet::createMediaQuery() {
-  MediaQuery* q = new MediaQuery();
+MediaQuery* Stylesheet::createMediaQuery(const TokenList &selector) {
+  MediaQuery* q = new MediaQuery(selector);
 
   addStatement(*q);
   return q;

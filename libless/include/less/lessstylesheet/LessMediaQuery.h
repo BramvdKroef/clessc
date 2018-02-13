@@ -16,19 +16,18 @@
 
 class LessMediaQuery : public LessStylesheet, public StylesheetStatement {
 private:
-  Selector selector;
-  LessStylesheet *parent;
+  TokenList selector;
+  const LessStylesheet *parent;
 
 public:
-  LessMediaQuery();
+  LessMediaQuery(const TokenList &selector, const LessStylesheet &parent);
   virtual ~LessMediaQuery();
 
-  Selector *getSelector();
-  const Selector *getSelector() const;
-  void setSelector(const Selector &s);
+  TokenList &getSelector();
+  const TokenList &getSelector() const;
+  void setSelector(const TokenList &s);
 
-  virtual void setLessStylesheet(LessStylesheet &parent);
-  LessStylesheet *getLessStylesheet() const;
+  const LessStylesheet &getLessStylesheet() const;
 
   virtual void getFunctions(std::list<const Function *> &functionList,
                             const Mixin &mixin,

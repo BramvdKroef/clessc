@@ -8,6 +8,7 @@
 
 #include "less/css/CssParser.h"
 #include "less/css/CssTokenizer.h"
+#include "less/less/LessSelectorParser.h"
 #include "less/lessstylesheet/LessMediaQuery.h"
 #include "less/lessstylesheet/LessRuleset.h"
 #include "less/lessstylesheet/LessStylesheet.h"
@@ -64,13 +65,17 @@ public:
 
   virtual void parseStylesheet(LessStylesheet &stylesheet);
 
-  bool parseRuleset(Selector &selector,
+  bool parseRuleset(TokenList &selector,
                     LessStylesheet *stylesheet,
                     LessRuleset *parentRuleset);
+  bool parseMixin(TokenList &tokens,
+                  LessRuleset *parent_r,
+                  LessStylesheet *parent_s);
 protected:
   std::list<const char *> &sources;
   bool reference;
-
+  LessSelectorParser lessSelectorParser;
+  
   /**
    * Skip comments only if they are LESS comments, not CSS comments.
    */
@@ -93,25 +98,27 @@ protected:
   bool parseAtRuleValue(TokenList &rule);
 
   bool parseVariable(TokenList &value);
-  bool parseSelector(Selector &selector);
-  bool parseSelectorVariable(Selector &selector);
+  bool parseSelector(TokenList &selector);
+  bool parseSelectorVariable(TokenList &selector);
 
-  bool parseRuleset(LessStylesheet &parent, Selector &selector);
-  bool parseRuleset(LessRuleset &parent, Selector &selector);
+  bool parseRuleset(LessStylesheet &parent, TokenList &selector);
+  bool parseRuleset(LessRuleset &parent, TokenList &selector);
 
   void parseMediaQueryRuleset(Token &mediatoken,
                               LessRuleset &parent);
 
-  bool parsePropertyVariable(Selector &selector);
+  bool parsePropertyVariable(TokenList &selector);
   bool parseRulesetStatement(LessRuleset &parent);
 
   bool parseComment(LessRuleset& ruleset);
-  bool parseExtension(Selector &statement, LessRuleset &ruleset);
-  bool parseDeclaration(Selector &tokens,
+  bool parseExtension(TokenList &statement, LessRuleset &ruleset);
+  bool parseDeclaration(TokenList &tokens,
                         size_t property_i,
                         LessRuleset &ruleset);
+
   bool parseMixin(TokenList &tokens, LessStylesheet &stylesheet);
   bool parseMixin(TokenList &tokens, LessRuleset &ruleset);
+
   void parseMixinArguments(TokenList::const_iterator &i,
                            const TokenList &tokens,
                            Mixin &mixin);

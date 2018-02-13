@@ -3,21 +3,17 @@
 
 #include "less/stylesheet/AtRule.h"
 #include "less/stylesheet/Stylesheet.h"
+#include "less/stylesheet/RulesetStatement.h"
 
 #include "less/Token.h"
 
 class LessStylesheet;
 
 class LessAtRule : public AtRule, public RulesetStatement {
-private:
-  LessStylesheet *lessStylesheet;
 
 public:
   LessAtRule(const Token &keyword);
   virtual ~LessAtRule();
-
-  void setLessStylesheet(LessStylesheet &stylesheet);
-  LessStylesheet *getLessStylesheet();
 
   virtual void process(Stylesheet &s, void* context) const;
   virtual void process(Ruleset& r, void* context) const;

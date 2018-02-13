@@ -34,12 +34,12 @@ public:
   }
   virtual ~Stylesheet();
 
-  Ruleset *createRuleset();
-  Ruleset *createRuleset(const Selector &selector);
+  Ruleset *createRuleset(Selector &selector);
 
   AtRule *createAtRule(const Token &keyword);
-  virtual MediaQuery *createMediaQuery();
 
+  virtual MediaQuery *createMediaQuery(const TokenList &selector);
+  
   CssComment *createComment();
 
   void deleteRuleset(Ruleset &ruleset);
@@ -52,14 +52,10 @@ public:
 
   virtual Ruleset *getRuleset(const Selector &selector) const;
 
+  void updateRulesetSelector(const Ruleset &ruleset);
+  
   virtual void process(Stylesheet &s, void* context) const;
   virtual void write(CssWriter &writer) const;
 };
-
-#include "less/stylesheet/AtRule.h"
-#include "less/stylesheet/CssComment.h"
-#include "less/stylesheet/MediaQuery.h"
-#include "less/stylesheet/Ruleset.h"
-#include "less/stylesheet/StylesheetStatement.h"
 
 #endif  // __less_stylesheet_Stylesheet_h__

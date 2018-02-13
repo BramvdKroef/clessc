@@ -26,6 +26,9 @@ if (GTest_FOUND)
     set(testlessc_SOURCES
             tests/CssParser_test.cpp
             tests/CssTokenizer_test.cpp
+            tests/CssSelectorParser_test.cpp
+            tests/LessRuleset_test.cpp
+            tests/LessSelectorParser_test.cpp
             tests/LessParser_test.cpp
             tests/ValueProcessor_test.cpp
             )

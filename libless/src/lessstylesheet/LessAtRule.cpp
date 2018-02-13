@@ -6,13 +6,6 @@ LessAtRule::LessAtRule(const Token &keyword) : AtRule(keyword) {
 LessAtRule::~LessAtRule() {
 }
 
-void LessAtRule::setLessStylesheet(LessStylesheet &s) {
-  lessStylesheet = &s;
-}
-
-LessStylesheet *LessAtRule::getLessStylesheet() {
-  return lessStylesheet;
-}
 
 void LessAtRule::process(Stylesheet &s, void* context) const {
   AtRule *target = s.createAtRule(getKeyword());

@@ -3,17 +3,15 @@
  
 Ruleset::Ruleset() {
 }
-Ruleset::Ruleset(const Selector& selector) {
-  this->selector = selector;
+Ruleset::Ruleset(Selector& selector): selector(&selector) {
 }
 
 Ruleset::~Ruleset() {
+  if (selector != NULL)
+    delete selector;
   clearStatements();
 }
 
-void Ruleset::setSelector(const Selector& selector) {
-  this->selector = selector;
-}
 void Ruleset::addStatement(RulesetStatement& statement) {
   statements.push_back(&statement);
   statement.setRuleset(this);
@@ -55,11 +53,16 @@ void Ruleset::addDeclarations(std::list<Declaration>& declarations) {
   }
 }
 
+void Ruleset::setSelector(Selector &selector) {
+  delete this->selector;
+  this->selector = &selector;
+}
+
 Selector& Ruleset::getSelector() {
-  return selector;
+  return *selector;
 }
 const Selector& Ruleset::getSelector() const {
-  return selector;
+  return *selector;
 }
 const std::list<RulesetStatement*>& Ruleset::getStatements() const {
   return statements;
@@ -86,9 +89,9 @@ void Ruleset::processStatements(Ruleset& target, void *context) const {
 }
 
 void Ruleset::process(Stylesheet& s, void* context) const {
-  Ruleset* target = s.createRuleset();
+  Selector* selector = new Selector(getSelector());
+  Ruleset* target = s.createRuleset(*selector);
 
-  target->setSelector(getSelector());
   processStatements(*target, context);
 }
 

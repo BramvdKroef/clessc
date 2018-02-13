@@ -1,5 +1,8 @@
 #include "less/css/CssParser.h"
 #include <iostream>
+#include "less/stylesheet/MediaQuery.h"
+#include "less/stylesheet/AtRule.h"
+#include "less/stylesheet/Ruleset.h"
 
 CssParser::CssParser(CssTokenizer& tokenizer) {
   this->tokenizer = &tokenizer;
@@ -72,21 +75,22 @@ bool CssParser::parseStatement(Stylesheet& stylesheet) {
 }
 
 MediaQuery* CssParser::parseMediaQuery(Stylesheet& stylesheet) {
+  TokenList selector;
   MediaQuery* query;
 
   if (tokenizer->getTokenType() != Token::ATKEYWORD ||
       tokenizer->getToken() != "@media")
     return NULL;
 
-  query = stylesheet.createMediaQuery();
-
-  query->getSelector().push_back(tokenizer->getToken());
+  selector.push_back(tokenizer->getToken());
 
   tokenizer->readNextToken();
   skipWhitespace();
 
-  parseSelector(query->getSelector());
+  parseSelector(selector);
 
+  query = stylesheet.createMediaQuery(selector);
+  
   if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
     throw new ParseException(tokenizer->getToken(), "{");
   }
@@ -167,7 +171,8 @@ bool CssParser::parseBlock(TokenList& tokens) {
 
 Ruleset* CssParser::parseRuleset(Stylesheet& stylesheet) {
   Ruleset* ruleset;
-  Selector selector;
+  TokenList selector;
+  Selector* s;
 
   if (!parseSelector(selector)) {
     if (tokenizer->getTokenType() != Token::BRACKET_OPEN) {
@@ -179,7 +184,9 @@ Ruleset* CssParser::parseRuleset(Stylesheet& stylesheet) {
   }
   tokenizer->readNextToken();
 
-  ruleset = stylesheet.createRuleset(selector);
+  s = new Selector();
+  selectorParser.parse(selector, *s);
+  ruleset = stylesheet.createRuleset(*s);
 
   skipWhitespace();
   parseDeclaration(*ruleset);
@@ -200,7 +207,7 @@ Ruleset* CssParser::parseRuleset(Stylesheet& stylesheet) {
   return ruleset;
 }
 
-bool CssParser::parseSelector(Selector& selector) {
+bool CssParser::parseSelector(TokenList& selector) {
   if (!parseAny(selector))
     return false;
 

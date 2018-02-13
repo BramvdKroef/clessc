@@ -1,70 +1,61 @@
 #include "less/lessstylesheet/Extension.h"
 
-Extension::Extension() {
-  all = false;
+Extension::Extension(): all(false){
 }
 
-Extension::Extension(bool all) {
-  all = true;
-}
 Extension::~Extension() {
 }
 
 Selector &Extension::getTarget() {
   return target;
 }
-void Extension::setTarget(Selector &selector) {
-  target = selector;
-}
 
 Selector &Extension::getExtension() {
   return extension;
 }
 
-void Extension::setExtension(Selector &selector) {
-  extension = selector;
+const Selector &Extension::getTarget() const {
+  return target;
 }
 
-void Extension::updateSelector(Selector &s) const {
-  if (target.back() == "all") {
-    replaceInSelector(s);
-  } else if (s.match(target)) {
+const Selector &Extension::getExtension() const {
+  return extension;
+}
 
-    // add comma and selector
-    s.push_back(Token::BUILTIN_COMMA);
-    s.insert(s.end(), extension.begin(), extension.end());
+void Extension::setExtension(const Selector &s) {
+  extension = s;
+}
+
+
+void Extension::setAll(bool b) {
+  all = b;
+}
+bool Extension::isAll() const {
+  return all;
+}
+
+
+void Extension::updateSelector(Selector &s) const {
+  if (isAll()) {
+    replaceInSelector(s);
+    
+  } else if (s.match(target)) {
+    s.appendSelector(extension);
   }
 }
 void Extension::replaceInSelector(Selector &s) const {
-  Selector t = target;
-  Selector::const_iterator end, pos, first, last;
-  t.pop_back();
-  t.rtrim();
+  std::list<TokenList>::const_iterator it1, it2;
 
-  end = s.end();
+  for (it1 = target.begin();
+       it1 != target.end(); it1++) {
 
-  for (first = s.begin(); first != end;) {
-    last = s.findComma(first, end);
-    pos = s.find(t, first, last);
+    for (it2 = extension.begin();
+         it2 != extension.end(); it2++) {
 
-    if (pos != last) {
-
-      s.push_back(Token::BUILTIN_COMMA);
-
-      // fix position of <code>last</code>. If <code>last ==
-      // end</code> it moves up as tokens are inserted, and we want it
-      // to stay where it is.
-      if (last == end)
-        last--;
-
-      s.insert(s.end(), first, pos);
-      s.insert(s.end(), extension.begin(), extension.end());
-      pos = s.walk(t, pos);
-      s.insert(s.end(), pos, last);
+      // If no matches are found, there is no need to try other extension
+      // selectors.
+      if (! s.replace(*it1, *it2))
+        break;
     }
-
-    first = last;
-    if (first != end)
-      first++;
   }
 }

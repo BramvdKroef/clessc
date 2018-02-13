@@ -11,18 +11,21 @@ private:
   Selector target;
   Selector extension;
   bool all;
-
+  
 public:
   Extension();
-  Extension(bool all);
   virtual ~Extension();
 
   Selector& getTarget();
-  void setTarget(Selector& target);
-
   Selector& getExtension();
+  
+  const Selector& getTarget() const;
+  const Selector& getExtension() const;
 
-  void setExtension(Selector& selector);
+  void setExtension(const Selector &extension);
+
+  void setAll(bool b);
+  bool isAll() const;
 
   void updateSelector(Selector& s) const;
   void replaceInSelector(Selector& s) const;

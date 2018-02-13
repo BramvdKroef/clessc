@@ -19,8 +19,7 @@ class LessMediaQuery;
 
 class LessStylesheet : public Stylesheet {
 private:
-  std::list<LessRuleset *> lessrulesets;
-  std::list<Closure *> closures;
+  std::multimap<TokenList, LessRuleset *> lessrulesets;
 
   VariableMap variables;
 
@@ -28,12 +27,12 @@ public:
   LessStylesheet();
   virtual ~LessStylesheet();
 
-  LessRuleset *createLessRuleset();
+  LessRuleset *createLessRuleset(LessSelector &selector);
   
-  Mixin *createMixin();
+  Mixin *createMixin(const TokenList &selector);
   LessAtRule *createLessAtRule(const Token &keyword);
 
-  LessMediaQuery *createLessMediaQuery();
+  LessMediaQuery *createLessMediaQuery(const TokenList &selector);
 
   void deleteLessRuleset(LessRuleset &ruleset);
   void deleteMixin(Mixin &mixin);

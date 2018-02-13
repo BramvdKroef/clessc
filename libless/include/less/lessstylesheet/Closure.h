@@ -33,7 +33,7 @@ public:
                                  const Mixin &mixin,
                                  const ProcessingContext &context) const;
 
-  virtual LessSelector *getLessSelector() const;
+  virtual const LessSelector &getLessSelector() const;
 
   virtual const TokenList *getVariable(const std::string &key,
                                        const ProcessingContext &context) const;
