@@ -176,8 +176,8 @@ TEST(ValueProcessorTest, ColorOperations) {
 
   vp.processValue(l, c);
   
-  ASSERT_EQ((uint)10, l.size());
-  EXPECT_STREQ("rgba(10,10,10,0.1)", l.toString().c_str());
+  ASSERT_EQ((uint)13, l.size());
+  EXPECT_STREQ("rgba(10, 10, 10, 0.1)", l.toString().c_str());
 
   l.clear();
   l.push_back(Token("lighten", Token::IDENTIFIER,0, 0, "-"));
@@ -254,8 +254,8 @@ TEST(ValueProcessorTest, ColorOperations) {
 
   vp.processValue(l, c);
   
-  ASSERT_EQ((uint)10, l.size());
-  EXPECT_STREQ("rgba(10,10,10,0.2)", l.toString().c_str());
+  ASSERT_EQ((uint)13, l.size());
+  EXPECT_STREQ("rgba(10, 10, 10, 0.2)", l.toString().c_str());
 
   l.clear();
   l.push_back(Token("fadeout", Token::IDENTIFIER,0, 0, "-"));
@@ -267,8 +267,8 @@ TEST(ValueProcessorTest, ColorOperations) {
 
   vp.processValue(l, c);
   
-  ASSERT_EQ((uint)10, l.size());
-  EXPECT_STREQ("rgba(10,10,10,0.9)", l.toString().c_str());
+  ASSERT_EQ((uint)13, l.size());
+  EXPECT_STREQ("rgba(10, 10, 10, 0.9)", l.toString().c_str());
 }
 
 TEST(ValueProcessorTest, FunctionErrors) {

@@ -154,7 +154,7 @@ TEST_F(LessParserTest, ParameterMatching) {
   p->parseStylesheet(*less);
   less->process(*css, context);
   css->write(*writer);
-  ASSERT_STREQ(".test mixin2a{color:#000}.test mixin2b{color:rgba(0,0,0,0.5)}", out->str().c_str());
+  ASSERT_STREQ(".test mixin2a{color:#000}.test mixin2b{color:rgba(0, 0, 0, 0.5)}", out->str().c_str());
 }
 
 TEST_F(LessParserTest, Arguments) {
@@ -297,7 +297,7 @@ TEST_F(LessParserTest, ColorOps) {
   p->parseStylesheet(*less);
   less->process(*css, context);
   css->write(*writer);
-  ASSERT_STREQ(".class{color:#ed2c2c;color:#a50e0e;color:#e00606;color:#c91d1d;color:#d41212;color:rgba(212,18,18,0.9);color:#d43212;color:#d41232;color:#f1dada;clip:rect(1px, 1px, 1px, 1px)}", out->str().c_str());
+  ASSERT_STREQ(".class{color:#ed2c2c;color:#a50e0e;color:#e00606;color:#c91d1d;color:#d41212;color:rgba(212, 18, 18, 0.9);color:#d43212;color:#d41232;color:#f1dada;clip:rect(1px, 1px, 1px, 1px)}", out->str().c_str());
 } 
 
 TEST_F(LessParserTest, Namespace) {
