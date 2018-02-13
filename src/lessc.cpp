@@ -249,12 +249,13 @@ void writeOutput(Stylesheet &css,
 void writeDependencies(const char* output, const std::list<const char*> &sources) {
   std::list<const char *>::const_iterator i;
 
-  cout << output << ": ";
+  cout << output << ":";
 
   for (i = sources.begin(); i != sources.end(); i++) {
-    if (i != sources.begin())
+    if (*i != output) {
       cout << " ";
-    cout << (*i);
+      cout << (*i);
+    }
   }
   cout << endl;
 }
@@ -393,7 +394,7 @@ output file." << endl;
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (depends) {
-        writeDependencies(output, sources);
+        writeDependencies(source, sources);
         return EXIT_SUCCESS;
       }
 
