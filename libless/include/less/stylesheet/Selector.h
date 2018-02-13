@@ -37,17 +37,13 @@ public:
             TokenList::const_iterator &it2,
             const TokenList::const_iterator &it2_end) const;
 
-  TokenList::const_iterator find(const TokenList &list,
-                                 TokenList::const_iterator offset,
-                                 const TokenList::const_iterator limit) const;
-
   bool match(const TokenList &tokens) const;
   bool match(const Selector &selector) const;
   int compare(const TokenList &tokens,
               TokenList::const_iterator offset,
               const TokenList::const_iterator end) const;
-  void replace(const TokenList &search,
-               const Selector &replace);
+  bool replace(const TokenList &search,
+               const TokenList &replace);
 
   void addPrefix(const Selector &prefix);
 

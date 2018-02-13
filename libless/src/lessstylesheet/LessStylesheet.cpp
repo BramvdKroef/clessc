@@ -117,6 +117,7 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
 
   for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
     for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
+      (*e_it).updateSelector((*r_it)->getSelector());
       if ((*e_it).isAll()) {
         // go through all rulesets and look for occurances of the extension target.
         (*e_it).replaceInSelector((*r_it)->getSelector());

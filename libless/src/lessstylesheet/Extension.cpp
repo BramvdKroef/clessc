@@ -39,17 +39,23 @@ void Extension::updateSelector(Selector &s) const {
   if (isAll()) {
     replaceInSelector(s);
     
-    //} else if (s.match(target)) {
-    
-    // add comma and selector
-    //s.appendSelector(extension);
+  } else if (s.match(target)) {
+    s.appendSelector(extension);
   }
 }
 void Extension::replaceInSelector(Selector &s) const {
-  std::list<TokenList>::const_iterator it;
+  std::list<TokenList>::const_iterator it1, it2;
 
-  for (it = target.getSelectors().begin();
-       it != target.getSelectors().end(); it++) {
-    s.replace(*it, extension);
+  for (it1 = target.getSelectors().begin();
+       it1 != target.getSelectors().end(); it1++) {
+
+    for (it2 = extension.getSelectors().begin();
+         it2 != extension.getSelectors().end(); it2++) {
+
+      // If no matches are found, there is no need to try other extension
+      // selectors.
+      if (! s.replace(*it1, *it2))
+        break;
+    }
   }
 }

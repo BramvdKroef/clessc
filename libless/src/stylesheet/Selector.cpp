@@ -96,23 +96,38 @@ bool Selector::match(const Selector &selector) const {
   return false;
 }
 
-TokenList::const_iterator Selector::find(
-    const TokenList &list,
-    TokenList::const_iterator offset,
-    const TokenList::const_iterator limit) const {
-  TokenList::const_iterator it;
+bool Selector::replace(const TokenList &find,
+                       const TokenList &replace) {
+  std::list<TokenList>::const_iterator s_it;
   
-  for (; offset != limit; offset++) {
-    it = list.begin();
-    walk(it, list.end(), offset, limit);
-    if (it == list.end())
-      return it;
+  TokenList::const_iterator t_it, t_match, t_start;
+  TokenList newselector;
+  bool ret = false;
+
+  for (s_it = getSelectors().begin();
+       s_it != getSelectors().end();
+       s_it++) {
+
+    t_it = t_start = (*s_it).begin();
+    t_match = (*s_it).find(find, t_it);
+    
+    if (t_match != (*s_it).begin()) {
+      newselector.insert(newselector.end(), t_start, t_it);
+      newselector.insert(newselector.end(), replace.begin(), replace.end());
+      
+      t_it = t_start = t_match;
+      while ((t_match = (*s_it).find(find, t_it)) != (*s_it).begin()) {
+        newselector.insert(newselector.end(), t_start, t_it);
+        newselector.insert(newselector.end(), replace.begin(), replace.end());
+        t_it = t_start = t_match;
+      }
+      newselector.insert(newselector.end(), t_start, (*s_it).end());
+      appendSelector(newselector);
+      newselector.clear();
+      ret = true;
+    }
   }
-  return limit;
-}
-void Selector::replace(const TokenList &search,
-                       const Selector &replace) {
-  
+  return ret;
 }
 
 void Selector::addPrefix(const Selector &prefix) {
