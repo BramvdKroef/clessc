@@ -66,7 +66,7 @@ TokenList::const_iterator TokenList::find(const TokenList &search,
   TokenList::const_iterator it, it2;
   
   while ((it = find(search.front(), offset)) != end()) {
-
+    offset = it;
     for (it2 = search.begin();
          it != end() && it2 != search.end() && *it == *it2;
          it++, it2++) {
