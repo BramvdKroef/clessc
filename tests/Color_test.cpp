@@ -19,7 +19,7 @@ public:
     l.push_back(Token(")", Token::PAREN_CLOSED, 0, 0, "-"));
   }
 
-  void rgba(const char* r, const char* g, const char* b,
+  void rgba_p(const char* r, const char* g, const char* b,
             const char* a) {
     l.push_back(Token("rgba", Token::IDENTIFIER,0, 0, "-"));
     l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
@@ -30,6 +30,20 @@ public:
     l.push_back(Token(b, Token::NUMBER,0, 0, "-"));
     l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
     l.push_back(Token(a, Token::PERCENTAGE,0, 0, "-"));
+    l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
+  }
+
+  void rgba_n(const char* r, const char* g, const char* b,
+              const char* a) {
+    l.push_back(Token("rgba", Token::IDENTIFIER,0, 0, "-"));
+    l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
+    l.push_back(Token(r, Token::NUMBER,0, 0, "-"));
+    l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
+    l.push_back(Token(g, Token::NUMBER,0, 0, "-"));
+    l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
+    l.push_back(Token(b, Token::NUMBER,0, 0, "-"));
+    l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
+    l.push_back(Token(a, Token::NUMBER,0, 0, "-"));
     l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
   }
 
@@ -100,7 +114,7 @@ TEST_F(ColorTest, RGB) {
 }
 
 TEST_F(ColorTest, RGBA) {
-  rgba("10", "10", "10", "10%");
+  rgba_p("10", "10", "10", "10%");
 
   vp.processValue(l, c);
 
@@ -111,13 +125,13 @@ TEST_F(ColorTest, RGBA) {
 TEST_F(ColorTest, ARGB) {
   l.push_back(Token("argb", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  rgba("10", "10", "10", ".4");
+  rgba_n("90", "23", "148", ".5");
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
 
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_EQ("#100a0a0a", l.toString());
+  EXPECT_EQ("#805a1794", l.toString());
 }
 
 TEST_F(ColorTest, HSL) {
@@ -306,7 +320,7 @@ TEST_F(ColorTest, Blue) {
 TEST_F(ColorTest, Alpha) {
   l.push_back(Token("alpha", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  rgba("10", "20", "30", ".5");
+  rgba_n("10", "20", "30", ".5");
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
 
   vp.processValue(l, c);
@@ -482,9 +496,9 @@ TEST_F(ColorTest, Mix) {
   l.clear();
   l.push_back(Token("mix", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  rgba("100", "0", "0", "1.0");
+  rgba_n("100", "0", "0", "1.0");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
-  rgba("0", "100", "0", ".5");
+  rgba_n("0", "100", "0", ".5");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
   l.push_back(Token("50%", Token::PERCENTAGE, 0, 0, "-"));
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
@@ -511,7 +525,7 @@ TEST_F(ColorTest, Tint) {
   l.clear();
   l.push_back(Token("tint", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  rgba("0", "0", "255", ".5");
+  rgba_n("0", "0", "255", ".5");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
   l.push_back(Token("50%", Token::PERCENTAGE, 0, 0, "-"));
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
@@ -538,7 +552,7 @@ TEST_F(ColorTest, Shade) {
   l.clear();
   l.push_back(Token("shade", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  rgba("0", "0", "255", ".5");
+  rgba_n("0", "0", "255", ".5");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
   l.push_back(Token("50%", Token::PERCENTAGE, 0, 0, "-"));
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
