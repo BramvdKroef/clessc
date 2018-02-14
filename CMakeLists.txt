@@ -31,6 +31,7 @@ if (GTest_FOUND)
             tests/LessSelectorParser_test.cpp
             tests/LessParser_test.cpp
             tests/ValueProcessor_test.cpp
+            tests/Color_test.cpp
             )
 
     add_executable(testlessc ${testlessc_SOURCES})
