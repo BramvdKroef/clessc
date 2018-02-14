@@ -1076,5 +1076,23 @@ TEST_F(LessParserTest, ExtendOutsideMedia) {
   less->process(*css, context);
   css->write(*writer);
   ASSERT_STREQ("@media print{.selector,.screenClass{color:black}}\
-.selector{color:red}@media screen{.selector{color: blue}}", out->str().c_str());
+.selector{color:red}@media screen{.selector{color:blue}}", out->str().c_str());
 }
+
+TEST_F(LessParserTest, ExtendNestedMedia) {
+  in->str("@media screen {\
+  .screenClass:extend(.selector) {} \
+  @media (min-width: 1023px) {\
+    .selector { \
+      color: blue; \
+    } \
+  } \
+}");
+  
+  p->parseStylesheet(*less);
+  less->process(*css, context);
+  css->write(*writer);
+  ASSERT_STREQ("@media screen{}@media screen and (min-width: 1023px)\
+{.selector{color:blue}}", out->str().c_str());
+}
+

@@ -100,7 +100,7 @@ const TokenList* LessStylesheet::getVariable(const std::string& key,
 }
 
 void LessStylesheet::process(Stylesheet& s, void* context) const {
-  std::list<Extension>* extensions;
+  std::list<Extension> extensions;
 
   std::list<Ruleset*>::const_iterator r_it;
   std::list<Extension>::iterator e_it;
@@ -108,15 +108,17 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   Selector* selector;
 
   ((ProcessingContext*)context)->setLessStylesheet(*this);
+  ((ProcessingContext*)context)->pushExtensionScope(extensions);
+
   Stylesheet::process(s, context);
 
   // post processing
-  extensions = &((ProcessingContext*)context)->getExtensions();
-
-  for (e_it = extensions->begin(); e_it != extensions->end(); e_it++) {
+  for (e_it = extensions.begin(); e_it != extensions.end(); e_it++) {
     for (r_it = s.getRulesets().begin(); r_it != s.getRulesets().end(); r_it++) {
       (*e_it).updateSelector((*r_it)->getSelector());
     }
   }
+  ((ProcessingContext*)context)->popExtensionScope();
+  
 }
 

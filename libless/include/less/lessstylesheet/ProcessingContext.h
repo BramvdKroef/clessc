@@ -25,7 +25,7 @@ private:
   MixinCall *stack;
 
   ValueProcessor processor;
-  std::list<Extension> extensions;
+  std::list<std::list<Extension>*> extensions;
 
   const LessStylesheet *contextStylesheet;
 
@@ -69,8 +69,11 @@ public:
   void addClosure(const LessRuleset &ruleset);
   void addVariables(const VariableMap &variables);
 
+  void pushExtensionScope(std::list<Extension> &scope);
+  void popExtensionScope();
+  
   void addExtension(Extension &extension);
-  std::list<Extension> &getExtensions();
+  std::list<Extension> *getExtensions();
 
   ValueProcessor *getValueProcessor();
 

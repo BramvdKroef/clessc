@@ -33,6 +33,9 @@ void MediaQuery::process(Stylesheet& s, void* context) const {
 }
 
 void MediaQuery::write(CssWriter& writer) const {
+  if (getStatements().empty())
+    return;
+
   writer.writeMediaQueryStart(selector);
   Stylesheet::write(writer);
 

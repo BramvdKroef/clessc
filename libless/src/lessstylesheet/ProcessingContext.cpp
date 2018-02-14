@@ -105,11 +105,20 @@ bool ProcessingContext::isInStack(const Function &function) const {
     return NULL;
 }
 
-void ProcessingContext::addExtension(Extension &extension) {
-  extensions.push_back(extension);
+void ProcessingContext::pushExtensionScope(std::list<Extension> &scope) {
+  extensions.push_back(&scope);
 }
-std::list<Extension> &ProcessingContext::getExtensions() {
-  return extensions;
+
+void ProcessingContext::popExtensionScope() {
+  extensions.pop_back();
+}
+
+void ProcessingContext::addExtension(Extension &extension) {
+  if (!extensions.empty())
+    extensions.back()->push_back(extension);
+}
+std::list<Extension> *ProcessingContext::getExtensions() {
+  return (!extensions.empty()) ? extensions.back() : NULL;
 }
 
 void ProcessingContext::addClosure(const LessRuleset &ruleset) {
