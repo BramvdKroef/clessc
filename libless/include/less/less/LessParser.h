@@ -64,13 +64,12 @@ public:
   }
 
   virtual void parseStylesheet(LessStylesheet &stylesheet);
+  
+  /**
+   * Insert a stylesheet inside a ruleset
+   */
+  void parseStylesheet(LessRuleset &ruleset);
 
-  bool parseRuleset(TokenList &selector,
-                    LessStylesheet *stylesheet,
-                    LessRuleset *parentRuleset);
-  bool parseMixin(TokenList &tokens,
-                  LessRuleset *parent_r,
-                  LessStylesheet *parent_s);
 protected:
   std::list<const char *> &sources;
   bool reference;
@@ -101,6 +100,7 @@ protected:
   bool parseSelector(TokenList &selector);
   bool parseSelectorVariable(TokenList &selector);
 
+  
   bool parseRuleset(LessStylesheet &parent, TokenList &selector);
   bool parseRuleset(LessRuleset &parent, TokenList &selector);
 
@@ -126,10 +126,18 @@ protected:
 
   void parseList(std::list<TokenList *> *list, TokenList *tokens);
 
-  bool parseImportStatement(TokenList &statement, LessStylesheet &stylesheet);
+  bool parseImportStatement(TokenList &statement,
+                            LessStylesheet &stylesheet);
+  bool parseImportStatement(TokenList &statement,
+                            LessRuleset &ruleset);
+  
   unsigned int parseImportDirective(Token &t);
+
   bool importFile(Token uri,
                   LessStylesheet &stylesheet,
+                  unsigned int directive);
+  bool importFile(Token uri,
+                  LessRuleset &ruleset,
                   unsigned int directive);
 
   void parseLessMediaQuery(Token &mediatoken, LessStylesheet &stylesheet);
@@ -140,6 +148,22 @@ private:
   std::list<TokenList *> *processArguments(TokenList *arguments);
 
   bool findFile(Token &uri, std::string &filename);
+
+  bool parseRuleset(TokenList &selector,
+                    LessStylesheet *stylesheet,
+                    LessRuleset *parentRuleset);
+  bool parseMixin(TokenList &tokens,
+                  LessRuleset *parent_r,
+                  LessStylesheet *parent_s);
+  bool parseAtRuleOrVariable(LessStylesheet *stylesheet,
+                             LessRuleset *ruleset);
+  bool parseImportStatement(TokenList &statement,
+                            LessStylesheet *stylesheet,
+                            LessRuleset *ruleset);
+  bool importFile(Token uri,
+                  LessStylesheet *stylesheet,
+                  LessRuleset *ruleset,
+                  unsigned int directive);
 };
 
 #endif  // __less_less_LessParser_h__

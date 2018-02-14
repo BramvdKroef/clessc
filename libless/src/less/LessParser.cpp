@@ -9,6 +9,10 @@ void LessParser::parseStylesheet(LessStylesheet &stylesheet) {
   CssParser::parseStylesheet(stylesheet);
 }
 
+void LessParser::parseStylesheet(LessRuleset &ruleset) {
+  while (parseRulesetStatement(ruleset));
+}
+
 void LessParser::skipWhitespace() {
   while (tokenizer->getTokenType() == Token::WHITESPACE ||
          (tokenizer->getTokenType() == Token::COMMENT &&
@@ -52,7 +56,8 @@ bool LessParser::parseStatement(Stylesheet &stylesheet) {
   }
 }
 
-bool LessParser::parseAtRuleOrVariable(LessStylesheet &stylesheet) {
+bool LessParser::parseAtRuleOrVariable(LessStylesheet *stylesheet,
+                                       LessRuleset *ruleset) {
   Token token;
   TokenList value, rule;
   AtRule *atrule = NULL;
@@ -65,54 +70,44 @@ bool LessParser::parseAtRuleOrVariable(LessStylesheet &stylesheet) {
   CssParser::skipWhitespace();
 
   if (parseVariable(value)) {
-    stylesheet.putVariable(token, value);
+    if (stylesheet != NULL)
+      stylesheet->putVariable(token, value);
+    else
+      ruleset->putVariable(token, value);
+
+  } else if (token == "@media") {
+    if (stylesheet != NULL)
+      parseLessMediaQuery(token, *stylesheet);
+    else
+      parseMediaQueryRuleset(token, *ruleset);
 
   } else {
-    if (token == "@media") {
-      parseLessMediaQuery(token, stylesheet);
-      return true;
-    }
 
     parseAtRuleValue(rule);
 
     // parse import
     if (token == "@import" && rule.size() > 0) {
-      if (parseImportStatement(rule, stylesheet))
+      if (parseImportStatement(rule, stylesheet, ruleset))
         return true;
     }
 
-    atrule = stylesheet.createLessAtRule(token);
+    if (stylesheet != NULL)
+      atrule = stylesheet->createLessAtRule(token);
+    else
+      atrule = ruleset->createLessAtRule(token);
+
     atrule->setReference(reference);
     atrule->setRule(rule);
   }
   return true;
 }
 
+bool LessParser::parseAtRuleOrVariable(LessStylesheet &stylesheet) {
+  return parseAtRuleOrVariable(&stylesheet, NULL);
+}
+
 bool LessParser::parseAtRuleOrVariable(LessRuleset &ruleset) {
-  LessAtRule* atrule;
-  Token token;
-  TokenList value;
-
-  if (tokenizer->getTokenType() != Token::ATKEYWORD)
-    return false;
-  
-  token = tokenizer->getToken();
-  tokenizer->readNextToken();
-  skipWhitespace();
-
-  if (parseVariable(value)) {
-    ruleset.putVariable(token, value);
-    value.clear();
-
-  } else if (token == "@media") {
-    parseMediaQueryRuleset(token, ruleset);
-    
-  } else {
-    atrule = ruleset.createLessAtRule(token);
-    atrule->setReference(reference);
-    parseAtRuleValue(atrule->getRule());
-  }
-  return true;
+  return parseAtRuleOrVariable(NULL, &ruleset);
 }
 
 
@@ -557,7 +552,8 @@ void LessParser::parseMixinArguments(TokenList::const_iterator &i,
 }
 
 bool LessParser::parseImportStatement(TokenList &statement,
-                                      LessStylesheet &stylesheet) {
+                                      LessStylesheet *stylesheet,
+                                      LessRuleset *ruleset) {
   unsigned int directive = 0;
 
   // parse directives and strip from statement (the statement becomes a valid
@@ -589,12 +585,22 @@ bool LessParser::parseImportStatement(TokenList &statement,
 
   if (statement.size() > 0 && (statement.front().type == Token::URL ||
                                statement.front().type == Token::STRING)) {
-    return importFile(statement.front(), stylesheet, directive);
+    return importFile(statement.front(), stylesheet, ruleset, directive);
 
   } else
     throw new ParseException(statement,
                              "A string with the file path, "
                              "or an import directive.");
+}
+
+bool LessParser::parseImportStatement(TokenList &statement,
+                                      LessStylesheet &stylesheet) {
+  return parseImportStatement(statement, &stylesheet, NULL);
+}
+
+bool LessParser::parseImportStatement(TokenList &statement,
+                                      LessRuleset &ruleset) {
+  return parseImportStatement(statement, NULL, &ruleset);
 }
 
 unsigned int LessParser::parseImportDirective(Token &t) {
@@ -621,7 +627,8 @@ unsigned int LessParser::parseImportDirective(Token &t) {
 }
 
 bool LessParser::importFile(Token uri,
-                            LessStylesheet &stylesheet,
+                            LessStylesheet *stylesheet,
+                            LessRuleset *ruleset,
                             unsigned int directive) {
   size_t pathend;
   size_t extension_pos;
@@ -688,9 +695,23 @@ bool LessParser::importFile(Token uri,
 
   parser.includePaths = includePaths;
 
-  parser.parseStylesheet(stylesheet);
+  if (stylesheet != NULL)
+    parser.parseStylesheet(*stylesheet);
+  else
+    parser.parseStylesheet(*ruleset);
   in.close();
   return true;
+}
+
+bool LessParser::importFile(Token uri,
+                            LessStylesheet &stylesheet,
+                            unsigned int directive) {
+  return importFile(uri, &stylesheet, NULL, directive);
+}
+bool LessParser::importFile(Token uri,
+                            LessRuleset &ruleset,
+                            unsigned int directive) {
+  return importFile(uri, NULL, &ruleset, directive);
 }
 
 bool LessParser::findFile(Token &uri, std::string &filename) {
