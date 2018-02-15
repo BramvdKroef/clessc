@@ -8,7 +8,8 @@ Value::~Value() {
 }
 
 void Value::setLocation(const Token& ref) {
-  tokens.front().setLocation(ref);
+  if (!tokens.empty())
+    tokens.front().setLocation(ref);
 }
 
 const TokenList* Value::getTokens() const {

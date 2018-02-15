@@ -28,63 +28,12 @@ double Color::minArray(double* array, const size_t len) const {
   return ret;
 }
 
-void Color::updateTokens() {
-  ostringstream stm;
-  string sColor[3];
-  string hash;
-  int i;
-
-  tokens.clear();
-
-  // If the color is not opaque the rgba() function needs to be used.
-  if (alpha < 1) {
-    tokens.push_back(Token("rgba", Token::IDENTIFIER, 0, 0, "generated"));
-    tokens.push_back(Token::BUILTIN_PAREN_OPEN);
-
-    for (i = 0; i < 3; i++) {
-      stm.str("");
-      stm << (color[i] & 0xFF);
-      tokens.push_back(Token(stm.str(), Token::NUMBER, 0, 0, "generated"));
-      tokens.push_back(Token::BUILTIN_COMMA);
-      tokens.push_back(Token::BUILTIN_SPACE);
-    }
-    stm.str("");
-    stm << alpha;
-    tokens.push_back(Token(stm.str(), Token::NUMBER, 0, 0, "generated"));
-    tokens.push_back(Token::BUILTIN_PAREN_CLOSED);
-
-  } else {
-    for (i = 0; i < 3; i++) {
-      stm.str("");
-      stm << hex << (color[i] & 0xFF);
-      sColor[i] = stm.str();
-    }
-    stm.str("");
-    stm << "#";
-
-    for (i = 0; i < 3; i++) {
-      if (sColor[i].size() == 1)
-        stm << "0";
-      else if (sColor[i].size() > 2)
-        sColor[i] = sColor[i].substr(0, 2);
-      stm << sColor[i];
-    }
-    hash = stm.str();
-
-    // convert to shorthand if possible
-    if (hash[1] == hash[2] && hash[3] == hash[4] && hash[5] == hash[6]) {
-      stm.str("");
-      stm << "#" << hash[1] << hash[3] << hash[5];
-      hash = stm.str();
-    }
-
-    tokens.push_back(Token(hash, Token::HASH, 0, 0, "generated"));
-  }
-}
 
 Color::Color(const Token &hash) : Value() {
   tokens.push_back(hash);
+  token = hash;
   type = Value::COLOR;
+  color_type = TOKEN;
   
   if (!parseHash(hash.c_str())) {
     throw new ValueException("A color value requires either three, four, "
@@ -95,7 +44,9 @@ Color::Color(const Token &hash) : Value() {
 
 Color::Color(const Token &name, const char* hash) : Value() {
   tokens.push_back(name);
+  token = name;
   type = Value::COLOR;
+  color_type = TOKEN;
   
   if (!parseHash(hash)) {
     cerr << "Hash for builtin color " <<
@@ -104,36 +55,64 @@ Color::Color(const Token &name, const char* hash) : Value() {
 }
 
 
-Color::Color() : Value() {
-  type = Value::COLOR;
-  color[RGB_RED] = 0;
-  color[RGB_GREEN] = 0;
-  color[RGB_BLUE] = 0;
-  alpha = 1.0;
-  updateTokens();
+Color::Color() : Color((unsigned int)0,(unsigned int)0,(unsigned int)0) {
 }
 
 Color::Color(unsigned int red, unsigned int green, unsigned int blue)
-    : Value() {
-  type = Value::COLOR;
-  color[RGB_RED] = red;
-  color[RGB_GREEN] = green;
-  color[RGB_BLUE] = blue;
-  alpha = 1;
-  updateTokens();
+  : Color(red, green, blue, 1) {
 }
 
 Color::Color(unsigned int red,
              unsigned int green,
              unsigned int blue,
              double alpha)
-    : Value() {
-  type = Value::COLOR;
-  color[RGB_RED] = red;
-  color[RGB_GREEN] = green;
-  color[RGB_BLUE] = blue;
+  : Value() {
+  type = COLOR;
+  color_type = RGB;
+  rgb[RGB_RED] = red;
+  rgb[RGB_GREEN] = green;
+  rgb[RGB_BLUE] = blue;
   this->alpha = alpha;
-  updateTokens();
+}
+
+Color::Color(double hue, double saturation, double lightness)
+  : Color(hue, saturation, lightness, 1) {
+}
+
+Color::Color(double hue, double saturation, double lightness, double alpha)
+  : Value() {
+
+  type = COLOR;
+  color_type = HSL;
+  hsl[HSL_HUE] = hue;
+  hsl[HSL_SATURATION] = saturation;
+  hsl[HSL_LIGHTNESS] = lightness;
+  this->alpha = alpha;
+  HSLtoRGB();
+}
+
+Color::Color(const Color &color) : Value() {
+  color_type = color.color_type;
+
+  switch (color.color_type) {
+  case TOKEN:
+    token = color.token;    
+    break;
+    
+  case RGB:
+    break;
+    
+  case HSL:
+    color.getHSL(hsl);
+    break;
+  }
+
+  color.getRGB(rgb);
+  
+  alpha = color.getAlpha();
+}
+
+Color::~Color() {
 }
 
 bool Color::parseHash(const char* hash) {
@@ -171,9 +150,9 @@ bool Color::parseHash(const char* hash) {
 
   for (int i = 0; i < 3; i++) {
     memcpy(hex, hash, len);
-    color[i] = strtoul(hex, NULL, 16);
+    rgb[i] = strtoul(hex, NULL, 16);
     if (len == 1)
-      color[i] = color[i] * 0x11;
+      rgb[i] = rgb[i] * 0x11;
     hash += len;
   }
   return true;
@@ -189,17 +168,18 @@ Color* Color::fromName(const Token &name) {
     return NULL;
 }
 
-Color* Color::fromHSL(double hue, double saturation, double lightness) {
-  double c, x, rgb[3];
+void Color::HSLtoRGB() {
+  double _rgb[3], hue, saturation, lightness, c, x;
   int i;
 
+  hue = hsl[HSL_HUE];
   while (hue < 0)
     hue += 360;
   while (hue > 360)
     hue -= 360;
   hue /= 360;
-  saturation *= .01;
-  lightness *= .01;
+  saturation = hsl[HSL_SATURATION];
+  lightness = hsl[HSL_LIGHTNESS];
 
   if (saturation > 0) {
     if (lightness < 0.5)
@@ -209,70 +189,248 @@ Color* Color::fromHSL(double hue, double saturation, double lightness) {
 
     x = 2.0 * lightness - c;
 
-    rgb[RGB_RED] = hue + 1.0 / 3.0;
-    rgb[RGB_GREEN] = hue;
-    rgb[RGB_BLUE] = hue - 1.0 / 3.0;
+    _rgb[RGB_RED] = hue + 1.0 / 3.0;
+    _rgb[RGB_GREEN] = hue;
+    _rgb[RGB_BLUE] = hue - 1.0 / 3.0;
 
     for (i = 0; i < 3; i++) {
       // bring into 0-1 range
-      if (rgb[i] > 1)
-        rgb[i] -= 1.0;
-      if (rgb[i] < 0)
-        rgb[i] += 1.0;
+      if (_rgb[i] > 1)
+        _rgb[i] -= 1.0;
+      if (_rgb[i] < 0)
+        _rgb[i] += 1.0;
 
-      if (6.0 * rgb[i] < 1)
-        rgb[i] = x + (c - x) * 6.0 * rgb[i];
-      else if (2.0 * rgb[i] < 1)
-        rgb[i] = c;
-      else if (3.0 * rgb[i] < 2)
-        rgb[i] = x + (c - x) * ((2.0 / 3.0) - rgb[i]) * 6.0;
+      if (6.0 * _rgb[i] < 1)
+        _rgb[i] = x + (c - x) * 6.0 * _rgb[i];
+      else if (2.0 * _rgb[i] < 1)
+        _rgb[i] = c;
+      else if (3.0 * _rgb[i] < 2)
+        _rgb[i] = x + (c - x) * ((2.0 / 3.0) - _rgb[i]) * 6.0;
       else
-        rgb[i] = x;
+        _rgb[i] = x;
     }
   } else
-    rgb[RGB_RED] = rgb[RGB_GREEN] = rgb[RGB_BLUE] = lightness;
+    _rgb[RGB_RED] = _rgb[RGB_GREEN] = _rgb[RGB_BLUE] = lightness;
 
   // convert to 0-255 range.
   // add the .5 and truncate to round to int.
-
-  return new Color(rgb[RGB_RED] * 255 + 0.5,
-                   rgb[RGB_GREEN] * 255 + 0.5,
-                   rgb[RGB_BLUE] * 255 + 0.5);
+  for (i = 0; i < 3; i++) {
+    rgb[i] = _rgb[i] * 255 + 0.5;
+  }
 }
 
-Color::Color(const Color& color) {
-  type = Value::COLOR;
-  this->color[RGB_RED] = color.getRed();
-  this->color[RGB_GREEN] = color.getGreen();
-  this->color[RGB_BLUE] = color.getBlue();
-  alpha = color.getAlpha();
-  updateTokens();
+void Color::RGBtoHSL(double hsl[3]) const {
+  double max, min, c;
+  double _rgb[3];
+
+  for (int i = 0; i < 3; i++)
+    _rgb[i] = (double)rgb[i] / 255;
+
+  max = maxArray(_rgb, 3);
+  min = minArray(_rgb, 3);
+  c = max - min;
+
+  if (c == 0)
+    hsl[HSL_HUE] = 0;
+  else if (max == _rgb[RGB_RED]) {
+    hsl[HSL_HUE] = (_rgb[RGB_GREEN] - _rgb[RGB_BLUE]) / c;
+    while (hsl[HSL_HUE] > 6)
+      hsl[HSL_HUE] = hsl[HSL_HUE] - 6;
+  } else if (max == _rgb[RGB_GREEN])
+    hsl[HSL_HUE] = (_rgb[RGB_BLUE] - _rgb[RGB_RED]) / c + 2.0;
+  else if (max == _rgb[RGB_BLUE])
+    hsl[HSL_HUE] = (_rgb[RGB_RED] - _rgb[RGB_GREEN]) / c + 4.0;
+  hsl[HSL_HUE] = 60 * hsl[HSL_HUE];
+
+  hsl[HSL_LIGHTNESS] = (max + min) / 2;
+
+  if (c == 0)
+    hsl[HSL_SATURATION] = 0;
+  /* this part does not work */
+  // else
+  //  hsl[1] = c / (1.0 - abs(2.0 * hsl[2] - 1.0));
+  else if (hsl[HSL_LIGHTNESS] < .5)
+    hsl[HSL_SATURATION] = c / (max + min);
+  else
+    hsl[HSL_SATURATION] = c / (2.0 - max - min);
 }
 
-Color::~Color() {
+void Color::getRGB(unsigned int rgb[3]) const {
+  rgb[RGB_RED] = this->rgb[RGB_RED];
+  rgb[RGB_GREEN] = this->rgb[RGB_GREEN];
+  rgb[RGB_BLUE] = this->rgb[RGB_BLUE];
 }
+
+void Color::getHSL(double hsl[3]) const {
+  if (color_type == HSL) {
+
+    hsl[HSL_HUE] = this->hsl[HSL_HUE];
+    hsl[HSL_SATURATION] = this->hsl[HSL_SATURATION];
+    hsl[HSL_LIGHTNESS] = this->hsl[HSL_LIGHTNESS];
+  } else {
+    RGBtoHSL(hsl);
+  }
+}
+
+void Color::setRGB(unsigned int red,
+                   unsigned int green,
+                   unsigned int blue) {
+  if (color_type != RGB) 
+    color_type = RGB;
+  
+  rgb[RGB_RED] = min(red, 255);
+  rgb[RGB_GREEN] = min(green, 255);
+  rgb[RGB_BLUE] = min(blue, 255);
+}
+void Color::increaseRGB(int red,
+                        int green,
+                        int blue) {
+  if (color_type != RGB) 
+    color_type = RGB;
+  
+  rgb[RGB_RED] = min(rgb[RGB_RED] + red, 255);
+  rgb[RGB_GREEN] = min(rgb[RGB_GREEN] + green, 255);
+  rgb[RGB_BLUE] = min(rgb[RGB_BLUE] + blue, 255);
+}
+void Color::multiplyRGB(double red,
+                        double green,
+                        double blue) {
+  if (color_type != RGB) 
+    color_type = RGB;
+  
+  rgb[RGB_RED] = min(rgb[RGB_RED] * red, 255);
+  rgb[RGB_GREEN] = min(rgb[RGB_GREEN] * green, 255);
+  rgb[RGB_BLUE] = min(rgb[RGB_BLUE] * blue, 255);
+}
+
+void Color::lighten(double lightness) {
+  if (color_type != HSL) {
+    RGBtoHSL(hsl);
+    color_type = HSL;
+  }
+  hsl[HSL_LIGHTNESS] += min(lightness, 1);
+  HSLtoRGB();
+}
+
+void Color::darken(double lightness) {
+  lighten(-lightness);
+}
+
+void Color::saturate(double saturation) {
+  if (color_type != HSL) {
+    RGBtoHSL(hsl);
+    color_type = HSL;
+  }
+  hsl[HSL_SATURATION] += min(saturation, 1);
+  HSLtoRGB();
+}
+
+void Color::desaturate(double saturation) {
+  saturate(-saturation);
+}
+
+void Color::spin(double hue) {
+  if (color_type != HSL) {
+    RGBtoHSL(hsl);
+    color_type = HSL;
+  }
+  hsl[HSL_HUE] += hue;
+  HSLtoRGB();
+}
+
+void Color::setAlpha(double alpha) {
+  this->alpha = alpha;
+  color_type = RGB;
+}
+double Color::getAlpha() const {
+  return alpha;
+}
+
+const TokenList* Color::getTokens() const {
+  TokenList *tokens;
+  ostringstream stm;
+  string sColor[3];
+  string hash;
+  int i;
+
+  if (color_type == TOKEN)
+    return &this->tokens;
+
+  tokens = new TokenList();
+
+  // If the color is not opaque the rgba() function needs to be used.
+  if (alpha < 1) {
+    tokens->push_back(Token("rgba", Token::IDENTIFIER, 0, 0, "generated"));
+    tokens->push_back(Token::BUILTIN_PAREN_OPEN);
+
+    for (i = 0; i < 3; i++) {
+      stm.str("");
+      stm << (rgb[i] & 0xFF);
+      tokens->push_back(Token(stm.str(), Token::NUMBER, 0, 0, "generated"));
+      tokens->push_back(Token::BUILTIN_COMMA);
+      tokens->push_back(Token::BUILTIN_SPACE);
+    }
+    stm.str("");
+    stm << alpha;
+    tokens->push_back(Token(stm.str(), Token::NUMBER, 0, 0, "generated"));
+    tokens->push_back(Token::BUILTIN_PAREN_CLOSED);
+
+  } else {
+    for (i = 0; i < 3; i++) {
+      stm.str("");
+      stm << hex << (rgb[i] & 0xFF);
+      sColor[i] = stm.str();
+    }
+    stm.str("");
+    stm << "#";
+
+    for (i = 0; i < 3; i++) {
+      if (sColor[i].size() == 1)
+        stm << "0";
+      else if (sColor[i].size() > 2)
+        sColor[i] = sColor[i].substr(0, 2);
+      stm << sColor[i];
+    }
+    hash = stm.str();
+
+    // convert to shorthand if possible
+    if (hash[1] == hash[2] && hash[3] == hash[4] && hash[5] == hash[6]) {
+      stm.str("");
+      stm << "#" << hash[1] << hash[3] << hash[5];
+      hash = stm.str();
+    }
+
+    tokens->push_back(Token(hash, Token::HASH, 0, 0, "generated"));
+  }
+  return tokens;
+}
+
 
 Value* Color::add(const Value& v) const {
   const Color* c;
   const NumberValue* n;
   const StringValue* s;
+  unsigned int rgb[3];
   StringValue* ret;
+  Color* cret;
 
   switch (v.type) {
     case COLOR:
       c = static_cast<const Color*>(&v);
-      return new Color(min(color[RGB_RED] + c->getRed(), 255),
-                       min(color[RGB_GREEN] + c->getGreen(), 255),
-                       min(color[RGB_BLUE] + c->getBlue(), 255));
+      c->getRGB(rgb);
+      cret = new Color(*this);
+      cret->increaseRGB(rgb[RGB_RED], rgb[RGB_GREEN], rgb[RGB_BLUE]);
+      return cret;
+      
     case NUMBER:
     case PERCENTAGE:
     case DIMENSION:
       n = static_cast<const NumberValue*>(&v);
-      return new Color(min(color[RGB_RED] + n->getValue(), 255),
-                       min(color[RGB_GREEN] + n->getValue(), 255),
-                       min(color[RGB_BLUE] + n->getValue(), 255));
+      cret = new Color(*this);
+      cret->increaseRGB(n->getValue(), n->getValue(), n->getValue());
+      return cret;
 
-    case STRING:
+  case STRING:
       s = static_cast<const StringValue*>(&v);
       ret = new StringValue(*this, s->getQuotes());
       ret->append(*s);
@@ -288,26 +446,26 @@ colors, numbers or strings.",
 Value* Color::substract(const Value& v) const {
   const Color* c;
   const NumberValue* n;
+  unsigned int rgb[3];
+  Color *cret;
 
   switch (v.type) {
     case COLOR:
       c = static_cast<const Color*>(&v);
-      return new Color(
-          (color[RGB_RED] > c->getRed() ? color[RGB_RED] - c->getRed() : 0),
-          (color[RGB_GREEN] > c->getGreen() ? color[RGB_GREEN] - c->getGreen()
-                                            : 0),
-          (color[RGB_BLUE] > c->getBlue() ? color[RGB_BLUE] - c->getBlue()
-                                          : 0));
-
+      c->getRGB(rgb);
+      cret = new Color(*this);
+      cret->increaseRGB(-rgb[RGB_RED], -rgb[RGB_GREEN], -rgb[RGB_BLUE]);
+      return cret;
+      
     case NUMBER:
     case PERCENTAGE:
     case DIMENSION:
       n = static_cast<const NumberValue*>(&v);
+      cret = new Color(*this);
+      cret->increaseRGB(-n->getValue(), -n->getValue(), -n->getValue());
+      return cret;
 
-      return new Color(max(color[RGB_RED] - n->getValue(), 0),
-                       max(color[RGB_GREEN] - n->getValue(), 0),
-                       max(color[RGB_BLUE] - n->getValue(), 0));
-    default:
+  default:
       throw new ValueException(
           "You can only substract a color or \
 a number from a color.",
@@ -318,21 +476,24 @@ a number from a color.",
 Value* Color::multiply(const Value& v) const {
   const Color* c;
   const NumberValue* n;
+  unsigned int rgb[3];
+  Color *cret;
 
   switch (v.type) {
     case COLOR:
       c = static_cast<const Color*>(&v);
-
-      return new Color(min(color[RGB_RED] * c->getRed(), 255),
-                       min(color[RGB_GREEN] * c->getGreen(), 255),
-                       min(color[RGB_BLUE] * c->getBlue(), 255));
+      c->getRGB(rgb);
+      cret = new Color(*this);
+      cret->multiplyRGB(rgb[RGB_RED], rgb[RGB_GREEN], rgb[RGB_BLUE]);
+      return cret;
+      
     case NUMBER:
     case PERCENTAGE:
     case DIMENSION:
       n = static_cast<const NumberValue*>(&v);
-      return new Color(min(color[RGB_RED] * n->getValue(), 255),
-                       min(color[RGB_GREEN] * n->getValue(), 255),
-                       min(color[RGB_BLUE] * n->getValue(), 255));
+      cret = new Color(*this);
+      cret->multiplyRGB(n->getValue(), n->getValue(), n->getValue());
+      return cret;
 
     default:
       throw new ValueException(
@@ -344,20 +505,26 @@ color or a number.",
 Value* Color::divide(const Value& v) const {
   const Color* c;
   const NumberValue* n;
+  unsigned int rgb[3];
+  Color *cret;
 
   switch (v.type) {
     case COLOR:
       c = static_cast<const Color*>(&v);
-      return new Color(color[RGB_RED] / c->getRed(),
-                       color[RGB_GREEN] / c->getGreen(),
-                       color[RGB_BLUE] / c->getBlue());
+      c->getRGB(rgb);
+      cret = new Color(*this);
+      cret->multiplyRGB((double)1 / rgb[RGB_RED],
+                        (double)1 / rgb[RGB_GREEN],
+                        (double)1 / rgb[RGB_BLUE]);
+      return cret;
     case NUMBER:
     case PERCENTAGE:
     case DIMENSION:
       n = static_cast<const NumberValue*>(&v);
-      return new Color(color[RGB_RED] / n->getValue(),
-                       color[RGB_GREEN] / n->getValue(),
-                       color[RGB_BLUE] / n->getValue());
+      cret->multiplyRGB((double)1 / n->getValue(),
+                        (double)1 / n->getValue(),
+                        (double)1 / n->getValue());
+      return cret;
     default:
       throw new ValueException(
           "You can only divide a color by a \
@@ -369,13 +536,16 @@ color or a number.",
 BooleanValue* Color::equals(const Value& v) const {
   const Color* c;
   const BooleanValue* b;
+  unsigned int rgb[3];
 
   switch (v.type) {
     case COLOR:
       c = static_cast<const Color*>(&v);
-      return new BooleanValue(color[RGB_RED] == c->getRed() &&
-                              color[RGB_GREEN] == c->getGreen() &&
-                              color[RGB_BLUE] == c->getBlue());
+      c->getRGB(rgb);
+      
+      return new BooleanValue(this->rgb[RGB_RED] == rgb[RGB_RED] &&
+                              this->rgb[RGB_GREEN] == rgb[RGB_GREEN] &&
+                              this->rgb[RGB_BLUE] == rgb[RGB_BLUE]);
 
   case BOOLEAN:
     // any color is falsy.
@@ -391,13 +561,15 @@ BooleanValue* Color::equals(const Value& v) const {
 BooleanValue* Color::lessThan(const Value& v) const {
   const Color* c;
   const BooleanValue* b;
+  unsigned int rgb[3];
 
   switch (v.type) {
     case COLOR:
       c = static_cast<const Color*>(&v);
-      return new BooleanValue(color[RGB_RED] < c->getRed() ||
-                              color[RGB_GREEN] < c->getGreen() ||
-                              color[RGB_BLUE] < c->getBlue());
+      c->getRGB(rgb);
+      return new BooleanValue(this->rgb[RGB_RED] < rgb[RGB_RED] ||
+                              this->rgb[RGB_GREEN] < rgb[RGB_GREEN] ||
+                              this->rgb[RGB_BLUE] < rgb[RGB_BLUE]);
   case BOOLEAN:
     b = static_cast<const BooleanValue*>(&v);
     return new BooleanValue(b->getValue());
@@ -408,79 +580,20 @@ BooleanValue* Color::lessThan(const Value& v) const {
   }
 }
 
-void Color::setRGB(unsigned int red, unsigned int green, unsigned int blue) {
-  color[RGB_RED] = red;
-  color[RGB_GREEN] = green;
-  color[RGB_BLUE] = blue;
-  updateTokens();
-}
-void Color::setAlpha(double alpha) {
-  this->alpha = min(max(alpha, 0.0), 1.0);
-  updateTokens();
-}
-double Color::getAlpha() const {
-  return alpha;
-}
 
-unsigned int Color::getRed() const {
-  return color[RGB_RED];
-}
-unsigned int Color::getGreen() const {
-  return color[RGB_GREEN];
-}
-unsigned int Color::getBlue() const {
-  return color[RGB_BLUE];
-}
-
-double* Color::getHSL() const {
-  double max, min, c;
-  double rgb[3], *hsl = new double[3];
-
-  for (int i = 0; i < 3; i++)
-    rgb[i] = (double)color[i] / 255;
-
-  max = maxArray(rgb, 3);
-  min = minArray(rgb, 3);
-  c = max - min;
-
-  if (c == 0)
-    hsl[0] = 0;
-  else if (max == rgb[RGB_RED]) {
-    hsl[0] = (rgb[RGB_GREEN] - rgb[RGB_BLUE]) / c;
-    while (hsl[0] > 6)
-      hsl[0] = hsl[0] - 6;
-  } else if (max == rgb[RGB_GREEN])
-    hsl[0] = (rgb[RGB_BLUE] - rgb[RGB_RED]) / c + 2.0;
-  else if (max == rgb[RGB_BLUE])
-    hsl[0] = (rgb[RGB_RED] - rgb[RGB_GREEN]) / c + 4.0;
-  hsl[0] = 60 * hsl[0];
-
-  hsl[2] = (max + min) / 2;
-
-  if (c == 0)
-    hsl[1] = 0;
-  /* this part does not work */
-  // else
-  //  hsl[1] = c / (1.0 - abs(2.0 * hsl[2] - 1.0));
-  else if (hsl[2] < .5)
-    hsl[1] = c / (max + min);
-  else
-    hsl[1] = c / (2.0 - max - min);
-  return hsl;
-}
 
 void Color::loadFunctions(FunctionLibrary& lib) {
-  lib.push("rgb", "NNN", &Color::rgb);
+  lib.push("rgb", "NNN", &Color::_rgb);
   lib.push("rgba", "NNN.", &Color::rgba);
-  lib.push("lighten", "CP", &Color::lighten);
-  lib.push("darken", "CP", &Color::darken);
-  lib.push("saturate", "CP", &Color::saturate);
-  lib.push("desaturate", "CP", &Color::desaturate);
+  lib.push("lighten", "CP", &Color::_lighten);
+  lib.push("darken", "CP", &Color::_darken);
+  lib.push("saturate", "CP", &Color::_saturate);
+  lib.push("desaturate", "CP", &Color::_desaturate);
   lib.push("fade", "CP", &Color::fade);
   lib.push("fadein", "CP", &Color::fadein);
   lib.push("fadeout", "CP", &Color::fadeout);
   lib.push("spin", "CN", &Color::spin);
-  lib.push("hsl", "NPP", &Color::hsl);
+  lib.push("hsl", "NPP", &Color::_hsl);
   lib.push("hsla", "NPP.", &Color::hsla);
   lib.push("hue", "C", &Color::hue);
   lib.push("saturation", "C", &Color::saturation);
@@ -492,7 +605,7 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("alpha", "C", &Color::_alpha);
 }
 
-Value* Color::rgb(const vector<const Value*>& arguments) {
+Value* Color::_rgb(const vector<const Value*>& arguments) {
   return new Color(
       (unsigned int)((const NumberValue*)arguments[0])->getValue(),
       (unsigned int)((const NumberValue*)arguments[1])->getValue(),
@@ -519,122 +632,111 @@ Value* Color::rgba(const vector<const Value*>& arguments) {
         *arguments[3]->getTokens());
   }
 }
-Value* Color::lighten(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
-  double value = ((const NumberValue*)arguments[1])->getValue();
-  Color *ret = Color::fromHSL(hsl[0],
-                               hsl[1] * 100,
-                               min(hsl[2] * 100 + value, 100.00));
-  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
-  return ret;
-}
-Value* Color::darken(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
-  double value = ((const NumberValue*)arguments[1])->getValue();
-  Color *ret = Color::fromHSL(hsl[0],
-                              hsl[1] * 100,
-                              max(hsl[2] * 100 - value, 0.00));
-  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
-  return ret;
-}
-
-Value* Color::saturate(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
+Value* Color::_lighten(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color *ret = Color::fromHSL(hsl[0],
-                              min(hsl[1] * 100 + value, 100.00),
-                              hsl[2] * 100);
-  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
-  return ret;
+  c->lighten(value * .01);
+  return c;
 }
-Value* Color::desaturate(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
+Value* Color::_darken(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color *ret = Color::fromHSL(hsl[0],
-                              max(hsl[1] * 100 - value, 0.00),
-                              hsl[2] * 100);
-  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
-  return ret;
+  c->darken(value * .01);
+  return c;
+}
+
+Value* Color::_saturate(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  double value = ((const NumberValue*)arguments[1])->getValue();
+
+  c->saturate(value * .01);
+  return c;
+}
+Value* Color::_desaturate(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  double value = ((const NumberValue*)arguments[1])->getValue();
+
+  c->desaturate(value * .01);
+  return c;
 }
 
 Value* Color::fade(const vector<const Value*>& arguments) {
-  const Color* c = static_cast<const Color*>(arguments[0]);
+  Color *c = new Color(*(const Color*)arguments[0]);
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color* ret = new Color(c->getRed(), c->getGreen(), c->getBlue(), value * .01);
-  return ret;
+  c->setAlpha(value * .01);
+  return c;
 }
 
 Value* Color::fadein(const vector<const Value*>& arguments) {
-  const Color* c = static_cast<const Color*>(arguments[0]);
+  Color *c = new Color(*(const Color*)arguments[0]);
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color* ret = new Color(
-      c->getRed(), c->getGreen(), c->getBlue(), c->getAlpha() + value * .01);
-  return ret;
+  c->setAlpha(c->getAlpha() + (value * .01));
+  return c;
 }
 
 Value* Color::fadeout(const vector<const Value*>& arguments) {
-  const Color* c = static_cast<const Color*>(arguments[0]);
+  Color *c = new Color(*(const Color*)arguments[0]);
   double value = ((const NumberValue*)arguments[1])->getValue();
 
-  Color* ret = new Color(
-      c->getRed(), c->getGreen(), c->getBlue(), c->getAlpha() - value * .01);
-  return ret;
+  c->setAlpha(c->getAlpha() - (value * .01));
+  return c;
 }
 
 Value* Color::spin(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
+  Color *c = new Color(*(const Color*)arguments[0]);
   double degrees = ((const NumberValue*)arguments[1])->getValue();
 
-  Color *ret = Color::fromHSL(std::floor(hsl[0] + degrees),
-                              hsl[1] * 100,
-                              hsl[2] * 100);
-  ret->setAlpha(((const Color*)arguments[0])->getAlpha());
-  return ret;
+  c->spin(degrees);
+  return c;
 }
 
-Value* Color::hsl(const vector<const Value*>& arguments) {
-  return Color::fromHSL(((const NumberValue*)arguments[0])->getValue(),
-                        ((const NumberValue*)arguments[1])->getValue(),
-                        ((const NumberValue*)arguments[2])->getValue());
+Value* Color::_hsl(const vector<const Value*>& arguments) {
+  return new Color(((const NumberValue*)arguments[0])->getValue(),
+                   ((const NumberValue*)arguments[1])->getValue() * .01,
+                   ((const NumberValue*)arguments[2])->getValue() * .01);
 }
 
 Value* Color::hsla(const vector<const Value*>& arguments) {
-  Color* ret = Color::fromHSL(((const NumberValue*)arguments[0])->getValue(),
-                              ((const NumberValue*)arguments[1])->getValue(),
-                              ((const NumberValue*)arguments[2])->getValue());
+  double alpha;
   if (arguments[3]->type == Value::NUMBER) {
-    ret->setAlpha(((const NumberValue*)arguments[3])->getValue());
+    alpha = ((const NumberValue*)arguments[3])->getValue();
   } else if (arguments[3]->type == Value::PERCENTAGE) {
-    ret->setAlpha(((const NumberValue*)arguments[3])->getValue() * .01);
+    alpha = ((const NumberValue*)arguments[3])->getValue() * .01;
   } else {
     throw new ValueException(
                              "Argument 3 needs to be a number "
                              "or percentage.",
                              *arguments[3]->getTokens());
   }
-  return ret;
+  return new Color(((const NumberValue*)arguments[0])->getValue(),
+                   ((const NumberValue*)arguments[1])->getValue() * .01,
+                   ((const NumberValue*)arguments[2])->getValue() * .01,
+                   alpha);
 }
 
 Value* Color::hue(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
+  double hsl[3];
+  ((const Color*)arguments[0])->getHSL(hsl);
 
-  return new NumberValue(hsl[0]);
+  return new NumberValue(hsl[HSL_HUE]);
 }
 
 Value* Color::saturation(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
+  double hsl[3];
+  ((const Color*)arguments[0])->getHSL(hsl);
 
-  return new NumberValue(hsl[1] * 100, Token::PERCENTAGE, NULL);
+  return new NumberValue(hsl[HSL_SATURATION] * 100, Token::PERCENTAGE, NULL);
 }
 
 Value* Color::lightness(const vector<const Value*>& arguments) {
-  double* hsl = ((const Color*)arguments[0])->getHSL();
+  double hsl[3];
+  ((const Color*)arguments[0])->getHSL(hsl);
 
-  return new NumberValue(hsl[2] * 100, Token::PERCENTAGE, NULL);
+  return new NumberValue(hsl[HSL_LIGHTNESS] * 100, Token::PERCENTAGE, NULL);
 }
 
 Value* Color::argb(const vector<const Value*>& arguments) {
@@ -647,9 +749,7 @@ Value* Color::argb(const vector<const Value*>& arguments) {
   Token t;
 
   color[0] = c->getAlpha() * 0xFF + 0.5;
-  color[1] = c->getRed();
-  color[2] = c->getGreen();
-  color[3] = c->getBlue();
+  c->getRGB(color + 1);
 
   for (i = 0; i < 4; i++) {
     stm.str("");
@@ -672,19 +772,22 @@ Value* Color::argb(const vector<const Value*>& arguments) {
 }
 
 Value* Color::red(const vector<const Value*>& arguments) {
-  const Color* c = (const Color*)arguments[0];
-
-  return new NumberValue(c->getRed());
+  unsigned int rgb[3];
+  ((const Color*)arguments[0])->getRGB(rgb);
+  
+  return new NumberValue(rgb[RGB_RED]);
 }
 Value* Color::blue(const vector<const Value*>& arguments) {
-  const Color* c = (const Color*)arguments[0];
-
-  return new NumberValue(c->getBlue());
+  unsigned int rgb[3];
+  ((const Color*)arguments[0])->getRGB(rgb);
+  
+  return new NumberValue(rgb[RGB_BLUE]);
 }
 Value* Color::green(const vector<const Value*>& arguments) {
-  const Color* c = (const Color*)arguments[0];
-
-  return new NumberValue(c->getGreen());
+  unsigned int rgb[3];
+  ((const Color*)arguments[0])->getRGB(rgb);
+  
+  return new NumberValue(rgb[RGB_GREEN]);
 }
 Value* Color::_alpha(const vector<const Value*>& arguments) {
   const Color* c = (const Color*)arguments[0];

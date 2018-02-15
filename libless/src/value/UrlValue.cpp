@@ -207,6 +207,7 @@ bool UrlValue::loadJpeg(UrlValue_Img& img) const {
   JSAMPARRAY buffer; /* Output row buffer */
   int row_stride;    /* physical row width in output buffer */
   std::string path = getRelativePath();
+  unsigned int rgb[3];
 
   if ((infile = fopen(path.c_str(), "rb")) == NULL) {
     return false;
@@ -284,27 +285,32 @@ bool UrlValue::loadJpeg(UrlValue_Img& img) const {
     (void)jpeg_read_scanlines(&cinfo, buffer, 1);
     /* Assume put_scanline_someplace wants a pointer and sample count. */
     // put_scanline_someplace(buffer[0], row_stride);
+
     if (cinfo.out_color_space == JCS_RGB &&
         (cinfo.output_scanline == 1 ||
          cinfo.output_scanline == cinfo.output_height)) {
       if (cinfo.output_scanline == 1) {
-        img.background.setRGB(buffer[0][0], buffer[0][1], buffer[0][2]);
-      }
-      if (img.background.getRed() != buffer[0][0] ||
-          img.background.getGreen() != buffer[0][1] ||
-          img.background.getBlue() != buffer[0][2] ||
+        rgb[0] = buffer[0][0];
+        rgb[1] = buffer[0][1];
+        rgb[2] = buffer[0][2];
 
-          img.background.getRed() !=
-              buffer[0][row_stride - cinfo.output_components] ||
-          img.background.getGreen() !=
-              buffer[0][row_stride - cinfo.output_components + 1] ||
-          img.background.getBlue() !=
-              buffer[0][row_stride - cinfo.output_components + 2]) {
-        img.background.setRGB(0, 0, 0);
+        if (rgb[0] != buffer[0][row_stride - cinfo.output_components] ||
+            rgb[1] != buffer[0][row_stride - cinfo.output_components + 1] ||
+            rgb[2] != buffer[0][row_stride - cinfo.output_components + 2]) {
+          rgb[0] = rgb[1] = rgb[2] = 0;
+        }
+      } else if (rgb[0] != buffer[0][0] ||
+                 rgb[1] != buffer[0][1] ||
+                 rgb[2] != buffer[0][2] ||
+                 rgb[0] != buffer[0][row_stride - cinfo.output_components] ||
+                 rgb[1] != buffer[0][row_stride - cinfo.output_components + 1] ||
+                 rgb[2] != buffer[0][row_stride - cinfo.output_components + 2]) {
+        rgb[0] = rgb[1] = rgb[2] = 0;
       }
     }
   }
-
+  img.background.setRGB(rgb[0], rgb[1], rgb[2]);
+  
   /* Step 7: Finish decompression */
 
   (void)jpeg_finish_decompress(&cinfo);

@@ -13,32 +13,52 @@ using namespace std;
 #define RGB_RED 0
 #define RGB_GREEN 1
 #define RGB_BLUE 2
+#define HSL_HUE 0
+#define HSL_SATURATION 1
+#define HSL_LIGHTNESS 2
+
 //#define ABS(x) (x < 0 ? 0 - x : x)
 
 class FunctionLibrary;
 
 class Color : public Value {
 private:
-  unsigned int color[3];
+  unsigned int rgb[3];
+  double hsl[3];
   double alpha;
 
   double maxArray(double* array, const size_t len) const;
   double minArray(double* array, const size_t len) const;
 
-  void updateTokens();
+  virtual const TokenList* getTokens() const;
 
   bool parseHash(const char* hash);
   
 public:
+  Token token;
+  enum ColorType {
+    TOKEN,
+    RGB,
+    HSL
+  } color_type;
+  
   Color();
   Color(const Token &token);
+  Color(const Token &name, const char* hash);
   Color(unsigned int red, unsigned int green, unsigned int blue);
   Color(unsigned int red, unsigned int green, unsigned int blue, double alpha);
-  Color(const Color& color);
-  Color(const Token &name, const char* hash);
+  Color(double hue, double saturation, double lightness);
+  Color(double hue, double saturation, double lightness, double alpha);
+  Color(const Color &color);
 
   static std::map<string,const char*> ColorNames;
-  
+
+  /**
+   * Looks in the ColorNames database for the given name and creates a color
+   * object with the rgb value that it represents.
+   *
+   * @return a new Color object or NULL if the color was not found.
+   */
   static Color* fromName(const Token &name);
   
   /**
@@ -48,7 +68,14 @@ public:
    * http://130.113.54.154/~monger/hsl-rgb.html, which does not list a
    * source.
    */
-  static Color* fromHSL(double hue, double saturation, double lightness);
+  void HSLtoRGB();
+
+  /**
+   * Converts the internal RGB value to HSL. The source of the
+   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
+   * for the saturation value, which did not work.
+   */
+  void RGBtoHSL(double hsl[3]) const;
 
   virtual ~Color();
 
@@ -60,51 +87,67 @@ public:
   virtual BooleanValue* equals(const Value& v) const;
   virtual BooleanValue* lessThan(const Value& v) const;
 
-  /**
-   * Converts the internal RGB value to HSL. The source of the
-   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
-   * for the saturation value, which did not work.
-   */
-  double* getHSL() const;
-
-  /**
-   * Change the color to a new rgb value.
-   */
-  void setRGB(unsigned int red, unsigned int green, unsigned int blue);
-
-  /**
-   * Returns the the amount of red in the color.
-   *
-   * @return an int value between 0-255
-   */
-  unsigned int getRed() const;
-  /**
-   * Returns the the amount of green in the color.
-   *
-   * @return an int value between 0-255
-   */
-  unsigned int getGreen() const;
-  /**
-   * Returns the the amount of blue in the color.
-   *
-   * @return an int value between 0-255
-   */
-  unsigned int getBlue() const;
+  
+  void getHSL(double hsl[3]) const;
+  void getRGB(unsigned int rgb[3]) const;
 
   void setAlpha(double alpha);
   double getAlpha() const;
 
+  /**
+   * Increase lightness 
+   */
+  void lighten(double lightness);
+  /**
+   * Decrease lightness
+   */
+  void darken(double lightness);
+
+  /**
+   * Increase saturation
+   */
+  void saturate(double saturation);
+
+  /**
+   * Decrease saturation
+   */
+  void desaturate(double saturation);
+
+  /**
+   * Increase hue
+   */
+  void spin(double hue) ;
+
+
+  /**
+   * Set rgb values
+   */
+  void setRGB(unsigned int red, unsigned int green, unsigned int blue);
+    
+  /**
+   * Increase rgb values
+   */
+  void increaseRGB(int red,
+                   int green,
+                   int blue);
+  /**
+   * Multiply rgb values
+   */
+  void multiplyRGB(double red,
+                   double green,
+                   double blue);
+
   static void loadFunctions(FunctionLibrary& lib);
-  static Value* rgb(const vector<const Value*>& arguments);
+  static Value* _rgb(const vector<const Value*>& arguments);
   static Value* rgba(const vector<const Value*>& arguments);
-  static Value* lighten(const vector<const Value*>& arguments);
-  static Value* darken(const vector<const Value*>& arguments);
-  static Value* saturate(const vector<const Value*>& arguments);
-  static Value* desaturate(const vector<const Value*>& arguments);
+  static Value* _lighten(const vector<const Value*>& arguments);
+  static Value* _darken(const vector<const Value*>& arguments);
+  static Value* _saturate(const vector<const Value*>& arguments);
+  static Value* _desaturate(const vector<const Value*>& arguments);
   static Value* fadein(const vector<const Value*>& arguments);
   static Value* fadeout(const vector<const Value*>& arguments);
   static Value* spin(const vector<const Value*>& arguments);
-  static Value* hsl(const vector<const Value*>& arguments);
+  static Value* _hsl(const vector<const Value*>& arguments);
   static Value* hue(const vector<const Value*>& arguments);
   static Value* saturation(const vector<const Value*>& arguments);
   static Value* lightness(const vector<const Value*>& arguments);

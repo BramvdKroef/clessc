@@ -48,8 +48,10 @@ void ValueProcessor::processValue(TokenList &value,
     }
 
     if (v != NULL) {
+      var = v->getTokens();
       newvalue.insert(
-          newvalue.end(), v->getTokens()->begin(), v->getTokens()->end());
+          newvalue.end(), var->begin(), var->end());
+      var = NULL;
       delete v;
     } else if (i2 != end) {
       // variable containing a non-value.

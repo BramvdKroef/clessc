@@ -412,7 +412,7 @@ TEST_F(ColorTest, Darken) {
 TEST_F(ColorTest, FadeIn) {
   l.push_back(Token("fadein", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  hsla("90", "80%", "50%", ".5");
+  hsla("90", "90%", "50%", ".5");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
   l.push_back(Token("10%", Token::PERCENTAGE, 0, 0, "-"));
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
@@ -420,13 +420,13 @@ TEST_F(ColorTest, FadeIn) {
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)13, l.size());
-  EXPECT_EQ("rgba(128, 242, 13, .6)", l.toString());
+  EXPECT_EQ("rgba(128, 242, 13, 0.6)", l.toString());
 }
 
 TEST_F(ColorTest, FadeOut) {
   l.push_back(Token("fadeout", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  hsla("90", "80%", "50%", ".5");
+  hsla("90", "90%", "50%", ".5");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
   l.push_back(Token("10%", Token::PERCENTAGE, 0, 0, "-"));
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
@@ -434,13 +434,13 @@ TEST_F(ColorTest, FadeOut) {
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)13, l.size());
-  EXPECT_EQ("rgba(128, 242, 13, .4)", l.toString());
+  EXPECT_EQ("rgba(128, 242, 13, 0.4)", l.toString());
 }
 
 TEST_F(ColorTest, Fade) {
   l.push_back(Token("fade", Token::IDENTIFIER,0, 0, "-"));
   l.push_back(Token("(", Token::PAREN_OPEN,0, 0, "-"));
-  hsl("90", "80%", "50%");
+  hsl("90", "90%", "50%");
   l.push_back(Token(",", Token::DELIMITER,0, 0, "-"));
   l.push_back(Token("10%", Token::PERCENTAGE, 0, 0, "-"));
   l.push_back(Token(")", Token::PAREN_CLOSED,0, 0, "-"));
@@ -448,7 +448,7 @@ TEST_F(ColorTest, Fade) {
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)13, l.size());
-  EXPECT_EQ("rgba(128, 242, 13, .1)", l.toString());
+  EXPECT_EQ("rgba(128, 242, 13, 0.1)", l.toString());
 }
 
 TEST_F(ColorTest, Spin) {
