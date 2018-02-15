@@ -59,10 +59,13 @@ bool LessSelectorParser::parseExtension(TokenList &tokens,
   Extension extension;
   TokenList target, ext;
   
-  if ((*it).type != Token::COLON ||
-      (*++it).type != Token::IDENTIFIER ||
+  if (it == tokens.end() ||
+      (*it).type != Token::COLON ||
+      ++it == tokens.end() ||
+      (*it).type != Token::IDENTIFIER ||
       (*it) != "extend" ||
-      (*++it).type != Token::PAREN_OPEN)
+      ++it == tokens.end() ||
+      (*it).type != Token::PAREN_OPEN)
     return false;
   
   it++;

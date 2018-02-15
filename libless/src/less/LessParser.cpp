@@ -359,7 +359,8 @@ bool LessParser::parseExtension(TokenList &statement, LessRuleset &ruleset) {
   Extension extension;
   TokenList target;
 
-  if ((*i) != "&" ||
+  if (statement.size() <= 5 ||
+      (*i) != "&" ||
       (*++i).type != Token::COLON ||
       (*++i).type != Token::IDENTIFIER ||
       (*i) != "extend" ||
@@ -390,7 +391,7 @@ bool LessParser::parseExtension(TokenList &statement, LessRuleset &ruleset) {
                              statement.front().source);
   }
 
-  if (target.back() == "all") {
+  if (!target.empty() && target.back() == "all") {
     extension.setAll(true);
     target.pop_back();
     target.rtrim();
