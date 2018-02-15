@@ -481,6 +481,7 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("fadeout", "CP", &Color::fadeout);
   lib.push("spin", "CN", &Color::spin);
   lib.push("hsl", "NPP", &Color::hsl);
+  lib.push("hsla", "NPP.", &Color::hsla);
   lib.push("hue", "C", &Color::hue);
   lib.push("saturation", "C", &Color::saturation);
   lib.push("lightness", "C", &Color::lightness);
@@ -599,6 +600,23 @@ Value* Color::hsl(const vector<const Value*>& arguments) {
   return Color::fromHSL(((const NumberValue*)arguments[0])->getValue(),
                         ((const NumberValue*)arguments[1])->getValue(),
                         ((const NumberValue*)arguments[2])->getValue());
+}
+
+Value* Color::hsla(const vector<const Value*>& arguments) {
+  Color* ret = Color::fromHSL(((const NumberValue*)arguments[0])->getValue(),
+                              ((const NumberValue*)arguments[1])->getValue(),
+                              ((const NumberValue*)arguments[2])->getValue());
+  if (arguments[3]->type == Value::NUMBER) {
+    ret->setAlpha(((const NumberValue*)arguments[3])->getValue());
+  } else if (arguments[3]->type == Value::PERCENTAGE) {
+    ret->setAlpha(((const NumberValue*)arguments[3])->getValue() * .01);
+  } else {
+    throw new ValueException(
+                             "Argument 3 needs to be a number "
+                             "or percentage.",
+                             *arguments[3]->getTokens());
+  }
+  return ret;
 }
 
 Value* Color::hue(const vector<const Value*>& arguments) {
