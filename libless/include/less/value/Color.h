@@ -66,14 +66,30 @@ private:
   void convert_hsv_rgb(const float hsv[3], unsigned int rgb[3]) const;
 
   /**
+   * Calculate the hue for rgb values.
+   *
+   * @param rgb      rgb values in range 0...1
+   * @param chroma   calculated from rgb
+   * @param max      maximum value from rgb array.
+   */
+  float convert_rgb_hue(const float rgb[3], float chroma,
+                        float max) const;
+
+  /**
    * Converts the internal RGB value to HSL. The source of the
-   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
-   * for the saturation value, which did not work.
+   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV 
    */
   void convert_rgb_hsl(const unsigned int rgb[3], float hsl[3]) const;
-    
+
+  /**
+   * Converts the internal RGB value to HSV. The source of the
+   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV 
+   */
+  void convert_rgb_hsv(const unsigned int rgb[3], float hsv[3]) const;
+  
   unsigned int rgb[3];
   float hsl[3];
+  float hsv[3];
   float alpha;
 
   float maxArray(float* array, const size_t len) const;
@@ -88,7 +104,8 @@ public:
   enum ColorType {
     TOKEN,
     RGB,
-    HSL
+    HSL,
+    HSV
   } color_type;
   
   Color();
@@ -98,6 +115,8 @@ public:
   Color(unsigned int red, unsigned int green, unsigned int blue, float alpha);
   Color(float hue, float saturation, float lightness);
   Color(float hue, float saturation, float lightness, float alpha);
+  Color(bool hsv, float hue, float saturation, float value);
+  Color(bool hsv, float hue, float saturation, float value, float alpha);
   Color(const Color &color);
 
   static std::map<string,const char*> ColorNames;
@@ -122,6 +141,7 @@ public:
 
   
   void getHSL(float hsl[3]) const;
+  void getHSV(float hsl[3]) const;
   void getRGB(unsigned int rgb[3]) const;
 
   void setAlpha(float alpha);
@@ -189,15 +209,15 @@ public:
   static Value* green(const vector<const Value*>& arguments);
   static Value* blue(const vector<const Value*>& arguments);
   static Value* _alpha(const vector<const Value*>& arguments);
-
   static Value* hsla(const vector<const Value*>& arguments);
-  static Value* hsv(const vector<const Value*>& arguments);
+  static Value* _hsv(const vector<const Value*>& arguments);
   static Value* hsva(const vector<const Value*>& arguments);
   static Value* hsvhue(const vector<const Value*>& arguments);
   static Value* hsvsaturation(const vector<const Value*>& arguments);
   static Value* hsvvalue(const vector<const Value*>& arguments);
-  static Value* luma(const vector<const Value*>& arguments);
   static Value* fade(const vector<const Value*>& arguments);
+
+  static Value* luma(const vector<const Value*>& arguments);
   static Value* mix(const vector<const Value*>& arguments);
   static Value* greyscale(const vector<const Value*>& arguments);
   static Value* contrast(const vector<const Value*>& arguments);
