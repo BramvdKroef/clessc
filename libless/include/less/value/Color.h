@@ -16,6 +16,9 @@ using namespace std;
 #define HSL_HUE 0
 #define HSL_SATURATION 1
 #define HSL_LIGHTNESS 2
+#define HSV_HUE 0
+#define HSV_SATURATION 1
+#define HSV_VALUE 2
 
 //#define ABS(x) (x < 0 ? 0 - x : x)
 
@@ -23,12 +26,58 @@ class FunctionLibrary;
 
 class Color : public Value {
 private:
-  unsigned int rgb[3];
-  double hsl[3];
-  double alpha;
+  /**
+   * Used for converting hsl/hsv colors to rgb.
+   */
+  static const int conversion_matrices[6][3][2];
 
-  double maxArray(double* array, const size_t len) const;
-  double minArray(double* array, const size_t len) const;
+  /**
+   * Generate rgb values from hue, chroma and match value.
+   *
+   * @see convert_hsl_rgb
+   * @see convert_hsv_rgb
+   */
+  void convert_hcm_rgb(float hue, float chroma, float match,
+                       unsigned int rgb[3]) const;
+  /**
+   * Convert hue, saturation and lightness values to red, green and blue using
+   * the calculations from https://en.wikipedia.org/wiki/HSL_and_HSV#From_HSL
+   *
+   * @param hsl   an array containing
+   *              - [HSL_HUE]: the hue as a value between 0 and 359.
+   *              - [HSL_SATURATION]: the saturation value between 0 and 1.
+   *              - [HSL_LIGHTNESS]: the lightness value between 0 and 1.
+   * @param rgb   an array that will be assigned the rgb values in the order
+   *              red, green and blue.
+   */
+  void convert_hsl_rgb(const float hsl[3], unsigned int rgb[3]) const; 
+
+  /**
+   * Convert hue, saturation and value values to red, green and blue using the
+   * calculations from https://en.wikipedia.org/wiki/HSL_and_HSV#From_HSV
+   *
+   * @param hsv   an array containing
+   *              - [HSV_HUE]: the hue as a value between 0 and 359.
+   *              - [HSV_SATURATION]: the saturation value between 0 and 1.
+   *              - [HSV_VALUE]: the value value between 0 and 1.
+   * @param rgb   an array that will be assigned the rgb values in the order
+   *              red, green and blue.
+   */
+  void convert_hsv_rgb(const float hsv[3], unsigned int rgb[3]) const;
+
+  /**
+   * Converts the internal RGB value to HSL. The source of the
+   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
+   * for the saturation value, which did not work.
+   */
+  void convert_rgb_hsl(const unsigned int rgb[3], float hsl[3]) const;
+    
+  unsigned int rgb[3];
+  float hsl[3];
+  float alpha;
+
+  float maxArray(float* array, const size_t len) const;
+  float minArray(float* array, const size_t len) const;
 
   virtual const TokenList* getTokens() const;
 
@@ -46,9 +95,9 @@ public:
   Color(const Token &token);
   Color(const Token &name, const char* hash);
   Color(unsigned int red, unsigned int green, unsigned int blue);
-  Color(unsigned int red, unsigned int green, unsigned int blue, double alpha);
-  Color(double hue, double saturation, double lightness);
-  Color(double hue, double saturation, double lightness, double alpha);
+  Color(unsigned int red, unsigned int green, unsigned int blue, float alpha);
+  Color(float hue, float saturation, float lightness);
+  Color(float hue, float saturation, float lightness, float alpha);
   Color(const Color &color);
 
   static std::map<string,const char*> ColorNames;
@@ -61,22 +110,6 @@ public:
    */
   static Color* fromName(const Token &name);
   
-  /**
-   * The HSL to RGB conversion on
-   * http://en.wikipedia.org/wiki/HSL_and_HSV did not work at all so
-   * the calculations are from
-   * http://130.113.54.154/~monger/hsl-rgb.html, which does not list a
-   * source.
-   */
-  void HSLtoRGB();
-
-  /**
-   * Converts the internal RGB value to HSL. The source of the
-   * calculations is http://en.wikipedia.org/wiki/HSL_and_HSV except
-   * for the saturation value, which did not work.
-   */
-  void RGBtoHSL(double hsl[3]) const;
-
   virtual ~Color();
 
   virtual Value* add(const Value& v) const;
@@ -88,35 +121,35 @@ public:
   virtual BooleanValue* lessThan(const Value& v) const;
 
   
-  void getHSL(double hsl[3]) const;
+  void getHSL(float hsl[3]) const;
   void getRGB(unsigned int rgb[3]) const;
 
-  void setAlpha(double alpha);
-  double getAlpha() const;
+  void setAlpha(float alpha);
+  float getAlpha() const;
 
   /**
    * Increase lightness 
    */
-  void lighten(double lightness);
+  void lighten(float lightness);
   /**
    * Decrease lightness
    */
-  void darken(double lightness);
+  void darken(float lightness);
 
   /**
    * Increase saturation
    */
-  void saturate(double saturation);
+  void saturate(float saturation);
 
   /**
    * Decrease saturation
    */
-  void desaturate(double saturation);
+  void desaturate(float saturation);
 
   /**
    * Increase hue
    */
-  void spin(double hue) ;
+  void spin(float hue) ;
 
 
   /**
@@ -133,9 +166,9 @@ public:
   /**
    * Multiply rgb values
    */
-  void multiplyRGB(double red,
-                   double green,
-                   double blue);
+  void multiplyRGB(float red,
+                   float green,
+                   float blue);
 
   static void loadFunctions(FunctionLibrary& lib);
   static Value* _rgb(const vector<const Value*>& arguments);
