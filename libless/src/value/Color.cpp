@@ -399,6 +399,23 @@ void Color::spin(float hue) {
   convert_hsl_rgb(hsl, rgb);
 }
 
+void Color::mix(const Color &color, float weight) {
+  unsigned int rgb1[3], rgb2[3];
+  getRGB(rgb1);
+  color.getRGB(rgb2);
+
+  // move weight by the relative alpha.
+  float cweight = weight + (color.getAlpha() - getAlpha()) * .5;
+  
+  for (int i = 0; i < 3; i++) {
+    // move color by difference x weight ( and round ).
+    rgb1[i] = (int)rgb1[i] + ((int)rgb2[i] - (int)rgb1[i]) * cweight + .5;
+  }
+  setRGB(rgb1[0], rgb1[1], rgb1[2]);
+
+  setAlpha(getAlpha() + (color.getAlpha() - getAlpha()) * weight );
+}
+
 void Color::setAlpha(float alpha) {
   this->alpha = alpha;
   if (color_type == TOKEN)
@@ -684,7 +701,6 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("hsla", "NPP.", &Color::hsla);
   lib.push("hsv", "NPP", &Color::_hsv);
   lib.push("hsva", "NPP.", &Color::hsva);
-
   lib.push("hue", "C", &Color::hue);
   lib.push("saturation", "C", &Color::saturation);
   lib.push("lightness", "C", &Color::lightness);
@@ -698,6 +714,9 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("alpha", "C", &Color::_alpha);
   lib.push("luma", "C", &Color::luma);
   lib.push("luminance", "C", &Color::luminance);
+  lib.push("mix", "CCP?", &Color::_mix);
+  lib.push("tint", "CP?", &Color::tint);
+  lib.push("shade", "CP?", &Color::shade);
 }
 
 Value* Color::_rgb(const vector<const Value*>& arguments) {
@@ -946,6 +965,35 @@ Value* Color::luminance(const vector<const Value*>& arguments) {
   const Color* c = (const Color*)arguments[0];
 
   return new NumberValue(c->getLuminance() * 100, Token::PERCENTAGE, NULL);
+}
+
+Value* Color::_mix(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  float weight = .5;
+  if (arguments.size() > 2)
+    weight = (float)(((const NumberValue*)arguments[2])->getValue() * .01);
+
+  c->mix(*(const Color*)arguments[1], weight);
+  return c;
+}
+Value* Color::tint(const vector<const Value*>& arguments) {
+  Color *c = new Color((unsigned int)255,(unsigned int)255,(unsigned int)255);
+ float weight = .5;
+  if (arguments.size() > 1)
+    weight = (float)(((const NumberValue*)arguments[1])->getValue() * .01);
+
+  c->mix(*(const Color*)arguments[0], weight);
+  return c;
+}
+
+Value* Color::shade(const vector<const Value*>& arguments) {
+  Color *c = new Color((unsigned int)0,(unsigned int)0,(unsigned int)0);
+  float weight = .5;
+  if (arguments.size() > 1)
+    weight = (float)(((const NumberValue*)arguments[1])->getValue() * .01);
+
+  c->mix(*(const Color*)arguments[0], weight);
+  return c;
 }
 
 std::map<string,const char*> Color::ColorNames = {

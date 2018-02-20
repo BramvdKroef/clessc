@@ -144,6 +144,8 @@ public:
   void getHSV(float hsl[3]) const;
   void getRGB(unsigned int rgb[3]) const;
 
+  void mix(const Color &color, float weight);
+  
   void setAlpha(float alpha);
   float getAlpha() const;
 
@@ -221,7 +223,10 @@ public:
   static Value* luma(const vector<const Value*>& arguments);
   static Value* luminance(const vector<const Value*>& arguments);
 
-  static Value* mix(const vector<const Value*>& arguments);
+  static Value* _mix(const vector<const Value*>& arguments);
+  static Value* tint(const vector<const Value*>& arguments);
+  static Value* shade(const vector<const Value*>& arguments);
+  
   static Value* greyscale(const vector<const Value*>& arguments);
   static Value* contrast(const vector<const Value*>& arguments);
   static Value* screen(const vector<const Value*>& arguments);
