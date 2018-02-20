@@ -408,6 +408,31 @@ float Color::getAlpha() const {
   return alpha;
 }
 
+float Color::getLuma() const {
+  unsigned int rgb[3];
+  float _rgb[3];
+  getRGB(rgb);
+  for (int i = 0; i < 3; i++) {
+    _rgb[i] = ((float)rgb[i] / 0xFF);
+    if (_rgb[i] <= 0.03928) {
+      _rgb[i] = _rgb[i] / 12.92;
+    } else {
+      _rgb[i] = pow(((_rgb[i] + 0.055) / 1.055), 2.4);
+    }
+  }
+  return 0.2126 * _rgb[0] + 0.7152 * _rgb[1] + 0.0722 * _rgb[2];
+}
+
+float Color::getLuminance() const {
+  unsigned int rgb[3];
+  float _rgb[3];
+  getRGB(rgb);
+  for (int i = 0; i < 3; i++) {
+    _rgb[i] = ((float)rgb[i] / 0xFF);
+  }
+  return 0.2126 * _rgb[0] + 0.7152 * _rgb[1] + 0.0722 * _rgb[2];
+}
+
 const TokenList* Color::getTokens() const {
   TokenList *tokens;
   ostringstream stm;
@@ -671,6 +696,8 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("blue", "C", &Color::blue);
   lib.push("green", "C", &Color::green);
   lib.push("alpha", "C", &Color::_alpha);
+  lib.push("luma", "C", &Color::luma);
+  lib.push("luminance", "C", &Color::luminance);
 }
 
 Value* Color::_rgb(const vector<const Value*>& arguments) {
@@ -908,6 +935,17 @@ Value* Color::_alpha(const vector<const Value*>& arguments) {
   const Color* c = (const Color*)arguments[0];
 
   return new NumberValue(c->getAlpha());
+}
+Value* Color::luma(const vector<const Value*>& arguments) {
+  const Color* c = (const Color*)arguments[0];
+
+  return new NumberValue(c->getLuma() * 100, Token::PERCENTAGE, NULL);
+}
+
+Value* Color::luminance(const vector<const Value*>& arguments) {
+  const Color* c = (const Color*)arguments[0];
+
+  return new NumberValue(c->getLuminance() * 100, Token::PERCENTAGE, NULL);
 }
 
 std::map<string,const char*> Color::ColorNames = {

@@ -147,6 +147,8 @@ public:
   void setAlpha(float alpha);
   float getAlpha() const;
 
+  float getLuma() const;
+  float getLuminance() const;
   /**
    * Increase lightness 
    */
@@ -216,8 +218,9 @@ public:
   static Value* hsvsaturation(const vector<const Value*>& arguments);
   static Value* hsvvalue(const vector<const Value*>& arguments);
   static Value* fade(const vector<const Value*>& arguments);
-
   static Value* luma(const vector<const Value*>& arguments);
+  static Value* luminance(const vector<const Value*>& arguments);
+
   static Value* mix(const vector<const Value*>& arguments);
   static Value* greyscale(const vector<const Value*>& arguments);
   static Value* contrast(const vector<const Value*>& arguments);

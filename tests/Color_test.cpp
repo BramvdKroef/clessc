@@ -338,7 +338,7 @@ TEST_F(ColorTest, Luma) {
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_EQ("44%", l.toString());
+  EXPECT_EQ("44.11161423%", l.toString());
 }
 
 TEST_F(ColorTest, Luminance) {
@@ -350,7 +350,7 @@ TEST_F(ColorTest, Luminance) {
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_EQ("65%", l.toString());
+  EXPECT_EQ("65.28078461%", l.toString());
 }
 
 TEST_F(ColorTest, Saturate) {
