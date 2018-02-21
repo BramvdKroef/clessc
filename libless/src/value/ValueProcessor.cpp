@@ -1,10 +1,15 @@
 #include "less/value/ValueProcessor.h"
+#include "less/value/ColorFunctions.h"
+#include "less/value/NumberFunctions.h"
+#include "less/value/StringFunctions.h"
+#include "less/value/UrlFunctions.h"
+
 
 ValueProcessor::ValueProcessor() {
-  NumberValue::loadFunctions(functionLibrary);
-  Color::loadFunctions(functionLibrary);
-  StringValue::loadFunctions(functionLibrary);
-  UrlValue::loadFunctions(functionLibrary);
+  NumberFunctions::loadFunctions(functionLibrary);
+  ColorFunctions::loadFunctions(functionLibrary);
+  StringFunctions::loadFunctions(functionLibrary);
+  UrlFunctions::loadFunctions(functionLibrary);
 }
 ValueProcessor::~ValueProcessor() {
 }

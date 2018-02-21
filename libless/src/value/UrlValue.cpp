@@ -350,35 +350,3 @@ Color UrlValue::getImageBackground() const {
   return img.background;
 }
 
-void UrlValue::loadFunctions(FunctionLibrary& lib) {
-  lib.push("imgheight", "R", &UrlValue::imgheight);
-  lib.push("imgwidth", "R", &UrlValue::imgwidth);
-  lib.push("imgbackground", "R", &UrlValue::imgbackground);
-  lib.push("image-width", "R", &UrlValue::imgwidth);
-  lib.push("image-height", "R", &UrlValue::imgheight);
-}
-
-Value* UrlValue::imgheight(const vector<const Value*>& arguments) {
-  const UrlValue* u;
-  NumberValue* val;
-  std::string px = "px";
-
-  u = static_cast<const UrlValue*>(arguments[0]);
-
-  val = new NumberValue(u->getImageHeight(), Token::DIMENSION, &px);
-  return val;
-}
-Value* UrlValue::imgwidth(const vector<const Value*>& arguments) {
-  const UrlValue* u;
-  NumberValue* val;
-  std::string px = "px";
-
-  u = static_cast<const UrlValue*>(arguments[0]);
-  val = new NumberValue(u->getImageWidth(), Token::DIMENSION, &px);
-  return val;
-}
-
-Value* UrlValue::imgbackground(const vector<const Value*>& arguments) {
-  const UrlValue* u = static_cast<const UrlValue*>(arguments[0]);
-  return new Color(u->getImageBackground());
-}

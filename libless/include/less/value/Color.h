@@ -200,49 +200,6 @@ public:
                    float green,
                    float blue);
 
-  static void loadFunctions(FunctionLibrary& lib);
-  static Value* _rgb(const vector<const Value*>& arguments);
-  static Value* rgba(const vector<const Value*>& arguments);
-  static Value* _lighten(const vector<const Value*>& arguments);
-  static Value* _darken(const vector<const Value*>& arguments);
-  static Value* _saturate(const vector<const Value*>& arguments);
-  static Value* _desaturate(const vector<const Value*>& arguments);
-  static Value* fadein(const vector<const Value*>& arguments);
-  static Value* fadeout(const vector<const Value*>& arguments);
-  static Value* spin(const vector<const Value*>& arguments);
-  static Value* _hsl(const vector<const Value*>& arguments);
-  static Value* hue(const vector<const Value*>& arguments);
-  static Value* saturation(const vector<const Value*>& arguments);
-  static Value* lightness(const vector<const Value*>& arguments);
-  static Value* argb(const vector<const Value*>& arguments);
-  static Value* red(const vector<const Value*>& arguments);
-  static Value* green(const vector<const Value*>& arguments);
-  static Value* blue(const vector<const Value*>& arguments);
-  static Value* _alpha(const vector<const Value*>& arguments);
-  static Value* hsla(const vector<const Value*>& arguments);
-  static Value* _hsv(const vector<const Value*>& arguments);
-  static Value* hsva(const vector<const Value*>& arguments);
-  static Value* hsvhue(const vector<const Value*>& arguments);
-  static Value* hsvsaturation(const vector<const Value*>& arguments);
-  static Value* hsvvalue(const vector<const Value*>& arguments);
-  static Value* fade(const vector<const Value*>& arguments);
-  static Value* luma(const vector<const Value*>& arguments);
-  static Value* luminance(const vector<const Value*>& arguments);
-  static Value* _mix(const vector<const Value*>& arguments);
-  static Value* tint(const vector<const Value*>& arguments);
-  static Value* shade(const vector<const Value*>& arguments);
-  static Value* greyscale(const vector<const Value*>& arguments);
-  static Value* contrast(const vector<const Value*>& arguments);
-
-  static Value* _multiply(const vector<const Value*>& arguments);
-  static Value* screen(const vector<const Value*>& arguments);
-  static Value* overlay(const vector<const Value*>& arguments);
-  static Value* softlight(const vector<const Value*>& arguments);
-  static Value* hardlight(const vector<const Value*>& arguments);
-  static Value* difference(const vector<const Value*>& arguments);
-  static Value* exclusion(const vector<const Value*>& arguments);
-  static Value* average(const vector<const Value*>& arguments);
-  static Value* negation(const vector<const Value*>& arguments);
 };
 
 #endif  // __less_value_Color_h__

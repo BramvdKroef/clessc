@@ -42,13 +42,6 @@ public:
 
   static std::string escape(std::string rawstr, std::string extraUnreserved = "");
 
-  static void loadFunctions(FunctionLibrary &lib);
-  static Value *escape(const std::vector<const Value *> &arguments);
-  static Value *e(const std::vector<const Value *> &arguments);
-  static Value *format(const std::vector<const Value *> &arguments);
-  static Value *replace(const std::vector<const Value *> &arguments);
-  static Value *color(const std::vector<const Value *> &arguments);
-  static Value *data_uri(const std::vector<const Value *> &arguments);
 };
 
 #endif  // __less_value_StringValue_h__

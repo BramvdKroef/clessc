@@ -46,6 +46,10 @@ set(less_SOURCES
         src/value/UrlValue.cpp
         src/value/Value.cpp
         src/value/ValueProcessor.cpp
+        src/value/ColorFunctions.cpp
+        src/value/NumberFunctions.cpp
+        src/value/StringFunctions.cpp
+        src/value/UrlFunctions.cpp
         src/Token.cpp
         src/TokenList.cpp
         src/VariableMap.cpp
