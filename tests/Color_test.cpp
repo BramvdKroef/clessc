@@ -98,7 +98,7 @@ public:
       vp.processValue(l, c);
 
       ASSERT_EQ((uint)1, l.size());
-      EXPECT_EQ(out[i], l.toString());
+      EXPECT_STREQ(out[i], l.toString().c_str());
     }
   }
 };
@@ -584,7 +584,7 @@ TEST_F(ColorTest, Contrast) {
   vp.processValue(l, c);
 
   ASSERT_EQ((uint)1, l.size());
-  EXPECT_EQ("#000000", l.toString());
+  EXPECT_EQ("#000", l.toString());
 
   l.clear();
   l.push_back(Token("contrast", Token::IDENTIFIER,0, 0, "-"));
@@ -596,8 +596,8 @@ TEST_F(ColorTest, Contrast) {
 
   vp.processValue(l, c);
 
-  ASSERT_EQ((uint)1, l.size());
-  EXPECT_EQ("#ffffff", l.toString());
+  EXPECT_EQ((uint)1, l.size());
+  EXPECT_EQ("#fff", l.toString());
 
   l.clear();
   l.push_back(Token("contrast", Token::IDENTIFIER,0, 0, "-"));
@@ -611,7 +611,7 @@ TEST_F(ColorTest, Contrast) {
 
   vp.processValue(l, c);
 
-  ASSERT_EQ((uint)1, l.size());
+  EXPECT_EQ((uint)1, l.size());
   EXPECT_EQ("#dddddd", l.toString());
 
   l.clear();
@@ -628,7 +628,7 @@ TEST_F(ColorTest, Contrast) {
 
   vp.processValue(l, c);
 
-  ASSERT_EQ((uint)1, l.size());
+  EXPECT_EQ((uint)1, l.size());
   EXPECT_EQ("#000000", l.toString());
 
   l.clear();
@@ -645,28 +645,28 @@ TEST_F(ColorTest, Contrast) {
 
   vp.processValue(l, c);
 
-  ASSERT_EQ((uint)1, l.size());
+  EXPECT_EQ((uint)1, l.size());
   EXPECT_EQ("#ffffff", l.toString());
 }
 
 TEST_F(ColorTest, Multiply) {
-  const char* out[] = {"#000000", "#331400", "#662900",
-                      "#993d00", "#cc5200", "#ff6600",
-                      "#ff0000", "#006600","#000000"};
+  const char* out[] = {"#000", "#331400", "#662900",
+                      "#993d00", "#cc5200", "#f60",
+                      "#f00", "#060","#000"};
   blendtests("multiply", out);
 }
 
 TEST_F(ColorTest, Screen) {
-  const char* out[] = { "#ff6600", "#ff8533", "#ffa366",
-                        "#ffc299", "#ffe0cc", "#ffffff",
-                        "#ff6600", "#ffff00", "#ff66ff"};
+  const char* out[] = { "#f60", "#ff8533", "#ffa366",
+                        "#ffc299", "#ffe0cc", "#fff",
+                        "#f60", "#ff0", "#f6f"};
   blendtests("screen", out);
 }
 
 TEST_F(ColorTest, Overlay) {
-  const char* out[] = {"#ff0000", "#ff2900", "#ff5200",
-                       "#ff7a00", "#ffa300", "#ffcc00",
-                       "#ff0000", "#ffcc00", "#ff0000"};
+  const char* out[] = {"#f00", "#ff2900", "#ff5200",
+                       "#ff7a00", "#ffa300", "#fc0",
+                       "#f00", "#fc0", "#f00"};
   blendtests("overlay", out);
 }
 
@@ -678,36 +678,36 @@ TEST_F(ColorTest, Softlight) {
 }
 
 TEST_F(ColorTest, Hardlight) {
-  const char* out[] = {"#000000", "#662900", "#cc5200", 
-                       "#ff8533", "#ffc299", "#ffffff", 
-                       "#ff0000", "#00ff00", "#0000ff"};
+  const char* out[] = {"#000", "#662900", "#cc5200", 
+                       "#ff8533", "#ffc299", "#fff", 
+                       "#f00", "#0f0", "#00f"};
   blendtests("hardlight", out);
 }
 
 TEST_F(ColorTest, Difference) {
-  const char* out[] = {"#ff6600", "#cc3333", "#990066", 
-                       "#663399", "#3366cc", "#0099ff", 
-                       "#006600", "#ff9900", "#ff66ff"};
+  const char* out[] = {"#f60", "#c33", "#906", 
+                       "#639", "#36c", "#09f", 
+                       "#060", "#f90", "#f6f"};
   blendtests("difference", out);
 }
 
 TEST_F(ColorTest, Exclusion) {
-  const char* out[] = {"#ff6600", "#cc7033", "#997a66", 
-                       "#668599", "#338fcc", "#0099ff", 
-                       "#006600", "#ff9900", "#ff66ff"};
+  const char* out[] = {"#f60", "#cc7033", "#997a66", 
+                       "#668599", "#338fcc", "#09f", 
+                       "#060", "#f90", "#f6f"};
   blendtests("exclusion", out);
 }
 
 TEST_F(ColorTest, Average) {
   const char* out[] = {"#803300", "#994d1a", "#b36633", 
                        "#cc804d", "#e69966", "#ffb380", 
-                       "#ff3300", "#80b300", "#803380"};
+                       "#f30", "#80b300", "#803380"};
   blendtests("average", out);
 }
 
 TEST_F(ColorTest, Negate) {
-  const char* out[] = {"#ff6600", "#cc9933", "#99cc66", 
-                       "#66ff99", "#33cccc", "#0099ff", 
-                       "#006600", "#ff9900", "#ff66ff"};
-  blendtests("negate", out);
+  const char* out[] = {"#f60", "#c93", "#9c6", 
+                       "#6f9", "#3cc", "#09f", 
+                       "#060", "#f90", "#f6f"};
+  blendtests("negation", out);
 }

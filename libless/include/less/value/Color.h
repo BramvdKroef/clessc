@@ -107,6 +107,10 @@ public:
     HSL,
     HSV
   } color_type;
+
+  enum blendtype {
+    MULTIPLY, SCREEN, OVERLAY, SOFTLIGHT, HARDLIGHT, DIFFERENCE, EXCLUSION,
+    AVERAGE, NEGATION};
   
   Color();
   Color(const Token &token);
@@ -145,6 +149,8 @@ public:
   void getRGB(unsigned int rgb[3]) const;
 
   void mix(const Color &color, float weight);
+
+  void blend(const Color &color, blendtype blend);
   
   void setAlpha(float alpha);
   float getAlpha() const;
@@ -222,20 +228,20 @@ public:
   static Value* fade(const vector<const Value*>& arguments);
   static Value* luma(const vector<const Value*>& arguments);
   static Value* luminance(const vector<const Value*>& arguments);
-
   static Value* _mix(const vector<const Value*>& arguments);
   static Value* tint(const vector<const Value*>& arguments);
   static Value* shade(const vector<const Value*>& arguments);
-  
   static Value* greyscale(const vector<const Value*>& arguments);
   static Value* contrast(const vector<const Value*>& arguments);
+
+  static Value* _multiply(const vector<const Value*>& arguments);
   static Value* screen(const vector<const Value*>& arguments);
   static Value* overlay(const vector<const Value*>& arguments);
   static Value* softlight(const vector<const Value*>& arguments);
   static Value* hardlight(const vector<const Value*>& arguments);
   static Value* difference(const vector<const Value*>& arguments);
   static Value* exclusion(const vector<const Value*>& arguments);
-  static Value* avarage(const vector<const Value*>& arguments);
+  static Value* average(const vector<const Value*>& arguments);
   static Value* negation(const vector<const Value*>& arguments);
 };
 

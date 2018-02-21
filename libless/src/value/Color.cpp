@@ -5,8 +5,8 @@
 
 #include "less/value/FunctionLibrary.h"
 
-#define max(x, y) x > y ? x : y
-#define min(x, y) x < y ? x : y
+#define max(x, y) (x > y ? x : y)
+#define min(x, y) (x < y ? x : y)
 
 float Color::maxArray(float* array, const size_t len) const {
   float ret = array[0];
@@ -223,7 +223,8 @@ Color::Color(const Color &color) : Value() {
 
   switch (color.color_type) {
   case TOKEN:
-    token = color.token;    
+    token = color.token;
+    tokens.push_back(token);
     break;
     
   case RGB:
@@ -380,6 +381,7 @@ void Color::saturate(float saturation) {
   }
 
   hsl[HSL_SATURATION] = max(min(hsl[HSL_SATURATION] + saturation, 1), 0);
+
   convert_hsl_rgb(hsl, rgb);
 }
 
@@ -414,6 +416,114 @@ void Color::mix(const Color &color, float weight) {
   setRGB(rgb1[0], rgb1[1], rgb1[2]);
 
   setAlpha(getAlpha() + (color.getAlpha() - getAlpha()) * weight );
+}
+
+void Color::blend(const Color &color, blendtype blend) {
+  unsigned int rgb1[3], rgb2[3];
+  getRGB(rgb1);
+  color.getRGB(rgb2);
+  int i;
+  float tmp;
+
+  switch(blend) {
+  case MULTIPLY:
+
+    // base x blend
+    for(i = 0; i < 3; i++) {
+      rgb1[i] = (unsigned int)(.5 + (float)(rgb1[i] * rgb2[i]) / 0xFF);
+    }
+    break;
+    
+  case SCREEN:
+    // 1 - (1 - base) x (1 - blend)
+    for(i = 0; i < 3; i++) {
+      rgb1[i] = 0xFF -
+        (unsigned int)((float)((0xFF - rgb1[i]) * (0xFF - rgb2[i]))
+                       / 0xFF
+                       + .5);
+    }
+    break;
+    
+  case OVERLAY:
+    // 2 x base x blend                  if base < 1/2
+    // 1 - 2 x (1 - base) x (1 - blend)  otherwise
+    
+    for(i = 0; i < 3; i++) {
+      if (rgb1[i] < 128)
+        rgb1[i] = (unsigned int)(.5 + (float)(2 * rgb1[i] * rgb2[i]) / 0xFF);
+      else 
+        rgb1[i] = 0xFF -
+          (unsigned int)((float)(2 * (0xFF - rgb1[i]) * (0xFF - rgb2[i]))
+                         / 0xFF
+                         + .5);
+    }
+    break;
+    
+  case SOFTLIGHT:
+    // TODO: doesn't work yet.
+    // base x blend                  if base < 1/2
+    // 1 - 2 x (1 - base) x (1 - blend)  otherwise
+    
+    for(i = 0; i < 3; i++) {
+      if (rgb2[i] < 128)
+        rgb1[i] = (unsigned int)(.5 + (float)((int)rgb1[i] * ((int)rgb2[i] - 128)) / 0xFF);
+      else 
+        rgb1[i] = 0xFF -
+          (unsigned int)((float)((0xFF - rgb1[i]) * (int)(0xFF - rgb2[i] - 128))
+                         / 0xFF
+                         + .5);
+    }
+    
+    break;
+    
+  case HARDLIGHT:
+    // 2 x base x blend                  if blend < 1/2
+    // 1 - 2 x (1 - base) x (1 - blend)  otherwise
+    
+    for(i = 0; i < 3; i++) {
+      if (rgb2[i] < 128)
+        rgb1[i] = (unsigned int)(.5 + (float)(2 * rgb1[i] * rgb2[i]) / 0xFF);
+      else 
+        rgb1[i] = 0xFF -
+          (unsigned int)((float)(2 * (0xFF - rgb1[i]) * (0xFF - rgb2[i]))
+                         / 0xFF
+                         + .5);
+    }
+    break;
+    
+  case DIFFERENCE:
+    // R = | base - blend |
+    for(i = 0; i < 3; i++) {
+      rgb1[i] = rgb1[i] < rgb2[i] ? rgb2[i] - rgb1[i] : rgb1[i] - rgb2[i];
+    }
+    break;
+    
+  case EXCLUSION:
+    // R = 1/2 - 2 x (base - 1/2) x (blend - 1/2)
+    for(i = 0; i < 3; i++) {
+      rgb1[i] = (127.5 - (2 * ((float)rgb1[i] - 127.5) * ((float)rgb2[i] -
+    127.5)) / 256) + .5;
+    }
+
+    break;
+    
+  case AVERAGE:
+    // R = ( base + blend ) / 2
+    for(i = 0; i < 3; i++) {
+      rgb1[i] = ((float)(rgb1[i] + rgb2[i]) * .5 + .5);
+    }
+    break;
+    
+  case NEGATION:
+    // TODO: Doesn't work; no documentation found.
+    for(i = 0; i < 3; i++) {
+      rgb1[i] = rgb1[i] < rgb2[i] ? rgb2[i] - rgb1[i] : rgb1[i] - rgb2[i];
+    }
+
+    break;
+  }
+  setRGB(rgb1[0], rgb1[1], rgb1[2]);
+  
 }
 
 void Color::setAlpha(float alpha) {
@@ -717,6 +827,17 @@ void Color::loadFunctions(FunctionLibrary& lib) {
   lib.push("mix", "CCP?", &Color::_mix);
   lib.push("tint", "CP?", &Color::tint);
   lib.push("shade", "CP?", &Color::shade);
+  lib.push("greyscale", "C", &Color::greyscale);
+  lib.push("contrast", "CC?C?P?", &Color::contrast);
+  lib.push("multiply", "CC", &Color::_multiply);
+  lib.push("screen", "CC", &Color::screen);
+  lib.push("overlay", "CC", &Color::overlay);
+  lib.push("softlight", "CC", &Color::softlight);
+  lib.push("hardlight", "CC", &Color::hardlight);
+  lib.push("difference", "CC", &Color::difference);
+  lib.push("exclusion", "CC", &Color::exclusion);
+  lib.push("average", "CC", &Color::average);
+  lib.push("negation", "CC", &Color::negation);
 }
 
 Value* Color::_rgb(const vector<const Value*>& arguments) {
@@ -993,6 +1114,104 @@ Value* Color::shade(const vector<const Value*>& arguments) {
     weight = (float)(((const NumberValue*)arguments[1])->getValue() * .01);
 
   c->mix(*(const Color*)arguments[0], weight);
+  return c;
+}
+
+Value* Color::greyscale(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->desaturate(1);
+  return c;
+}
+
+Value* Color::contrast(const vector<const Value*>& arguments) {
+  const Color* compare = (const Color*)arguments[0];
+  const Color *dark, *light;
+  double threshold = 0.43;
+  Color black((unsigned int)0, (unsigned int)0, (unsigned int)0);
+  Color white((unsigned int)255, (unsigned int)255, (unsigned int)255);
+  float c_luma, d_luma, l_luma;
+  
+  if (arguments.size() > 1) 
+    dark = (const Color*)arguments[1];
+  else 
+    dark = &black;
+
+  if (arguments.size() > 2) 
+    light = (const Color*)arguments[2];
+  else 
+    light = &white;
+
+  if (arguments.size() > 3)
+    threshold = ((const NumberValue*)arguments[3])->getValue() * .01;
+  
+  c_luma = compare->getLuma();
+  d_luma = dark->getLuma();
+  l_luma = light->getLuma();
+
+  if (d_luma < l_luma) {
+    if (c_luma < d_luma + (l_luma - d_luma) * threshold) 
+      return new Color(*light);
+    else
+      return new Color(*dark);
+  } else {
+    if (c_luma < l_luma + (d_luma - l_luma) * threshold) 
+      return new Color(*dark);
+    else
+      return new Color(*light);
+  }
+}
+
+Value* Color::_multiply(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], MULTIPLY);
+  return c;
+}
+
+Value* Color::screen(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], SCREEN);
+  return c;
+}
+
+Value* Color::overlay(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], OVERLAY);
+  return c;
+}
+
+Value* Color::softlight(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], SOFTLIGHT);
+  return c;
+}
+
+Value* Color::hardlight(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], HARDLIGHT);
+  return c;
+}
+
+Value* Color::difference(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], DIFFERENCE);
+  return c;
+}
+
+Value* Color::exclusion(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], EXCLUSION);
+  return c;
+}
+
+Value* Color::average(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], AVERAGE);
+  return c;
+}
+
+Value* Color::negation(const vector<const Value*>& arguments) {
+  Color *c = new Color(*(const Color*)arguments[0]);
+  c->blend(*(const Color*)arguments[1], NEGATION);
   return c;
 }
 
