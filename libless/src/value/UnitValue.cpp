@@ -12,7 +12,7 @@ const char *UnitValue::getUnit() const {
   return tokens.front().c_str();
 }
 
-Value *UnitValue::add(const Value &v) const {
+Value *UnitValue::operator+(const Value &v) const {
   Token t;
   const StringValue *s;
   StringValue *ret;
@@ -22,53 +22,53 @@ Value *UnitValue::add(const Value &v) const {
     t = this->tokens.front();
     t.type = Token::STRING;
     ret = new StringValue(t, s->getQuotes());
-    ret->add(v);
+    ret->append(v);
     return ret;
   }
   throw new ValueException("Can't do math on unit types.", *this->getTokens());
 }
-Value *UnitValue::substract(const Value &v) const {
+Value *UnitValue::operator-(const Value &v) const {
   (void)v;
   throw new ValueException("Can't do math on unit types.", *this->getTokens());
 }
-Value *UnitValue::multiply(const Value &v) const {
+Value *UnitValue::operator*(const Value &v) const {
   (void)v;
   throw new ValueException("Can't do math on unit types.", *this->getTokens());
 }
-Value *UnitValue::divide(const Value &v) const {
+Value *UnitValue::operator/(const Value &v) const {
   (void)v;
   throw new ValueException("Can't do math on unit types.", *this->getTokens());
 }
 
-BooleanValue *UnitValue::lessThan(const Value &v) const {
+bool UnitValue::operator<(const Value &v) const {
   const UnitValue *u;
   const BooleanValue* b;
 
   if (v.type == UNIT) {
     u = static_cast<const UnitValue *>(&v);
-    return new BooleanValue(getUnit() < u->getUnit());
+    return (getUnit() < u->getUnit());
 
   } else if (v.type == BOOLEAN) {
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(b->getValue());
+    return (b->getValue());
 
   } else {
     throw new ValueException("You can only compare a unit with a *unit*.",
                              *this->getTokens());
   }
 }
-BooleanValue *UnitValue::equals(const Value &v) const {
+bool UnitValue::operator==(const Value &v) const {
   const UnitValue *u;
   const BooleanValue* b;
 
   if (v.type == UNIT) {
     u = static_cast<const UnitValue *>(&v);
-    return new BooleanValue(getUnit() == u->getUnit());
+    return (getUnit() == u->getUnit());
 
   } else if (v.type == BOOLEAN) {
     // any unit is falsy.
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(false == b->getValue());
+    return (false == b->getValue());
 
   } else {
     throw new ValueException("You can only compare a unit with a *unit*.",

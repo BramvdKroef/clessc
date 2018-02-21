@@ -97,17 +97,17 @@ void StringValue::append(const Value& v) {
   updateTokens();
 }
 
-Value* StringValue::add(const Value& v) const {
+Value* StringValue::operator+(const Value& v) const {
   StringValue* sv = new StringValue(*this);
   sv->append(v);
   return sv;
 }
 
-Value* StringValue::substract(const Value& v) const {
+Value* StringValue::operator-(const Value& v) const {
   (void)v;
   throw new ValueException("Can't substract from strings.", *this->getTokens());
 }
-Value* StringValue::multiply(const Value& v) const {
+Value* StringValue::operator*(const Value& v) const {
   std::string newstr;
   double i;
   const NumberValue* n;
@@ -125,38 +125,38 @@ Value* StringValue::multiply(const Value& v) const {
   return new StringValue(newstr, getQuotes());
 }
 
-Value* StringValue::divide(const Value& v) const {
+Value* StringValue::operator/(const Value& v) const {
   (void)v;
   throw new ValueException("Can't divide strings.", *this->getTokens());
 }
 
-BooleanValue* StringValue::equals(const Value& v) const {
+bool StringValue::operator==(const Value& v) const {
   const StringValue* s;
   const BooleanValue* b;
 
   if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
-    return new BooleanValue(getString() == s->getString());
+    return getString() == s->getString();
     
   } else if (v.type == BOOLEAN) {
     // any string is falsy.
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(false == b->getValue());
+    return false == b->getValue();
   } else {
     throw new ValueException("You can only compare a string with a *string*.",
                              *this->getTokens());
   }
 }
-BooleanValue* StringValue::lessThan(const Value& v) const {
+bool StringValue::operator<(const Value& v) const {
   const StringValue* s;
   const BooleanValue* b;
 
   if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
-    return new BooleanValue(getString() < s->getString());
+    return getString() < s->getString();
   } else if (v.type == BOOLEAN) {
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(b->getValue());
+    return b->getValue();
   } else {
     throw new ValueException("You can only compare a string with a *string*.",
                              *this->getTokens());

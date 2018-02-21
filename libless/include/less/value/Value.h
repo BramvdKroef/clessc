@@ -33,17 +33,20 @@ public:
 
   virtual const TokenList* getTokens() const;
 
-  virtual Value* add(const Value& v) const = 0;
-  virtual Value* substract(const Value& v) const = 0;
-  virtual Value* multiply(const Value& v) const = 0;
-  virtual Value* divide(const Value& v) const = 0;
+  virtual Value* operator+(const Value& v) const = 0;
+  virtual Value* operator-(const Value& v) const = 0;
+  virtual Value* operator*(const Value& v) const = 0;
+  virtual Value* operator/(const Value& v) const = 0;
 
-  virtual BooleanValue* lessThan(const Value& v) const;
-  virtual BooleanValue* equals(const Value& v) const;
+  virtual bool operator==(const Value& v) const;
+  virtual bool operator!=(const Value& v) const;
 
-  BooleanValue* greaterThan(const Value& v) const;
-  BooleanValue* lessThanEquals(const Value& v) const;
-  BooleanValue* greaterThanEquals(const Value& v) const;
+  virtual bool operator<(const Value& v) const;
+  virtual bool operator>(const Value& v) const;
+  virtual bool operator<=(const Value& v) const;
+  virtual bool operator>=(const Value& v) const;
+  
+
 
   static const char* typeToString(const Type& t);
   /**

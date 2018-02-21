@@ -135,13 +135,13 @@ public:
   
   virtual ~Color();
 
-  virtual Value* add(const Value& v) const;
-  virtual Value* substract(const Value& v) const;
-  virtual Value* multiply(const Value& v) const;
-  virtual Value* divide(const Value& v) const;
+  virtual Value* operator+(const Value& v) const;
+  virtual Value* operator-(const Value& v) const;
+  virtual Value* operator*(const Value& v) const;
+  virtual Value* operator/(const Value& v) const;
 
-  virtual BooleanValue* equals(const Value& v) const;
-  virtual BooleanValue* lessThan(const Value& v) const;
+  virtual bool operator==(const Value& v) const;
+  virtual bool operator<(const Value& v) const;
 
   
   void getHSL(float hsl[3]) const;

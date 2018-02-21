@@ -165,7 +165,6 @@ bool ValueProcessor::validateValue(TokenList::const_iterator &i,
   const Token *reference;
   Value *v;
   const BooleanValue trueVal(true);
-  Value *v2;
   bool ret;
 
   if (i == end)
@@ -182,11 +181,9 @@ bool ValueProcessor::validateValue(TokenList::const_iterator &i,
                              reference->source);
   }
 
-  v2 = v->equals(trueVal);
-  ret = ((BooleanValue *)v2)->getValue();
+  ret = (*v == trueVal);
 
   delete v;
-  delete v2;
 
   return ret;
 }
@@ -274,23 +271,23 @@ Value *ValueProcessor::processOperation(TokenList::const_iterator &i,
   }
 
   if (op == OP_ADD)
-    result = operand1.add(*operand2);
+    result = operand1 + *operand2;
   else if (op == OP_SUBSTRACT)
-    result = operand1.substract(*operand2);
+    result = operand1 - *operand2;
   else if (op == OP_MULTIPLY)
-    result = operand1.multiply(*operand2);
+    result = operand1 * *operand2;
   else if (op == OP_DIVIDE)
-    result = operand1.divide(*operand2);
+    result = operand1 / *operand2;
   else if (op == OP_EQUALS)
-    result = operand1.equals(*operand2);
+    result = new BooleanValue(operand1 == *operand2);
   else if (op == OP_LESS)
-    result = operand1.lessThan(*operand2);
+    result = new BooleanValue(operand1 < *operand2);
   else if (op == OP_GREATER)
-    result = operand1.greaterThan(*operand2);
+    result = new BooleanValue(operand1 > *operand2);
   else if (op == OP_LESS_EQUALS)
-    result = operand1.lessThanEquals(*operand2);
+    result = new BooleanValue(operand1 <= *operand2);
   else if (op == OP_GREATER_EQUALS)
-    result = operand1.greaterThanEquals(*operand2);
+    result = new BooleanValue(operand1 >= *operand2);
 
   delete operand2;
   result->setLocation(*opToken);
@@ -738,7 +735,7 @@ Value *ValueProcessor::processNegative(TokenList::const_iterator &i,
   }
 
   zero = new NumberValue(t_zero);
-  ret = zero->substract(*constant);
+  ret = *zero - *constant;
 
   ret->setLocation(minus);
 

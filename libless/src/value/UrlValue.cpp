@@ -64,52 +64,52 @@ std::string UrlValue::getRelativePath() const {
   return relative_path;
 }
 
-Value* UrlValue::add(const Value& v) const {
+Value* UrlValue::operator+(const Value& v) const {
   (void)v;
   throw new ValueException("You can not add urls.", *this->getTokens());
 }
-Value* UrlValue::substract(const Value& v) const {
+Value* UrlValue::operator-(const Value& v) const {
   (void)v;
   throw new ValueException("You can not substract urls.", *this->getTokens());
 }
-Value* UrlValue::multiply(const Value& v) const {
+Value* UrlValue::operator*(const Value& v) const {
   (void)v;
   throw new ValueException("You can not multiply urls.", *this->getTokens());
 }
-Value* UrlValue::divide(const Value& v) const {
+Value* UrlValue::operator/(const Value& v) const {
   (void)v;
   throw new ValueException("You can not divide urls.", *this->getTokens());
 }
 
-BooleanValue* UrlValue::lessThan(const Value& v) const {
+bool UrlValue::operator<(const Value& v) const {
   const UrlValue* u;
   const BooleanValue* b;
 
   if (v.type == URL) {
     u = static_cast<const UrlValue*>(&v);
-    return new BooleanValue(path < u->getPath());
+    return (path < u->getPath());
 
   } else if (v.type == BOOLEAN) {
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(b->getValue());
+    return b->getValue();
 
   } else {
     throw new ValueException("You can only compare urls with urls.",
                              *this->getTokens());
   }
 }
-BooleanValue* UrlValue::equals(const Value& v) const {
+bool UrlValue::operator==(const Value& v) const {
   const UrlValue* u;
   const BooleanValue* b;
 
   if (v.type == URL) {
     u = static_cast<const UrlValue*>(&v);
-    return new BooleanValue(path == u->getPath());
+    return (path == u->getPath());
 
   } else if (v.type == BOOLEAN) {
     // any url is falsy.
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(false == b->getValue());
+    return (false == b->getValue());
   
   } else {
     throw new ValueException("You can only compare urls with urls.",

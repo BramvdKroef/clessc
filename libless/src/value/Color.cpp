@@ -620,7 +620,7 @@ const TokenList* Color::getTokens() const {
 }
 
 
-Value* Color::add(const Value& v) const {
+Value* Color::operator+(const Value& v) const {
   const Color* c;
   const NumberValue* n;
   const StringValue* s;
@@ -657,7 +657,7 @@ colors, numbers or strings.",
           *this->getTokens());
   }
 }
-Value* Color::substract(const Value& v) const {
+Value* Color::operator-(const Value& v) const {
   const Color* c;
   const NumberValue* n;
   unsigned int rgb[3];
@@ -687,7 +687,7 @@ a number from a color.",
   }
 }
 
-Value* Color::multiply(const Value& v) const {
+Value* Color::operator*(const Value& v) const {
   const Color* c;
   const NumberValue* n;
   unsigned int rgb[3];
@@ -716,7 +716,7 @@ color or a number.",
           *this->getTokens());
   }
 }
-Value* Color::divide(const Value& v) const {
+Value* Color::operator/(const Value& v) const {
   const Color* c;
   const NumberValue* n;
   unsigned int rgb[3];
@@ -747,7 +747,7 @@ color or a number.",
   }
 }
 
-BooleanValue* Color::equals(const Value& v) const {
+bool Color::operator==(const Value& v) const {
   const Color* c;
   const BooleanValue* b;
   unsigned int rgb[3];
@@ -757,14 +757,14 @@ BooleanValue* Color::equals(const Value& v) const {
       c = static_cast<const Color*>(&v);
       c->getRGB(rgb);
       
-      return new BooleanValue(this->rgb[RGB_RED] == rgb[RGB_RED] &&
-                              this->rgb[RGB_GREEN] == rgb[RGB_GREEN] &&
-                              this->rgb[RGB_BLUE] == rgb[RGB_BLUE]);
+      return (this->rgb[RGB_RED] == rgb[RGB_RED] &&
+              this->rgb[RGB_GREEN] == rgb[RGB_GREEN] &&
+              this->rgb[RGB_BLUE] == rgb[RGB_BLUE]);
 
   case BOOLEAN:
     // any color is falsy.
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(false == b->getValue());
+    return false == b->getValue();
     
   default:
       throw new ValueException("You can only compare a color with a *color*.",
@@ -772,7 +772,7 @@ BooleanValue* Color::equals(const Value& v) const {
   }
 }
 
-BooleanValue* Color::lessThan(const Value& v) const {
+bool Color::operator<(const Value& v) const {
   const Color* c;
   const BooleanValue* b;
   unsigned int rgb[3];
@@ -781,12 +781,12 @@ BooleanValue* Color::lessThan(const Value& v) const {
     case COLOR:
       c = static_cast<const Color*>(&v);
       c->getRGB(rgb);
-      return new BooleanValue(this->rgb[RGB_RED] < rgb[RGB_RED] ||
-                              this->rgb[RGB_GREEN] < rgb[RGB_GREEN] ||
-                              this->rgb[RGB_BLUE] < rgb[RGB_BLUE]);
+      return (this->rgb[RGB_RED] < rgb[RGB_RED] ||
+              this->rgb[RGB_GREEN] < rgb[RGB_GREEN] ||
+              this->rgb[RGB_BLUE] < rgb[RGB_BLUE]);
   case BOOLEAN:
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(b->getValue());
+    return b->getValue();
 
   default:
       throw new ValueException("You can only compare a color with a *color*.",

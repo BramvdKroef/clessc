@@ -108,7 +108,7 @@ double NumberValue::convert(const std::string& unit) const {
         *this->getTokens());
 }
 
-Value* NumberValue::add(const Value& v) const {
+Value* NumberValue::operator+(const Value& v) const {
   const NumberValue* n;
   const StringValue* s;
   NumberValue* nret;
@@ -128,7 +128,7 @@ Value* NumberValue::add(const Value& v) const {
     return nret;
 
   } else if (v.type == COLOR) {
-    return static_cast<const Color*>(&v)->add(*this);
+    return (*static_cast<const Color*>(&v)) + (*this);
 
   } else if (v.type == STRING) {
     s = static_cast<const StringValue*>(&v);
@@ -140,7 +140,7 @@ Value* NumberValue::add(const Value& v) const {
     throw new ValueException("Unsupported type.", *this->getTokens());
   }
 }
-Value* NumberValue::substract(const Value& v) const {
+Value* NumberValue::operator-(const Value& v) const {
   const NumberValue* n;
   NumberValue* ret;
 
@@ -164,7 +164,7 @@ Value* NumberValue::substract(const Value& v) const {
         "*number* from a number.",
         *this->getTokens());
 }
-Value* NumberValue::multiply(const Value& v) const {
+Value* NumberValue::operator*(const Value& v) const {
   const NumberValue* n;
   NumberValue* ret;
 
@@ -182,17 +182,17 @@ Value* NumberValue::multiply(const Value& v) const {
     return ret;
 
   } else if (v.type == COLOR) {
-    return static_cast<const Color*>(&v)->multiply(*this);
+    return (*static_cast<const Color*>(&v)) * (*this);
 
   } else if (v.type == STRING) {
-    return static_cast<const StringValue*>(&v)->multiply(*this);
+    return (*static_cast<const StringValue*>(&v)) * (*this);
 
   } else {
     throw new ValueException("Unsupported type.", *this->getTokens());
   }
 }
 
-Value* NumberValue::divide(const Value& v) const {
+Value* NumberValue::operator/(const Value& v) const {
   const NumberValue* n;
   NumberValue* ret;
 
@@ -216,17 +216,17 @@ Value* NumberValue::divide(const Value& v) const {
         *this->getTokens());
 }
 
-BooleanValue* NumberValue::equals(const Value& v) const {
+bool NumberValue::operator==(const Value& v) const {
   const NumberValue* n;
   const BooleanValue* b;
 
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
-    return new BooleanValue(convert(n->getUnit()) == n->getValue());
+    return convert(n->getUnit()) == n->getValue();
   } else if (v.type == BOOLEAN) {
     // any number is falsy.
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(false == b->getValue());
+    return (false == b->getValue());
   } else {
     throw new ValueException(
         "You can only compare a number "
@@ -235,16 +235,16 @@ BooleanValue* NumberValue::equals(const Value& v) const {
   }
 }
 
-BooleanValue* NumberValue::lessThan(const Value& v) const {
+bool NumberValue::operator<(const Value& v) const {
   const NumberValue* n;
   const BooleanValue* b;
 
   if (isNumber(v)) {
     n = static_cast<const NumberValue*>(&v);
-    return new BooleanValue(convert(n->getUnit()) < n->getValue());
+    return (convert(n->getUnit()) < n->getValue());
   } else if (v.type == BOOLEAN) {
     b = static_cast<const BooleanValue*>(&v);
-    return new BooleanValue(b->getValue());
+    return b->getValue();
   } else {
     throw new ValueException(
         "You can only compare a number "

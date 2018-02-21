@@ -16,52 +16,28 @@ const TokenList* Value::getTokens() const {
   return &tokens;
 }
 
-BooleanValue* Value::lessThan(const Value& v) const {
-  return new BooleanValue(this->type < v.type || (this->type == v.type &&
-                                                  getTokens() < v.getTokens()));
+bool Value::operator==(const Value& v) const {
+  return this->type == v.type && getTokens() == v.getTokens();
+}
+bool Value::operator!=(const Value& v) const {
+  return !(*this == v);
 }
 
-BooleanValue* Value::equals(const Value& v) const {
-  return new BooleanValue(this->type == v.type && getTokens() == v.getTokens());
+
+bool Value::operator<(const Value& v) const {
+  return this->type < v.type || (this->type == v.type &&
+                                 getTokens() < v.getTokens());
+}
+bool Value::operator>(const Value& v) const {
+  return  !(*this == v || *this < v);
+}
+bool Value::operator<=(const Value& v) const {
+  return (*this == v || *this < v);
+}
+bool Value::operator>=(const Value& v) const {
+  return !(*this < v);
 }
 
-BooleanValue* Value::greaterThan(const Value& v) const {
-  BooleanValue* ret = this->equals(v);
-
-  if (ret->getValue()) {
-    ret->setValue(false);
-    return ret;
-  }
-  delete ret;
-
-  ret = this->lessThan(v);
-  ret->setValue(!ret->getValue());
-
-  return ret;
-}
-BooleanValue* Value::lessThanEquals(const Value& v) const {
-  BooleanValue* ret = this->equals(v);
-
-  if (ret->getValue())
-    return ret;
-
-  delete ret;
-
-  ret = this->lessThan(v);
-  return ret;
-}
-BooleanValue* Value::greaterThanEquals(const Value& v) const {
-  BooleanValue* ret = this->equals(v);
-
-  if (ret->getValue())
-    return ret;
-
-  delete ret;
-
-  ret = this->lessThan(v);
-  ret->setValue(!ret->getValue());
-  return ret;
-}
 
 const char* Value::typeToString(const Type& t) {
   switch (t) {
