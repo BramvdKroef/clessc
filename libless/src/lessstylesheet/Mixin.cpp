@@ -4,10 +4,10 @@
 #include "less/lessstylesheet/MixinException.h"
 
 Mixin::Mixin(const TokenList &name, const LessStylesheet &parent)
-  : name(name), lessStylesheet(&parent), lessRuleset(NULL), important(false){
+  : lessStylesheet(&parent), lessRuleset(NULL), important(false), name(name) {
 }
 Mixin::Mixin(const TokenList &name, const LessRuleset &parent)
-  : name(name), lessStylesheet(NULL), lessRuleset(&parent), important(false){
+  : lessStylesheet(NULL), lessRuleset(&parent), important(false), name(name) {
 }
 
 Mixin::~Mixin() {
@@ -96,4 +96,5 @@ void Mixin::process(Ruleset &r, void* context) const {
 }
 
 void Mixin::write(CssWriter &writer) const {
+  (void)writer;
 }

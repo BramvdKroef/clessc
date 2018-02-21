@@ -15,11 +15,13 @@ const Token &CssComment::getComment() const {
 }
 
 void CssComment::process(Ruleset &r, void* context) const {
+  (void)context;
   CssComment *c = r.createComment();
   c->setComment(comment);
 }
 
 void CssComment::process(Stylesheet &s, void* context) const {
+  (void)context;
   CssComment *c = s.createComment();
   c->setComment(comment);
 }

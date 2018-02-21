@@ -17,7 +17,9 @@ void LessAtRule::process(Stylesheet &s, void* context) const {
 
 void LessAtRule::process(Ruleset &r, void* context) const {
   // Can't add @-rules to rulesets so ignore the statement.
-
+  (void)r;
+  (void)context;
 }
 void LessAtRule::write(CssWriter &writer) const {
+  (void)writer;
 }

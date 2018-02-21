@@ -69,7 +69,7 @@ void Color::convert_hsv_rgb(const float hsv[3], unsigned int rgb[3]) const {
   float c = hsv[HSV_VALUE] * hsv[HSV_SATURATION];
   float m = hsv[HSV_VALUE] - c;
 
-  convert_hcm_rgb(hsl[HSL_HUE], c, m, rgb);
+  convert_hcm_rgb(hsv[HSV_HUE], c, m, rgb);
 }
 
 float Color::convert_rgb_hue(const float rgb[3], float chroma,
@@ -204,7 +204,8 @@ Color::Color(bool _hsv, float hue, float saturation, float value)
 
 Color::Color(bool _hsv, float hue, float saturation, float value, float alpha)
   : Value() {
-
+  (void)_hsv;
+  
   type = COLOR;
   color_type = HSV;
   hsv[HSV_HUE] = std::fmod(hue, 360);
@@ -256,12 +257,16 @@ bool Color::parseHash(const char* hash) {
   switch (strlen(hash)) {
   case 5:
     alpha = 0;
+    len = 1;
+    break;
   case 4:
     len = 1;
     break;
     
   case 9:
     alpha = 0;
+    len = 2;
+    break;
   case 7:
     len = 2;
     break;
@@ -423,7 +428,6 @@ void Color::blend(const Color &color, blendtype blend) {
   getRGB(rgb1);
   color.getRGB(rgb2);
   int i;
-  float tmp;
 
   switch(blend) {
   case MULTIPLY:
@@ -735,6 +739,7 @@ Value* Color::operator/(const Value& v) const {
     case PERCENTAGE:
     case DIMENSION:
       n = static_cast<const NumberValue*>(&v);
+      cret = new Color(*this);
       cret->multiplyRGB((float)1 / n->getValue(),
                         (float)1 / n->getValue(),
                         (float)1 / n->getValue());

@@ -25,6 +25,8 @@ const TokenList &AtRule::getRule() const {
 }
 
 void AtRule::process(Stylesheet &s, void* context) const {
+  (void)context;
+  
   AtRule *target = s.createAtRule(keyword);
   target->setRule(rule);
 }

@@ -19,7 +19,7 @@ StringValue::StringValue(const std::string& str, bool quotes) {
   setString(token);
 }
 
-StringValue::StringValue(const StringValue& s) {
+StringValue::StringValue(const StringValue& s) : Value() {
   Token token(s.getString(), Token::STRING, 0, 0, "generated");
 
   type = Value::STRING;

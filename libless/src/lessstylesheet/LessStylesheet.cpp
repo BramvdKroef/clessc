@@ -105,7 +105,6 @@ void LessStylesheet::process(Stylesheet& s, void* context) const {
   std::list<Ruleset*>::const_iterator r_it;
   std::list<Extension>::iterator e_it;
   std::list<Closure*> closureScope;
-  Selector* selector;
 
   ((ProcessingContext*)context)->setLessStylesheet(*this);
   ((ProcessingContext*)context)->pushExtensionScope(extensions);

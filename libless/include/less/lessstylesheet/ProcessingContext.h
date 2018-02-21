@@ -36,6 +36,7 @@ private:
   VariableMap base_variables;
 public:
   ProcessingContext();
+  virtual ~ProcessingContext();
 
   void setLessStylesheet(const LessStylesheet &stylesheet);
   const LessStylesheet *getLessStylesheet() const;

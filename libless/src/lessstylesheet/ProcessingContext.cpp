@@ -7,6 +7,8 @@ ProcessingContext::ProcessingContext() {
   stack = NULL;
   contextStylesheet = NULL;
 }
+ProcessingContext::~ProcessingContext() {
+}
 
 void ProcessingContext::setLessStylesheet(const LessStylesheet &stylesheet) {
   contextStylesheet = &stylesheet;

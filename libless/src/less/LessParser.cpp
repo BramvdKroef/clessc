@@ -300,7 +300,6 @@ bool LessParser::parsePropertyVariable(TokenList &selector) {
 bool LessParser::parseRulesetStatement(LessRuleset &ruleset) {
   TokenList tokens;
   size_t property_i;
-  Mixin* mixin;
 
   if (parseComment(ruleset))
     return true;

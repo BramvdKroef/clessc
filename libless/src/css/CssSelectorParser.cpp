@@ -20,6 +20,7 @@ bool CssSelectorParser::parse(TokenList& tokens,
     if (begin != tokens.end())
       begin++;
   }
+  return true;
 }
 
 TokenList::const_iterator CssSelectorParser::findComma(TokenList &tokens,

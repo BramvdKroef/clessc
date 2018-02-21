@@ -64,7 +64,7 @@ NumberValue::NumberValue(double value,
   tokens.front() = stm.str();
 }
 
-NumberValue::NumberValue(const NumberValue& n) {
+NumberValue::NumberValue(const NumberValue& n) : Value() {
   tokens.push_back(n.getTokens()->front());
   this->type = n.type;
 }

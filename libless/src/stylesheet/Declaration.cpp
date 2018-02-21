@@ -34,6 +34,7 @@ const TokenList &Declaration::getValue() const {
 }
 
 void Declaration::process(Ruleset &r, void* context) const {
+  (void)context;
   Declaration *d = r.createDeclaration();
   d->setProperty(property);
   d->setValue(value);

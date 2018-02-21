@@ -3,10 +3,10 @@
 LessException::LessException(unsigned int line,
                              unsigned int column,
                              std::string source) :
-  line(line), column(column), source(source) {
+  source(source), line(line), column(column) {
 }
 LessException::LessException(const Token& token) :
-  line(token.line), column(token.column), source(token.source) {
+  source(token.source), line(token.line), column(token.column) {
 }
 
 

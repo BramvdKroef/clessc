@@ -86,7 +86,7 @@ class CssTokenizer {
 public:
   CssTokenizer(istream& in, const char* source);
 
-  ~CssTokenizer();
+  virtual ~CssTokenizer();
 
   Token::Type readNextToken();
 
