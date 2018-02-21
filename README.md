@@ -126,7 +126,7 @@ status:
      match `[type=identifier]`)
    * Extend `all`: yes
    * Attached to interpolated selector: no
-   * Match only inside `@media`: no
+   * Match only inside `@media`: yes
   
  * Functions
    * `color`: yes
@@ -176,21 +176,21 @@ status:
    * `rgba`: yes
    * `argb`: yes
    * `hsl`: yes
-   * `hsla`: no
-   * `hsv`: no
-   * `hsva`: no
+   * `hsla`: yes
+   * `hsv`: yes
+   * `hsva`: yes
    * `hue`: yes
    * `saturation`: yes
    * `lightness`: yes
-   * `hsvue`: no
-   * `hsvsaturation`: no
-   * `hsvvalue`: no
+   * `hsvue`: yes
+   * `hsvsaturation`: yes
+   * `hsvvalue`: yes
    * `red`: yes
    * `green`: yes
    * `blue`: yes
    * `alpha`: yes
-   * `luma`: no
-   * `luminance`: no
+   * `luma`: yes
+   * `luminance`: yes
    * `saturate`: yes
    * `desaturate`: yes
    * `lighten`: yes
@@ -199,17 +199,17 @@ status:
    * `fadeout`: yes
    * `fade`: yes
    * `spin`: yes
-   * `mix`: no
-   * `tint`: no
-   * `shade`: no
-   * `greyscale`: no
-   * `contrast`: no
-   * `multiply`: no
-   * `screen`: no
-   * `overlay`: no
+   * `mix`: yes
+   * `tint`: yes
+   * `shade`: yes
+   * `greyscale`: yes
+   * `contrast`: yes
+   * `multiply`: yes
+   * `screen`: yes
+   * `overlay`: yes
    * `softlight`: no
-   * `hardlight`: no
-   * `difference`: no
-   * `exclusion`: no
-   * `average`: no
+   * `hardlight`: yes
+   * `difference`: yes
+   * `exclusion`: yes
+   * `average`: yes
    * `negation`: no
