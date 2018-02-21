@@ -310,6 +310,16 @@ bool LessParser::parseRulesetStatement(LessRuleset &ruleset) {
   while (parseProperty(tokens) || parsePropertyVariable(tokens)) {
   }
 
+  // merge properties have a '+' or '+_' suffix
+  if (tokenizer->getToken() == "+") {
+    tokens.push_back(tokenizer->getToken());
+    tokenizer->readNextToken();
+    if (tokenizer->getToken() == "_") {
+      tokens.push_back(tokenizer->getToken());
+      tokenizer->readNextToken();
+    }
+  }
+
   property_i = tokens.size();
 
   parseWhitespace(tokens);

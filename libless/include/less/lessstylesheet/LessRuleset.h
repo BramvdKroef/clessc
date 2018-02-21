@@ -59,6 +59,8 @@ protected:
             Ruleset* ruleset,
             Stylesheet* stylesheet,
             bool defaultVal = false) const;
+
+  void mergeDeclarations(Ruleset &ruleset, Declaration* merge = NULL) const;
 public:
   LessRuleset(LessSelector &selector,
               const LessRuleset& parent);

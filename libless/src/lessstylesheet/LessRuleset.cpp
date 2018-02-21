@@ -233,6 +233,8 @@ void LessRuleset::process(Stylesheet& s,
   context.pushMixinCall(*this, true);
   processStatements(*target, &context);
   context.popMixinCall();
+
+  mergeDeclarations(*target);
 }
 
 void LessRuleset::processStatements(Ruleset& target,
@@ -442,4 +444,46 @@ bool LessRuleset::putArguments(MixinArguments& args, VariableMap& scope) const {
 
   scope.insert(pair<std::string, TokenList>("@arguments", argsCombined));
   return true;
+}
+
+void LessRuleset::mergeDeclarations(Ruleset &ruleset, Declaration* merge) const {
+  const std::list<Declaration*> *declarations = &ruleset.getDeclarations();
+  std::list<Declaration*>::const_iterator it, del;
+  Token* t;
+  bool space;
+
+  for (it = declarations->begin(); it != declarations->end(); ) {
+    t = &(*it)->getProperty();
+    
+    if ((t->size() > 0 && t->at(t->size() - 1) == '+') ||
+        (t->size() > 1 && t->compare(t->size() - 2, 2, "+_") == 0)) {
+
+      space = t->at(t->size() - 1) == '_';
+      
+      if (merge == NULL) {
+
+        t->resize(t->size() - (space ? 2 : 1));
+        mergeDeclarations(ruleset, *it);
+        it++;
+        
+      } else if (t->compare(0,
+                            merge->getProperty().size(),
+                            merge->getProperty()) == 0) {
+        if (space) {
+          merge->getValue().push_back(Token::BUILTIN_SPACE);
+        } else {
+          merge->getValue().push_back(Token::BUILTIN_COMMA);
+          merge->getValue().push_back(Token::BUILTIN_SPACE);
+        }
+        merge->getValue().insert(merge->getValue().end(),
+                                 (*it)->getValue().begin(),
+                                 (*it)->getValue().end());
+        del = it;
+        it++;
+        ruleset.deleteDeclaration(**del);
+      } else
+        it++;
+    } else
+      it++;
+  }
 }
