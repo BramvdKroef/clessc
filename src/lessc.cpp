@@ -301,7 +301,8 @@ int main(int argc, char * argv[]){
     {"lint",                no_argument,       0, 'l'},
     {0,0,0,0}
   };
-  
+
+  includePaths.push_back("");
   try {
     int c, option_index;
 
