@@ -258,10 +258,9 @@ void writeDependencies(const char* output, const std::list<const char*> &sources
   cout << output << ":";
 
   for (i = sources.begin(); i != sources.end(); i++) {
-    if (*i != output) {
-      cout << " ";
-      cout << (*i);
-    }
+    cout << " ";
+    cout << (*i);
+    cout << "\\\n";
   }
   cout << endl;
 }
@@ -400,7 +399,7 @@ output file." << endl;
     
     if (parseInput(stylesheet, *in, source, sources, includePaths)) {
       if (depends) {
-        writeDependencies(source, sources);
+        writeDependencies(output, sources);
         return EXIT_SUCCESS;
       }
 
