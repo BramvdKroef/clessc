@@ -74,7 +74,7 @@ void Color::convert_hsv_rgb(const float hsv[3], unsigned int rgb[3]) const {
 
 float Color::convert_rgb_hue(const float rgb[3], float chroma,
                              float max) const {
-  float hue;
+  float hue = 0;
   if (chroma == 0) {
     hue = 0;
     
