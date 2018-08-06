@@ -39,7 +39,7 @@ void ValueProcessor::processValue(TokenList &value,
       itmp = i2;
       v = processStatement(itmp, end, scope);
       i2 = itmp;
-    } catch (ValueException *e) {
+    } catch (ValueException*) {
       v = NULL;
     }
 

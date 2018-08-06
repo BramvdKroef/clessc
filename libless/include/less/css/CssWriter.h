@@ -30,7 +30,7 @@ public:
   CssWriter(std::ostream &out);
   CssWriter(std::ostream &out, SourceMapWriter &sourcemap);
 
-  const char *rootpath = NULL;
+  const char *rootpath;
 
   unsigned int getColumn();
 

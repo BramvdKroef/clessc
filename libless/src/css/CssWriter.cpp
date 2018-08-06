@@ -4,6 +4,7 @@
 CssWriter::CssWriter() {
   out = NULL;
   column = 0;
+  rootpath = NULL;
   sourcemap = NULL;
 }
 
