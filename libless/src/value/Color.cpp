@@ -46,7 +46,7 @@ const int Color::conversion_matrices[6][3][2] =
 void Color::convert_hcm_rgb(float hue, float chroma, float match,
                             unsigned int rgb[3]) const {
   float h = hue / 60;
-  float x = chroma * (1 - abs(std::fmod(h, 2.0) - 1));
+  float x = chroma * (1 - abs(std::fmod(h, 2.0f) - 1));
 
   const int (* matrix)[2] = conversion_matrices[(int)h];
   
@@ -159,13 +159,6 @@ Color::Color(const Token &name, const char* hash) : Value() {
 }
 
 
-Color::Color() : Color((unsigned int)0,(unsigned int)0,(unsigned int)0) {
-}
-
-Color::Color(unsigned int red, unsigned int green, unsigned int blue)
-  : Color(red, green, blue, 1) {
-}
-
 Color::Color(unsigned int red,
              unsigned int green,
              unsigned int blue,
@@ -177,10 +170,6 @@ Color::Color(unsigned int red,
   rgb[RGB_GREEN] = green;
   rgb[RGB_BLUE] = blue;
   this->alpha = alpha;
-}
-
-Color::Color(float hue, float saturation, float lightness)
-  : Color(hue, saturation, lightness, 1) {
 }
 
 Color::Color(float hue, float saturation, float lightness, float alpha)
@@ -198,9 +187,6 @@ Color::Color(float hue, float saturation, float lightness, float alpha)
   convert_hsl_rgb(hsl, rgb);
 }
 
-Color::Color(bool _hsv, float hue, float saturation, float value)
-  : Color(_hsv, hue, saturation, value, 1) {
-}
 
 Color::Color(bool _hsv, float hue, float saturation, float value, float alpha)
   : Value() {
@@ -800,154 +786,160 @@ bool Color::operator<(const Value& v) const {
 }
 
 
-std::map<string,const char*> Color::ColorNames = {
-  {"black",		"#000000"},
-  {"silver",		"#c0c0c0"},
-  {"gray",		"#808080"},
-  {"white",		"#ffffff"},
-  {"maroon", 		"#800000"},
-  {"red", 		"#ff0000"},
-  {"purple", 		"#800080"},
-  {"fuchsia",		"#ff00ff"},
-  {"green", 		"#008000"},
-  {"lime", 		"#00ff00"},
-  {"olive", 		"#808000"},
-  {"yellow", 		"#ffff00"},
-  {"navy", 		"#000080"},
-  {"blue", 		"#0000ff"},
-  {"teal", 		"#008080"},
-  {"aqua", 		"#00ffff"},
-  {"orange", 		"#ffa500"},
-  {"aliceblue", 	"#f0f8ff"},
-  {"antiquewhite", 	"#faebd7"},
-  {"aquamarine", 	"#7fffd4"},
-  {"azure", 		"#f0ffff"},
-  {"beige", 		"#f5f5dc"},
-  {"bisque", 		"#ffe4c4"},
-  {"blanchedalmond", 	"#ffebcd"},
-  {"blueviolet", 	"#8a2be2"},
-  {"brown", 		"#a52a2a"},
-  {"burlywood", 	"#deb887"},
-  {"cadetblue", 	"#5f9ea0"},
-  {"chartreuse", 	"#7fff00"},
-  {"chocolate", 	"#d2691e"},
-  {"coral", 		"#ff7f50"},
-  {"cornflowerblue", 	"#6495ed"},
-  {"cornsilk", 	"#fff8dc"},
-  {"crimson", 	"#dc143c"},
-  {"cyan", 		"#00ffff"},
-  {"darkblue", 	"#00008b"},
-  {"darkcyan", 	"#008b8b"},
-  {"darkgoldenrod", 	"#b8860b"},
-  {"darkgray", 	"#a9a9a9"},
-  {"darkgreen", 	"#006400"},
-  {"darkgrey", 	"#a9a9a9"},
-  {"darkkhaki", 	"#bdb76b"},
-  {"darkmagenta", 	"#8b008b"},
-  {"darkolivegreen", 	"#556b2f"},
-  {"darkorange", 	"#ff8c00"},
-  {"darkorchid", 	"#9932cc"},
-  {"darkred", 	"#8b0000"},
-  {"darksalmon", 	"#e9967a"},
-  {"darkseagreen", 	"#8fbc8f"},
-  {"darkslateblue", 	"#483d8b"},
-  {"darkslategray", 	"#2f4f4f"},
-  {"darkslategrey", 	"#2f4f4f"},
-  {"darkturquoise", 	"#00ced1"},
-  {"darkviolet", 	"#9400d3"},
-  {"deeppink", 	"#ff1493"},
-  {"deepskyblue", 	"#00bfff"},
-  {"dimgray", 	"#696969"},
-  {"dimgrey", 	"#696969"},
-  {"dodgerblue", 	"#1e90ff"},
-  {"firebrick", 	"#b22222"},
-  {"floralwhite", 	"#fffaf0"},
-  {"forestgreen", 	"#228b22"},
-  {"gainsboro", 	"#dcdcdc"},
-  {"ghostwhite", 	"#f8f8ff"},
-  {"gold", 		"#ffd700"},
-  {"goldenrod", 	"#daa520"},
-  {"greenyellow", 	"#adff2f"},
-  {"grey", 		"#808080"},
-  {"honeydew", 	"#f0fff0"},
-  {"hotpink", 	"#ff69b4"},
-  {"indianred", 	"#cd5c5c"},
-  {"indigo", 		"#4b0082"},
-  {"ivory", 		"#fffff0"},
-  {"khaki", 		"#f0e68c"},
-  {"lavender", 	"#e6e6fa"},
-  {"lavenderblush", 	"#fff0f5"},
-  {"lawngreen", 	"#7cfc00"},
-  {"lemonchiffon", 	"#fffacd"},
-  {"lightblue", 	"#add8e6"},
-  {"lightcoral", 	"#f08080"},
-  {"lightcyan", 	"#e0ffff"},
-  {"lightgoldenrodyellow", 	"#fafad2"},
-  {"lightgray", 	"#d3d3d3"},
-  {"lightgreen", 	"#90ee90"},
-  {"lightgrey", 	"#d3d3d3"},
-  {"lightpink", 	"#ffb6c1"},
-  {"lightsalmon", 	"#ffa07a"},
-  {"lightseagreen", 	"#20b2aa"},
-  {"lightskyblue", 	"#87cefa"},
-  {"lightslategray", 	"#778899"},
-  {"lightslategrey", 	"#778899"},
-  {"lightsteelblue", 	"#b0c4de"},
-  {"lightyellow", 	"#ffffe0"},
-  {"limegreen", 	"#32cd32"},
-  {"linen", 		"#faf0e6"},
-  {"magenta", 	"#ff00ff"},
-  {"mediumaquamarine", 	"#66cdaa"},
-  {"mediumblue", 	"#0000cd"},
-  {"mediumorchid", 	"#ba55d3"},
-  {"mediumpurple", 	"#9370db"},
-  {"mediumseagreen", 	"#3cb371"},
-  {"mediumslateblue",	"#7b68ee"},
-  {"mediumspringgreen", 	"#00fa9a"},
-  {"mediumturquoise",	"#48d1cc"},
-  {"mediumvioletred",	"#c71585"},
-  {"midnightblue", 	"#191970"},
-  {"mintcream", 	"#f5fffa"},
-  {"mistyrose", 	"#ffe4e1"},
-  {"moccasin", 	"#ffe4b5"},
-  {"navajowhite", 	"#ffdead"},
-  {"oldlace", 	"#fdf5e6"},
-  {"olivedrab", 	"#6b8e23"},
-  {"orangered", 	"#ff4500"},
-  {"orchid", 		"#da70d6"},
-  {"palegoldenrod", 	"#eee8aa"},
-  {"palegreen", 	"#98fb98"},
-  {"paleturquoise", 	"#afeeee"},
-  {"palevioletred", 	"#db7093"},
-  {"papayawhip", 	"#ffefd5"},
-  {"peachpuff", 	"#ffdab9"},
-  {"peru", 		"#cd853f"},
-  {"pink", 		"#ffc0cb"},
-  {"plum", 		"#dda0dd"},
-  {"powderblue", 	"#b0e0e6"},
-  {"rosybrown", 	"#bc8f8f"},
-  {"royalblue", 	"#4169e1"},
-  {"saddlebrown", 	"#8b4513"},
-  {"salmon", 		"#fa8072"},
-  {"sandybrown", 	"#f4a460"},
-  {"seagreen", 		"#2e8b57"},
-  {"seashell", 		"#fff5ee"},
-  {"sienna", 		"#a0522d"},
-  {"skyblue", 		"#87ceeb"},
-  {"slateblue", 	"#6a5acd"},
-  {"slategray", 	"#708090"},
-  {"slategrey", 	"#708090"},
-  {"snow", 		"#fffafa"},
-  {"springgreen", 	"#00ff7f"},
-  {"steelblue", 	"#4682b4"},
-  {"tan", 		"#d2b48c"},
-  {"thistle", 		"#d8bfd8"},
-  {"tomato", 		"#ff6347"},
-  {"turquoise", 	"#40e0d0"},
-  {"violet", 		"#ee82ee"},
-  {"wheat", 		"#f5deb3"},
-  {"whitesmoke", 	"#f5f5f5"},
-  {"yellowgreen", 	"#9acd32"},
-  {"rebeccapurple", 	"#663399"},
-  {"transparent",	"#00000000"},
-};
+std::map<string,const char*> create_map_ColorNames()
+{
+	std::map<string,const char*> m;
+	m["black"] =		"#000000";
+	m["silver"] =		"#c0c0c0";
+	m["gray"] =		"#808080";
+	m["white"] =		"#ffffff";
+	m["maroon"] = 		"#800000";
+	m["red"] = 		"#ff0000";
+	m["purple"] = 		"#800080";
+	m["fuchsia"] =		"#ff00ff";
+	m["green"] = 		"#008000";
+	m["lime"] = 		"#00ff00";
+	m["olive"] = 		"#808000";
+	m["yellow"] = 		"#ffff00";
+	m["navy"] = 		"#000080";
+	m["blue"] = 		"#0000ff";
+	m["teal"] = 		"#008080";
+	m["aqua"] = 		"#00ffff";
+	m["orange"] = 		"#ffa500";
+	m["aliceblue"] = 	"#f0f8ff";
+	m["antiquewhite"] = 	"#faebd7";
+	m["aquamarine"] = 	"#7fffd4";
+	m["azure"] = 		"#f0ffff";
+	m["beige"] = 		"#f5f5dc";
+	m["bisque"] = 		"#ffe4c4";
+	m["blanchedalmond"] = 	"#ffebcd";
+	m["blueviolet"] = 	"#8a2be2";
+	m["brown"] = 		"#a52a2a";
+	m["burlywood"] = 	"#deb887";
+	m["cadetblue"] = 	"#5f9ea0";
+	m["chartreuse"] = 	"#7fff00";
+	m["chocolate"] = 	"#d2691e";
+	m["coral"] = 		"#ff7f50";
+	m["cornflowerblue"] = 	"#6495ed";
+	m["cornsilk"] = 	"#fff8dc";
+	m["crimson"] = 	"#dc143c";
+	m["cyan"] = 		"#00ffff";
+	m["darkblue"] = 	"#00008b";
+	m["darkcyan"] = 	"#008b8b";
+	m["darkgoldenrod"] = 	"#b8860b";
+	m["darkgray"] = 	"#a9a9a9";
+	m["darkgreen"] = 	"#006400";
+	m["darkgrey"] = 	"#a9a9a9";
+	m["darkkhaki"] = 	"#bdb76b";
+	m["darkmagenta"] = 	"#8b008b";
+	m["darkolivegreen"] = 	"#556b2f";
+	m["darkorange"] = 	"#ff8c00";
+	m["darkorchid"] = 	"#9932cc";
+	m["darkred"] = 	"#8b0000";
+	m["darksalmon"] = 	"#e9967a";
+	m["darkseagreen"] = 	"#8fbc8f";
+	m["darkslateblue"] = 	"#483d8b";
+	m["darkslategray"] = 	"#2f4f4f";
+	m["darkslategrey"] = 	"#2f4f4f";
+	m["darkturquoise"] = 	"#00ced1";
+	m["darkviolet"] = 	"#9400d3";
+	m["deeppink"] = 	"#ff1493";
+	m["deepskyblue"] = 	"#00bfff";
+	m["dimgray"] = 	"#696969";
+	m["dimgrey"] = 	"#696969";
+	m["dodgerblue"] = 	"#1e90ff";
+	m["firebrick"] = 	"#b22222";
+	m["floralwhite"] = 	"#fffaf0";
+	m["forestgreen"] = 	"#228b22";
+	m["gainsboro"] = 	"#dcdcdc";
+	m["ghostwhite"] = 	"#f8f8ff";
+	m["gold"] = 		"#ffd700";
+	m["goldenrod"] = 	"#daa520";
+	m["greenyellow"] = 	"#adff2f";
+	m["grey"] = 		"#808080";
+	m["honeydew"] = 	"#f0fff0";
+	m["hotpink"] = 	"#ff69b4";
+	m["indianred"] = 	"#cd5c5c";
+	m["indigo"] = 		"#4b0082";
+	m["ivory"] = 		"#fffff0";
+	m["khaki"] = 		"#f0e68c";
+	m["lavender"] = 	"#e6e6fa";
+	m["lavenderblush"] = 	"#fff0f5";
+	m["lawngreen"] = 	"#7cfc00";
+	m["lemonchiffon"] = 	"#fffacd";
+	m["lightblue"] = 	"#add8e6";
+	m["lightcoral"] = 	"#f08080";
+	m["lightcyan"] = 	"#e0ffff";
+	m["lightgoldenrodyellow"] = 	"#fafad2";
+	m["lightgray"] = 	"#d3d3d3";
+	m["lightgreen"] = 	"#90ee90";
+	m["lightgrey"] = 	"#d3d3d3";
+	m["lightpink"] = 	"#ffb6c1";
+	m["lightsalmon"] = 	"#ffa07a";
+	m["lightseagreen"] = 	"#20b2aa";
+	m["lightskyblue"] = 	"#87cefa";
+	m["lightslategray"] = 	"#778899";
+	m["lightslategrey"] = 	"#778899";
+	m["lightsteelblue"] = 	"#b0c4de";
+	m["lightyellow"] = 	"#ffffe0";
+	m["limegreen"] = 	"#32cd32";
+	m["linen"] = 		"#faf0e6";
+	m["magenta"] = 	"#ff00ff";
+	m["mediumaquamarine"] = 	"#66cdaa";
+	m["mediumblue"] = 	"#0000cd";
+	m["mediumorchid"] = 	"#ba55d3";
+	m["mediumpurple"] = 	"#9370db";
+	m["mediumseagreen"] = 	"#3cb371";
+	m["mediumslateblue"] =	"#7b68ee";
+	m["mediumspringgreen"] = 	"#00fa9a";
+	m["mediumturquoise"] =	"#48d1cc";
+	m["mediumvioletred"] =	"#c71585";
+	m["midnightblue"] = 	"#191970";
+	m["mintcream"] = 	"#f5fffa";
+	m["mistyrose"] = 	"#ffe4e1";
+	m["moccasin"] = 	"#ffe4b5";
+	m["navajowhite"] = 	"#ffdead";
+	m["oldlace"] = 	"#fdf5e6";
+	m["olivedrab"] = 	"#6b8e23";
+	m["orangered"] = 	"#ff4500";
+	m["orchid"] = 		"#da70d6";
+	m["palegoldenrod"] = 	"#eee8aa";
+	m["palegreen"] = 	"#98fb98";
+	m["paleturquoise"] = 	"#afeeee";
+	m["palevioletred"] = 	"#db7093";
+	m["papayawhip"] = 	"#ffefd5";
+	m["peachpuff"] = 	"#ffdab9";
+	m["peru"] = 		"#cd853f";
+	m["pink"] = 		"#ffc0cb";
+	m["plum"] = 		"#dda0dd";
+	m["powderblue"] = 	"#b0e0e6";
+	m["rosybrown"] = 	"#bc8f8f";
+	m["royalblue"] = 	"#4169e1";
+	m["saddlebrown"] = 	"#8b4513";
+	m["salmon"] = 		"#fa8072";
+	m["sandybrown"] = 	"#f4a460";
+	m["seagreen"] = 		"#2e8b57";
+	m["seashell"] = 		"#fff5ee";
+	m["sienna"] = 		"#a0522d";
+	m["skyblue"] = 		"#87ceeb";
+	m["slateblue"] = 	"#6a5acd";
+	m["slategray"] = 	"#708090";
+	m["slategrey"] = 	"#708090";
+	m["snow"] = 		"#fffafa";
+	m["springgreen"] = 	"#00ff7f";
+	m["steelblue"] = 	"#4682b4";
+	m["tan"] = 		"#d2b48c";
+	m["thistle"] = 		"#d8bfd8";
+	m["tomato"] = 		"#ff6347";
+	m["turquoise"] = 	"#40e0d0";
+	m["violet"] = 		"#ee82ee";
+	m["wheat"] = 		"#f5deb3";
+	m["whitesmoke"] = 	"#f5f5f5";
+	m["yellowgreen"] = 	"#9acd32";
+	m["rebeccapurple"] = 	"#663399";
+	m["transparent"] =	"#00000000";
+
+	return m;
+}
+
+std::map<string,const char*> Color::ColorNames = create_map_ColorNames();

@@ -112,15 +112,11 @@ public:
     MULTIPLY, SCREEN, OVERLAY, SOFTLIGHT, HARDLIGHT, DIFFERENCE, EXCLUSION,
     AVERAGE, NEGATION};
   
-  Color();
   Color(const Token &token);
   Color(const Token &name, const char* hash);
-  Color(unsigned int red, unsigned int green, unsigned int blue);
-  Color(unsigned int red, unsigned int green, unsigned int blue, float alpha);
-  Color(float hue, float saturation, float lightness);
-  Color(float hue, float saturation, float lightness, float alpha);
-  Color(bool hsv, float hue, float saturation, float value);
-  Color(bool hsv, float hue, float saturation, float value, float alpha);
+  Color(unsigned int red=0, unsigned int green=0, unsigned int blue=0, float alpha=1.f);
+  Color(float hue, float saturation, float lightness, float alpha=1.f);
+  Color(bool hsv, float hue, float saturation, float value, float alpha=1.f);
   Color(const Color &color);
 
   static std::map<string,const char*> ColorNames;

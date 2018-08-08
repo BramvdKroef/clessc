@@ -6,6 +6,13 @@
 #include "less/value/Color.h"
 #include <regex>
 
+#if _MSC_VER < 1900 
+namespace std
+{
+	using namespace tr1;
+}
+#endif
+
 void StringFunctions::loadFunctions(FunctionLibrary& lib) {
   lib.push("escape", "S", &StringFunctions::escape);
   lib.push("e", "S", &StringFunctions::e);

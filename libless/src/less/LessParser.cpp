@@ -1,6 +1,5 @@
 #include "less/less/LessParser.h"
 
-#include <libgen.h>
 
 /**
  * Only allows LessStylesheets
