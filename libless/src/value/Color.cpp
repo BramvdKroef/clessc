@@ -430,7 +430,7 @@ void Color::blend(const Color &color, blendtype blend) {
   int i;
 
   switch(blend) {
-  case MULTIPLY:
+  case BT_MULTIPLY:
 
     // base x blend
     for(i = 0; i < 3; i++) {
@@ -438,7 +438,7 @@ void Color::blend(const Color &color, blendtype blend) {
     }
     break;
     
-  case SCREEN:
+  case BT_SCREEN:
     // 1 - (1 - base) x (1 - blend)
     for(i = 0; i < 3; i++) {
       rgb1[i] = 0xFF -
@@ -448,7 +448,7 @@ void Color::blend(const Color &color, blendtype blend) {
     }
     break;
     
-  case OVERLAY:
+  case BT_OVERLAY:
     // 2 x base x blend                  if base < 1/2
     // 1 - 2 x (1 - base) x (1 - blend)  otherwise
     
@@ -463,7 +463,7 @@ void Color::blend(const Color &color, blendtype blend) {
     }
     break;
     
-  case SOFTLIGHT:
+  case BT_SOFTLIGHT:
     // TODO: doesn't work yet.
     // base x blend                  if base < 1/2
     // 1 - 2 x (1 - base) x (1 - blend)  otherwise
@@ -480,7 +480,7 @@ void Color::blend(const Color &color, blendtype blend) {
     
     break;
     
-  case HARDLIGHT:
+  case BT_HARDLIGHT:
     // 2 x base x blend                  if blend < 1/2
     // 1 - 2 x (1 - base) x (1 - blend)  otherwise
     
@@ -495,14 +495,14 @@ void Color::blend(const Color &color, blendtype blend) {
     }
     break;
     
-  case DIFFERENCE:
+  case BT_DIFFERENCE:
     // R = | base - blend |
     for(i = 0; i < 3; i++) {
       rgb1[i] = rgb1[i] < rgb2[i] ? rgb2[i] - rgb1[i] : rgb1[i] - rgb2[i];
     }
     break;
     
-  case EXCLUSION:
+  case BT_EXCLUSION:
     // R = 1/2 - 2 x (base - 1/2) x (blend - 1/2)
     for(i = 0; i < 3; i++) {
       rgb1[i] = (127.5 - (2 * ((float)rgb1[i] - 127.5) * ((float)rgb2[i] -
@@ -511,14 +511,14 @@ void Color::blend(const Color &color, blendtype blend) {
 
     break;
     
-  case AVERAGE:
+  case BT_AVERAGE:
     // R = ( base + blend ) / 2
     for(i = 0; i < 3; i++) {
       rgb1[i] = ((float)(rgb1[i] + rgb2[i]) * .5 + .5);
     }
     break;
     
-  case NEGATION:
+  case BT_NEGATION:
     // TODO: Doesn't work; no documentation found.
     for(i = 0; i < 3; i++) {
       rgb1[i] = rgb1[i] < rgb2[i] ? rgb2[i] - rgb1[i] : rgb1[i] - rgb2[i];

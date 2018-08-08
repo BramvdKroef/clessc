@@ -373,54 +373,54 @@ Value* ColorFunctions::contrast(const vector<const Value*>& arguments) {
 
 Value* ColorFunctions::multiply(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::MULTIPLY);
+  c->blend(*(const Color*)arguments[1], Color::BT_MULTIPLY);
   return c;
 }
 
 Value* ColorFunctions::screen(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::SCREEN);
+  c->blend(*(const Color*)arguments[1], Color::BT_SCREEN);
   return c;
 }
 
 Value* ColorFunctions::overlay(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::OVERLAY);
+  c->blend(*(const Color*)arguments[1], Color::BT_OVERLAY);
   return c;
 }
 
 Value* ColorFunctions::softlight(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::SOFTLIGHT);
+  c->blend(*(const Color*)arguments[1], Color::BT_SOFTLIGHT);
   return c;
 }
 
 Value* ColorFunctions::hardlight(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::HARDLIGHT);
+  c->blend(*(const Color*)arguments[1], Color::BT_HARDLIGHT);
   return c;
 }
 
 Value* ColorFunctions::difference(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::DIFFERENCE);
+  c->blend(*(const Color*)arguments[1], Color::BT_DIFFERENCE);
   return c;
 }
 
 Value* ColorFunctions::exclusion(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::EXCLUSION);
+  c->blend(*(const Color*)arguments[1], Color::BT_EXCLUSION);
   return c;
 }
 
 Value* ColorFunctions::average(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::AVERAGE);
+  c->blend(*(const Color*)arguments[1], Color::BT_AVERAGE);
   return c;
 }
 
 Value* ColorFunctions::negation(const vector<const Value*>& arguments) {
   Color *c = new Color(*(const Color*)arguments[0]);
-  c->blend(*(const Color*)arguments[1], Color::NEGATION);
+  c->blend(*(const Color*)arguments[1], Color::BT_NEGATION);
   return c;
 }
