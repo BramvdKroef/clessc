@@ -6,11 +6,13 @@
 #include "less/value/Color.h"
 #include <regex>
 
+#ifdef _MSC_VER
 #if _MSC_VER < 1900 
 namespace std
 {
 	using namespace tr1;
 }
+#endif
 #endif
 
 void StringFunctions::loadFunctions(FunctionLibrary& lib) {
