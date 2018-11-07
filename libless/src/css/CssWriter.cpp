@@ -84,7 +84,7 @@ void CssWriter::writeSelector(const Selector &selector) {
 
 void CssWriter::writeValue(const TokenList &value) {
   TokenList::const_iterator it = value.begin();
-  const Token *t;
+  const Token *t = nullptr;
 
   while (it != value.end() && (*it).type == Token::WHITESPACE) {
     it++;

@@ -658,7 +658,7 @@ Value* Color::operator-(const Value& v) const {
       c = static_cast<const Color*>(&v);
       c->getRGB(rgb);
       cret = new Color(*this);
-      cret->increaseRGB(-rgb[RGB_RED], -rgb[RGB_GREEN], -rgb[RGB_BLUE]);
+      cret->increaseRGB(-(int)rgb[RGB_RED], -(int)rgb[RGB_GREEN], -(int)rgb[RGB_BLUE]);
       return cret;
       
     case NUMBER:
